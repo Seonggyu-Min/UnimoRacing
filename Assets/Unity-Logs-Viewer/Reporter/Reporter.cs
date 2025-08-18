@@ -1,4 +1,4 @@
-#if UNITY_CHANGE1 || UNITY_CHANGE2 || UNITY_CHANGE3 || UNITY_CHANGE4
+﻿#if UNITY_CHANGE1 || UNITY_CHANGE2 || UNITY_CHANGE3 || UNITY_CHANGE4
 #warning UNITY_CHANGE has been set manually
 #elif UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
 #define UNITY_CHANGE1
@@ -73,8 +73,38 @@ public class Images
 
 public class Reporter : MonoBehaviour
 {
+    #region Custom Methods
 
-	public enum _LogType
+    private Vector2 downPos = Vector2.zero;
+
+    public void Show()
+    {
+        if (!show)
+            doShow();
+    }
+
+    public void Hide()
+    {
+        if (!show) return;
+
+        show = false;
+        var gui = GetComponent<ReporterGUI>();
+        if (gui) DestroyImmediate(gui);
+
+        try { gameObject.SendMessage("OnHideReporter"); }
+        catch { /* ignore */ }
+    }
+
+    public void Toggle()
+    {
+        if (show) Hide();
+        else Show();
+    }
+
+    #endregion
+
+
+    public enum _LogType
 	{
 		Assert    = LogType.Assert,
 		Error     = LogType.Error,
@@ -1643,6 +1673,7 @@ public class Reporter : MonoBehaviour
 
 	}
 
+#if ENABLE_LEGACY_INPUT_MANAGER
 	List<Vector2> gestureDetector = new List<Vector2>();
 	Vector2 gestureSum = Vector2.zero;
 	float gestureLength = 0;
@@ -1800,8 +1831,16 @@ public class Reporter : MonoBehaviour
 		}
 	}
 
-	//calculate the start index of visible log
-	void calculateStartIndex()
+
+#else
+    bool isGestureDone() { return false; }
+    bool isDoubleClickDone() { return false; }
+    Vector2 getDownPos() { return Vector2.zero; }
+    Vector2 getDrag() { return Vector2.zero; }
+#endif
+
+    //calculate the start index of visible log
+    void calculateStartIndex()
 	{
 		startIndex = (int)(scrollPosition.y / size.y);
 		startIndex = Mathf.Clamp(startIndex, 0, currentLog.Count);
@@ -1850,12 +1889,14 @@ public class Reporter : MonoBehaviour
 #endif
 
 		calculateStartIndex();
+
+#if ENABLE_LEGACY_INPUT_MANAGER
 		if (!show && isGestureDone()) {
 			doShow();
 		}
+#endif
 
-
-		if (threadedLogs.Count > 0) {
+        if (threadedLogs.Count > 0) {
 			lock (threadedLogs) {
 				for (int i = 0; i < threadedLogs.Count; i++) {
 					Log l = threadedLogs[i];
