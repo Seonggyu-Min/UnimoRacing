@@ -18,5 +18,7 @@ namespace MSG
             if (paths == null || paths.Length == 0) return string.Empty;
             return string.Join("/", paths).Trim(); // 경로를 '/'로 연결하고, 앞뒤 공백 제거
         }
+
+        public static string ComposePairId(string uid1, string uid2) => string.CompareOrdinal(uid1, uid2) < 0 ? $"{uid1}_{uid2}" : $"{uid2}_{uid1}";
     }
 }
