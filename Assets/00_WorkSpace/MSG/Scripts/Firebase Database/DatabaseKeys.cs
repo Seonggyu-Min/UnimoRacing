@@ -14,34 +14,58 @@ namespace MSG
 
         // -- User Data Keys --
         public const string users = "users";
-        public const string name = "name";
+        public const string nickname = "nickname";
+        public const string nicknames = "nicknames"; // 닉네임 중복 확인용 역인덱스
         public const string email = "email";
 
-        // -- Game Data Keys --
-        public const string gold = "gold";
-        public const string diamond = "diamond";
-        public const string level = "level";
-        public const string experience = "experience";
+        // -- Friend Data Keys --
+        public const string friends = "friends";
+        public const string list = "list"; // 친구 목록
+
+        // -- Equipped Keys --
+        public const string equipped = "equipped";
+        public const string karts = "karts";
+        public const string unimos = "unimos";
 
         // -- Inventory Keys --
         public const string inventory = "inventory";
-        public const string itemId = "itemId";
-
-        // -- Settings Keys --
-        public const string settings = "settings";
-        public const string soundEnabled = "soundEnabled";
-        public const string musicEnabled = "musicEnabled";
 
         // -- Achievements Keys --
-        public const string achievements = "achievements";
-        public const string achievementId = "achievementId";
-        public const string achievementStatus = "achievementStatus";
+        //public const string achievements = "achievements";
+        //public const string achievementId = "achievementId";
+        //public const string achievementStatus = "achievementStatus";
 
-        // -- Leaderboard Keys --
+        // -- Stats Keys --
         public const string stats = "stats";
-        public const string score = "score";
-        public const string rank = "rank";
         public const string wins = "wins";
         public const string losses = "losses";
+
+        // -- Game Data Keys --
+        public const string gameData = "gameData";
+        public const string money1 = "money1";
+        public const string money2 = "money2";
+        public const string money3 = "money3";
+        public const string level = "level";
+        public const string experience = "experience";
+
+        // -- Daily Mission Keys --
+        public const string dailyMissions = "dailyMissions";
+
+        // -- Friends Keys --
+        public const string friendLinks = "friendLinks";
+        public const string from = "from"; // 친구 요청을 보낸 사람의 ID
+        public const string to = "to"; // 친구 요청을 받은 사람의 ID
+        public const string requestedAt = "requestedAt"; // 친구 요청을 보낸 시간
+        public const string acceptedAt = "acceptedAt"; // 친구 요청이 수락된 시간
+
+        public const string status = "status"; // 친구 요청 상태 (예: pending, accepted, rejected)
+        public const string pending = "pending"; // 친구 요청 대기 상태
+        public const string accepted = "accepted"; // 친구 요청 수락 상태
+        public const string rejected = "rejected"; // 친구 요청 거절 상태
+        public const string cancelled = "cancelled"; // 친구 요청 취소 상태
+
+        public const string inbox = "inbox"; // 친구 요청 수신함
+        public const string outbox = "outbox"; // 친구 요청 발신함
+
     }
 }
