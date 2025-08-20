@@ -17,7 +17,7 @@ namespace PJW
 
         public override void OnConnectedToMaster()
         {
-            RoomOptions options = new RoomOptions { MaxPlayers = 4 };
+            RoomOptions options = new RoomOptions { MaxPlayers = 6 };
             PhotonNetwork.JoinOrCreateRoom("TestRoom", options, TypedLobby.Default);
         }
 
