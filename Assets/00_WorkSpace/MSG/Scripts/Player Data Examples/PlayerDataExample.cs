@@ -37,9 +37,15 @@ namespace MSG
         [SerializeField] private Button _addFriendButton;
         [SerializeField] private Button _showFriendListButton;
         [SerializeField] private Button _getFriendRequestListButton;
+        [SerializeField] private Button _acceptFriendRequestButton;
+        [SerializeField] private Button _rejectFriendRequestButton;
+        [SerializeField] private Button _cancelFriendRequestButton;
+        [SerializeField] private Button _removeFriendButton;
+
 
         [SerializeField] FriendsLogics _friendLogics;
-
+        string _friendUid = "CObPZErspoMBVFFkqDsxhYIzm1l2";
+        //"YMVX4vwl3aYwmWZEVPBnXXW9qew1"; // 예시로 친구 요청할 UID를 하드코딩
         #endregion
 
         private void OnEnable()
@@ -64,6 +70,10 @@ namespace MSG
             _addFriendButton.onClick.AddListener(OnClickAddFriend);
             _showFriendListButton.onClick.AddListener(OnClickShowFriendList);
             _getFriendRequestListButton.onClick.AddListener(OnClickGetFriendRequestList);
+            _acceptFriendRequestButton.onClick.AddListener(OnClickAccecpFriendRequest);
+            _rejectFriendRequestButton.onClick.AddListener(OnClickRejectFriendRequest);
+            _cancelFriendRequestButton.onClick.AddListener(OnClickCancleFriendRequest);
+            _removeFriendButton.onClick.AddListener(OnClickRemoveFriend);
         }
 
         private void OnDisable()
@@ -88,6 +98,10 @@ namespace MSG
             _addFriendButton.onClick.RemoveListener(OnClickAddFriend);
             _showFriendListButton.onClick.RemoveListener(OnClickShowFriendList);
             _getFriendRequestListButton.onClick.RemoveListener(OnClickGetFriendRequestList);
+            _acceptFriendRequestButton.onClick.RemoveListener(OnClickAccecpFriendRequest);
+            _rejectFriendRequestButton.onClick.RemoveListener(OnClickRejectFriendRequest);
+            _cancelFriendRequestButton.onClick.RemoveListener(OnClickCancleFriendRequest);
+            _removeFriendButton.onClick.RemoveListener(OnClickRemoveFriend);
         }
 
 
@@ -107,6 +121,17 @@ namespace MSG
 
         private void OnClickSetNickname()
         {
+            // 먼저 자신 uid의 닉네임이 DB에 없는지 확인하고 첫 로그인이라고 간주하고 닉네임 설정 창을 띄워야 합니다
+            DatabaseManager.Instance.GetOnMain((DBRoutes.Nickname(CurrentUid)), snap =>
+            {
+                if (snap.Exists)
+                {
+                    _testText.text = "이미 닉네임이 설정되어 있습니다.";
+                    return;
+                }
+            });
+
+            // 닉네임이 없으면, 다음 작업 실행
             string newNickname = _nicknameInputField.text;
 
             DatabaseManager.Instance.GetOnMain(DBRoutes.Nicknames(newNickname), snap =>
@@ -196,7 +221,6 @@ namespace MSG
 
         private void OnClickShowOwnedUnimos()
         {
-
             DatabaseManager.Instance.GetOnMain(DBRoutes.UnimosInventory(CurrentUid), snap =>
             {
                 if (!snap.Exists)
@@ -302,20 +326,19 @@ namespace MSG
 
         private void OnClickAddFriend()
         {
-            string friendUid = "123456789"; // 예시로 친구 요청할 UID를 하드코딩
-            DatabaseManager.Instance.GetOnMain(DBRoutes.Nickname(friendUid), snap =>
+            DatabaseManager.Instance.GetOnMain(DBRoutes.Nickname(_friendUid), snap =>
             {
-                string friendNickname = snap.Value?.ToString() ?? friendUid;
+                string friendNickname = snap.Value?.ToString() ?? _friendUid;
 
-                _friendLogics.SendRequest(CurrentUid, friendUid,
+                _friendLogics.SendRequest(CurrentUid, _friendUid,
                     onSuccess: () => _testText.text = $"{friendNickname}에게 친구 요청을 보냈습니다.",
                     onError: err => _testText.text = $"친구 요청 실패: {err}");
             },
             err =>
             {
                 // 닉네임 읽기는 실패했지만, 친구 요청은 보내기
-                _friendLogics.SendRequest(CurrentUid, friendUid,
-                    onSuccess: () => _testText.text = $"{friendUid}에게 친구 요청을 보냈습니다. (닉네임 조회 실패)",
+                _friendLogics.SendRequest(CurrentUid, _friendUid,
+                    onSuccess: () => _testText.text = $"{_friendUid}에게 친구 요청을 보냈습니다. (닉네임 조회 실패)",
                     onError: e => _testText.text = $"친구 요청 실패: {e}");
             });
 
@@ -434,6 +457,70 @@ namespace MSG
                 }
             },
             err => _testText.text = $"받은 친구 요청 읽기 오류: {err}");
+        }
+
+        private void OnClickAccecpFriendRequest()
+        {
+            string pairId = DBPathMaker.ComposePairId(CurrentUid, _friendUid);
+            _testText.text = "친구 요청 수락 중…";
+
+            _friendLogics.AcceptRequest(pairId, CurrentUid,
+                onSuccess: () =>
+                {
+                    _testText.text = "친구 요청을 수락했습니다.";
+                },
+                onError: err =>
+                {
+                    _testText.text = $"친구 요청 수락 실패: {err}";
+                });
+        }
+
+        private void OnClickRejectFriendRequest()
+        {
+            string pairId = DBPathMaker.ComposePairId(CurrentUid, _friendUid);
+            _testText.text = "친구 요청 거절 중…";
+
+            _friendLogics.RejectRequest(pairId, CurrentUid,
+                onSuccess: () =>
+                {
+                    _testText.text = "친구 요청을 거절했습니다.";
+                },
+                onError: err =>
+                {
+                    _testText.text = $"친구 요청 거절 실패: {err}";
+                });
+        }
+
+        private void OnClickCancleFriendRequest()
+        {
+            string pairId = DBPathMaker.ComposePairId(CurrentUid, _friendUid);
+            _testText.text = "친구 요청 취소 중…";
+
+            _friendLogics.CancelRequest(pairId, CurrentUid,
+                onSuccess: () =>
+                {
+                    _testText.text = "친구 요청을 취소했습니다.";
+                },
+                onError: err =>
+                {
+                    _testText.text = $"친구 요청 취소 실패: {err}";
+                });
+        }
+
+        private void OnClickRemoveFriend()
+        {
+            string pairId = DBPathMaker.ComposePairId(CurrentUid, _friendUid);
+            _testText.text = "친구 삭제 중…";
+
+            _friendLogics.RemoveFriend(pairId, CurrentUid,
+                onSuccess: () =>
+                {
+                    _testText.text = "친구를 삭제했습니다.";
+                },
+                onError: err =>
+                {
+                    _testText.text = $"친구 삭제 실패: {err}";
+                });
         }
 
         #region Dedicated Methods
