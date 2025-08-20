@@ -220,6 +220,7 @@ namespace MSG
                 onError?.Invoke("pairId 또는 actorUid가 비어있습니다");
                 return;
             }
+
             string link = DBRoutes.FriendLinks(pairId);
             DatabaseManager.Instance.GetOnMain(link, snap =>
             {
@@ -264,6 +265,74 @@ namespace MSG
                 else
                 {
                     onError?.Invoke("해당 친구 요청이 존재하지 않습니다.");
+                }
+            }, onError);
+        }
+
+        /// <summary>
+        /// 친구를 제거하는 메서드입니다.
+        /// </summary>
+        /// <param name="pairId">수신인과 발신인 uid의 pair 값</param>
+        /// <param name="actorUid">친구 제거를 요청하는 클라이언트의 uid</param>
+        /// <param name="onSuccess">성공 시 받을 Action (Optional Parameter)</param>
+        /// <param name="onError">실패 시 받을 Action (Optional Parameter)</param>
+        public void RemoveFriend(string pairId, string actorUid, Action onSuccess = null, Action<string> onError = null)
+        {
+            if (string.IsNullOrEmpty(pairId) || string.IsNullOrEmpty(actorUid))
+            {
+                onError?.Invoke("pairId 또는 actorUid가 비어있습니다");
+                return;
+            }
+
+            string link = DBRoutes.FriendLinks(pairId);
+            DatabaseManager.Instance.GetOnMain(link, snap =>
+            {
+                if (snap.Exists)
+                {
+                    string fromUid = snap.Child(DatabaseKeys.from).Value?.ToString();
+                    string toUid = snap.Child(DatabaseKeys.to).Value?.ToString();
+
+                    if (string.IsNullOrEmpty(fromUid) || string.IsNullOrEmpty(toUid))
+                    {
+                        onError?.Invoke("발신자 또는 수신자 uid가 비어있습니다.");
+                        return;
+                    }
+                    if (actorUid != fromUid && actorUid != toUid) 
+                    { 
+                        onError?.Invoke("발신자 또는 수신자만 친구를 제거할 수 있습니다."); 
+                        return; 
+                    }
+
+                    string currentStatus = snap.Child(DatabaseKeys.status).Value?.ToString();
+                    if (currentStatus == DatabaseKeys.removed)
+                    {
+                        onSuccess?.Invoke();
+                        return;
+                    }
+                    if (currentStatus != DatabaseKeys.accepted)
+                    {
+                        onError?.Invoke($"현재 상태({currentStatus})에서는 친구 제거할 수 없습니다.");
+                        return;
+                    }
+
+                    Dictionary<string, object> updates = new()
+                    {
+                        { DBPathMaker.Join(link, DatabaseKeys.status), DatabaseKeys.removed },
+                        { DBPathMaker.Join(DBRoutes.OutBox(fromUid, pairId), DatabaseKeys.status), DatabaseKeys.removed },
+                        { DBPathMaker.Join(DBRoutes.InBox(toUid, pairId), DatabaseKeys.status), DatabaseKeys.removed },
+
+                        { DBPathMaker.Join(DBRoutes.OutBox(fromUid, pairId), DatabaseKeys.status), DatabaseKeys.removed },
+                        { DBPathMaker.Join(DBRoutes.InBox(toUid,   pairId), DatabaseKeys.status), DatabaseKeys.removed },
+
+                        { DBRoutes.Friend(fromUid, toUid), null },
+                        { DBRoutes.Friend(toUid, fromUid), null }
+                    };
+
+                    DatabaseManager.Instance.UpdateOnMain(updates, onSuccess, onError);
+                }
+                else
+                {
+                    onError?.Invoke("해당 친구 관계가 존재하지 않습니다.");
                 }
             }, onError);
         }
