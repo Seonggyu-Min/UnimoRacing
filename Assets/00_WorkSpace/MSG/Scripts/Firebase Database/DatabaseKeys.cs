@@ -63,6 +63,7 @@ namespace MSG
         public const string accepted = "accepted"; // 친구 요청 수락 상태
         public const string rejected = "rejected"; // 친구 요청 거절 상태
         public const string cancelled = "cancelled"; // 친구 요청 취소 상태
+        public const string removed = "removed"; // 친구 삭제 상태
 
         public const string inbox = "inbox"; // 친구 요청 수신함
         public const string outbox = "outbox"; // 친구 요청 발신함

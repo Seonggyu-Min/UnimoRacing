@@ -1,4 +1,5 @@
 ﻿using Firebase.Auth;
+using Google;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -97,19 +98,16 @@ namespace MSG
             SetUI(AuthState.Idle, CHECKING, showError: false);
         }
 
-        private async void Start()
+        private void Start()
         {
             if (!_autoStart || !enabled) return;
 
-            var existing = FirebaseAuth.DefaultInstance?.CurrentUser;
-            if (existing != null)
+            if (!FirebaseManager.Instance.IsReady)
             {
-                Debug.Log("[AuthFlow] Found existing Firebase user. Skipping silent sign-in.");
-                HandleSignInSucceeded(existing);
+                FirebaseManager.Instance.OnFirebaseReady += TrySilentThenInteractive;
                 return;
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(_silentDelaySec));
             TrySilentThenInteractive();
         }
 
@@ -119,6 +117,10 @@ namespace MSG
             {
                 GoogleSignManager.Instance.OnSignInSucceeded -= HandleSignInSucceeded;
                 GoogleSignManager.Instance.OnSignInFailed -= HandleSignInFailed;
+            }
+            if (FirebaseManager.Instance != null)
+            {
+                FirebaseManager.Instance.OnFirebaseReady -= TrySilentThenInteractive;
             }
 
             if (_googleLoginButton) _googleLoginButton.onClick.RemoveListener(OnClickGoogleLogin);
@@ -261,7 +263,7 @@ namespace MSG
             if (_retryButton) _retryButton.interactable = interactive;
         }
 
-        private static string MapErrorToUserMessage(string raw)
+        private string MapErrorToUserMessage(string raw)
         {
             if (string.IsNullOrEmpty(raw)) return LOGIN_FAIL_NET;
 
