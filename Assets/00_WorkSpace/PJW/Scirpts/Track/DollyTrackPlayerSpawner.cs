@@ -1,60 +1,63 @@
 using System;
-using System.Linq;
 using Photon.Pun;
-using Photon.Realtime;
 using UnityEngine;
 using Cinemachine;
 
 namespace PJW
 {
-    public class MultiTrackPlayerSpawner : MonoBehaviourPunCallbacks
+    public class DollyTrackPlayerSpawner : MonoBehaviourPunCallbacks
     {
         [Header("Tracks / Prefab")]
         [SerializeField] private CinemachinePathBase[] tracks;
         [SerializeField] private string playerPrefabName = "Player";
 
         [Header("Placement")]
-        [SerializeField] private float heightOffset = 0.5f; 
-        [SerializeField] private float spawnT = 0f;         
+        [SerializeField] private float heightOffset = 0.5f;
+        [SerializeField, Range(0f, 1f)] private float spawnT = 0f;
         [SerializeField] private bool faceAlongTrack = true;
 
         private bool hasSpawned;
 
-        public override void OnJoinedRoom()
+        private void Start()
         {
-            TrySpawn();
+            if (PhotonNetwork.InRoom && !hasSpawned)
+            {
+                TrySpawn();
+            }
         }
 
         private void TrySpawn()
         {
             if (hasSpawned) return;
 
-            // 플레이어 순서: ActorNumber 기준으로 정렬
-            Player[] sorted = PhotonNetwork.PlayerList.OrderBy(p => p.ActorNumber).ToArray();
-            int myIndex = Array.FindIndex(sorted, p => p == PhotonNetwork.LocalPlayer);
-
-            if (myIndex < 0 || myIndex >= tracks.Length)
+            if (!PhotonNetwork.InRoom)
             {
                 return;
             }
 
-            // 내 차례에 해당하는 트랙 선택
-            CinemachinePathBase myTrack = tracks[myIndex];
+            if (tracks == null || tracks.Length == 0)
+            {
+                return;
+            }
+
+            int wantedIndex = PhotonNetwork.LocalPlayer.ActorNumber - 1;
+            int trackIndex = Mathf.Clamp(wantedIndex, 0, tracks.Length - 1);
+            var myTrack = tracks[trackIndex];
+
             if (myTrack == null)
             {
                 return;
             }
 
-            Vector3 pos = myTrack.EvaluatePositionAtUnit(spawnT, CinemachinePathBase.PositionUnits.Normalized);
-            pos += Vector3.up * heightOffset;
+            Vector3 pos = myTrack.EvaluatePositionAtUnit(spawnT, CinemachinePathBase.PositionUnits.Normalized) + Vector3.up * heightOffset;
+            Quaternion rot = faceAlongTrack
+                ? myTrack.EvaluateOrientationAtUnit(spawnT, CinemachinePathBase.PositionUnits.Normalized)
+                : Quaternion.identity;
 
-            Quaternion rot = Quaternion.identity;
-            if (faceAlongTrack)
-            {
-                rot = myTrack.EvaluateOrientationAtUnit(spawnT, CinemachinePathBase.PositionUnits.Normalized);
-            }
-
-            PhotonNetwork.Instantiate(playerPrefabName, pos, rot);
+            // 프리팹 존재 검사
+            var prefab = Resources.Load<GameObject>(playerPrefabName);
+            if (prefab == null) return;
+            var go = PhotonNetwork.Instantiate(playerPrefabName, pos, rot);
 
             hasSpawned = true;
         }
