@@ -14,7 +14,6 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
             // 애플리케이션 종료 시점에 싱글턴을 다시 생성하는 것을 방지(라이프 사이클 꼬이는거 방지)
             if (_isQuitting)
             {
-                Debug.LogWarning($"[Singleton] 인스턴스 '{typeof(T)}'는 애플리케이션 종료 시 이미 파괴되어서 다시 생성하지 않습니다.");
                 return null;
             }
 
@@ -23,18 +22,30 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
             {
                 if (_instance == null)
                 {
-                    // 씬에서 기존 인스턴스를 찾아봅니다.
+                    // 씬에서 먼저 찾아봅니다.
                     _instance = FindObjectOfType<T>();
 
+                    // 씬에 없다면 Resources 폴더에서 프리팹을 찾아 생성합니다.
                     if (_instance == null)
                     {
-                        // 씬에 인스턴스가 없으면 새로 생성
-                        var singletonObject = new GameObject();
-                        _instance = singletonObject.AddComponent<T>();
-                        singletonObject.name = $"{typeof(T).Name} (Singleton)";
+                        // 프리팹의 경로는 "Managers/[클래스이름]"으로 가정합니다.
+                        // 예: "Managers/SceneManager"
+                        string prefabPath = $"Managers/{typeof(T).Name}";
+                        var singletonPrefab = Resources.Load<T>(prefabPath);
 
-                        // 씬 전환 시 파괴되지 않도록 설정
-                        DontDestroyOnLoad(singletonObject);
+                        if (singletonPrefab != null)
+                        {
+                            _instance = Instantiate(singletonPrefab);
+                            _instance.name = $"{typeof(T).Name} (Singleton)";
+                        }
+                        else
+                        {
+                            // 프리팹도 없다면 빈 오브젝트를 생성
+                            Debug.Log($"[Singleton] '{prefabPath}' 경로에 프리팹이 없어 빈 오브젝트를 생성합니다.");
+                            var singletonObject = new GameObject();
+                            _instance = singletonObject.AddComponent<T>();
+                            singletonObject.name = $"{typeof(T).Name} (Singleton)";
+                        }
                     }
                 }
                 return _instance;
@@ -52,7 +63,6 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
         else if (_instance != this)
         {
-            Debug.LogWarning($"[Singleton] Instance of '{typeof(T)}' already exists. Destroying duplicate.");
             Destroy(gameObject);
         }
     }

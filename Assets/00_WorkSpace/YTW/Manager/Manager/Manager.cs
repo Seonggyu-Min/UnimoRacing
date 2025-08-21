@@ -1,15 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YTW;
 
 public class Manager : Singleton<Manager>
 {
-    public static YTW.AudioManager Audio;
+    public static AudioManager Audio { get; private set; }
+    public static SceneManager Scene { get; private set; }
 
     protected override void Awake()
     {
         base.Awake();
-        Audio = YTW.AudioManager.Instance;
+
+        Audio = AudioManager.Instance;
+        Scene = SceneManager.Instance;
     }
 
     // UI 이벤트를 위한 연결 함수

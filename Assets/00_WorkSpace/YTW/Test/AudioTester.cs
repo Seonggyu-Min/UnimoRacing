@@ -8,10 +8,15 @@ public class AudioTester : MonoBehaviour
     private string[] _bgmNames = { "BGM_Lobby", "BGM_Game1", "BGM_Game2" };
     private int _currentBgmIndex = 0;
 
+    [Header("UI 패널")]
+    [SerializeField] private GameObject settingsPanel;
     void Start()
     {
         // Manager가 초기화될 시간을 주기 위해 Invoke를 사용
         Invoke(nameof(PlayInitialBGM), 0.1f);
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
     }
 
     void PlayInitialBGM()
@@ -47,6 +52,11 @@ public class AudioTester : MonoBehaviour
             }
             Debug.Log($"BGM 변경: {_bgmNames[_currentBgmIndex]}");
             Manager.Audio.PlayBGM(_bgmNames[_currentBgmIndex]);
+        }
+
+        if (Keyboard.current.escapeKey.wasPressedThisFrame && settingsPanel != null)
+        {
+            settingsPanel.SetActive(!settingsPanel.activeSelf);
         }
 
         // 마우스 입력이 있는지 확인

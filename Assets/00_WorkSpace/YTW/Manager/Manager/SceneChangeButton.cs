@@ -1,0 +1,28 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using YTW;
+
+namespace YTW
+{
+    public class SceneChangeButton : MonoBehaviour
+    {
+        [SerializeField] private SceneType targetScene;
+
+        // 이 함수를 버튼의 OnClick() 이벤트에 연결
+        public void ChangeScene()
+        {
+            // Manager를 통해 SceneManager 인스턴스에 접근하고,
+            // 인스펙터에서 설정한 targetScene으로 이동하도록 요청
+            if (Manager.Scene != null)
+            {
+                Manager.Scene.LoadScene(targetScene);
+            }
+            else
+            {
+                Debug.LogError("SceneManager를 찾을 수 없습니다! Manager 프리팹이 씬에 있는지 확인하세요.");
+            }
+        }
+    }
+
+}

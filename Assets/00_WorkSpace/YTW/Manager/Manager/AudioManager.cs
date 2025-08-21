@@ -359,6 +359,82 @@ namespace YTW
         }
         #endregion
 
+        #region 지속 사운드 제어
+
+        // 지정된 AudioSource에서 루프 사운드를 재생 (주행음에 사용. 없다면 사용 x)
+        // 오디오소스, db에 등록된 이름, 페이드타임 (서서히 켜지는 시간)
+        public void PlayLoopingSoundOn(AudioSource source, string name, float fadeTime = 0.1f)
+        {
+            if (source == null)
+            {
+                Debug.LogError("[AudioManager] 사운드를 재생할 AudioSource가 null입니다.");
+                return;
+            }
+
+            if (!_audioDataDict.TryGetValue(name.Trim(), out var data) || data?.Clip == null)
+            {
+                Debug.LogWarning($"[AudioManager] 지속 사운드 '{name}'을 찾을 수 없거나 클립이 비어있습니다.");
+                return;
+            }
+
+            // 이미 같은 클립을 재생 중이면 아무것도 하지 않음
+            if (source.isPlaying && source.clip == data.Clip) return;
+
+            // AudioSource에 필요한 설정
+            source.clip = data.Clip;
+            source.volume = 0; // 페이드 인을 위해 볼륨을 0에서 시작
+            source.pitch = data.Pitch; // DB에 설정된 초기 피치 값을 적용
+            source.loop = true; // 지속 사운드는 항상 루프되도록 설정
+            source.outputAudioMixerGroup = data.MixerGroup;
+            source.spatialBlend = 1.0f; // 주행음은 보통 3D 사운드이므로 입체감
+
+            source.Play();
+
+            // 페이드 인 효과를 주는 코루틴
+            StartCoroutine(IE_FadeSource(source, data.Volume, fadeTime));
+        }
+
+
+        // 지정된 AudioSource의 재생을 부드럽게 멈춥니다.
+        // 멈출 오디오소스, 페이드 타입(서서히 멈추게)
+        public void StopSoundOn(AudioSource source, float fadeTime = 0.2f)
+        {
+            if (source == null || !source.isPlaying) return;
+
+            // 페이드 아웃 후 정지하는 코루틴
+            StartCoroutine(IE_FadeSource(source, 0f, fadeTime, true));
+        }
+
+        // 지정된 AudioSource의 볼륨을 조절하는 범용 페이드 코루틴
+        private IEnumerator IE_FadeSource(AudioSource source, float targetVolume, float duration, bool stopAfterFade = false)
+        {
+            // 코루틴이 시작될 때의 볼륨 값을 저장
+            float startVolume = source.volume;
+            float timer = 0f;
+
+            while (timer < duration)
+            {
+                // 루프 중간에 AudioSource가 파괴될 경우를 대비해 null을 체크
+                if (source == null) yield break; // 코루틴 즉시 중단
+
+                timer += Time.unscaledDeltaTime;
+                source.volume = Mathf.Lerp(startVolume, targetVolume, timer / duration);
+                yield return null; // 다음 프레임까지 대기
+            }
+
+            // 루프가 끝난 후 최종 값으로 확실하게 설정
+            if (source != null)
+            {
+                source.volume = targetVolume;
+                // true가 전달된 경우, 페이드 아웃이 끝난 후 재생을 완전히 멈춤
+                if (stopAfterFade)
+                {
+                    source.Stop();
+                }
+            }
+        }
+
+        #endregion
     }
 
 }
