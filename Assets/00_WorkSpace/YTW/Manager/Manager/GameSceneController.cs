@@ -5,7 +5,7 @@ using UnityEngine;
 // 이 스크립트를 각 게임 씬의 비어있는 게임 오브젝트에 붙임
 namespace YTW
 {
-    public class GameSceneContoller : MonoBehaviour
+    public class GameSceneController : MonoBehaviour
     {
         void Start()
         {

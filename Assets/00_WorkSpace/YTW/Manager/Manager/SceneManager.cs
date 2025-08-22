@@ -9,8 +9,8 @@ namespace YTW
     // enum 이름을 더 명확하게 변경하고, 실제 게임에 맞게 확장할 수 있도록 수정합니다.
     public enum SceneType
     {
-        YTW_TestScene1, // 기존 
-        YTW_TestScene2, // 기존 
+        YTW_TestScene1, 
+        YTW_TestScene2, 
         GameScene_Map1,
         GameScene_Map2
     }
@@ -25,6 +25,8 @@ namespace YTW
         private Slider _progressBarInstance;
 
         private bool _isLoading = false;
+        public bool IsLoading => _isLoading;
+        public SceneType CurrentSceneType { get; private set; }
 
         protected override void Awake()
         {
@@ -64,14 +66,19 @@ namespace YTW
 
         public void LoadScene(SceneType sceneType)
         {
-            if (_isLoading) return;
-            StartCoroutine(IE_LoadSceneAsyncWithProgress(sceneType.ToString()));
+            // 동일씬 재요청 방지
+            if (_isLoading || CurrentSceneType == sceneType)
+            {
+                return;
+            }
+
+            StartCoroutine(IE_LoadSceneAsyncWithProgress(sceneType));
         }
 
         public void LoadGameScene(SceneType sceneType)
         {
             if (!PhotonNetwork.IsMasterClient) return;
-            ShowLoadingScreen();
+            ShowLoadingScreen(false); // 프로그레스 바를 숨기거나 비활성화하는 옵션
             PhotonNetwork.LoadLevel(sceneType.ToString());
         }
 
@@ -83,16 +90,28 @@ namespace YTW
             }
         }
 
-        private IEnumerator IE_LoadSceneAsyncWithProgress(string sceneName)
+        public void QuitGame()
+        {
+            Debug.Log("게임 종료");
+            Application.Quit();
+
+        #if UNITY_EDITOR
+            // 에디터에서는 플레이 모드를 중지
+            UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+        }
+
+        private IEnumerator IE_LoadSceneAsyncWithProgress(SceneType sceneType)
         {
             _isLoading = true;
+            string sceneName = sceneType.ToString();
 
             if (Manager.Audio != null)
             {
                 Manager.Audio.StopBGM(0.3f);
             }
 
-            ShowLoadingScreen();
+            ShowLoadingScreen(true);
 
             AsyncOperation asyncLoad = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
 
@@ -106,18 +125,29 @@ namespace YTW
                 yield return null;
             }
 
+            CurrentSceneType = sceneType;
+
+            // 만약 로드된 씬이 게임 씬이 아니라면 (GameSceneController가 없다면)
+            // 여기서 직접 로딩 화면을 꺼줍니다.
+            if (!sceneName.StartsWith("GameScene"))
+            {
+                HideLoadingScreen();
+            }
+
             _isLoading = false;
         }
 
-        private void ShowLoadingScreen()
+        private void ShowLoadingScreen(bool showProgressBar)
         {
-            // _loadingScreenInstance (실제 생성된 UI)를 활성화
-            if (_loadingScreenInstance != null)
+            if (_loadingScreenInstance == null)
             {
-                _loadingScreenInstance.SetActive(true);
+                return;
             }
+            _loadingScreenInstance.SetActive(true);
+
             if (_progressBarInstance != null)
             {
+                _progressBarInstance.gameObject.SetActive(showProgressBar);
                 _progressBarInstance.value = 0f;
             }
         }

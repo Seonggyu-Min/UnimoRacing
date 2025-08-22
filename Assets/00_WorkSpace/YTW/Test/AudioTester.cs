@@ -69,4 +69,14 @@ public class AudioTester : MonoBehaviour
             Manager.Audio.PlaySFX("TestSFX");
         }
     }
+
+    public void OnTouchForSFX(InputAction.CallbackContext context)
+    {
+        // 터치가 시작된 순간에만 SFX를 재생합니다.
+        if (context.started)
+        {
+            Debug.Log("SFX 재생: TestSFX");
+            Manager.Audio.PlaySFX("TestSFX");
+        }
+    }
 }

@@ -96,52 +96,45 @@ namespace YTW
 
         private IEnumerator CrashAndRecoverRoutine()
         {
-            // 1. 충돌 시작
+            // 1. 충돌 시작: 멈추고 소리를 끈다
             _isCrashed = true;
-            _currentSpeed = 0f; // 속도를 즉시 0으로 만듦
-
+            _currentSpeed = 0f;
             if (AudioManager.Instance != null)
             {
-                Debug.Log("충돌. 엔진음 정지 및 충돌음 재생.");
-                // 엔진음 정지 (즉시)
                 AudioManager.Instance.StopSoundOn(_engineAudioSource, 0.0f);
-                // 충돌음 재생
                 AudioManager.Instance.PlaySFX("CollisionSound", transform.position);
             }
 
-            // 2. 2초 대기
+            // 2. 가만히 기다린다
             yield return new WaitForSeconds(2f);
 
-            // 3. 회복 시작
-            Debug.Log("2초 후, 회복 시작");
+            // 3. 회복 시작: 이제 움직일 수 있도록 플래그를 해제하고 엔진음을 다시 켠다
+            _isCrashed = false;
             if (AudioManager.Instance != null)
             {
-                // 엔진음 다시 재생
                 AudioManager.Instance.PlayLoopingSoundOn(_engineAudioSource, "EngineSound");
             }
 
-            // 서서히 최대 속도까지 가속 (예: 1.5초 동안)
+            // 4. 움직이면서 서서히 가속한다
             float recoveryTime = 5f;
             float timer = 0f;
             while (timer < recoveryTime)
             {
+                // _isCrashed가 false이므로 Update에서 HandleMovement가 호출되어 차가 움직인다
                 timer += Time.deltaTime;
-                // 시간에 따라 속도를 0에서 _maxSpeed까지 부드럽게 증가
                 _currentSpeed = Mathf.Lerp(0f, _maxSpeed, timer / recoveryTime);
-                yield return null; // 다음 프레임까지 대기
+                yield return null;
             }
 
-            // 4. 회복 완료
-            _currentSpeed = _maxSpeed; // 속도를 최대치로 확실하게 설정
-            _isCrashed = false; // 충돌 상태 해제
-            _crashRecoveryCo = null; // 코루틴 참조 제거
-            Debug.Log("충돌 회복");
+            // 5. 회복 완료
+            _currentSpeed = _maxSpeed;
+            _crashRecoveryCo = null;
         }
         private void HandleMovement()
         {
             // 1. 진행률 계산
             float trackLength = _trackSpline.GetComponent<SplineContainer>().CalculateLength();
-            _progress += (_maxSpeed / trackLength) * Time.deltaTime;
+            _progress += (_currentSpeed / trackLength) * Time.deltaTime;
 
             if (_progress >= 1f && !_isFinished)
             {
@@ -178,6 +171,7 @@ namespace YTW
             if (_currentLaneIndex > MIN_LANE_INDEX)
             {
                 _currentLaneIndex--;
+                Manager.Audio.PlaySFX("LineChangeSFX");
             }
         }
 
@@ -186,6 +180,7 @@ namespace YTW
             if (_currentLaneIndex < MAX_LANE_INDEX)
             {
                 _currentLaneIndex++;
+                Manager.Audio.PlaySFX("LineChangeSFX");
             }
         }
 
