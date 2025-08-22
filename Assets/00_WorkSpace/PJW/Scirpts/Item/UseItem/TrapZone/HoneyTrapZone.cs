@@ -26,6 +26,8 @@ namespace PJW
             if (cart == null) return;
 
             StartCoroutine(TempSlow(cart));
+
+            Destroy(gameObject);
         }
 
         private IEnumerator TempSlow(CinemachineDollyCart cart)
