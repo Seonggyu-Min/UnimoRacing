@@ -68,5 +68,49 @@ namespace MSG
         public const string inbox = "inbox"; // 친구 요청 수신함
         public const string outbox = "outbox"; // 친구 요청 발신함
 
+
+        // -- Presence Keys --
+        public const string presence = "presence"; // 전체 Presence 데이터 최상위 노드
+        public const string online = "online"; // 온라인 상태
+        public const string inRoom = "inRoom"; // 방에 있는 상태
+        public const string inGame = "inGame"; // 게임 중인 상태
+        public const string inParty = "inParty"; // 파티에 있는 상태
+        public const string lastSeen = "lastSeen"; // 마지막 활동 시간
+        public const string partyId = "partyId"; // 파티 ID
+        public const string roomName = "roomName"; // 방 이름
+        public const string heartbeat = "heartbeat"; // 예외 처리를 위한 하트비트
+
+
+        // -- Party Keys --
+        public const string parties = "parties"; // 파티 목록
+        // public const string partyId = "partyId"; // 파티 ID, 위와 동일
+        // public const string status = "status"; // 파티 상태, 위와 동일
+        public const string idle = "idle";
+        public const string matching = "matching"; // 파티 매칭 중
+        // public const string inGame = "inGame"; // 파티 게임 중, 위와 동일
+        public const string members = "members"; // 파티 멤버 목록
+        public const string leaderUid = "leaderUid"; // 파티 리더의 UID
+        public const string targetRoom = "targetRoom"; // 파티 들어가게 될 방 이름
+
+
+        // -- PartyMembership Keys --
+        public const string partyMemberships = "partyMemberships"; // 파티 멤버십 목록
+        // public const string partyId = "partyId"; // 파티 ID, 위와 동일
+
+
+        // -- Invitation Keys --
+        public const string invitations = "invitations"; // 초대 목록
+        // public const string partyId = "partyId"; // 파티 ID, 위와 동일
+        // public const string from = "from"; // 초대를 보낸 사람의 ID, 위와 동일
+        // public const string to = "to"; // 초대를 받은 사람의 ID, 위와 동일
+        // public const string status = "status"; // 초대장의 상태, 위와 동일
+        // public const string pending = "pending"; // 초대 대기 상태, 위와 동일
+        // public const string accepted = "accepted"; // 초대 수락 상태, 위와 동일
+        // public const string rejected = "rejected"; // 초대 거절 상태, 위와 동일
+        public const string createdAt = "createdAt"; // 초대가 생성된 시간
+
+
+        // -- userInvitations Keys --
+        public const string userInvitations = "userInvitations"; // 유저별 초대장 목록
     }
 }
