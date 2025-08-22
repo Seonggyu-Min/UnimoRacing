@@ -5,7 +5,7 @@ using System.Collections;
 
 namespace PJW
 {
-    public class BananaTrap : MonoBehaviour, IUsableItem
+    public class TrashTrap : MonoBehaviour, IUsableItem
     {
         [SerializeField] private GameObject trapPrefab;
         [SerializeField] private float spawnDistance = 2f;
@@ -18,5 +18,5 @@ namespace PJW
 
             Destroy(gameObject);
         }
-    }    
+    }
 }

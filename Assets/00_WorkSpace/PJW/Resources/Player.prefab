@@ -216,5 +216,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33216184922a6864a90ed826f8fced44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attachPoint: {fileID: 0}
   ownerView: {fileID: 0}

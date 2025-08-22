@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
@@ -19,6 +20,9 @@ namespace PJW
         {
             if (useButton == null)
                 useButton = GetComponent<Button>();
+
+            if (itemNameText != null)
+                itemNameText.gameObject.SetActive(false);
         }
 
         private void Start()
@@ -28,47 +32,99 @@ namespace PJW
 
         private IEnumerator DelayedInit()
         {
-            yield return new WaitForSeconds(0.2f); // 플레이어 생성 대기
+            // 플레이어 생성/동기화 대기 (필요에 맞춰 조정 가능)
+            yield return new WaitForSeconds(0.2f);
 
-            var all = FindObjectsOfType<PlayerItemInventory>(true);
-            foreach (var inv in all)
-            {
-                var pv = inv.GetComponent<PhotonView>() ?? inv.GetComponentInParent<PhotonView>();
-                if (pv != null && pv.IsMine)
+            // 내 소유 인벤토리만 바인딩
+            inventory = FindObjectsOfType<PlayerItemInventory>(true)
+                .FirstOrDefault(inv =>
                 {
-                    inventory = inv;
-                    break;
-                }
-            }
+                    var pv = inv.GetComponent<PhotonView>() ?? inv.GetComponentInParent<PhotonView>();
+                    return pv != null && pv.IsMine;
+                });
 
             if (inventory == null)
             {
                 Debug.LogError("[ItemUseUIButton] 로컬 플레이어의 인벤토리를 찾을 수 없습니다.");
-                useButton.interactable = false;
-                if (itemNameText != null)
-                    itemNameText.text = "";
+                SetInteractable(false);
+                SetItemName("");
                 yield break;
             }
 
-            useButton.onClick.AddListener(inventory.UseItem);
-            useButton.interactable = inventory.HasItem;
-
-            // 아이템 보유 상태에 따라 버튼 상태/텍스트 갱신
-            inventory.OnItemAvailabilityChanged += has =>
+            // 클릭 핸들러
+            useButton.onClick.RemoveAllListeners();
+            useButton.onClick.AddListener(() =>
             {
-                useButton.interactable = has;
-                if (!has && itemNameText != null)
-                    itemNameText.text = "";
-            };
+                // 혹시라도 다른 인벤토리에 연결되었을 가능성 방지
+                var pv = inventory.GetComponent<PhotonView>() ?? inventory.GetComponentInParent<PhotonView>();
+                if (pv != null && !pv.IsMine) return;
 
-            inventory.OnItemAssigned += itemName =>
+                if (inventory.HasItem && inventory.CanUseItem)
+                    inventory.UseItem();
+            });
+
+            // 이벤트 구독(보유 상태/이름 반영)
+            inventory.OnItemAvailabilityChanged += OnAvailabilityChanged;
+            inventory.OnItemAssigned += OnItemAssigned;
+
+            // 초기 상태 반영
+            OnAvailabilityChanged(inventory.HasItem);
+            OnItemAssigned(inventory.CurrentItemName() ?? "");
+
+            // 봉인(CanUseItem) 상태는 이벤트가 없으니 가볍게 모니터링
+            StartCoroutine(MonitorLockState());
+        }
+
+        private IEnumerator MonitorLockState()
+        {
+            // 인벤토리가 사라질 때까지 주기적으로 버튼 상태 동기화
+            while (inventory != null)
             {
-                if (itemNameText != null)
-                    itemNameText.text = $"{itemName}";
-            };
+                bool can = inventory.HasItem && inventory.CanUseItem;
+                if (useButton != null && useButton.interactable != can)
+                    SetInteractable(can);
+                yield return null; // 매 프레임 체크 (부하가 걱정되면 0.05~0.1f로 조절)
+            }
+        }
 
-            // 초기 표시
-            itemNameText.text = inventory.HasItem ? $"{inventory.CurrentItemName()}" : "";
+        private void OnAvailabilityChanged(bool hasItem)
+        {
+            bool can = inventory != null && hasItem && inventory.CanUseItem;
+            SetInteractable(can);
+
+            if (!hasItem) SetItemName("");
+        }
+
+        private void OnItemAssigned(string itemName)
+        {
+            SetItemName(itemName);
+            // 이름 갱신 시에도 버튼 활성 상태 재평가
+            if (inventory != null)
+                SetInteractable(inventory.HasItem && inventory.CanUseItem);
+        }
+
+        private void SetInteractable(bool value)
+        {
+            if (useButton != null)
+                useButton.interactable = value;
+        }
+
+        private void SetItemName(string name)
+        {
+            if (itemNameText == null) return;
+
+            bool show = !string.IsNullOrEmpty(name);
+            itemNameText.text = show ? name : "";
+            itemNameText.gameObject.SetActive(show);
+        }
+
+        private void OnDestroy()
+        {
+            if (inventory != null)
+            {
+                inventory.OnItemAvailabilityChanged -= OnAvailabilityChanged;
+                inventory.OnItemAssigned -= OnItemAssigned;
+            }
         }
     }
 }

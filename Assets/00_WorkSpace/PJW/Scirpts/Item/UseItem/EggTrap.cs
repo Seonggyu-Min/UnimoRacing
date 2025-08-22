@@ -1,11 +1,10 @@
-using UnityEngine;
-using UnityEngine.UI;
-using Cinemachine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace PJW
 {
-    public class BananaTrap : MonoBehaviour, IUsableItem
+    public class EggTrap : MonoBehaviour, IUsableItem
     {
         [SerializeField] private GameObject trapPrefab;
         [SerializeField] private float spawnDistance = 2f;
@@ -18,5 +17,5 @@ namespace PJW
 
             Destroy(gameObject);
         }
-    }    
+    }
 }
