@@ -9,9 +9,8 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/00_WorkSpace/YTW/YTW_TestScene1.unity
-    guid: 44670520ca2bb5b45a909d6123da2a3b
-  - enabled: 1
-    path: Assets/00_WorkSpace/YTW/YTW_TestScene2.unity
-    guid: 3f2e10d0590e1b14488dd31e4c5d44db
-  m_configObjects: {}
+    path: Assets/00_WorkSpace/PJW/Scene/PJWTestScene.unity
+    guid: 137ddc10174461744876c0fc06207d38
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 3c385587428f3de41a90aaaf9600f388,
+      type: 2}

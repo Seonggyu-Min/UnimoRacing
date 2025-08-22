@@ -77,6 +77,8 @@ namespace MSG
             if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsReady) return;
             if (!_configured) ConfigureGoogleSignInOnce();
 
+            Debug.Log("[GoogleAuth] Attempting silent sign-in...");
+
             SilentSignInFlow().Forget();
         }
 
