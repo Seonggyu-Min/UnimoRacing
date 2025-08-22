@@ -80,7 +80,7 @@ namespace MSG
 
         public void OnClickNextSceneButton()
         {
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(1); // 임시
         }
     }
 }
