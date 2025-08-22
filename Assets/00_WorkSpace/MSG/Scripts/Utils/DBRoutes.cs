@@ -66,5 +66,44 @@ namespace MSG
         public static string InBox(string uid, string pairId) => DBPathMaker.Join(DatabaseKeys.inbox, uid, pairId);
 
 
+        // ----- Presence Data -----
+        public static string Presence(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid);
+        public static string OnlineStatus(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.online);
+        public static string InRoomStatus(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.inRoom);
+        public static string InGameStatus(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.inGame);
+        public static string InPartyStatus(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.inParty); // 파티에 있는지 여부
+        public static string PartyIdForPresence(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.partyId); // 파티 ID
+        public static string LastSeen(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.lastSeen); // 마지막 업데이트 타임스탬프
+        public static string RoomName(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.roomName); // 현재 방 이름
+        public static string Heartbeat(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.heartbeat); // Heartbeat 타임스탬프
+
+
+        // ------ Party Data -----
+        public static string PartyRoot(string partyId) => DBPathMaker.Join(DatabaseKeys.parties, partyId); // 파티 데이터
+        public static string PartyMembers(string partyId) => DBPathMaker.Join(DatabaseKeys.parties, partyId, DatabaseKeys.members); // 파티 멤버 목록
+        public static string PartyLeader(string partyId) => DBPathMaker.Join(DatabaseKeys.parties, partyId, DatabaseKeys.leaderUid); // 파티장 UID
+        public static string PartyMember(string partyId, string uid) => DBPathMaker.Join(DatabaseKeys.parties, partyId, DatabaseKeys.members, uid); // 특정 파티 멤버 데이터
+        public static string PartyStatus(string partyId) => DBPathMaker.Join(DatabaseKeys.parties, partyId, DatabaseKeys.status); // 파티 상태
+        //public static string PartyTargetRoom(string partyId) => DBPathMaker.Join(DatabaseKeys.parties, partyId, DatabaseKeys.targetRoom); // 파티가 들어갈 방 이름
+
+
+        //// ----- Party Membership Data -----
+        public static string PartyMembershipsRoot(string uid) => DBPathMaker.Join(DatabaseKeys.partyMemberships, uid); // 유저의 파티 멤버십 목록
+        public static string PartyMembership(string uid) => DBPathMaker.Join(DatabaseKeys.partyMemberships, uid, DatabaseKeys.partyId); // 특정 파티 멤버십 데이터
+
+
+        //// ----- Invitation Data -----
+        //public static string InvitationsRoot(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId); // 초대 데이터
+        //public static string InvitationPartyId(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId, DatabaseKeys.partyId); // 초대된 파티 ID
+        //public static string InvitationFrom(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId, DatabaseKeys.from); // 초대 보낸 사람의 UID
+        //public static string InvitationTo(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId, DatabaseKeys.to); // 초대 받은 사람의 UID
+        //public static string InvitationStatus(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId, DatabaseKeys.status); // 초대 상태 (예: pending, accepted, rejected)
+        //public static string InvitationCreatedAt(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId, DatabaseKeys.createdAt); // 초대 생성 시간
+
+
+        //// ----- UserInvitations Data -----
+        //public static string UserInvitations(string uid) => DBPathMaker.Join(DatabaseKeys.userInvitations, uid); // 유저의 초대 목록
+        //public static string UserInvitation(string uid, string inviteId) => DBPathMaker.Join(DatabaseKeys.userInvitations, uid, inviteId); // 특정 초대 데이터
+
     }
 }
