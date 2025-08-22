@@ -41,7 +41,7 @@ namespace MSG
         [SerializeField] private float _silentDelaySec = 0.1f;
         [SerializeField] private float _silentTimeoutSec = 6f;
 
-        public event Action<FirebaseUser> OnAuthSucceeded;
+        public event Action OnAuthSucceeded;
         public event Action<string> OnAuthFailed;
         public event Action<AuthState> OnAuthStateChanged;
 
@@ -100,6 +100,10 @@ namespace MSG
 
         private void Start()
         {
+#if UNITY_EDITOR
+            return;
+#endif
+
             if (!_autoStart || !enabled) return;
 
             if (!FirebaseManager.Instance.IsReady)
@@ -157,6 +161,10 @@ namespace MSG
 
         private void HandleSignInSucceeded(FirebaseUser user)
         {
+#if UNITY_EDITOR
+            SetUI(AuthState.SignedIn, string.Format(WELCOME_FMT, user.DisplayName ?? "Player"), showError: false);
+            OnAuthSucceeded?.Invoke();
+#endif
             if (_failedHandledOnce) return;
 
             _busy = false;
@@ -164,7 +172,7 @@ namespace MSG
             _attempt = AttemptKind.None;
 
             SetUI(AuthState.SignedIn, string.Format(WELCOME_FMT, user.DisplayName ?? "Player"), showError: false);
-            OnAuthSucceeded?.Invoke(user);
+            OnAuthSucceeded?.Invoke();
         }
 
         private void HandleSignInFailed(string rawMessage)

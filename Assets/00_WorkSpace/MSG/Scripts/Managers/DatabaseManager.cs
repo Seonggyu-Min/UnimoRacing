@@ -45,7 +45,7 @@ namespace MSG
 
         #region Private Methods
         // 순차 실행, 동시 실행, 타임아웃, 리트라이 등을 구현할 수 있기에 분리해둠
-        
+
         // ------- 기본 읽기/쓰기 -------
 
         // 지정된 경로의 데이터를 가져옵니다.
@@ -132,14 +132,14 @@ namespace MSG
             {
                 GetAsync(path).ContinueWithOnMainThread(t =>
                 {
-                    if (t.IsCanceled) 
+                    if (t.IsCanceled)
                     {
                         LogCanceled(op);
                         onError?.Invoke("Canceled");
                         return;
                     }
-                    if (t.IsFaulted) 
-                    { 
+                    if (t.IsFaulted)
+                    {
                         LogError(op, t.Exception);
                         if (onError != null)
                         {
@@ -154,16 +154,16 @@ namespace MSG
                             }
                             onError(msg);
                         }
-                        return; 
+                        return;
                     }
 
                     LogSuccess(op, t.Result.Exists ? t.Result.GetRawJsonValue() : "null");
                     onSuccess?.Invoke(t.Result);
                 });
             }
-            catch (Exception e) 
-            { 
-                onError?.Invoke(e.Message); 
+            catch (Exception e)
+            {
+                onError?.Invoke(e.Message);
             }
         }
 
@@ -181,110 +181,14 @@ namespace MSG
             {
                 SetAsync(value, path).ContinueWithOnMainThread(t =>
                 {
-                    if (t.IsCanceled) 
-                    { 
-                        LogCanceled(op); 
-                        onError?.Invoke("Canceled"); 
-                        return; 
-                    }
-                    if (t.IsFaulted) 
-                    { 
-                        LogError(op, t.Exception);
-                        if (onError != null)
-                        {
-                            string msg;
-                            if (t.Exception != null && t.Exception.Message != null)
-                            {
-                                msg = t.Exception.Message;
-                            }
-                            else
-                            {
-                                msg = "Error";
-                            }
-                            onError(msg);
-                        }
-                        return; 
-                    }
-
-                    LogSuccess(op);
-                    onSuccess?.Invoke();
-                });
-            }
-            catch (Exception e) 
-            { 
-                onError?.Invoke(e.Message); 
-            }
-        }
-
-        /// <summary>
-        /// 여러 경로를 동시에 업데이트합니다.
-        /// </summary>
-        /// <param name="updateByPaths">경로 string을 전달합니다. DBRoutes를 사용하여 전달하는 것이 좋습니다.</param>
-        /// <param name="onSuccess">읽기에 성공했을 때 호출됩니다. (Optional Parameter)</param>
-        /// <param name="onError">읽기에 실패했을 때 에러 메시지를 전달합니다. (Optional Parameter)</param>
-        public void UpdateOnMain(Dictionary<string, object> updateByPaths, Action onSuccess = null, Action<string> onError = null)
-        {
-            const string op = "Update ";
-            try
-            {
-                UpdateAsync(updateByPaths).ContinueWithOnMainThread(t =>
-                {
-                    if (t.IsCanceled) 
-                    { 
-                        LogCanceled(op); 
-                        onError?.Invoke("Canceled"); 
-                        return; 
-                    }
-                    if (t.IsFaulted) 
-                    { 
-                        LogError(op, t.Exception);
-                        if (onError != null)
-                        {
-                            string msg;
-                            if (t.Exception != null && t.Exception.Message != null)
-                            {
-                                msg = t.Exception.Message;
-                            }
-                            else
-                            {
-                                msg = "Error";
-                            }
-                            onError(msg);
-                        }
-                        return; 
-                    }
-
-                    LogSuccess(op);
-                    onSuccess?.Invoke();
-                });
-            }
-            catch (Exception e) 
-            { 
-                onError?.Invoke(e.Message); 
-            }
-        }
-
-        /// <summary>
-        /// 지정된 경로의 노드를 삭제합니다.
-        /// </summary>
-        /// <param name="path">경로 string을 전달합니다. DBRoutes를 사용하여 전달하는 것이 좋습니다.</param>
-        /// <param name="onSuccess">읽기에 성공했을 때 호출됩니다. (Optional Parameter)</param>
-        /// <param name="onError">읽기에 실패했을 때 에러 메시지를 전달합니다. (Optional Parameter)</param>
-        public void RemoveOnMain(string path, Action onSuccess = null, Action<string> onError = null)
-        {
-            var op = $"Remove ({path}) ";
-            try
-            {
-                RemoveAsync(path).ContinueWithOnMainThread(t =>
-                {
-                    if (t.IsCanceled) 
-                    { 
-                        LogCanceled(op); 
+                    if (t.IsCanceled)
+                    {
+                        LogCanceled(op);
                         onError?.Invoke("Canceled");
                         return;
                     }
                     if (t.IsFaulted)
-                    { 
+                    {
                         LogError(op, t.Exception);
                         if (onError != null)
                         {
@@ -307,7 +211,103 @@ namespace MSG
                 });
             }
             catch (Exception e)
-            { 
+            {
+                onError?.Invoke(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// 여러 경로를 동시에 업데이트합니다.
+        /// </summary>
+        /// <param name="updateByPaths">경로 string을 전달합니다. DBRoutes를 사용하여 전달하는 것이 좋습니다.</param>
+        /// <param name="onSuccess">읽기에 성공했을 때 호출됩니다. (Optional Parameter)</param>
+        /// <param name="onError">읽기에 실패했을 때 에러 메시지를 전달합니다. (Optional Parameter)</param>
+        public void UpdateOnMain(Dictionary<string, object> updateByPaths, Action onSuccess = null, Action<string> onError = null)
+        {
+            const string op = "Update ";
+            try
+            {
+                UpdateAsync(updateByPaths).ContinueWithOnMainThread(t =>
+                {
+                    if (t.IsCanceled)
+                    {
+                        LogCanceled(op);
+                        onError?.Invoke("Canceled");
+                        return;
+                    }
+                    if (t.IsFaulted)
+                    {
+                        LogError(op, t.Exception);
+                        if (onError != null)
+                        {
+                            string msg;
+                            if (t.Exception != null && t.Exception.Message != null)
+                            {
+                                msg = t.Exception.Message;
+                            }
+                            else
+                            {
+                                msg = "Error";
+                            }
+                            onError(msg);
+                        }
+                        return;
+                    }
+
+                    LogSuccess(op);
+                    onSuccess?.Invoke();
+                });
+            }
+            catch (Exception e)
+            {
+                onError?.Invoke(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// 지정된 경로의 노드를 삭제합니다.
+        /// </summary>
+        /// <param name="path">경로 string을 전달합니다. DBRoutes를 사용하여 전달하는 것이 좋습니다.</param>
+        /// <param name="onSuccess">읽기에 성공했을 때 호출됩니다. (Optional Parameter)</param>
+        /// <param name="onError">읽기에 실패했을 때 에러 메시지를 전달합니다. (Optional Parameter)</param>
+        public void RemoveOnMain(string path, Action onSuccess = null, Action<string> onError = null)
+        {
+            var op = $"Remove ({path}) ";
+            try
+            {
+                RemoveAsync(path).ContinueWithOnMainThread(t =>
+                {
+                    if (t.IsCanceled)
+                    {
+                        LogCanceled(op);
+                        onError?.Invoke("Canceled");
+                        return;
+                    }
+                    if (t.IsFaulted)
+                    {
+                        LogError(op, t.Exception);
+                        if (onError != null)
+                        {
+                            string msg;
+                            if (t.Exception != null && t.Exception.Message != null)
+                            {
+                                msg = t.Exception.Message;
+                            }
+                            else
+                            {
+                                msg = "Error";
+                            }
+                            onError(msg);
+                        }
+                        return;
+                    }
+
+                    LogSuccess(op);
+                    onSuccess?.Invoke();
+                });
+            }
+            catch (Exception e)
+            {
                 onError?.Invoke(e.Message);
             }
         }
@@ -327,12 +327,12 @@ namespace MSG
                 IncrementAsync(delta, path).ContinueWithOnMainThread(t =>
                 {
                     if (t.IsCanceled)
-                    { 
+                    {
                         LogCanceled(op);
                         onError?.Invoke("Canceled");
                         return;
                     }
-                    if (t.IsFaulted) 
+                    if (t.IsFaulted)
                     {
                         LogError(op, t.Exception);
                         if (onError != null)
@@ -348,16 +348,16 @@ namespace MSG
                             }
                             onError(msg);
                         }
-                        return; 
+                        return;
                     }
 
                     LogSuccess(op, t.Result?.Value?.ToString());
                     onSuccess?.Invoke(t.Result);
                 });
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
-                onError?.Invoke(e.Message); 
+                onError?.Invoke(e.Message);
             }
         }
 
@@ -374,14 +374,14 @@ namespace MSG
                 onSuccess: snap =>
                 {
                     long v = 0;
-                    try 
+                    try
                     {
                         if (snap != null && snap.Exists && snap.Value != null)
                         {
                             long.TryParse(snap.Value.ToString(), out v);
                         }
                     }
-                    catch 
+                    catch
                     {
                         // 파싱 실패 시 기본값 0으로 설정
                     }
@@ -406,10 +406,10 @@ namespace MSG
             {
                 RunTransactionAsync(handler, path, fireLocalEvents).ContinueWithOnMainThread(t =>
                 {
-                    if (t.IsCanceled) 
-                    { 
+                    if (t.IsCanceled)
+                    {
                         LogCanceled(op);
-                        onError?.Invoke("Canceled"); 
+                        onError?.Invoke("Canceled");
                         return;
                     }
                     if (t.IsFaulted)
@@ -429,7 +429,7 @@ namespace MSG
 
                             onError(msg);
                         }
-                        return; 
+                        return;
                     }
 
                     LogSuccess(op, t.Result?.Value?.ToString());
@@ -437,8 +437,8 @@ namespace MSG
                 });
             }
             catch (Exception e)
-            { 
-                onError?.Invoke(e.Message); 
+            {
+                onError?.Invoke(e.Message);
             }
         }
 
