@@ -5,26 +5,23 @@ using UnityEngine.UI;
 
 namespace PJW
 {
-    public class HoneyTrap : MonoBehaviour
+    public class HoneyTrap : MonoBehaviour, IUsableItem
     {
-        [Header("함정 설정")]
-        [SerializeField] private GameObject trapPrefab;     
-        [SerializeField] private float distanceAhead = 5f;  
-        [Header("UI 버튼")]
-        [SerializeField] private Button trapButton;        
+        [SerializeField] private GameObject trapPrefab;
+        [SerializeField] private float distanceAhead = 5f;
 
-        private void Start()
+        public void Use(GameObject owner)
         {
-            if (trapButton != null)
-                trapButton.onClick.AddListener(PlaceTrap);
-        }
+            if (trapPrefab == null || owner == null)
+            {
+                Destroy(gameObject);
+                return;
+            }
 
-        private void PlaceTrap()
-        {
-            if (trapPrefab == null) return;
-
-            Vector3 spawnPos = transform.position + transform.forward * distanceAhead;
+            Vector3 spawnPos = owner.transform.position + owner.transform.forward * distanceAhead;
             Instantiate(trapPrefab, spawnPos, Quaternion.identity);
+
+            Destroy(gameObject);
         }
     }
 }

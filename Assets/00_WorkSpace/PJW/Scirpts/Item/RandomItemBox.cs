@@ -21,7 +21,6 @@ namespace PJW
 
         [Header("설정")]
         [SerializeField] private float respawnTime = 5f;
-        [SerializeField] private bool destroyOnPickup = false;
 
         private Collider boxCollider;
         private Renderer[] renders;
@@ -84,26 +83,18 @@ namespace PJW
 
             var player = PhotonView.Find(info.Sender.TagObject as int? ?? -1); 
             var inventory = FindObjectOfType<PlayerItemInventory>(); 
-            if (inventory == null)
-            {
-                inventory = GetComponentInParent<PlayerItemInventory>();
-            }
+            
             if (inventory != null && found != null)
             {
                 inventory.AssignItemPrefab(found);
             }
         }
 
-        private IEnumerator ConsumeAndRespawn()
+        // 아이템 먹을시 비활성화 처리함
+        private IEnumerator ConsumeAndRespawn() 
         {
-            SetActiveVisual(false);
+            SetActiveVisual(false); 
             isAvailable = false;
-
-            if (destroyOnPickup)
-            {
-                PhotonNetwork.Destroy(gameObject);
-                yield break;
-            }
 
             yield return new WaitForSeconds(respawnTime);
 
