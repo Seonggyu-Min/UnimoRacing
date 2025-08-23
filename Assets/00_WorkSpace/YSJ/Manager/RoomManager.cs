@@ -52,7 +52,6 @@ public class RoomManager : SimpleSingleton<RoomManager>
             matchingType: MatchmakingMode.FillRoom,
             typedLobby: TypedLobby.Default,
             sqlLobbyFilter: null,
-            roomName: PhotonNetwork.NickName + "_Room",
             roomOptions: opts
         );
     }
