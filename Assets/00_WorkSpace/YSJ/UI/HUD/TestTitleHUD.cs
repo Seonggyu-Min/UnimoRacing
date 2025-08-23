@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using YSJ.Util;
 
-public sealed class TestLobbyHUD : BaseUI
+public sealed class TestTitleHUD : BaseUI
 {
     private enum TestLobbyUI
     {
@@ -140,6 +140,7 @@ public sealed class TestLobbyHUD : BaseUI
             matchTmp.text = "Race~!";
             RoomManager.Instance.OnMatchAction();
             yield return new WaitForSeconds(3.0f);
+            RoomNameUpdate();
         }
     }
 
