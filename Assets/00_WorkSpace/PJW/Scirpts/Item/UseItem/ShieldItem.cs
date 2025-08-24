@@ -1,50 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace PJW
 {
-    public class ShieldItem : MonoBehaviour
+    public class ShieldItem : MonoBehaviour, IUsableItem
     {
-        [SerializeField] private float defaultDuration;
+        [Header("설정")]
+        [SerializeField] private int shieldCount = 1;        
+        [SerializeField] private float durationSeconds = 0f; 
 
-        private bool isInvulnerable;
-        private float remainTime;
-
-        public void Activate(float duration = -1f)
+        public void Use(GameObject owner)
         {
-            float d = duration > 0f ? duration : defaultDuration;
-            if (d <= 0f) return;
-            isInvulnerable = true;
-            remainTime = d;
-            Debug.Log($"[Shield] Activated for {d:0.##}s");
-        }
+            if (owner == null) { Destroy(gameObject); return; }
 
-        public bool TryBlock(string sourceTag = null)
-        {
-            if (isInvulnerable)
+            var ownerView = owner.GetComponent<PhotonView>() ?? owner.GetComponentInParent<PhotonView>();
+            if (ownerView != null && !ownerView.IsMine)
             {
-                return true;
+                Destroy(gameObject);
+                return;
             }
-            return false;
-        }
 
-        public bool IsInvulnerable()
-        {
-            return isInvulnerable;
-        }
+            // 방패 부여
+            PlayerShield.Give(owner, shieldCount, durationSeconds);
 
-        private void Update()
-        {
-            if (!isInvulnerable) return;
-
-            remainTime -= Time.deltaTime;
-            if (remainTime <= 0f)
-            {
-                isInvulnerable = false;
-                Debug.Log("[Shield] Expired");
-            }
+            Destroy(gameObject);
         }
     }
 }
+
+/* 방패 효과 코드
+if (PJW.PlayerShield.TryConsume(target))
+{
+    return;
+}
+*/
