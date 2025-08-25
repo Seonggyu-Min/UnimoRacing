@@ -74,12 +74,24 @@ namespace MSG
 
         private void ShowVoteUI()
         {
+            Debug.Log("[NoPartyMatchMaker] 투표 시작");
             // 투표 UI 활성화
         }
 
         private void DisableVoteUI()
         {
+            Debug.Log("[NoPartyMatchMaker] 투표 종료");
             // 투표 UI 비활성화
+        }
+
+        public void DebugRoom()
+        {
+            foreach (var p in PhotonNetwork.CurrentRoom.Players)
+            {
+                Debug.Log($"[NoPartyMatchMaker] 현재 방 {PhotonNetwork.CurrentRoom.Name}에 {p.Value.UserId} 이 들어와있음");
+            }
+
+            Debug.Log($"[NoPartyMatchMaker] 현재 방 {PhotonNetwork.CurrentRoom.Name}에 총원 {PhotonNetwork.CurrentRoom.PlayerCount}명");
         }
     }
 }
