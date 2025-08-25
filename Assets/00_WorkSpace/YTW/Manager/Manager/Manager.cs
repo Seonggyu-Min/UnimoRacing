@@ -7,6 +7,7 @@ public class Manager : Singleton<Manager>
 {
     public static AudioManager Audio { get; private set; }
     public static SceneManager Scene { get; private set; }
+    public static ResourceManager Resource { get; private set; }
 
     protected override void Awake()
     {
@@ -14,6 +15,7 @@ public class Manager : Singleton<Manager>
 
         Audio = AudioManager.Instance;
         Scene = SceneManager.Instance;
+        Resource = ResourceManager.Instance;
     }
 
     // UI 이벤트를 위한 연결 함수

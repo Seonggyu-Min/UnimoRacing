@@ -10,35 +10,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: YTW
+  m_Name: Audio
   m_EditorClassIdentifier: 
-  m_GroupName: YTW
+  m_GroupName: Audio
   m_Data:
     m_SerializedData: []
-  m_GUID: ce9d3d6cd27594040abc7adee1cfba5b
+  m_GUID: 0129a701a6fda96428f78e497e437a36
   m_SerializeEntries:
-  - m_GUID: 012da8a3996f9794a9567550a5291df2
-    m_Address: GameAudioMixer
+  - m_GUID: 22ede9d2fb2b0874bb006b34fa24f73c
+    m_Address: Audio/BGM/GameBGM01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 3f2e10d0590e1b14488dd31e4c5d44db
-    m_Address: YTW_TestScene2
+  - m_GUID: 5b007e2aaf716264b8ee10d9b457b6c7
+    m_Address: Audio/SFX/TouchTest
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 44670520ca2bb5b45a909d6123da2a3b
-    m_Address: YTW_TestScene1
+  - m_GUID: 79ca93df23195594b8eb63f6c1a22256
+    m_Address: Audio/BGM/GameBGM02
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 55d4a2584eb636a4c868215766eab598
-    m_Address: LoadingUIPanel
+  - m_GUID: 83e89c63ddc06ec4aac9d7e9ca0cbedb
+    m_Address: Audio/SFX/Collision
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 735240edc2851ac43bbde40036e16f6b
-    m_Address: AudioDB
+  - m_GUID: ad8a86cb49398584eb6669673b8f12de
+    m_Address: Audio/LoopingSFX/CarEngine
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c4ef33583abe07741ab9b30329cfd6b5
+    m_Address: Audio/SFX/LineMove
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd2c69cd0537ea245ab40ee695a4781a
+    m_Address: Audio/BGM/LobbyBGM
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -46,5 +56,5 @@ MonoBehaviour:
   m_Settings: {fileID: 11400000, guid: 77e2d83c7e8f57943b8b09c4fc47a174, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: be41af6d93bc4674db6195aaa183d6ab, type: 2}
-    - {fileID: 11400000, guid: be6a14e3a7565354fa94e2800dccbc8b, type: 2}
+    - {fileID: 11400000, guid: 8b02cfc46316d0d44a1f629690806f0f, type: 2}
+    - {fileID: 11400000, guid: 500d4e426f1952640bed4a518852b1ce, type: 2}

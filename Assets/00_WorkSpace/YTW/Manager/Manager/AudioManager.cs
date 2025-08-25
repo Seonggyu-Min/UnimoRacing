@@ -5,14 +5,17 @@ using System.Collections.Generic;
 using System;
 using System.Data.Common;
 using Unity.VisualScripting;
+using System.Threading.Tasks;
 
 namespace YTW
 {
     public class AudioManager : Singleton<AudioManager>
     {
         // 상수 Resources 폴더 안에서의 경로
-        private const string AUDIO_DB_PATH = "Audio/AudioDB";
-        private const string AUDIO_MIXER_PATH = "Audio/GameAudioMixer";
+        //private const string AUDIO_DB_PATH = "Audio/AudioDB";
+        //private const string AUDIO_MIXER_PATH = "Audio/GameAudioMixer";
+        private const string AUDIO_DB_ADDRESS = "AudioDB"; // 예시 주소
+        private const string AUDIO_MIXER_ADDRESS = "GameAudioMixer"; // 예시 주소
 
         [Header("오디오 데이터베이스")]
         [SerializeField] private AudioDB _audioDB;
@@ -34,6 +37,8 @@ namespace YTW
         private Dictionary<AudioSource, Coroutine> _activeReturnCoroutines;
         // BGM 페이드인/아웃 효과를 처리하는 코루틴을 저장하는 변수
         private Coroutine _bgmFadeCo;
+        private bool _isInitialized = false;
+        public bool IsInitialized => _isInitialized;
 
         // 상수
         // SFX 오브젝트 풀을 처음에 몇 개 만들어 둘지 정하는 상수
@@ -48,65 +53,88 @@ namespace YTW
         protected override void Awake()
         {
             base.Awake();
+        }
 
-            // 자동 리소스 로드
-            if (_audioDB == null)
+        private async void Start()
+        {
+            // 비동기 초기화
+            await InitializeAsync();
+        }
+
+        private async Task InitializeAsync()
+        {
+            // ResourceManager가 생성될 때까지 대기
+            while (Manager.Resource == null)
             {
-                _audioDB = Resources.Load<AudioDB>(AUDIO_DB_PATH);
-                if (_audioDB == null) Debug.LogError($"[AudioManager] Resources 폴더에서 AudioDB를 찾을 수 없습니다. 경로: Resources/{AUDIO_DB_PATH}");
+                // Task.Yield() : 한 프레임 뒤로 미루고 다시 검사
+                await Task.Yield();
             }
 
-            if (_mixer == null)
+            // ResourceManager를 통해 AudioDB와 AudioMixer를 비동기로 로드
+            // (Addressables/리소스 매니저에서 가져오는 비동기 로직)
+            _audioDB = await Manager.Resource.LoadAsync<AudioDB>(AUDIO_DB_ADDRESS);
+            _mixer = await Manager.Resource.LoadAsync<AudioMixer>(AUDIO_MIXER_ADDRESS);
+
+            if (_audioDB == null || _mixer == null)
             {
-                _mixer = Resources.Load<AudioMixer>(AUDIO_MIXER_PATH);
-                if (_mixer == null) Debug.LogError($"[AudioManager] Resources 폴더에서 AudioMixer를 찾을 수 없습니다. 경로: Resources/{AUDIO_MIXER_PATH}");
+                Debug.LogError("[AudioManager] 필수 에셋 로드 실패!");
+                return;
             }
 
-            InitializeAudioDatabase();
+            // AudioDB 안에 등록된 모든 AudioData 항목을 미리 로드해서 딕셔너리에 저장
+            await PreloadAudioClips();
+
+
+            // SFX 풀링 초기화 (효율적인 사운드 재생을 위해 오디오 소스 미리 만들어둠)
             InitializeSfxPool();
             _activeReturnCoroutines = new Dictionary<AudioSource, Coroutine>();
 
+            // BGM 전용 오디오 소스가 없으면 자동으로 생성
             if (_bgmSource == null)
             {
                 _bgmSource = gameObject.AddComponent<AudioSource>();
                 _bgmSource.playOnAwake = false;
             }
-        }
 
-        private void Start()
-        {
+            // PlayerPrefs에서 이전 볼륨 세팅 불러오기
             LoadVolumeSettings();
+            _isInitialized = true;
+            Debug.Log("[AudioManager] 비동기 초기화 및 오디오 프리로딩 완료.");
         }
 
-        // StringComparer.OrdinalIgnoreCase: 문자열 Key를 비교할 때 대소문자를 무시
-        private void InitializeAudioDatabase()
+        // AudioDB에 등록된 모든 오디오 데이터를 돌면서 해당 오디오 클립을 Addressables에서 미리 로드
+        private async Task PreloadAudioClips()
         {
-            if (_audioDB == null || _audioDB.AudioDataList == null)
-            {
-                Debug.LogError("[AudioManager] AudioDB가 할당되지 않았습니다.");
-                _audioDataDict = new Dictionary<string, AudioData>(StringComparer.OrdinalIgnoreCase);
-                return;
-            }
+            // StringComparer.OrdinalIgnoreCase : 대소문자 구분 없이 키를 찾도록 설정. (선택입니다)
             _audioDataDict = new Dictionary<string, AudioData>(_audioDB.AudioDataList.Count, StringComparer.OrdinalIgnoreCase);
+
+            var loadingTasks = new List<Task>();
+
             foreach (var data in _audioDB.AudioDataList)
             {
-                if (data == null) continue;
-                // 인스펙터에서 실수로 입력한 공백 때문에 Key를 못 찾는 문제를 방지
-                string key = data.ClipName.Trim();
-                // Key가 비어있거나 공백으로만 이루어져 있으면 경고를 출력
-                if (string.IsNullOrWhiteSpace(key))
+                // 오디오 데이터 하나마다 비동기 로드 작업 추가
+                loadingTasks.Add(LoadClipForData(data));
+            }
+
+            // 모든 로드 작업이 완료될 때까지 비동기적으로 기다림
+            await Task.WhenAll(loadingTasks);
+        }
+
+        // AudioData 하나를 실제로 로드하는 함수
+        private async Task LoadClipForData(AudioData data)
+        {
+            if (data == null || string.IsNullOrWhiteSpace(data.ClipAddress)) return;
+
+            // ResourceManager를 통해 AudioClip을 로드
+            var loadedClip = await Manager.Resource.LoadAsync<AudioClip>(data.ClipAddress);
+            if (loadedClip != null)
+            {
+                data.Clip = loadedClip;
+                // ClipName이 비어있지 않고 아직 등록되지 않았다면 딕셔너리에 추가
+                if (!string.IsNullOrWhiteSpace(data.ClipName) && !_audioDataDict.ContainsKey(data.ClipName))
                 {
-                    Debug.LogWarning($"[AudioManager] 이름이 없는 AudioData({data.name})가 있어 건너뜁니다.", data);
-                    continue;
+                    _audioDataDict.Add(data.ClipName, data);
                 }
-                // 만약 딕셔너리에 이미 같은 이름의 Key가 등록되어 있다면 경고를 출력
-                if (_audioDataDict.ContainsKey(key))
-                {
-                    Debug.LogWarning($"[AudioManager] '{key}' 이름의 AudioData가 중복되어 건너뜁니다.");
-                    continue;
-                }
-                // 정리된 Key와 AudioData를 딕셔너리에 추가
-                _audioDataDict.Add(key, data);
             }
         }
         #endregion
@@ -116,6 +144,8 @@ namespace YTW
         // name: 재생할 BGM의 이름, fadeTime: 전환 시간, forceRestart: 이미 같은 BGM이 나올 때 강제로 다시 재생할지 여부
         public void PlayBGM(string name, float fadeTime = 1.0f, bool forceRestart = false)
         {
+            if (!IsInitialized) { Debug.LogWarning("AudioManager가 아직 준비되지 않아 BGM을 재생할 수 없습니다."); return; }
+
             if (!_audioDataDict.TryGetValue(name.Trim(), out var data) || data?.Clip == null)
             {
                 Debug.LogWarning($"[AudioManager] BGM '{name}'을 찾을 수 없거나 클립이 비어있습니다.");
@@ -197,6 +227,7 @@ namespace YTW
         // 2D 공간에서 SFX를 재생
         public AudioSource PlaySFX(string name)
         {
+            if (!IsInitialized) { Debug.LogWarning("AudioManager가 아직 준비되지 않았습니다."); return null; }
             return PlaySFXInternal(name, false, Vector3.zero);
         }
 
@@ -363,22 +394,22 @@ namespace YTW
 
         // 지정된 AudioSource에서 루프 사운드를 재생 (주행음에 사용. 없다면 사용 x)
         // 오디오소스, db에 등록된 이름, 페이드타임 (서서히 켜지는 시간)
-        public void PlayLoopingSoundOn(AudioSource source, string name, float fadeTime = 0.1f)
+        public AudioData PlayLoopingSoundOn(AudioSource source, string name, float fadeTime = 0.1f)
         {
             if (source == null)
             {
                 Debug.LogError("[AudioManager] 사운드를 재생할 AudioSource가 null입니다.");
-                return;
+                return null;
             }
 
             if (!_audioDataDict.TryGetValue(name.Trim(), out var data) || data?.Clip == null)
             {
                 Debug.LogWarning($"[AudioManager] 지속 사운드 '{name}'을 찾을 수 없거나 클립이 비어있습니다.");
-                return;
+                return null;
             }
 
             // 이미 같은 클립을 재생 중이면 아무것도 하지 않음
-            if (source.isPlaying && source.clip == data.Clip) return;
+            if (source.isPlaying && source.clip == data.Clip) return data;
 
             // AudioSource에 필요한 설정
             source.clip = data.Clip;
@@ -392,6 +423,8 @@ namespace YTW
 
             // 페이드 인 효과를 주는 코루틴
             StartCoroutine(IE_FadeSource(source, data.Volume, fadeTime));
+
+            return data;
         }
 
 
