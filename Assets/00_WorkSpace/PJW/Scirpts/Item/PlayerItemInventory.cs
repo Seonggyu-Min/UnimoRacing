@@ -110,7 +110,7 @@ namespace PJW
         [PunRPC]
         private void RpcObscureOpponents(int ownerActorNr, float duration, float fadeIn, float maxAlpha, float fadeOut)
         {
-            if (PhotonNetwork.LocalPlayer.ActorNumber == ownerActorNr) return;  // 본인은 제외
+            if (PhotonNetwork.LocalPlayer.ActorNumber == ownerActorNr) return;  
             VisionObscureController.EnsureInScene().Obscure(duration, fadeIn, maxAlpha, fadeOut);
         }
     }
