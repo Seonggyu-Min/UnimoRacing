@@ -6,20 +6,20 @@ using UnityEngine;
 
 namespace MSG
 {
-    public class MatchMessages : MonoBehaviour
+    public class MatchMessages
     {
 
         [Serializable]
         public class LfgMsg
         {
-            public string t = "LFG";
+            public string t = "LFG";       // 메시지 타입
             public string id;              // uuid
-            public string partyId;
-            public string room;
-            public string leaderUid;
-            public string[] uids;
-            public int size;
-            public int max;
+            public string partyId;         // 파티 이름
+            public string room;            // 방 이름
+            public string leaderUid;       // 파티장 uid
+            public List<string> uids;      // 파티원 uid 목록
+            public int size;               // 현재 파티원 수
+            public int max;                // 최대 파티원 수
             public long ts;                // unix ms
             public long expiresAt;         // ts + ttl
             public long roomCreatedAt;     // 결정함수용
@@ -51,7 +51,7 @@ namespace MSG
             public string t = "TICKET";
             public string matchId;
             public string room;
-            public string[] uids;
+            public List<string> uids;
             public long exp;
         }
     }
