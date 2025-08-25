@@ -5,6 +5,7 @@ using Photon.Pun;
 namespace PJW
 {
     [DisallowMultipleComponent]
+    [RequireComponent(typeof(PhotonView))]
     public class DollyLaneBinder : MonoBehaviour
     {
         [Header("참조")]
@@ -69,7 +70,6 @@ namespace PJW
             if (cart != null && cart.m_Path == null && path != null)
             {
                 cart.m_Path = path;
-                Debug.Log($"[DollyLaneBinder] DollyCart에 path 적용됨: {path.name}");
             }
 
             if (spawnAtPathStart && cart?.m_Path != null)
