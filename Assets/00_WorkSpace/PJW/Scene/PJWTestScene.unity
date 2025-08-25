@@ -825,6 +825,9 @@ MonoBehaviour:
   - itemPrefab: {fileID: 5856998634752518834, guid: d24c52130d98bcd43b8f1a602245bc63,
       type: 3}
     weight: 0
+  - itemPrefab: {fileID: 9174385663795004604, guid: c08552f2a0c3d7741ad6d84cc902dbdf,
+      type: 3}
+    weight: 10
   respawnTime: 5
 --- !u!65 &1072761681
 BoxCollider:
