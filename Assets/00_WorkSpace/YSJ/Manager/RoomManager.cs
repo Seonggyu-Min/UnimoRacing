@@ -34,7 +34,7 @@ public enum SceneID
 
 public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 {
-    private RaceGameConfig raceGameConfig;
+    private RoomRaceGameConfig raceGameConfig;
 
     private bool    _isFindRoom        = false;     // 방 찾았는지 여부
     private double  _matchReadyStartTime    = 0.0f;      // 매치 시작 시간
@@ -59,7 +59,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
     {
         base.Init();
 
-        raceGameConfig = RaceGameConfig.Load();
+        raceGameConfig = RoomRaceGameConfig.Load();
         Cleanup();
 
         // Photon 이벤트 콜백 등록
@@ -79,9 +79,6 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
         PhotonNetworkManager.Instance.OnActionPlayerLeftRoom += PlayerLeftRoom;
 
         PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate -= PlayerPropertiesUpdate;
-        PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate += PlayerPropertiesUpdate;
-
-        PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate += PlayerPropertiesUpdate;
         PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate += PlayerPropertiesUpdate;
 
         PhotonNetworkManager.Instance.OnActionRoomPropertiesUpdate -= RoomPropertiesUpdate;
@@ -169,7 +166,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
             var cp = new Hashtable
             {
                 [ToKeyString(RoomPropertyKey.FullNotified           )]  = true,
-                [ToKeyString(RoomPropertyKey.RoomState              )]  = RoomState.Race,
+                [ToKeyString(RoomPropertyKey.RoomState              )]  = RoomState.Start,
                 [ToKeyString(RoomPropertyKey.MatchedReadyStartTime  )]  = _matchReadyStartTime,
             };
             room.SetCustomProperties(cp);
@@ -182,10 +179,11 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
         if (propertiesThatChanged.ContainsKey(ToKeyString(RoomPropertyKey.MatchedReadyStartTime)))
         {
             double matchStartTime = (double)propertiesThatChanged[ToKeyString(RoomPropertyKey.MatchedReadyStartTime)];
-            _matchReadyStartTime = matchStartTime;
+            _matchReadyStartTime = matchStartTime; // 레디창에서 갔다가 씀
         }
 
         // 룸 상태 처리
+        // 해당 룸 매니저는 어딜가나 필수로 같이 돌아다니기 때문에 해당 상태 변경을 체크 필수
         if (propertiesThatChanged.ContainsKey(ToKeyString(RoomPropertyKey.RoomState)))
         {
             RoomState roomStateValue = (RoomState)propertiesThatChanged[ToKeyString(RoomPropertyKey.RoomState)];
@@ -200,7 +198,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
         var opts = new RoomOptions
         {
-            MaxPlayers = raceGameConfig.RaceMaxPlayer,  // 방 최대 인원 수
+            MaxPlayers = raceGameConfig.RoomRacePlayer,  // 방 최대 인원 수
             IsVisible  = true,                          // 로비 노출 여부
             IsOpen     = true,                          // 입장 가능 여부
             CustomRoomProperties = new Hashtable
@@ -266,6 +264,9 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
         room.SetCustomProperties(cp);
     }
 
+    // 나가는 녀석이 이걸 자체적으로 호출하면 애러남
+    // 그렇기 떄문에 나갈떄는 룸의 마스터가 변경됨
+    // 그리고 마스터가 해당 데이터 관련 처리가 필요
     private void ReopenRoomAndClearFullFlag()
     {
         if (!PhotonNetwork.IsMasterClient || PhotonNetwork.CurrentRoom == null) return;
