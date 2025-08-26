@@ -197,8 +197,12 @@ namespace YTW
             }
 
             // 성공 시 결과 반환
-            // 현재 코드는 _instanceHandles에 기록하지 않음. 필요시 추적 로직을 추가
-            return handle.Result;
+            var go = handle.Result;
+            lock (_lock)
+            {
+                _instanceHandles[go] = handle; // 추적 등록 (비추적 파괴 방지)
+            }
+            return go;
         }
 
         // 에셋 해제 (Release)
@@ -272,6 +276,9 @@ namespace YTW
         }
 
         // 씬 로드
+        // LoadSceneMode
+        // single : 새로운 씬을 로드하기 전에 현재 열려있는 모든 씬을 닫음
+        // Additive : 현재 열려있는 씬을 그대로 둔 채, 그 위에 새로운 씬을 추가로 불러옴
         public async Task<SceneInstance?> LoadSceneAsync(string sceneAddress, LoadSceneMode mode = LoadSceneMode.Single)
         {
             if (string.IsNullOrWhiteSpace(sceneAddress)) return null;
