@@ -8,6 +8,9 @@ namespace MSG
 {
     public class NoPartyMatchMaker : MonoBehaviourPunCallbacks
     {
+        [SerializeField] private int _maxPlayers = 2;
+        [SerializeField] private int _gameLevel = 2;
+
         private Coroutine _voteCO;
 
         public void OnClickTryQuickMatch()
@@ -28,6 +31,9 @@ namespace MSG
         public override void OnJoinedRoom()
         {
             Debug.Log($"[NoPartyMatchMaker] 방 참가 성공");
+            DecideToShowVoteUI();
+
+            Debug.Log($"[NoPartyMatchMaker] AutomaticallySyncScene ? {PhotonNetwork.AutomaticallySyncScene}");
         }
 
         public override void OnJoinRandomFailed(short returnCode, string message)
@@ -42,7 +48,7 @@ namespace MSG
 
             RoomOptions options = new RoomOptions
             {
-                MaxPlayers = 4,
+                MaxPlayers = _maxPlayers,
                 IsVisible = true,
                 IsOpen = true
             };
@@ -132,7 +138,7 @@ namespace MSG
             }
 
             // TODO: 투표 집계 로직 추가
-            PhotonNetwork.LoadLevel(2);
+            PhotonNetwork.LoadLevel(_gameLevel);
         }
 
         [ContextMenu("DebugRoom")]
