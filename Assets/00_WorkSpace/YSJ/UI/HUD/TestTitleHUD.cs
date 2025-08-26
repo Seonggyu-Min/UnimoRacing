@@ -1,5 +1,7 @@
 ﻿using Photon.Pun;
+using Runtime.UI;
 using System.Collections;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
@@ -8,7 +10,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using YSJ.Util;
 
-public sealed class TestLobbyHUD : BaseUI
+public sealed class TestTitleHUD : BaseUI
 {
     private enum TestLobbyUI
     {
@@ -61,6 +63,14 @@ public sealed class TestLobbyHUD : BaseUI
         raceCharacterId_InputField.richText = false;
         raceCarId_InputField.richText = false;
         hopeRaceMapId_InputField.richText = false;
+
+        PhotonNetworkManager.Instance.OnActionLeftRoom -= CleanupUI;
+        PhotonNetworkManager.Instance.OnActionLeftRoom += CleanupUI;
+    }
+
+    private void OnDestroy()
+    {
+        PhotonNetworkManager.Instance.OnActionLeftRoom -= CleanupUI;
     }
 
     public void OnMathButtonEvent(PointerEventData eventData)
@@ -104,14 +114,14 @@ public sealed class TestLobbyHUD : BaseUI
         var isHopeRaceMapId     = int.TryParse(hopeRaceMapIdString,   out int hopeRaceMapIdInt);
 
         // 정상 처리 확인
-        var isMatched = isRaceCharactorId && isRaceCarId && isHopeRaceMapId;
+        var isMatchedStartable = isRaceCharactorId && isRaceCarId && isHopeRaceMapId;
 
         // 결과 로그
         this.PrintLog($"isRaceCharactorId > {raceCharacterIdString} / isRaceCarId > {raceCarIdString} / isHopeRaceMapId > {hopeRaceMapIdString}");
-        this.PrintLog($"isRaceCharactorId > {isRaceCharactorId} / isRaceCarId > {isRaceCarId} / isHopeRaceMapId > {isHopeRaceMapId} => isMatched > {isMatched}");
+        this.PrintLog($"isRaceCharactorId > {isRaceCharactorId} / isRaceCarId > {isRaceCarId} / isHopeRaceMapId > {isHopeRaceMapId} => isMatchedStartable > {isMatchedStartable}");
 
         // 플레이어 데이터 수정
-        PlayerManager.Instance.SetRaceInfoSelection(raceCharacterIdInt, raceCarIdInt, isMatched);
+        PlayerManager.Instance.SetRaceInfoSelection(raceCharacterIdInt, raceCarIdInt);
         PlayerManager.Instance.SetRaceHopeRaceMapIdSelection(hopeRaceMapIdInt);
 
         // 매칭 준비 완료.
@@ -123,7 +133,7 @@ public sealed class TestLobbyHUD : BaseUI
         PlayerManager.Instance.PrintCustomProperties();
 
         // 매치 이동 후 처리
-        if (!isMatched)
+        if (!isMatchedStartable)
         {
             // 팝업
             matchTmp.text = "Fail Match";
@@ -131,15 +141,14 @@ public sealed class TestLobbyHUD : BaseUI
 
             yield return new WaitForSeconds(3.0f);
 
-            matchTmp.text = "Match";
-            _matchType = MatchType.None;
+            CleanupUI();
         }
         else
         {
-            // 씬 전환
-            matchTmp.text = "Race~!";
-            RoomManager.Instance.OnMatchAction();
+            matchTmp.text = "Find Player...";
+            RoomManager.Instance.MatchAction();
             yield return new WaitForSeconds(3.0f);
+            RoomNameUpdate();
         }
     }
 
@@ -159,5 +168,15 @@ public sealed class TestLobbyHUD : BaseUI
         s = Regex.Replace(s, @"[\u200B-\u200D\uFEFF\u2060]", "");
         s = Regex.Replace(s, @"\p{Cf}|\p{Cs}", "");  // 포맷/서러게이트 등
         return s;
+    }
+
+    private void CleanupUI()
+    {
+        var roomNameTmp = _uiBinder.Get<TextMeshProUGUI>(TestLobbyUI.RoomName_TMP);
+        var matchTmp = _uiBinder.Get<TextMeshProUGUI>(TestLobbyUI.Match_TMP);
+
+        roomNameTmp.text = "Not Finded Room";
+        matchTmp.text = "Match";
+        _matchType = MatchType.None;
     }
 }
