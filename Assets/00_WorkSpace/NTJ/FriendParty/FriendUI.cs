@@ -1,47 +1,45 @@
 using MSG;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class FriendUI : MonoBehaviour
 {
-    [SerializeField] private Button sendButton;
-    [SerializeField] private Button acceptButton;
-    [SerializeField] private Button cancelButton;
-    [SerializeField] private string myUid;
-    [SerializeField] private string friendUid;
+    [Header("UI")]
+    [SerializeField] private Image carIconImage; // 차량 아이콘
+    [SerializeField] private TMP_Text nameText;  // 닉네임
+    [SerializeField] private TMP_Text levelText; // 레벨
+    [SerializeField] private Button inviteButton; // 파티 초대 버튼
 
-    private FriendsLogics friendsLogic;
+    private string uid;
+    private string friendName;
+    private int friendLevel;
+    private Sprite friendCarIcon;
+    private PartyManager partyManager;
 
-    void Start()
+    // 친구 UI 초기화
+    public void Init(string uid, string name, int level, Sprite carIcon, PartyManager partyMgr)
     {
-        friendsLogic = FindObjectOfType<FriendsLogics>();
+        this.uid = uid;
+        this.friendName = name;
+        this.friendLevel = level;
+        this.friendCarIcon = carIcon;
+        this.partyManager = partyMgr;
 
-        sendButton.onClick.AddListener(() =>
-        {
-            friendsLogic.SendRequest(myUid, friendUid,
-                () => Debug.Log("친구 요청 성공"),
-                err => Debug.LogError($"친구 요청 실패: {err}")
-            );
-        });
+        if (carIconImage != null) carIconImage.sprite = carIcon;
+        if (nameText != null) nameText.text = name;
+        if (levelText != null) levelText.text = $"Lv.{level}";
 
-        acceptButton.onClick.AddListener(() =>
+        if (inviteButton != null)
         {
-            string pairId = DBPathMaker.ComposePairId(myUid, friendUid);
-            friendsLogic.AcceptRequest(pairId, myUid,
-                () => Debug.Log("친구 요청 수락 성공"),
-                err => Debug.LogError($"친구 요청 수락 실패: {err}")
-            );
-        });
-
-        cancelButton.onClick.AddListener(() =>
-        {
-            string pairId = DBPathMaker.ComposePairId(myUid, friendUid);
-            friendsLogic.CancelRequest(pairId, myUid,
-                () => Debug.Log("친구 요청 취소 성공"),
-                err => Debug.LogError($"친구 요청 취소 실패: {err}")
-            );
-        });
+            inviteButton.onClick.RemoveAllListeners();
+            inviteButton.onClick.AddListener(() =>
+            {
+                Debug.Log($"[FriendUI] {friendName}({uid}) 파티 초대 버튼 클릭!");
+                partyManager?.InviteToParty(uid, friendName, friendLevel, friendCarIcon);
+            });
+        }
     }
 }
