@@ -12,19 +12,19 @@ public class PartyManager : MonoBehaviour
 
     private List<string> currentParty = new List<string>();
     private const int MaxParty = 4;
-       
+
     // 파티 초대
     public void InviteToParty(string friendUid, string friendName, int friendLevel, Sprite carIcon)
     {
-        if (currentParty.Count >= MaxParty)
-        {
-            Debug.Log("파티가 꽉 찼습니다!");
-            return;
-        }
-
         if (currentParty.Contains(friendUid))
         {
             Debug.Log($"{friendName}은(는) 이미 파티에 있습니다.");
+            return;
+        }
+
+        if (currentParty.Count >= MaxParty)
+        {
+            Debug.Log("파티가 꽉 찼습니다!");
             return;
         }
 
@@ -32,7 +32,8 @@ public class PartyManager : MonoBehaviour
 
         GameObject slot = Instantiate(partySlotPrefab, partySlotParent);
         PartySlotUI slotUI = slot.GetComponent<PartySlotUI>();
-        slotUI.Setup(friendUid, carIcon, friendName, friendLevel); // uid 파라미터 추가
+        // PartyManager 참조를 넘겨서 PartySlotUI에서 RemoveFromParty를 호출할 수 있도록 함
+        slotUI.Setup(friendUid, carIcon, friendName, friendLevel, this);
 
         UpdatePartyCount();
     }
@@ -47,11 +48,11 @@ public class PartyManager : MonoBehaviour
     public void RemoveFromParty(string friendUid)
     {
         var slot = partySlotParent.GetComponentsInChildren<PartySlotUI>()
-                                  .FirstOrDefault(s => s.friendUid == friendUid);
+                                 .FirstOrDefault(s => s.friendUid == friendUid);
         if (slot != null)
         {
             Destroy(slot.gameObject);
-            currentParty.Remove(friendUid);
+            currentParty.Remove(friendUid); // currentParty 리스트에서도 제거
             UpdatePartyCount();
         }
     }
