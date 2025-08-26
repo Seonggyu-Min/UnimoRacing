@@ -10991,7 +10991,6 @@ MonoBehaviour:
   car1Icon: {fileID: 21300000, guid: 52dcd754192c79b47ae18c36331c08da, type: 3}
   car2Icon: {fileID: 21300000, guid: e58d009362b32734d8a4ade12bd84a01, type: 3}
   car3Icon: {fileID: 21300000, guid: 02cd3a0ed43e940498bc0d9577652845, type: 3}
-  closeButton: {fileID: 0}
 --- !u!1 &4155241930419471804
 GameObject:
   m_ObjectHideFlags: 0
@@ -13012,7 +13011,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: 41bc1ce8da9e87a4fa340d902394e0df, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -13882,7 +13881,7 @@ GameObject:
   - component: {fileID: 2475191096773850556}
   - component: {fileID: 7121290991687068383}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Canvas 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
