@@ -9,17 +9,17 @@ namespace PJW
     public class DollyLaneBinder : MonoBehaviour
     {
         [Header("참조")]
-        [SerializeField] private CinemachineDollyCart cart;
-        [SerializeField] private CinemachinePathBase path;
+        private CinemachineDollyCart cart;
+        private CinemachinePathBase path;
 
         [Header("설정")]
-        [SerializeField] private bool spawnAtPathStart = true;
+        private bool spawnAtPathStart = true;
 
         [Header("카메라 바인딩")]
-        [SerializeField] private CinemachineVirtualCamera vcam;
-        [SerializeField] private bool bindFollow = true;
-        [SerializeField] private bool bindLookAt = true;
-        [SerializeField] private bool onlyIfMine = true;
+        private CinemachineVirtualCamera vcam;
+        private bool bindFollow = true;
+        private bool bindLookAt = true;
+        private bool onlyIfMine = true;
 
         [Header("카메라 위치 설정")]
         [SerializeField] private Vector3 followOffset = new Vector3(0f, 3f, -6f);
@@ -50,12 +50,10 @@ namespace PJW
         private void AutoWireReferences()
         {
             if (cart == null)
-                cart = GetComponentInChildren<CinemachineDollyCart>(true) ?? GetComponentInParent<CinemachineDollyCart>();
+                cart = GetComponentInParent<CinemachineDollyCart>();
 
             if (vcam == null)
-                vcam = GetComponentInChildren<CinemachineVirtualCamera>(true)
-                    ?? GetComponentInParent<CinemachineVirtualCamera>()
-                    ?? FindObjectOfType<CinemachineVirtualCamera>();
+                vcam = FindObjectOfType<CinemachineVirtualCamera>();
         }
 
         private void TryAssignPathFromRegistry()
@@ -65,6 +63,7 @@ namespace PJW
             path = TrackRegistry.Instance?.GetPathForLocalPlayer(pv.OwnerActorNr);
         }
 
+        // 카트 경로 지정
         private void TryApplyPathToCart()
         {
             if (cart != null && cart.m_Path == null && path != null)
@@ -91,6 +90,7 @@ namespace PJW
                 vcam.LookAt = cart.transform;
         }
 
+        // 카메라 위치 설정
         private void ApplyCameraPosition()
         {
             if (vcam == null) return;
@@ -116,25 +116,6 @@ namespace PJW
             var tracked = vcam.GetCinemachineComponent<CinemachineTrackedDolly>();
             if (tracked != null)
                 tracked.m_PathOffset = trackPathOffset;
-        }
-
-        // 외부 제어용
-        public void SetFollowOffset(Vector3 offset)
-        {
-            followOffset = offset;
-            ApplyCameraPosition();
-        }
-
-        public void SetTrackPathOffset(Vector3 offset)
-        {
-            trackPathOffset = offset;
-            ApplyCameraPosition();
-        }
-
-        public void RebindCamera()
-        {
-            BindCamera();
-            ApplyCameraPosition();
         }
     }
 }

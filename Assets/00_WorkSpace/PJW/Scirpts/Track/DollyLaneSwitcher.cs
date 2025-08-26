@@ -12,27 +12,19 @@ namespace PJW
         private CinemachinePathBase leftTrack;
         private CinemachinePathBase rightTrack;
 
-        private int currentIndex = 0;
-        private bool hasInitialized;
         private PhotonView pv; 
 
         private void Awake()
         {
-            pv = GetComponent<PhotonView>() ?? GetComponentInParent<PhotonView>();
+            pv = GetComponent<PhotonView>();
 
             cart = GetComponent<CinemachineDollyCart>();
-            if (cart == null) cart = GetComponentInChildren<CinemachineDollyCart>(true);
-            if (cart == null) cart = GetComponentInParent<CinemachineDollyCart>();
 
             TryAutoBindTracks();
-            ApplyTrackImmediate(currentIndex);
-            hasInitialized = (cart != null && leftTrack != null && rightTrack != null);
         }
 
         private void Update()
         {
-            if (!hasInitialized) return;
-
             if (pv != null && pv.ViewID != 0 && !pv.IsMine) return;
 
             // 모바일용
@@ -61,6 +53,7 @@ namespace PJW
         private void TryAutoBindTracks()
         {
             var registry = TrackRegistrySafe();
+
             if (registry != null && registry.tracks != null && registry.tracks.Length >= 2)
             {
                 PickLeftRightFromArray(registry.tracks, out leftTrack, out rightTrack);
@@ -74,12 +67,6 @@ namespace PJW
                     PickLeftRightFromArray(all, out leftTrack, out rightTrack);
                 }
             }
-
-            if (cart != null && cart.m_Path != null)
-            {
-                if (cart.m_Path == rightTrack) currentIndex = 1;
-                else currentIndex = 0;
-            }
         }
 
         private TrackRegistry TrackRegistrySafe()
@@ -87,17 +74,18 @@ namespace PJW
             return TrackRegistry.Instance;
         }
 
+        // 트랙 배열에서 이름 기반으로 좌/우 트랙 결정
         private void PickLeftRightFromArray(CinemachinePathBase[] arr, out CinemachinePathBase left, out CinemachinePathBase right)
         {
             left = null;
             right = null;
 
-            foreach (var p in arr)
+            foreach (var line in arr)
             {
-                if (p == null) continue;
-                string n = p.name.ToLower();
-                if (left == null && (n.Contains("left") || n.Contains("l_"))) { left = p; continue; }
-                if (right == null && (n.Contains("right") || n.Contains("r_"))) { right = p; continue; }
+                if (line == null) continue;
+                string bar = line.name.ToLower();
+                if (left == null && (bar.Contains("left") || bar.Contains("l_"))) { left = line; continue; }
+                if (right == null && (bar.Contains("right") || bar.Contains("r_"))) { right = line; continue; }
             }
 
             if (left == null || right == null)
@@ -112,7 +100,6 @@ namespace PJW
 
         private void ChangeTrack(int targetIndex)
         {
-            if (targetIndex == currentIndex) return;
             if (cart == null || leftTrack == null || rightTrack == null) return;
 
             var fromPath = cart.m_Path;
@@ -124,33 +111,6 @@ namespace PJW
             float fromMax = fromPath.MaxPos;
             float fromLen = Mathf.Max(0.0001f, fromMax - fromMin);
             float t = Mathf.Clamp01((cart.m_Position - fromMin) / fromLen);
-
-            float toMin = toPath.MinPos;
-            float toMax = toPath.MaxPos;
-            float toLen = Mathf.Max(0.0001f, toMax - toMin);
-            float newPos = toMin + t * toLen;
-
-            cart.m_Path = toPath;
-            cart.m_Position = newPos;
-
-            currentIndex = targetIndex;
-        }
-
-        private void ApplyTrackImmediate(int index)
-        {
-            if (cart == null) return;
-
-            var toPath = (index == 0) ? leftTrack : rightTrack;
-            if (toPath == null) return;
-
-            float t = 0.0f;
-            if (cart.m_Path != null)
-            {
-                float fromMin = cart.m_Path.MinPos;
-                float fromMax = cart.m_Path.MaxPos;
-                float fromLen = Mathf.Max(0.0001f, fromMax - fromMin);
-                t = Mathf.Clamp01((cart.m_Position - fromMin) / fromLen);
-            }
 
             float toMin = toPath.MinPos;
             float toMax = toPath.MaxPos;

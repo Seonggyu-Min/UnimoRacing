@@ -179,13 +179,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 005b493f847493342b61750b2d783d6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cart: {fileID: 8350315474151748375}
-  path: {fileID: 0}
-  spawnAtPathStart: 1
-  vcam: {fileID: 0}
-  bindFollow: 1
-  bindLookAt: 1
-  onlyIfMine: 1
   followOffset: {x: 0, y: 3, z: -6}
   trackPathOffset: {x: 0, y: 0, z: 0}
   applyPositionOnStart: 1
@@ -213,4 +206,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33216184922a6864a90ed826f8fced44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ownerView: {fileID: 0}

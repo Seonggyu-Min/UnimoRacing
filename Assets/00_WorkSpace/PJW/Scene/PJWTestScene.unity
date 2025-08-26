@@ -1107,10 +1107,10 @@ MonoBehaviour:
   items:
   - itemPrefab: {fileID: 5181480731156703607, guid: fa7b523d06a461b478fda40692032014,
       type: 3}
-    weight: 1
+    weight: 0
   - itemPrefab: {fileID: 7444250990446430230, guid: c3d2694bbb29ab34a82e93ab8ea26b7e,
       type: 3}
-    weight: 1
+    weight: 0
   - itemPrefab: {fileID: 4774977318374646965, guid: 0ad69218fc191ec4da8cae4368ba4e3c,
       type: 3}
     weight: 0
@@ -1128,16 +1128,16 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 9174385663795004604, guid: c08552f2a0c3d7741ad6d84cc902dbdf,
       type: 3}
-    weight: 1
+    weight: 0
   - itemPrefab: {fileID: 1260596840694590796, guid: f390d0e37dd74cc41ae61c3000800510,
       type: 3}
-    weight: 1
+    weight: 0
   - itemPrefab: {fileID: 4070489616884424043, guid: 9bedcbadbf4e6864ebf67c051e2563a9,
       type: 3}
-    weight: 0
+    weight: 2
   - itemPrefab: {fileID: 3622971774366793308, guid: 84b845bc65a223042b4ab9781bd5246d,
       type: 3}
-    weight: 0
+    weight: 2
   respawnTime: 5
 --- !u!65 &1072761681
 BoxCollider:
@@ -1219,7 +1219,7 @@ Transform:
   m_GameObject: {fileID: 1072761679}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.11, y: -1.3069665, z: -4.121367}
+  m_LocalPosition: {x: 0.23, y: -1.3069665, z: -4.121367}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1323,9 +1323,6 @@ MonoBehaviour:
   - {fileID: 1391082744}
   - {fileID: 149406453}
   playerPrefabName: Player
-  heightOffset: 0.5
-  spawnT: 0
-  faceAlongTrack: 0
 --- !u!114 &1107674735
 MonoBehaviour:
   m_ObjectHideFlags: 0

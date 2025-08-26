@@ -10,8 +10,7 @@ namespace PJW
 
     public class PlayerItemInventory : MonoBehaviour
     {
-        [Header("Owner")]
-        [SerializeField] private PhotonView ownerView;
+        private PhotonView ownerView;
 
         private GameObject currentItemPrefab;
         public bool HasItem => currentItemPrefab != null;
