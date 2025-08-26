@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace MSG
 {
-    public class GoogleSignInTest : MonoBehaviour
+    public class GoogleSignManager : Singleton<GoogleSignManager>
     {
         [Header("Google Sign-In")]
         [SerializeField] private string _webClientId = "683777357075-3489b5bgoi1mdcka78pvlecs4cg7ftod.apps.googleusercontent.com";
@@ -21,6 +21,11 @@ namespace MSG
         public event Action<string> OnSignInFailed;
 
         private bool _configured;
+
+        private void Awake()
+        {
+            SingletonInit();
+        }
 
         private void OnEnable()
         {
@@ -71,6 +76,8 @@ namespace MSG
         {
             if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsReady) return;
             if (!_configured) ConfigureGoogleSignInOnce();
+
+            Debug.Log("[GoogleAuth] Attempting silent sign-in...");
 
             SilentSignInFlow().Forget();
         }

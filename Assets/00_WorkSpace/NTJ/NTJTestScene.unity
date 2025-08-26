@@ -1,0 +1,1255 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!29 &1
+OcclusionCullingSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_OcclusionBakeSettings:
+    smallestOccluder: 5
+    smallestHole: 0.25
+    backfaceThreshold: 100
+  m_SceneGUID: 00000000000000000000000000000000
+  m_OcclusionCullingData: {fileID: 0}
+--- !u!104 &2
+RenderSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 9
+  m_Fog: 0
+  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_FogMode: 3
+  m_FogDensity: 0.01
+  m_LinearFogStart: 0
+  m_LinearFogEnd: 300
+  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
+  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
+  m_AmbientIntensity: 1
+  m_AmbientMode: 0
+  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_HaloStrength: 0.5
+  m_FlareStrength: 1
+  m_FlareFadeSpeed: 3
+  m_HaloTexture: {fileID: 0}
+  m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
+  m_DefaultReflectionMode: 0
+  m_DefaultReflectionResolution: 128
+  m_ReflectionBounces: 1
+  m_ReflectionIntensity: 1
+  m_CustomReflection: {fileID: 0}
+  m_Sun: {fileID: 0}
+  m_UseRadianceAmbientProbe: 0
+--- !u!157 &3
+LightmapSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 12
+  m_GIWorkflowMode: 1
+  m_GISettings:
+    serializedVersion: 2
+    m_BounceScale: 1
+    m_IndirectOutputScale: 1
+    m_AlbedoBoost: 1
+    m_EnvironmentLightingMode: 0
+    m_EnableBakedLightmaps: 1
+    m_EnableRealtimeLightmaps: 0
+  m_LightmapEditorSettings:
+    serializedVersion: 12
+    m_Resolution: 2
+    m_BakeResolution: 40
+    m_AtlasSize: 1024
+    m_AO: 0
+    m_AOMaxDistance: 1
+    m_CompAOExponent: 1
+    m_CompAOExponentDirect: 0
+    m_ExtractAmbientOcclusion: 0
+    m_Padding: 2
+    m_LightmapParameters: {fileID: 0}
+    m_LightmapsBakeMode: 1
+    m_TextureCompression: 1
+    m_FinalGather: 0
+    m_FinalGatherFiltering: 1
+    m_FinalGatherRayCount: 256
+    m_ReflectionCompression: 2
+    m_MixedBakeMode: 2
+    m_BakeBackend: 1
+    m_PVRSampling: 1
+    m_PVRDirectSampleCount: 32
+    m_PVRSampleCount: 512
+    m_PVRBounces: 2
+    m_PVREnvironmentSampleCount: 256
+    m_PVREnvironmentReferencePointCount: 2048
+    m_PVRFilteringMode: 1
+    m_PVRDenoiserTypeDirect: 1
+    m_PVRDenoiserTypeIndirect: 1
+    m_PVRDenoiserTypeAO: 1
+    m_PVRFilterTypeDirect: 0
+    m_PVRFilterTypeIndirect: 0
+    m_PVRFilterTypeAO: 0
+    m_PVREnvironmentMIS: 1
+    m_PVRCulling: 1
+    m_PVRFilteringGaussRadiusDirect: 1
+    m_PVRFilteringGaussRadiusIndirect: 5
+    m_PVRFilteringGaussRadiusAO: 2
+    m_PVRFilteringAtrousPositionSigmaDirect: 0.5
+    m_PVRFilteringAtrousPositionSigmaIndirect: 2
+    m_PVRFilteringAtrousPositionSigmaAO: 1
+    m_ExportTrainingData: 0
+    m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
+  m_LightingDataAsset: {fileID: 0}
+  m_LightingSettings: {fileID: 0}
+--- !u!196 &4
+NavMeshSettings:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_BuildSettings:
+    serializedVersion: 3
+    agentTypeID: 0
+    agentRadius: 0.5
+    agentHeight: 2
+    agentSlope: 45
+    agentClimb: 0.4
+    ledgeDropHeight: 0
+    maxJumpAcrossDistance: 0
+    minRegionArea: 2
+    manualCellSize: 0
+    cellSize: 0.16666667
+    manualTileSize: 0
+    tileSize: 256
+    buildHeightMesh: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
+    debug:
+      m_Flags: 0
+  m_NavMeshData: {fileID: 0}
+--- !u!1 &338026130
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 338026132}
+  - component: {fileID: 338026131}
+  - component: {fileID: 338026133}
+  m_Layer: 0
+  m_Name: Directional Light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!108 &338026131
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 338026130}
+  m_Enabled: 1
+  serializedVersion: 10
+  m_Type: 1
+  m_Shape: 0
+  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
+  m_Intensity: 1
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize: 10
+  m_Shadows:
+    m_Type: 2
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+--- !u!4 &338026132
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 338026130}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &338026133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 338026130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+--- !u!1 &1265574539
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1265574542}
+  - component: {fileID: 1265574541}
+  - component: {fileID: 1265574543}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1265574541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265574539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &1265574542
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265574539}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1265574543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265574539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
+  m_MoveRepeatDelay: 0.5
+  m_MoveRepeatRate: 0.1
+  m_XRTrackingOrigin: {fileID: 0}
+  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_DeselectOnBackgroundClick: 1
+  m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
+--- !u!1 &1581395637
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1581395641}
+  - component: {fileID: 1581395640}
+  - component: {fileID: 1581395639}
+  - component: {fileID: 1581395638}
+  - component: {fileID: 1581395642}
+  m_Layer: 5
+  m_Name: Canvas
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1581395638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581395637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &1581395639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581395637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 1
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 1080, y: 2340}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!223 &1581395640
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581395637}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!224 &1581395641
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581395637}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7940234052523583303}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
+--- !u!114 &1581395642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581395637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf82e4b6df04c442cb00ae18769da419, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnScreenChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ScreenParentTransform: {fileID: 0}
+  m_TransitionEffect: {fileID: 0}
+  m_CurrentScreenInstance: {fileID: 0}
+  m_PrototypeFlowInitialScreenId: 16:12
+  m_Screens:
+  - FigmaNodeId: 1:26
+    FigmaScreenPrefab: {fileID: 7582712400674767262, guid: c53988a0c06daae428189ab3f7c584bb,
+      type: 3}
+    FigmaScreenName: Frame 1
+    ParentSectionNodeId: 
+  - FigmaNodeId: 2:2
+    FigmaScreenPrefab: {fileID: 7694369091124460418, guid: 2dd4550039fe0ba4b9bb0e63a1f465fc,
+      type: 3}
+    FigmaScreenName: verse 2
+    ParentSectionNodeId: 
+  - FigmaNodeId: 3:72
+    FigmaScreenPrefab: {fileID: 2965068562555869900, guid: ea4d56459b7bf704d8380e672730b6e6,
+      type: 3}
+    FigmaScreenName: verse 1
+    ParentSectionNodeId: 
+  - FigmaNodeId: 4:108
+    FigmaScreenPrefab: {fileID: 7066428547362984214, guid: 1e178ad30a294c545af99281742b90f4,
+      type: 3}
+    FigmaScreenName: verse 3_1
+    ParentSectionNodeId: 
+  - FigmaNodeId: 7:154
+    FigmaScreenPrefab: {fileID: 3599737686848442108, guid: d728231090cc7794eb1dea58482f08c7,
+      type: 3}
+    FigmaScreenName: verse 3_1_1
+    ParentSectionNodeId: 
+  - FigmaNodeId: 16:12
+    FigmaScreenPrefab: {fileID: 6238818824454648206, guid: f7af80a103abedf4593e6bb990f06990,
+      type: 3}
+    FigmaScreenName: Frame 4
+    ParentSectionNodeId: 
+  - FigmaNodeId: 436:505
+    FigmaScreenPrefab: {fileID: 353817211415625902, guid: 31e64e547b80d3d438be189f8c69d5c3,
+      type: 3}
+    FigmaScreenName: Frame 101
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2024
+    FigmaScreenPrefab: {fileID: 8243818053075361276, guid: ce816a078267241419a3b729641d7d38,
+      type: 3}
+    FigmaScreenName: Frame 21
+    ParentSectionNodeId: 
+  - FigmaNodeId: 360:83
+    FigmaScreenPrefab: {fileID: 9084279015391482973, guid: d510adde68bff884d9dd7d79dbca2e8c,
+      type: 3}
+    FigmaScreenName: Frame 84
+    ParentSectionNodeId: 
+  - FigmaNodeId: 241:362
+    FigmaScreenPrefab: {fileID: 2968909351057585560, guid: ba1ac6125e06b9b468df6cbbe2d8ea2f,
+      type: 3}
+    FigmaScreenName: Frame 80
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:1039
+    FigmaScreenPrefab: {fileID: 4371548523241378150, guid: facd9e00749c1f941b20b20cde441ecc,
+      type: 3}
+    FigmaScreenName: Frame 118
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2170
+    FigmaScreenPrefab: {fileID: 5593631328391030818, guid: 6f72138233c3d8644980961ba66e48ac,
+      type: 3}
+    FigmaScreenName: Frame 23
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:13
+    FigmaScreenPrefab: {fileID: 3521283115415636445, guid: 3f2467ab1a981aa43b0714eb81657474,
+      type: 3}
+    FigmaScreenName: Frame 36
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2839
+    FigmaScreenPrefab: {fileID: 7289155955891688201, guid: 2fe2515b913d38747b7f381b5a70518a,
+      type: 3}
+    FigmaScreenName: Frame 35
+    ParentSectionNodeId: 
+  - FigmaNodeId: 360:202
+    FigmaScreenPrefab: {fileID: 2195409601158850345, guid: e09605666d205e84d9d6bca3698a5a1e,
+      type: 3}
+    FigmaScreenName: Frame 85
+    ParentSectionNodeId: 
+  - FigmaNodeId: 229:31
+    FigmaScreenPrefab: {fileID: 5228007675272725204, guid: e447318a840ea1841a99f1b972e61993,
+      type: 3}
+    FigmaScreenName: Frame 79
+    ParentSectionNodeId: 
+  - FigmaNodeId: 360:272
+    FigmaScreenPrefab: {fileID: 6348181119255680036, guid: ccd9570608cfcca4d84168f0d972e73a,
+      type: 3}
+    FigmaScreenName: Frame 86
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:469
+    FigmaScreenPrefab: {fileID: 4263773002310677563, guid: 950263085f573ce4e888be89c78029a7,
+      type: 3}
+    FigmaScreenName: Frame 115
+    ParentSectionNodeId: 
+  - FigmaNodeId: 245:548
+    FigmaScreenPrefab: {fileID: 2252802377470730276, guid: 83db8664be5a24d4ba1a7fa2c46f2550,
+      type: 3}
+    FigmaScreenName: Frame 82
+    ParentSectionNodeId: 
+  - FigmaNodeId: 241:408
+    FigmaScreenPrefab: {fileID: 8053929996640968551, guid: 100964889c72ade438ba7fa63ca07c97,
+      type: 3}
+    FigmaScreenName: Frame 81
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:700
+    FigmaScreenPrefab: {fileID: 3543813473393155592, guid: ad879a8e0fa026f409b7106992e20ac1,
+      type: 3}
+    FigmaScreenName: Frame 116
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:1083
+    FigmaScreenPrefab: {fileID: 1882042069695231492, guid: 9dea979c902e0814ab1f0f5b44c4308d,
+      type: 3}
+    FigmaScreenName: Frame 119
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:1165
+    FigmaScreenPrefab: {fileID: 3383106623718126343, guid: e88a0e3172a45ac40800b648e96088d2,
+      type: 3}
+    FigmaScreenName: Frame 120
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:1248
+    FigmaScreenPrefab: {fileID: 7685087184242581132, guid: 24017ff13e48d4a468dd3f9ea14071eb,
+      type: 3}
+    FigmaScreenName: Frame 121
+    ParentSectionNodeId: 
+  - FigmaNodeId: 241:418
+    FigmaScreenPrefab: {fileID: 7590292892036300316, guid: 90ad2f60146df554f954c90a0f1b817c,
+      type: 3}
+    FigmaScreenName: Frame 80_1
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2409
+    FigmaScreenPrefab: {fileID: 396073776107984307, guid: ca150e423742c6c488906106783664ef,
+      type: 3}
+    FigmaScreenName: Frame 26
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:55
+    FigmaScreenPrefab: {fileID: 6281682657535579460, guid: 35489bef58383c9468194d00f4ea766b,
+      type: 3}
+    FigmaScreenName: Frame 37
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2543
+    FigmaScreenPrefab: {fileID: 6318020259784868309, guid: 6ad470de3f2c4404d8e936713cbf9956,
+      type: 3}
+    FigmaScreenName: Frame 29
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:96
+    FigmaScreenPrefab: {fileID: 5635476890925003424, guid: 74d526c4258cd174cb4898567ac8f87d,
+      type: 3}
+    FigmaScreenName: Frame 38
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2665
+    FigmaScreenPrefab: {fileID: 6338552727195627277, guid: 90e34e35ce226f9468dafd6eff8771fa,
+      type: 3}
+    FigmaScreenName: Frame 32
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:137
+    FigmaScreenPrefab: {fileID: 5463154852788649527, guid: a5fc1026ff9537b4f960c3ea34fddb0a,
+      type: 3}
+    FigmaScreenName: Frame 39
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2451
+    FigmaScreenPrefab: {fileID: 1222130161474128541, guid: 6afd183ef8b9af242977c684b4020f6e,
+      type: 3}
+    FigmaScreenName: Frame 27
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:178
+    FigmaScreenPrefab: {fileID: 705301287701690171, guid: 81903da57bc089b4a8787719868c7d27,
+      type: 3}
+    FigmaScreenName: Frame 40
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2584
+    FigmaScreenPrefab: {fileID: 7151925972591829764, guid: ec1753a65d21b6f459d43196f616339d,
+      type: 3}
+    FigmaScreenName: Frame 30
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:219
+    FigmaScreenPrefab: {fileID: 7669314451614507411, guid: 303ac81889b9a7741aa14f916586e4ff,
+      type: 3}
+    FigmaScreenName: Frame 41
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2706
+    FigmaScreenPrefab: {fileID: 1851541916385393418, guid: 9119087284244334c949b7e98f9a9eb4,
+      type: 3}
+    FigmaScreenName: Frame 33
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:260
+    FigmaScreenPrefab: {fileID: 886158848670340706, guid: 77b9adc6c3f0b6a4f8e83eed48d2245a,
+      type: 3}
+    FigmaScreenName: Frame 42
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2493
+    FigmaScreenPrefab: {fileID: 6896066579531326651, guid: f87c3c0d1f236604e9f11941bbd5473f,
+      type: 3}
+    FigmaScreenName: Frame 28
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:301
+    FigmaScreenPrefab: {fileID: 2282218858495408882, guid: cf1038d96aaf8fb48a17226fd96c522e,
+      type: 3}
+    FigmaScreenName: Frame 43
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2625
+    FigmaScreenPrefab: {fileID: 3712209536514578978, guid: ede396b2b1bf5fb4091c53c8c5a3d15b,
+      type: 3}
+    FigmaScreenName: Frame 31
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:341
+    FigmaScreenPrefab: {fileID: 853531912123987057, guid: ac5a3d4ae025ba1428db6a3c709251dc,
+      type: 3}
+    FigmaScreenName: Frame 44
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2747
+    FigmaScreenPrefab: {fileID: 3508958504515119537, guid: 4abfc48c15e495844a7c39c79bbdea56,
+      type: 3}
+    FigmaScreenName: Frame 34
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:381
+    FigmaScreenPrefab: {fileID: 1164240434033670081, guid: 0d92c1ffb0f9afe4596b853328bef0f4,
+      type: 3}
+    FigmaScreenName: Frame 45
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2317
+    FigmaScreenPrefab: {fileID: 5195605811368708633, guid: 4b5e9eb39b656ec43bd397d9e9abac2e,
+      type: 3}
+    FigmaScreenName: Frame 24
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:421
+    FigmaScreenPrefab: {fileID: 1862991198827109269, guid: 5ffb887c509e5a241824a01cdd6cc27f,
+      type: 3}
+    FigmaScreenName: Frame 46
+    ParentSectionNodeId: 
+  - FigmaNodeId: 124:2364
+    FigmaScreenPrefab: {fileID: 2564012872506351047, guid: c1217dc405cc4be4fa1a9274544c94f3,
+      type: 3}
+    FigmaScreenName: Frame 25
+    ParentSectionNodeId: 
+  - FigmaNodeId: 140:463
+    FigmaScreenPrefab: {fileID: 1060071232676465698, guid: c49ca57b02acf15439d0cbb48d9ca61b,
+      type: 3}
+    FigmaScreenName: Frame 47
+    ParentSectionNodeId: 
+  - FigmaNodeId: 109:105
+    FigmaScreenPrefab: {fileID: 5620769757874314866, guid: 8b5dac7a0cf6bc545884c5a204301f56,
+      type: 3}
+    FigmaScreenName: Frame 18
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:718
+    FigmaScreenPrefab: {fileID: 2121635978654156216, guid: 171ab616b15287c4c85a10ef0de91206,
+      type: 3}
+    FigmaScreenName: Frame 63
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:1110
+    FigmaScreenPrefab: {fileID: 6481455929904255186, guid: ad7fdec2905f7f3448e217cb878e4cbb,
+      type: 3}
+    FigmaScreenName: Frame 65
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:2892
+    FigmaScreenPrefab: {fileID: 3476853585076598309, guid: 06bdf855d2c9ee747aeb086445af44e9,
+      type: 3}
+    FigmaScreenName: Frame 70
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:3084
+    FigmaScreenPrefab: {fileID: 3725621505115601979, guid: 9cbca964b5dc82642a60c8a20e6a2ce5,
+      type: 3}
+    FigmaScreenName: Frame 71
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:1896
+    FigmaScreenPrefab: {fileID: 7609934543843036270, guid: b77977b313c89784d99bf0de5c5cdc4a,
+      type: 3}
+    FigmaScreenName: Frame 66
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:2508
+    FigmaScreenPrefab: {fileID: 5614194716176325959, guid: 12abb000b96a8704b92163f0f381d76a,
+      type: 3}
+    FigmaScreenName: Frame 69
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:2092
+    FigmaScreenPrefab: {fileID: 9052681329170144311, guid: b50d4fdd11dfb3a42b87f7fe7b68ce98,
+      type: 3}
+    FigmaScreenName: Frame 67
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:3280
+    FigmaScreenPrefab: {fileID: 4889563884684617301, guid: 45f382fd452175c469dff8e385eff98c,
+      type: 3}
+    FigmaScreenName: Frame 72
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:3475
+    FigmaScreenPrefab: {fileID: 83770626987258648, guid: 575ed616f1008c0479cd7d088d97f2d1,
+      type: 3}
+    FigmaScreenName: Frame 73
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:2288
+    FigmaScreenPrefab: {fileID: 6518393294668140330, guid: bc658c821176758458da8aec3c1da96c,
+      type: 3}
+    FigmaScreenName: Frame 68
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:3669
+    FigmaScreenPrefab: {fileID: 4357172107457334551, guid: e5bace311aa65934b898e4967bd9f247,
+      type: 3}
+    FigmaScreenName: Frame 74
+    ParentSectionNodeId: 
+  - FigmaNodeId: 114:380
+    FigmaScreenPrefab: {fileID: 8755242472951982756, guid: 0d597d6e58619a6449578908fbf2cfa9,
+      type: 3}
+    FigmaScreenName: Frame 20
+    ParentSectionNodeId: 
+  - FigmaNodeId: 111:146
+    FigmaScreenPrefab: {fileID: 8877825911581955254, guid: 0d1cf3d817a0d6247ae24183abd52a00,
+      type: 3}
+    FigmaScreenName: Frame 19
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:913
+    FigmaScreenPrefab: {fileID: 6350723439299793648, guid: 532a46671a7bb2844bed142bc156e7e0,
+      type: 3}
+    FigmaScreenName: Frame 64
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:3871
+    FigmaScreenPrefab: {fileID: 8004261606233022113, guid: 055ea5248ac4c614cac774e16da3b422,
+      type: 3}
+    FigmaScreenName: Frame 75
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:4067
+    FigmaScreenPrefab: {fileID: 2153350959090279656, guid: e6fded6abe92b504e9d081ce5fc86100,
+      type: 3}
+    FigmaScreenName: Frame 76
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:4263
+    FigmaScreenPrefab: {fileID: 7065089258284078949, guid: eebeffdc083597e4ca53ac88e99b7d24,
+      type: 3}
+    FigmaScreenName: Frame 77
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:4459
+    FigmaScreenPrefab: {fileID: 939946249420769395, guid: 4efe21dec1ddc7249aa862221fe287d3,
+      type: 3}
+    FigmaScreenName: Frame 78
+    ParentSectionNodeId: 
+  - FigmaNodeId: 56:764
+    FigmaScreenPrefab: {fileID: 4606375250887361538, guid: bda752ebf78a222498425f2189a9c242,
+      type: 3}
+    FigmaScreenName: Frame 16
+    ParentSectionNodeId: 
+  - FigmaNodeId: 18:55
+    FigmaScreenPrefab: {fileID: 735552885616577239, guid: d22c09a3899bac541be7cf71e68b5efa,
+      type: 3}
+    FigmaScreenName: Frame 5
+    ParentSectionNodeId: 
+  - FigmaNodeId: 26:2
+    FigmaScreenPrefab: {fileID: 9209926877476121721, guid: 5ad10999230e3ce4b8177cf69d52f667,
+      type: 3}
+    FigmaScreenName: Frame 6
+    ParentSectionNodeId: 
+  - FigmaNodeId: 107:15
+    FigmaScreenPrefab: {fileID: 445728803211572486, guid: 5a67385aea7e99845a258ceba87ebb60,
+      type: 3}
+    FigmaScreenName: Frame 17
+    ParentSectionNodeId: 
+  - FigmaNodeId: 56:638
+    FigmaScreenPrefab: {fileID: 2793094420017072790, guid: e1be2a21b6342fe41b920b6e4fd888d9,
+      type: 3}
+    FigmaScreenName: Frame 14
+    ParentSectionNodeId: 
+  - FigmaNodeId: 56:691
+    FigmaScreenPrefab: {fileID: 60188768231352388, guid: 96b5519ac6829964b81a6c3083687832,
+      type: 3}
+    FigmaScreenName: Frame 15
+    ParentSectionNodeId: 
+  - FigmaNodeId: 34:313
+    FigmaScreenPrefab: {fileID: 120275611575530232, guid: 6c9910f5edaa2c940baa5fb64d902413,
+      type: 3}
+    FigmaScreenName: Frame 10
+    ParentSectionNodeId: 
+  - FigmaNodeId: 48:581
+    FigmaScreenPrefab: {fileID: 8338743284071594228, guid: 845295e1e8d4c8c4c806d6c56c3dcef2,
+      type: 3}
+    FigmaScreenName: Frame 13
+    ParentSectionNodeId: 
+  - FigmaNodeId: 34:390
+    FigmaScreenPrefab: {fileID: 9209412627503831019, guid: 1e776a25cd2799249a549cdb7f10c676,
+      type: 3}
+    FigmaScreenName: Frame 11
+    ParentSectionNodeId: 
+  - FigmaNodeId: 34:405
+    FigmaScreenPrefab: {fileID: 7057240788555006577, guid: 69a892d1f9cee6b45acd7db81b22a023,
+      type: 3}
+    FigmaScreenName: Frame 11_1
+    ParentSectionNodeId: 
+  - FigmaNodeId: 34:411
+    FigmaScreenPrefab: {fileID: 8360990080233319797, guid: 34b58ed132badde4aabb94f1680995e4,
+      type: 3}
+    FigmaScreenName: Frame 11_2
+    ParentSectionNodeId: 
+  - FigmaNodeId: 34:325
+    FigmaScreenPrefab: {fileID: 8036224013488694823, guid: 02649972a9e973040a977652300ecf8f,
+      type: 3}
+    FigmaScreenName: Frame 8
+    ParentSectionNodeId: 
+  - FigmaNodeId: 30:158
+    FigmaScreenPrefab: {fileID: 6889027377400807031, guid: 37d0da6caec367d42b95804022dbdfca,
+      type: 3}
+    FigmaScreenName: Frame 8_1
+    ParentSectionNodeId: 
+  - FigmaNodeId: 30:220
+    FigmaScreenPrefab: {fileID: 579553921679135152, guid: 3f31510e4f36e60469d200b87fe8330e,
+      type: 3}
+    FigmaScreenName: Frame 9
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:638
+    FigmaScreenPrefab: {fileID: 18781636963743399, guid: 2b871f24ef8d6d741bbe3be30e75cddf,
+      type: 3}
+    FigmaScreenName: Frame 61
+    ParentSectionNodeId: 
+  - FigmaNodeId: 360:326
+    FigmaScreenPrefab: {fileID: 970010397960655819, guid: 7e69ed374a830ac4186f45e3b4f32568,
+      type: 3}
+    FigmaScreenName: Frame 87
+    ParentSectionNodeId: 
+  - FigmaNodeId: 159:697
+    FigmaScreenPrefab: {fileID: 6977056821381040924, guid: 4a1e5778fecf48e4ca45456352a1e079,
+      type: 3}
+    FigmaScreenName: Frame 62
+    ParentSectionNodeId: 
+  - FigmaNodeId: 360:334
+    FigmaScreenPrefab: {fileID: 6346943655654777390, guid: 101491eddb32c9747b23605eae5c32dd,
+      type: 3}
+    FigmaScreenName: Frame 88
+    ParentSectionNodeId: 
+  - FigmaNodeId: 418:67
+    FigmaScreenPrefab: {fileID: 5905991116277952181, guid: b93fbc56953cff94c957788db210e0c3,
+      type: 3}
+    FigmaScreenName: Frame 89
+    ParentSectionNodeId: 
+  - FigmaNodeId: 494:69
+    FigmaScreenPrefab: {fileID: 5353173577666261275, guid: c3c6aeff84e11094d8aa31f6e7d4ac14,
+      type: 3}
+    FigmaScreenName: Frame 104
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:258
+    FigmaScreenPrefab: {fileID: 710965890890616208, guid: dc9a04995bf9a6f41b9ce5288e94f239,
+      type: 3}
+    FigmaScreenName: Frame 109
+    ParentSectionNodeId: 
+  - FigmaNodeId: 494:149
+    FigmaScreenPrefab: {fileID: 5407778406643060917, guid: ddd28c88d0f43464a851ac6c67a4c6c1,
+      type: 3}
+    FigmaScreenName: Frame 105
+    ParentSectionNodeId: 
+  - FigmaNodeId: 430:235
+    FigmaScreenPrefab: {fileID: 6413277253815666749, guid: 72f780d413fa4f741977bec61f2f346e,
+      type: 3}
+    FigmaScreenName: Frame 94
+    ParentSectionNodeId: 
+  - FigmaNodeId: 436:366
+    FigmaScreenPrefab: {fileID: 487923940417541620, guid: f7be92ec3829ce543930ff05b4f446fe,
+      type: 3}
+    FigmaScreenName: Frame 98
+    ParentSectionNodeId: 
+  - FigmaNodeId: 427:143
+    FigmaScreenPrefab: {fileID: 7607713004579399877, guid: 7252ddee0d331ca409e96c95d9b7964c,
+      type: 3}
+    FigmaScreenName: Frame 91
+    ParentSectionNodeId: 
+  - FigmaNodeId: 436:325
+    FigmaScreenPrefab: {fileID: 6895709654708051052, guid: ecc3a98e4d42fd246bdf0265f31d3ee0,
+      type: 3}
+    FigmaScreenName: Frame 97
+    ParentSectionNodeId: 
+  - FigmaNodeId: 436:402
+    FigmaScreenPrefab: {fileID: 7832495182272360287, guid: f4b308a2601ec08438c5d19c5ea5a292,
+      type: 3}
+    FigmaScreenName: Frame 99
+    ParentSectionNodeId: 
+  - FigmaNodeId: 436:478
+    FigmaScreenPrefab: {fileID: 266285697212298647, guid: f1551b97231f4464aaf159ad26039ca1,
+      type: 3}
+    FigmaScreenName: Frame 100
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:185
+    FigmaScreenPrefab: {fileID: 8451989734858112178, guid: 6a567ad909b1afd43beeef7e0a625a99,
+      type: 3}
+    FigmaScreenName: Frame 106
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:208
+    FigmaScreenPrefab: {fileID: 4261733060530274301, guid: a4701f4f19e644b4c9799241bf8084cc,
+      type: 3}
+    FigmaScreenName: Frame 107
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:233
+    FigmaScreenPrefab: {fileID: 5004482532219895150, guid: 1c7b1496ed6e687448e68f8a5bf4a035,
+      type: 3}
+    FigmaScreenName: Frame 108
+    ParentSectionNodeId: 
+  - FigmaNodeId: 427:171
+    FigmaScreenPrefab: {fileID: 7730968654301769096, guid: 1eb1f672883333b4c88321f686d9a1ee,
+      type: 3}
+    FigmaScreenName: Frame 92
+    ParentSectionNodeId: 
+  - FigmaNodeId: 430:204
+    FigmaScreenPrefab: {fileID: 3488683825259565862, guid: 5c4064a86372619499bd9cb8a10e948a,
+      type: 3}
+    FigmaScreenName: Frame 93
+    ParentSectionNodeId: 
+  - FigmaNodeId: 434:290
+    FigmaScreenPrefab: {fileID: 5991795821531256039, guid: 4c391ee0cbf9d294da469cdaa87e5c2f,
+      type: 3}
+    FigmaScreenName: Frame 96
+    ParentSectionNodeId: 
+  - FigmaNodeId: 434:259
+    FigmaScreenPrefab: {fileID: 7780955782770627732, guid: 6c98369d04fbade4fadf5a7e4ef04c78,
+      type: 3}
+    FigmaScreenName: Frame 95
+    ParentSectionNodeId: 
+  - FigmaNodeId: 427:108
+    FigmaScreenPrefab: {fileID: 8406534007506427339, guid: 957ffe706c306094783398b19b50dcc3,
+      type: 3}
+    FigmaScreenName: Frame 90
+    ParentSectionNodeId: 
+  - FigmaNodeId: 482:551
+    FigmaScreenPrefab: {fileID: 3419278084185193526, guid: 914bf38216e75824eb49e0bbbdc27f97,
+      type: 3}
+    FigmaScreenName: Frame 102
+    ParentSectionNodeId: 
+  - FigmaNodeId: 482:554
+    FigmaScreenPrefab: {fileID: 7702769137278917255, guid: cf88820b38f459b4d822cb115d9fd106,
+      type: 3}
+    FigmaScreenName: Frame 103
+    ParentSectionNodeId: 
+  - FigmaNodeId: 509:435
+    FigmaScreenPrefab: {fileID: 1634177212416932321, guid: 1d2a946357324f040a72537429ea04e9,
+      type: 3}
+    FigmaScreenName: Frame 114
+    ParentSectionNodeId: 
+  m_Sections: []
+--- !u!1 &2129453571
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2129453574}
+  - component: {fileID: 2129453573}
+  - component: {fileID: 2129453572}
+  - component: {fileID: 2129453575}
+  m_Layer: 0
+  m_Name: Main Camera
+  m_TagString: MainCamera
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!81 &2129453572
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2129453571}
+  m_Enabled: 1
+--- !u!20 &2129453573
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2129453571}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: -1
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!4 &2129453574
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2129453571}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2129453575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2129453571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+--- !u!1001 &7436503749651519787
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1581395641}
+    m_Modifications:
+    - target: {fileID: 1386701415796002724, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_Name
+      value: Frame 4 Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 2917995921061432820, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_Name
+      value: FriendButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_Pivot.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1080
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 2340
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2d9ac9d2465af3e459e02716def4b475, type: 3}
+--- !u!224 &7940234052523583303 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 5431773204678450997, guid: 2d9ac9d2465af3e459e02716def4b475,
+    type: 3}
+  m_PrefabInstance: {fileID: 7436503749651519787}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 2129453574}
+  - {fileID: 338026132}
+  - {fileID: 1581395641}
+  - {fileID: 1265574542}

@@ -35,7 +35,7 @@ namespace MSG
             var updates = new Dictionary<string, object>
             {
                 { DBRoutes.Wins(uid), 1 },
-                { DBRoutes.Score(uid), 1000 }
+                { DBRoutes.Losses(uid), 1 }
             };
 
             DatabaseManager.Instance.UpdateOnMain(updates);
@@ -57,7 +57,7 @@ namespace MSG
         public void Btn_CustomTransaction()
         {
             DatabaseManager.Instance.RunTransactionOnMain(
-                DBRoutes.Score(uid),
+                DBRoutes.Losses(uid),
                 mutable =>
                 {
                     // 현재 값 읽기
