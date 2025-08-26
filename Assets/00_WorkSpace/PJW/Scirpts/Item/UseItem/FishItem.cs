@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PJW
 {
-    public class LockItem : MonoBehaviour, IUsableItem
+    public class FishItem : MonoBehaviour, IUsableItem
     {
         [SerializeField] private float lockDuration = 5f;
 

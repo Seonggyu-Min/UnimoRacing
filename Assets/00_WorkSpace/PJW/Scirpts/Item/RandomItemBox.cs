@@ -76,17 +76,28 @@ namespace PJW
         {
             var all = items.Select(i => i.itemPrefab).Where(p => p != null).ToArray();
             var found = all.FirstOrDefault(p => p.name == prefabName);
+
             if (found == null)
             {
-                found = Resources.Load<GameObject>(prefabName);
+                found = Resources.Load<GameObject>(prefabName); 
             }
 
-            var player = PhotonView.Find(info.Sender.TagObject as int? ?? -1); 
-            var inventory = FindObjectOfType<PlayerItemInventory>(); 
-            
-            if (inventory != null && found != null)
+            var allInventories = FindObjectsOfType<PlayerItemInventory>();
+            PlayerItemInventory myInventory = null;
+
+            foreach (var inv in allInventories)
             {
-                inventory.AssignItemPrefab(found);
+                var pv = inv.GetComponent<PhotonView>() ?? inv.GetComponentInParent<PhotonView>();
+                if (pv != null && pv.IsMine)
+                {
+                    myInventory = inv;
+                    break;
+                }
+            }
+
+            if (myInventory != null && found != null)
+            {
+                myInventory.AssignItemPrefab(found);
             }
         }
 
