@@ -16,8 +16,10 @@ namespace MSG
 
         private string _roomName;
         private long _roomCreatedAt;
-        private (string partyId, string leaderUid, string[] uids) _cachedPartyInfo;
+        private (string partyId, string leaderUid, List<string> uids) _cachedPartyInfo;
         private bool _isInitiated = false;
+        private int _createAttempts = 0;
+        private Coroutine _recreateRoomCO;
 
 
         private void Start()
@@ -48,8 +50,8 @@ namespace MSG
 
             if (infoTask.Exception != null)
             {
-                Debug.LogWarning($"[PUN] FetchPartyInfo failed, fallback to solo. {infoTask.Exception}");
-                _cachedPartyInfo = (null, uid, new[] { uid });
+                Debug.LogWarning($"[PUN] 파티를 읽을 수 없어 솔로로 전환합니다 {infoTask.Exception}");
+                _cachedPartyInfo = (null, uid, new List<string> { uid });
             }
             else
             {
@@ -57,7 +59,7 @@ namespace MSG
                 _cachedPartyInfo = (
                     partyId: info.partyId ?? $"solo-{uid}",
                     leaderUid: info.leaderUid ?? uid,
-                    uids: info.uids ?? new[] { uid }
+                    uids: info.uids ?? new List<string> { uid }
                 );
             }
 
@@ -73,15 +75,18 @@ namespace MSG
             };
 
             // 초기 ExpectedUsers = 파티 멤버, 없으면 솔로
-            var initialWhitelist = _cachedPartyInfo.uids ?? new[] { uid };
+            var initialWhitelist = _cachedPartyInfo.uids ?? new List<string> { uid };
 
-            PhotonNetwork.CreateRoom(_roomName, opts, TypedLobby.Default, initialWhitelist);
-            Debug.Log($"[PUN] Creating room: '{_roomName}', whitelist: {string.Join(",", initialWhitelist)}");
+            PhotonNetwork.CreateRoom(_roomName, opts, TypedLobby.Default, initialWhitelist.ToArray());
+            Debug.Log($"[PUN] 방 생성: '{_roomName}', 화이트리스트: {string.Join(",", initialWhitelist)}");
         }
 
         public override async void OnCreatedRoom()
         {
             Debug.Log($"[PUN] OnCreatedRoom: {_roomName}");
+
+            _createAttempts = 0;
+            StopRecreateRoom();
 
             // 캐시된 파티정보가 있으면 재사용, 없으면 한번 더 조회
             var uid = FirebaseManager.Instance.Auth.CurrentUser.UserId;
@@ -89,8 +94,8 @@ namespace MSG
 
             var partyId = info.partyId ?? $"solo-{uid}";
             var leaderUid = info.leaderUid ?? uid;
-            var uids = info.uids ?? new[] { uid };
-            var size = uids.Length;
+            var uids = info.uids ?? new List<string> { uid };
+            var size = uids.Count;
             var max = maxPlayers;
 
             // MatchClient에 초기 LFG 정보 주입
@@ -109,7 +114,7 @@ namespace MSG
         public override void OnCreateRoomFailed(short returnCode, string message)
         {
             Debug.LogError($"[PUN] CreateRoom failed {returnCode} {message}");
-            // TODO: 재시도 로직
+            StartRecreateRoom();
         }
 
         public override void OnJoinedRoom()
@@ -135,7 +140,7 @@ namespace MSG
         }
 
         // Firebase 관련
-        private async Task<(string partyId, string leaderUid, string[] uids)> FetchPartyInfo(string uid)
+        private async Task<(string partyId, string leaderUid, List<string> uids)> FetchPartyInfo(string uid)
         {
             // 소속 파티 ID
             var partyIdSnap = await FirebaseManager.Instance.Database
@@ -172,7 +177,57 @@ namespace MSG
                 ? leaderSnap.Value.ToString()
                 : (members.Count > 0 ? members[0] : uid);
 
-            return (partyId, leaderUid, members.ToArray());
+            return (partyId, leaderUid, members);
+        }
+
+        private IEnumerator RecreateRoomRoutine()
+        {
+            _createAttempts++;
+
+            while (_createAttempts < 10)
+            {
+                CreateRoom();
+                yield return new WaitForSeconds(Mathf.Min(0.3f * _createAttempts, 1.5f));
+            }
+        }
+
+        private void StartRecreateRoom()
+        {
+            if (_recreateRoomCO != null)
+            {
+                StopCoroutine(_recreateRoomCO);
+                _recreateRoomCO = null;
+            }
+            _recreateRoomCO = StartCoroutine(RecreateRoomRoutine());
+        }
+
+        private void StopRecreateRoom()
+        {
+            if (_recreateRoomCO != null)
+            {
+                StopCoroutine(_recreateRoomCO);
+                _recreateRoomCO = null;
+            }
+        }
+
+        private void CreateRoom()
+        {
+            var uid = FirebaseManager.Instance.Auth.CurrentUser.UserId;
+
+            _roomName = $"rm-{Guid.NewGuid():N}";
+            _roomCreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            var opts = new RoomOptions
+            {
+                MaxPlayers = (byte)maxPlayers,
+                IsVisible = false,
+                PublishUserId = true
+            };
+
+            var initialWhitelist = _cachedPartyInfo.uids ?? new List<string> { uid };
+
+            PhotonNetwork.CreateRoom(_roomName, opts, TypedLobby.Default, initialWhitelist.ToArray());
+            Debug.Log($"[PUN] Creating room: '{_roomName}', whitelist: {string.Join(",", initialWhitelist)}");
         }
     }
 }

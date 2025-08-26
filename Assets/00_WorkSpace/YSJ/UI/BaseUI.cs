@@ -67,7 +67,4 @@ public abstract class BaseUI : MonoBehaviour
         PointerHandler obj = GetUI(objName).GetOrAddComponent<PointerHandler>();
         return obj;
     }
-
-    public virtual void Open() { }
-    public virtual void Close() { }
 }

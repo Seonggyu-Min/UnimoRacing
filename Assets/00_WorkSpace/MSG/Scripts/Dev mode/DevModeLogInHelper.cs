@@ -2,7 +2,7 @@
 #define UNITY_DEV_MODE
 #endif
 
-#if UNITY_DEV_MODE
+
 using Firebase.Auth;
 using Photon.Pun;
 using Photon.Realtime;
@@ -18,20 +18,23 @@ namespace MSG
 {
     public class DevModeLogInHelper : MonoBehaviour
     {
-
+#if UNITY_DEV_MODE
         [SerializeField] private GameObject _devUIs;
         [SerializeField] private GameObject _notDevUIs;
         [SerializeField] private TMP_InputField _emailInputField;
         [SerializeField] private TMP_InputField _passwordInputField;
-
+#endif
         private void Awake()
         {
+#if UNITY_DEV_MODE
             _devUIs.SetActive(true);
             _notDevUIs.SetActive(false);
+#endif
         }
 
         public void OnClickLogInOrCreateButton()
         {
+#if UNITY_DEV_MODE
             var email = _emailInputField ? _emailInputField.text.Trim() : "";
             var password = _passwordInputField ? _passwordInputField.text : "";
 
@@ -43,10 +46,12 @@ namespace MSG
 
             Debug.Log("[DevLogin] 이메일 로그인 시도…");
             SignInOrCreate(email, password).Forget();
+#endif
         }
 
         private async Task SignInOrCreate(string email, string password)
         {
+#if UNITY_DEV_MODE
             Debug.Log("[DevLogin] SignInOrCreate 시작");
             try
             {
@@ -76,17 +81,19 @@ namespace MSG
                     Debug.LogWarning($"[DevLogin] 실패: {createEx.Message}");
                 }
             }
+#endif
         }
 
         private void OnDevSignedIn(FirebaseUser user)
         {
+#if UNITY_DEV_MODE
             Debug.Log($"[DevLogin] 파이어베이스 로그인 상태: 이메일: {user.Email} UID: {user.UserId}");
 
             PhotonNetwork.AuthValues = new AuthenticationValues(user.UserId);
 
             var flow = FindAnyObjectByType<AuthFlowController>();
             flow?.SendMessage("HandleSignInSucceeded", user, SendMessageOptions.DontRequireReceiver);
+#endif
         }
     }
 }
-#endif

@@ -1,15 +1,27 @@
+ï»¿using ExitGames.Client.Photon;
+using Photon.Realtime;
 using System;
+using System.Text;
 using YSJ.Util;
 
-// - ÀÌ°É ¸¸µç ÀÌÀ¯
-// ¿©·¯±ºµ¥¿¡¼­ ³×Æ®¿öÅ© Æ÷ÅæÀ» »ç¿ëÇÏ¸é ÃßÀûÇÏ±â ½ÇÇàÁ¡À» Ã£´Âµ¥ ¸¹Àº ½Ã°£ÀÌ ¼Ò¿äµÇ¹Ç·Î, ÇöÀç¿Í °°ÀÌ
-// ³×Æ®¿öÅ© °ü·Ã ÀÌº¥Æ®¸¦ °ü¸®ÇØÁÖ´Â ¸Å´ÏÀú°¡ ÇÊ¿äÇÏ´Ù°í »ı°¢Çß´Ù.
+// - ì´ê±¸ ë§Œë“  ì´ìœ 
+// ì—¬ëŸ¬êµ°ë°ì—ì„œ ë„¤íŠ¸ì›Œí¬ í¬í†¤ì„ ì‚¬ìš©í•˜ë©´ ì¶”ì í•˜ê¸° ì‹¤í–‰ì ì„ ì°¾ëŠ”ë° ë§ì€ ì‹œê°„ì´ ì†Œìš”ë˜ë¯€ë¡œ, í˜„ì¬ì™€ ê°™ì´
+// ë„¤íŠ¸ì›Œí¬ ê´€ë ¨ ì´ë²¤íŠ¸ë¥¼ ê´€ë¦¬í•´ì£¼ëŠ” ë§¤ë‹ˆì €ê°€ í•„ìš”í•˜ë‹¤ê³  ìƒê°í–ˆë‹¤.
 
 public class PhotonNetworkManager : SimpleSingletonPun<PhotonNetworkManager>
 {
     public Action OnActionConnectedToMaster;
+
     public Action OnActionJoinedLobby;
+
     public Action OnActionOnJoinedRoom;
+    public Action OnActionLeftRoom;
+
+    public Action<Player> OnActionPlayerEnteredRoom;
+    public Action<Player> OnActionPlayerLeftRoom;
+
+    public Action<Player, Hashtable> OnActionPlayerPropertiesUpdate;
+    public Action<Hashtable> OnActionRoomPropertiesUpdate;
 
     public override void OnConnectedToMaster()
     {
@@ -27,5 +39,42 @@ public class PhotonNetworkManager : SimpleSingletonPun<PhotonNetworkManager>
     {
         base.OnJoinedRoom();
         OnActionOnJoinedRoom?.Invoke();
+    }
+
+    public override void OnLeftRoom()
+    {
+        base.OnLeftRoom();
+        OnActionLeftRoom?.Invoke();
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
+        OnActionPlayerPropertiesUpdate?.Invoke(targetPlayer, changedProps);
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        base.OnPlayerEnteredRoom(newPlayer);
+        OnActionPlayerEnteredRoom?.Invoke(newPlayer);
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
+        OnActionPlayerLeftRoom?.Invoke(otherPlayer);
+    }
+
+    public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
+    {
+        StringBuilder sb = new();
+        
+        sb.Append($"[RoomProperty Updated]\n");
+        foreach (var key in propertiesThatChanged.Keys)
+            sb.Append($"Key: {key}, Value: {propertiesThatChanged[key]}\n");
+        
+        this.PrintLog(sb.ToString());
+        
+        OnActionRoomPropertiesUpdate?.Invoke(propertiesThatChanged);
     }
 }
