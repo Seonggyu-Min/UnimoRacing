@@ -8,7 +8,7 @@ public class OptionUIManager : MonoBehaviour
 
     public void OpenOptionUI()
     {
-        Debug.Log("OpenOptionUI called!");
+        Debug.Log("OpenOptionUI");
         // UI 패널을 활성화하여 화면에 표시합니다.
         SettingPanel.SetActive(true);
     }
