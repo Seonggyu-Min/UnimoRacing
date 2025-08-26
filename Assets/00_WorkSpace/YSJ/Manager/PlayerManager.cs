@@ -1,4 +1,4 @@
-using ExitGames.Client.Photon;
+Ôªøusing ExitGames.Client.Photon;
 using Photon.Pun;
 using System;
 using System.Text;
@@ -17,38 +17,22 @@ public enum PlayerPropertyKey
     Ready
 }
 
-// «ˆ¿Á «¡∑π¿¸≈ÕøÕ ∏µ® ∞∞¿Ã ªÁøÎ«œ∞Ì ¿÷¥¬ ≈¨∑°Ω∫ < (µ•¿Ã≈Õ ∆ƒ∆ÆøÕ, µ•¿Ã≈Õ ¿¸»Ø ∆ƒ∆Æ∏¶ ∞∞¿Ã ∞°¡ˆ∞Ì ¿÷¥Ÿ¥¬ ∏ª)
+// ÌòÑÏû¨ ÌîÑÎ†àÏ†ÑÌÑ∞ÏôÄ Î™®Îç∏ Í∞ôÏù¥ ÏÇ¨Ïö©ÌïòÍ≥† ÏûàÎäî ÌÅ¥ÎûòÏä§ < (Îç∞Ïù¥ÌÑ∞ ÌååÌä∏ÏôÄ, Îç∞Ïù¥ÌÑ∞ Ï†ÑÌôò ÌååÌä∏Î•º Í∞ôÏù¥ Í∞ÄÏßÄÍ≥† ÏûàÎã§Îäî Îßê)
 public class PlayerManager : SimpleSingleton<PlayerManager>
 {
-    #region Const
-
-    private const string CUSTOMPROPERTIES_KEY_PLAYER_LEVEL = "player_level";
-    private const string CUSTOMPROPERTIES_KEY_PLAYER_EXP = "player_exp";
-
-    private const string CUSTOMPROPERTIES_KEY_RACE_CAR_ID = "player_carId";
-    private const string CUSTOMPROPERTIES_KEY_RACE_CHARACTER_ID = "player_characterId";
-    private const string CUSTOMPROPERTIES_KEY_RACE_HOPERACEMAP_ID = "player_HopeRaceMapId";
-
-    private const string CUSTOMPROPERTIES_KEY_ROOM_READY = "player_ready";
-
-    private const int CUSTOMPROPERTIES_VALUE_DEFAULT_LEVEL = 1;
-    private const int CUSTOMPROPERTIES_VALUE_DEFAULT_EXP = 0;
-
-    private const int CUSTOMPROPERTIES_VALUE_DEFAULT_CAR_ID = 0;
-    private const int CUSTOMPROPERTIES_VALUE_DEFAULT_CHARACTER_ID = 0;
-    private const int CUSTOMPROPERTIES_VALUE_DEFAULT_HOPERACEMAP_ID = 0;
-
-    #endregion
-
     [SerializeField] private bool _isTest = false;
     private bool _isSetup = false;
+
+    private string raceCharacterIdString;
+    private string raceCarIdString;
+    private string hopeRaceMapIdString;
 
     public bool IsSetup
     {
         get
         {
             if (!_isSetup)
-                this.PrintLog("`Setup` µ«¡ˆ æ æ“Ω¿¥œ¥Ÿ.");
+                this.PrintLog("`Setup` ÎêòÏßÄ ÏïäÏïòÏäµÎãàÎã§.");
 
             return _isSetup;
         }
@@ -58,9 +42,9 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     {
         base.Init();
 
-        // ø¨∞· µ«¡ˆ æ æ“¥Ÿ∏Á
+        // Ïó∞Í≤∞ ÎêòÏßÄ ÏïäÏïòÎã§Î©∞
         if (!PhotonNetwork.IsConnected && _isTest)
-            PhotonNetwork.ConnectUsingSettings();   // ∆˜≈Ê ø¨∞·
+            PhotonNetwork.ConnectUsingSettings();   // Ìè¨ÌÜ§ Ïó∞Í≤∞
 
         PhotonNetworkManager.Instance.OnActionConnectedToMaster -= OnConnectedToMaster;
         PhotonNetworkManager.Instance.OnActionConnectedToMaster += OnConnectedToMaster;
@@ -76,19 +60,19 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         if (IsSetup) return;
 
         var props = new Hashtable {
-            {ToKey(PlayerPropertyKey.Level),            -1},
-            {ToKey(PlayerPropertyKey.Exp),              -1},
+            {ToKeyString(PlayerPropertyKey.Level),            -1},
+            {ToKeyString(PlayerPropertyKey.Exp),              -1},
 
-            {ToKey(PlayerPropertyKey.CarId),            -1},
-            {ToKey(PlayerPropertyKey.CharacterId),      -1},
-            {ToKey(PlayerPropertyKey.HopeRaceMapId),    -1},
+            {ToKeyString(PlayerPropertyKey.CarId),            -1},
+            {ToKeyString(PlayerPropertyKey.CharacterId),      -1},
+            {ToKeyString(PlayerPropertyKey.HopeRaceMapId),    -1},
 
-            {ToKey(PlayerPropertyKey.Ready),         false},
+            {ToKeyString(PlayerPropertyKey.Ready),         false},
         };
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
         _isSetup = true;
-        this.PrintLog("Setup øœ∑·");
+        this.PrintLog("Setup ÏôÑÎ£å");
     }
 
     #region Test Code(Photon PUN2)
@@ -109,12 +93,12 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         if (_isTest)
         {
             SetPlayerBaseInfoSelection(
-                CUSTOMPROPERTIES_VALUE_DEFAULT_LEVEL,
-                CUSTOMPROPERTIES_VALUE_DEFAULT_EXP);
+                PhotonNetworkCustomProperties.VALUE_PLAYER_DEFAULT_LEVEL,
+                PhotonNetworkCustomProperties.VALUE_PLAYER_DEFAULT_EXP);
         }
 
         PrintCustomProperties("On Connected To Master");
-        PhotonNetwork.JoinLobby(); // ∑Œ∫Ò ø¨∞·
+        PhotonNetwork.JoinLobby(); // Î°úÎπÑ Ïó∞Í≤∞
     }
     private void OnJoinedLobby()
     {
@@ -141,35 +125,52 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     {
         var props = new Hashtable
         {
-            {ToKey(PlayerPropertyKey.Level), level},
-            {ToKey(PlayerPropertyKey.Exp), exp},
+            {ToKeyString(PlayerPropertyKey.Level), level},
+            {ToKeyString(PlayerPropertyKey.Exp), exp},
         };
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
         PrintCustomProperties("Set PlayerBaseInfo Selection");
     }
-    public void SetRaceInfoSelection(int carId, int characterId, bool isReady)
+
+    public void SetRaceInfoSelection()
+    {
+        SetRaceInfoSelection();
+    }
+
+    public void SetRaceInfoSelection(int carId, int characterId)
     {
         if (!IsSetup) return;
 
         var props = new Hashtable
         {
-            {ToKey(PlayerPropertyKey.CarId), carId},
-            {ToKey(PlayerPropertyKey.CharacterId), characterId},
-            {ToKey(PlayerPropertyKey.Ready), isReady},
+            {ToKeyString(PlayerPropertyKey.CarId), carId},
+            {ToKeyString(PlayerPropertyKey.CharacterId), characterId},
         };
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
         PrintCustomProperties("Set RaceInfo Selection");
     }
+    public void SetRaceReadySelection(bool isReady)
+    {
+        if (!IsSetup) return;
+
+        var props = new Hashtable
+        {
+            {ToKeyString(PlayerPropertyKey.Ready), isReady},
+        };
+
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+        PrintCustomProperties("Set Race Ready Selection");
+    }
     public void SetRaceHopeRaceMapIdSelection(int hopeRaceMapId)
     {
         if (!IsSetup) return;
 
-        hopeRaceMapId = (hopeRaceMapId < 0) ? CUSTOMPROPERTIES_VALUE_DEFAULT_HOPERACEMAP_ID : hopeRaceMapId;
+        hopeRaceMapId = (hopeRaceMapId < 0) ? PhotonNetworkCustomProperties.VALUE_PLAYER_DEFAULT_HOPERACEMAP_ID : hopeRaceMapId;
         var props = new Hashtable
         {
-            {ToKey(PlayerPropertyKey.HopeRaceMapId), hopeRaceMapId},
+            {ToKeyString(PlayerPropertyKey.HopeRaceMapId), hopeRaceMapId},
         };
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
@@ -189,7 +190,7 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         {
             try
             {
-                stringBuilder.Append($"{e} : {PhotonNetwork.LocalPlayer.CustomProperties[ToKey((PlayerPropertyKey)e)]}\n");
+                stringBuilder.Append($"{e} : {PhotonNetwork.LocalPlayer.CustomProperties[ToKeyString((PlayerPropertyKey)e)]}\n");
             }
             catch { this.PrintLog($"Type Print: {e}, Value Error"); }
 
@@ -202,9 +203,9 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     {
         /*var props = new Hashtable
         {
-            {ToKey(PlayerPropertyKey.CarId), null},
-            {ToKey(PlayerPropertyKey.CharacterId), null},
-            {ToKey(PlayerPropertyKey.Ready), null},
+            {ToKeyString(PlayerPropertyKey.CarId), null},
+            {ToKeyString(PlayerPropertyKey.CharacterId), null},
+            {ToKeyString(PlayerPropertyKey.Ready), null},
         };*/
 
         var props = new Hashtable();
@@ -213,7 +214,7 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         {
             try
             {
-                props.Add(ToKey((PlayerPropertyKey)e), null);
+                props.Add(ToKeyString((PlayerPropertyKey)e), null);
             }
             catch { this.PrintLog($"Type Clear: {e}, Value Error"); }
         }
@@ -224,18 +225,17 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
 
     #region Util
 
-    // «ÿ¥Á ≈¨∑°Ω∫ ≥ª∫Œø°º≠∏∏ ªÁøÎ«œ¥¬ ¿Ø∆ø
-    private string ToKey(PlayerPropertyKey key)
+    public string ToKeyString(PlayerPropertyKey key)
         => key switch
         {
-            PlayerPropertyKey.Level => CUSTOMPROPERTIES_KEY_PLAYER_LEVEL,
-            PlayerPropertyKey.Exp => CUSTOMPROPERTIES_KEY_PLAYER_EXP,
+            PlayerPropertyKey.Level => PhotonNetworkCustomProperties.KEY_PLAYER_LEVEL,
+            PlayerPropertyKey.Exp => PhotonNetworkCustomProperties.KEY_PLAYER_EXP,
 
-            PlayerPropertyKey.CarId => CUSTOMPROPERTIES_KEY_RACE_CAR_ID,
-            PlayerPropertyKey.CharacterId => CUSTOMPROPERTIES_KEY_RACE_CHARACTER_ID,
-            PlayerPropertyKey.HopeRaceMapId => CUSTOMPROPERTIES_KEY_RACE_HOPERACEMAP_ID,
+            PlayerPropertyKey.CarId => PhotonNetworkCustomProperties.KEY_PLAYER_CAR_ID,
+            PlayerPropertyKey.CharacterId => PhotonNetworkCustomProperties.KEY_PLAYER_CHARACTER_ID,
+            PlayerPropertyKey.HopeRaceMapId => PhotonNetworkCustomProperties.KEY_PLAYER_HOPERACEMAP_ID,
 
-            PlayerPropertyKey.Ready => CUSTOMPROPERTIES_KEY_ROOM_READY,
+            PlayerPropertyKey.Ready => PhotonNetworkCustomProperties.KEY_PLAYER_MATCH_READY,
             _ => key.ToString()
         };
 

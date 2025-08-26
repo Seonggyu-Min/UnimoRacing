@@ -1,4 +1,4 @@
-using Photon.Pun;
+ï»¿using Photon.Pun;
 using UnityEngine;
 
 namespace YSJ.Util
@@ -18,7 +18,7 @@ namespace YSJ.Util
                     if (_instance == null)
                     {
 #if UNITY_EDITOR
-                        UnityUtilEx.PrintLog(typeof(T), "ÀÎ½ºÅÏ½º°¡ ¾ø¾î ¿¡µğÅÍ¿¡¼­ ÀÚµ¿ »ı¼ºµÊ.", LogType.Warning);
+                        UnityUtilEx.PrintLog(typeof(T), "ì¸ìŠ¤í„´ìŠ¤ê°€ ì—†ì–´ ì—ë””í„°ì—ì„œ ìë™ ìƒì„±ë¨.", LogType.Warning);
 #endif
                         GameObject go = new GameObject($"@{typeof(T)}");
                         _instance = go.AddComponent<T>();

@@ -1,11 +1,10 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [CreateAssetMenu(fileName = "RaceGameConfig", menuName = "Game/RaceGameConfig")]
 public sealed class RaceGameConfig : ScriptableObject
 {
-    [Min(2)] public int RaceMinPlayer = 2;          // ¹æ ÃÖ¼Ò ÀÎ¿ø
-    [Min(2)] public int RaceMaxPlayer = 4;          // ¹æ ÃÖ´ë ÀÎ¿ø
-    [Min(1)] public int RaceChoosableMapCount = 3;  // ·¹ÀÌ½Ì ¼±ÅÃ °¡´ÉÇÑ ¸Ê ¼ö
+    [Min(2)] public int RaceMaxPlayer = 4;          // ë°© ìµœëŒ€ ì¸ì›
+    [Min(1)] public int RaceChoosableMapCount = 3;  // ë ˆì´ì‹± ì„ íƒ ê°€ëŠ¥í•œ ë§µ ìˆ˜
 
     public static RaceGameConfig Load()
         => Resources.Load<RaceGameConfig>("Config/RaceGameConfig");

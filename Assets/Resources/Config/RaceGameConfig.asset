@@ -12,7 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd785156c10bf614486d1a26364dc127, type: 3}
   m_Name: RaceGameConfig
   m_EditorClassIdentifier: 
-  MaxCharacters: 4
-  MaxCars: 8
-  MaxMaps: 4
-  MaxPlayersPerRoom: 8
+  RaceMaxPlayer: 2
+  RaceChoosableMapCount: 3
