@@ -1,10 +1,11 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using YTW; 
 
 public class AudioTester : MonoBehaviour
 {
-    // 테스트할 BGM 목록
+    // 테스트할 BGM 목록 AudioData이름과 같아야 합니다.
     private string[] _bgmNames = { "BGM_Lobby", "BGM_Game1", "BGM_Game2" };
     private int _currentBgmIndex = 0;
 
@@ -13,10 +14,22 @@ public class AudioTester : MonoBehaviour
     void Start()
     {
         // Manager가 초기화될 시간을 주기 위해 Invoke를 사용
-        Invoke(nameof(PlayInitialBGM), 0.1f);
+        StartCoroutine(IE_WaitForManagersAndPlayBGM());
 
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
+    }
+
+    private IEnumerator IE_WaitForManagersAndPlayBGM()
+    {
+        // Manager.Audio가 null이거나, IsInitialized가 false인 동안 계속 기다립니다.
+        while (Manager.Audio == null || !Manager.Audio.IsInitialized)
+        {
+            yield return null; // 다음 프레임까지 대기
+        }
+
+        // 초기화가 완료되었으므로 이제 BGM을 재생합니다.
+        PlayInitialBGM();
     }
 
     void PlayInitialBGM()

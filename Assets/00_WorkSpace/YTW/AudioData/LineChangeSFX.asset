@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 589bf9a5c8c9a604194d31b76b6e1e27, type: 3}
   m_Name: LineChangeSFX
   m_EditorClassIdentifier: 
-  ClipName: 
-  Clip: {fileID: 0}
+  ClipName: LineChangeSFX
+  ClipAddress: Audio/SFX/LineMove
   Volume: 1
   Pitch: 1
   Loop: 0
-  MixerGroup: {fileID: 0}
+  MixerGroup: {fileID: -3168114660695895793, guid: 012da8a3996f9794a9567550a5291df2,
+    type: 2}

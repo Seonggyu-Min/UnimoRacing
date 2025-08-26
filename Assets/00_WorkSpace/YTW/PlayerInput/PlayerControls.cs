@@ -113,17 +113,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""TouchInput"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""89a21309-4a2a-4d6d-8441-7376dd5213bd"",
-                    ""path"": ""<Touchscreen>/primaryTouch/tap"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""TouchInput"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         }
