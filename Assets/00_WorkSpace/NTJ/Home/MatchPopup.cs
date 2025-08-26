@@ -1,4 +1,4 @@
-using Photon.Pun;
+ï»¿using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,19 +6,21 @@ using UnityEngine.UI;
 
 public class MatchPopup : PopupBase
 {
-    [Header("¸ÅÄª °ü·Ã ¹öÆ°")]
-    [SerializeField] private GameObject playButtonGroup;     // Play! ¹öÆ° ±×·ì
-    [SerializeField] private GameObject matchingButtonGroup; // ¸ÅÄªÁß... ¹öÆ° ±×·ì
+    [SerializeField] private MSG.NoPartyMatchMaker _matchMaker;
 
-    [SerializeField] private Button startMatchButton;   // Play! ¹öÆ°
-    [SerializeField] private Button cancelMatchButton;  // ¸ÅÄªÁßÀÏ ¶§ Ãë¼Ò ¹öÆ°
+    [Header("ë§¤ì¹­ ê´€ë ¨ ë²„íŠ¼")]
+    [SerializeField] private GameObject playButtonGroup;     // Play! ë²„íŠ¼ ê·¸ë£¹
+    [SerializeField] private GameObject matchingButtonGroup; // ë§¤ì¹­ì¤‘... ë²„íŠ¼ ê·¸ë£¹
+
+    [SerializeField] private Button startMatchButton;   // Play! ë²„íŠ¼
+    [SerializeField] private Button cancelMatchButton;  // ë§¤ì¹­ì¤‘ì¼ ë•Œ ì·¨ì†Œ ë²„íŠ¼
 
     private void OnEnable()
     {
         startMatchButton.onClick.AddListener(OnStartMatch);
         cancelMatchButton.onClick.AddListener(OnCancelMatch);
 
-        RefreshUI(false); // ±âº»Àº Play »óÅÂ
+        RefreshUI(false); // ê¸°ë³¸ì€ Play ìƒíƒœ
     }
 
     private void OnDisable()
@@ -29,15 +31,19 @@ public class MatchPopup : PopupBase
 
     private void OnStartMatch()
     {
-        MatchManager.Instance.StartMatch();
-        RefreshUI(true); // ¸ÅÄªÁß »óÅÂ·Î ÀüÈ¯
+        //MatchManager.Instance.StartMatch();
+        _matchMaker.OnClickTryQuickMatch();
+
+        RefreshUI(true); // ë§¤ì¹­ì¤‘ ìƒíƒœë¡œ ì „í™˜
     }
 
     private void OnCancelMatch()
     {
-        MatchManager.Instance.CancelMatch();
+        //MatchManager.Instance.CancelMatch();
+        _matchMaker.OnClickCancelMatch();
+
         UIManager.Instance.ClosePopup();
-        RefreshUI(false); // ´Ù½Ã Play »óÅÂ
+        RefreshUI(false); // ë‹¤ì‹œ Play ìƒíƒœ
     }
 
     private void RefreshUI(bool isMatching)
