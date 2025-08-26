@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BGM_Game2
   m_EditorClassIdentifier: 
   ClipName: BGM_Game2
-  Clip: {fileID: 8300000, guid: 22ede9d2fb2b0874bb006b34fa24f73c, type: 3}
+  ClipAddress: Audio/BGM/GameBGM02
   Volume: 1
   Pitch: 1
   Loop: 1

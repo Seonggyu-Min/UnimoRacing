@@ -37,6 +37,7 @@ namespace YTW
         private const int MIN_LANE_INDEX = 0;
 
         private float _progress = 0f;
+        private float _baseEngineVolume = 1.0f;
 
         private void Start()
         {
@@ -48,11 +49,7 @@ namespace YTW
 
             _currentSpeed = _maxSpeed;
 
-            // 게임이 시작되면 주행음("EngineSound")을 반복 재생합니다.
-            if (_engineAudioSource != null && AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlayLoopingSoundOn(_engineAudioSource, "EngineSound");
-            }
+            StartEngineSound();
         }
 
 
@@ -86,12 +83,13 @@ namespace YTW
             float normalizedSpeed = Mathf.Clamp01(_currentSpeed / _maxSpeed);
 
             // AnimationCurve에서 현재 속도 비율에 해당하는 목표 Pitch와 Volume 값을 가져옵니다.
-            float targetPitch = speedToPitchCurve.Evaluate(normalizedSpeed);
-            float targetVolume = speedToVolumeCurve.Evaluate(normalizedSpeed);
+            float relativeVolume = speedToVolumeCurve.Evaluate(normalizedSpeed);
+
+            float targetVolume = _baseEngineVolume * relativeVolume;
 
             // Lerp를 사용하여 현재 값에서 목표 값으로 부드럽게 변화시킵니다.
-            _engineAudioSource.pitch = Mathf.Lerp(_engineAudioSource.pitch, targetPitch, Time.deltaTime * soundSmoothSpeed);
             _engineAudioSource.volume = Mathf.Lerp(_engineAudioSource.volume, targetVolume, Time.deltaTime * soundSmoothSpeed);
+            _engineAudioSource.pitch = Mathf.Lerp(_engineAudioSource.pitch, speedToPitchCurve.Evaluate(normalizedSpeed), Time.deltaTime * soundSmoothSpeed);
         }
 
         private IEnumerator CrashAndRecoverRoutine()
@@ -110,10 +108,7 @@ namespace YTW
 
             // 3. 회복 시작: 이제 움직일 수 있도록 플래그를 해제하고 엔진음을 다시 켠다
             _isCrashed = false;
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlayLoopingSoundOn(_engineAudioSource, "EngineSound");
-            }
+            StartEngineSound();
 
             // 4. 움직이면서 서서히 가속한다
             float recoveryTime = 5f;
@@ -130,6 +125,20 @@ namespace YTW
             _currentSpeed = _maxSpeed;
             _crashRecoveryCo = null;
         }
+
+        private void StartEngineSound()
+        {
+            if (_engineAudioSource != null && AudioManager.Instance != null)
+            {
+                var engineData = AudioManager.Instance.PlayLoopingSoundOn(_engineAudioSource, "EngineSound");
+                if (engineData != null)
+                {
+                    // AudioData에 설정된 Volume 값을 기본 볼륨으로 저장
+                    _baseEngineVolume = engineData.Volume;
+                }
+            }
+        }
+
         private void HandleMovement()
         {
             // 1. 진행률 계산
@@ -168,6 +177,7 @@ namespace YTW
 
         public void MoveLeft()
         {
+            Debug.Log("왼쪽 이동");
             if (_currentLaneIndex > MIN_LANE_INDEX)
             {
                 _currentLaneIndex--;
@@ -177,6 +187,7 @@ namespace YTW
 
         public void MoveRight()
         {
+            Debug.Log("오른쪽 이동");
             if (_currentLaneIndex < MAX_LANE_INDEX)
             {
                 _currentLaneIndex++;

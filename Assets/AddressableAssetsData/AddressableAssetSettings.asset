@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 771c5be6fe86d55459272074c0289673
   m_currentHash:
     serializedVersion: 2
-    Hash: a5de5f789ae160efb6c37af3aa73e5cc
+    Hash: e7bfcd20091862713542d0b4e4537d56
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -38,12 +38,13 @@ MonoBehaviour:
     m_Id: 
   m_RemoteCatalogLoadPath:
     m_Id: 
-  m_ContentStateBuildPathProfileVariableName: 
+  m_ContentStateBuildPathProfileVariableName: <default settings path>
   m_CustomContentStateBuildPath: 
   m_ContentStateBuildPath: 
   m_BuildAddressablesWithPlayerBuild: 0
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
+  - {fileID: 11400000, guid: 80769fc0fce4f004ca9a02668e0711eb, type: 2}
   - {fileID: 11400000, guid: ea5d5d286e2fde243aca8844d020e184, type: 2}
   - {fileID: 11400000, guid: f6fcdcac63a7c724c9363360b1f79cc9, type: 2}
   - {fileID: 11400000, guid: 2be2f44c4cef5af4ea93382eef1eb2d8, type: 2}

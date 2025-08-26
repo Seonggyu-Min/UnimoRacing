@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CollisionSound
   m_EditorClassIdentifier: 
   ClipName: CollisionSound
-  Clip: {fileID: 8300000, guid: 5b007e2aaf716264b8ee10d9b457b6c7, type: 3}
+  ClipAddress: Audio/SFX/Collision
   Volume: 1
   Pitch: 1
   Loop: 0

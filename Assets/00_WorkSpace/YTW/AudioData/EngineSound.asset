@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: EngineSound
   m_EditorClassIdentifier: 
   ClipName: EngineSound
-  Clip: {fileID: 8300000, guid: ad8a86cb49398584eb6669673b8f12de, type: 3}
-  Volume: 1
+  ClipAddress: Audio/LoopingSFX/CarEngine
+  Volume: 0.2
   Pitch: 1
   Loop: 1
   MixerGroup: {fileID: -3168114660695895793, guid: 012da8a3996f9794a9567550a5291df2,

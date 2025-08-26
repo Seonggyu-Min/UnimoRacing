@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BGM_Lobby
   m_EditorClassIdentifier: 
   ClipName: BGM_Lobby
-  Clip: {fileID: 8300000, guid: dd2c69cd0537ea245ab40ee695a4781a, type: 3}
+  ClipAddress: Audio/BGM/LobbyBGM
   Volume: 1
   Pitch: 1
   Loop: 1
