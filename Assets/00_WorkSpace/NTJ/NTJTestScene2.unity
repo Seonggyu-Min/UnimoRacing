@@ -151,6 +151,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 699f8a490406b204c8a1df62f85cea09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _maxPlayers: 2
+  _gameLevel: 2
 --- !u!4 &1732832361
 Transform:
   m_ObjectHideFlags: 0
@@ -309,6 +311,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3063786026069599231, guid: 53119574cd7b9db4b8c217569041c9fd,
+        type: 3}
+      propertyPath: _matchMaker
+      value: 
+      objectReference: {fileID: 1732832360}
     - target: {fileID: 3657155836439367256, guid: 53119574cd7b9db4b8c217569041c9fd,
         type: 3}
       propertyPath: m_SizeDelta.x

@@ -36,12 +36,14 @@ public sealed class UIGradient : BaseMeshEffect
         SetDirty();
     }
 
+#if UNITY_EDITOR
     protected override void OnValidate()
     {
         base.OnValidate();
         SetDirty();
         StartRotateIfNeeded();
     }
+#endif
 
     void Update()
     {
