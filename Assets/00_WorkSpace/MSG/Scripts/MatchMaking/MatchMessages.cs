@@ -54,5 +54,14 @@ namespace MSG
             public List<string> uids;
             public long exp;
         }
+
+        [Serializable]
+        public class MatchCancelMsg
+        {
+            public string t = "MATCH_CANCEL";
+            public string matchId;
+            public string reason;
+            public List<string> uids;
+        }
     }
 }
