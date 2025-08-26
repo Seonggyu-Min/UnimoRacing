@@ -8,10 +8,21 @@ namespace MSG
 {
     public class NoPartyMatchMaker : MonoBehaviourPunCallbacks
     {
+        private Coroutine _voteCO;
+
         public void OnClickTryQuickMatch()
         {
             Debug.Log($"[NoPartyMatchMaker] 방 참가 시도");
             PhotonNetwork.JoinRandomRoom();
+        }
+
+        public void OnClickCancelMatch()
+        {
+            Debug.Log($"[NoPartyMatchMaker] 매칭 취소");
+            if (PhotonNetwork.InRoom)
+            {
+                PhotonNetwork.LeaveRoom();
+            }
         }
 
         public override void OnJoinedRoom()
@@ -36,7 +47,7 @@ namespace MSG
                 IsOpen = true
             };
 
-            PhotonNetwork.CreateRoom(null, options, TypedLobby.Default);
+            PhotonNetwork.CreateRoom(null, options);
         }
 
         public override void OnCreatedRoom()
@@ -76,14 +87,55 @@ namespace MSG
         {
             Debug.Log("[NoPartyMatchMaker] 투표 시작");
             // 투표 UI 활성화
+            StartVoteCount();
         }
 
         private void DisableVoteUI()
         {
             Debug.Log("[NoPartyMatchMaker] 투표 종료");
             // 투표 UI 비활성화
+            StopVoteCount();
         }
 
+        private void StartVoteCount()
+        {
+            if (_voteCO != null)
+            {
+                StopCoroutine(_voteCO);
+                _voteCO = null;
+            }
+            _voteCO = StartCoroutine(StartAfterVoteRoutine());
+        }
+
+        private void StopVoteCount()
+        {
+            if (_voteCO != null)
+            {
+                StopCoroutine(_voteCO);
+                _voteCO = null;
+            }
+        }
+
+        // 10초가 지난 후 
+        private IEnumerator StartAfterVoteRoutine()
+        {
+            // 추후 씬 매니저로 변경
+            if (!PhotonNetwork.IsMasterClient) yield break;
+
+            float elapsed = 0f;
+
+            Debug.Log("10초간 투표 시작");
+            while (elapsed < 10f)
+            {
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            // TODO: 투표 집계 로직 추가
+            PhotonNetwork.LoadLevel(2);
+        }
+
+        [ContextMenu("DebugRoom")]
         public void DebugRoom()
         {
             foreach (var p in PhotonNetwork.CurrentRoom.Players)
