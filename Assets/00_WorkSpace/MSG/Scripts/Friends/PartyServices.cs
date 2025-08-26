@@ -15,10 +15,22 @@ namespace MSG
 
         public Action<string> OnPartyJoinedChannel;
         public Action<string> OnPartyLeftChannel;
+        private DatabaseReference _infoRef;
+        private EventHandler<ValueChangedEventArgs> _connHandler;
 
         private void OnEnable()
         {
             WatchConnection();
+        }
+
+        private void OnDisable()
+        {
+            if (_infoRef != null && _connHandler != null)
+            {
+                _infoRef.ValueChanged -= _connHandler;
+            }
+            _infoRef = null;
+            _connHandler = null;
         }
 
 
@@ -154,7 +166,7 @@ namespace MSG
         private void WatchConnection()
         {
             var infoRef = FirebaseDatabase.DefaultInstance.GetReference(".info/connected");
-            infoRef.ValueChanged += async (s, e) =>
+            _connHandler += async (s, e) =>
             {
                 if (e.Snapshot?.Value is bool connected && connected)
                 {
@@ -167,6 +179,7 @@ namespace MSG
                     }
                 }
             };
+            _infoRef.ValueChanged += _connHandler;
         }
 
 

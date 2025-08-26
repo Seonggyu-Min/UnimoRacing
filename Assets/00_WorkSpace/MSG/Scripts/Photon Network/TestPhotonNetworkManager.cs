@@ -68,6 +68,7 @@ namespace MSG
 
             PhotonNetwork.AuthValues = 
                 new Photon.Realtime.AuthenticationValues(FirebaseManager.Instance.Auth.CurrentUser.UserId);
+            PhotonNetwork.NickName = FirebaseManager.Instance.Auth.CurrentUser.DisplayName;
 
             PhotonNetwork.ConnectUsingSettings();
 
