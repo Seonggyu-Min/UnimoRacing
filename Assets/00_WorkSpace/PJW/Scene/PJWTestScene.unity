@@ -1113,7 +1113,7 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 4774977318374646965, guid: 0ad69218fc191ec4da8cae4368ba4e3c,
       type: 3}
-    weight: 0
+    weight: 2
   - itemPrefab: {fileID: 3946859079953295172, guid: c86097129e266554e8a69d54e1efd2eb,
       type: 3}
     weight: 0
@@ -1134,10 +1134,10 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 4070489616884424043, guid: 9bedcbadbf4e6864ebf67c051e2563a9,
       type: 3}
-    weight: 2
+    weight: 0
   - itemPrefab: {fileID: 3622971774366793308, guid: 84b845bc65a223042b4ab9781bd5246d,
       type: 3}
-    weight: 2
+    weight: 0
   respawnTime: 5
 --- !u!65 &1072761681
 BoxCollider:
@@ -1219,7 +1219,7 @@ Transform:
   m_GameObject: {fileID: 1072761679}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.23, y: -1.3069665, z: -4.121367}
+  m_LocalPosition: {x: -3.44, y: -1.3069665, z: -6.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1600,17 +1600,17 @@ MonoBehaviour:
   m_Waypoints:
   - position: {x: 0, y: 0, z: -5}
     roll: 0
-  - position: {x: 0, y: 0, z: 5}
+  - position: {x: -7.7056503, y: 0, z: 5}
     roll: 0
-  - position: {x: 0, y: 0, z: 15}
+  - position: {x: -16.56289, y: 0, z: 15}
     roll: 0
-  - position: {x: 0, y: 0, z: 25}
+  - position: {x: -25.111217, y: 0, z: 25}
     roll: 0
-  - position: {x: 0, y: 0, z: 35}
+  - position: {x: -35.92549, y: 0, z: 3.3956845}
     roll: 0
-  - position: {x: 0, y: 0, z: 45}
+  - position: {x: -23.4444, y: 0, z: -6.9078856}
     roll: 0
-  - position: {x: 0, y: 0, z: 55}
+  - position: {x: 0, y: 0, z: -12.96208}
     roll: 0
 --- !u!4 &1391082745
 Transform:

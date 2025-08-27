@@ -46,4 +46,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapPrefab: {fileID: 8668314144472901380, guid: f5dcb6ae4c2009940a9543a46d3028df,
     type: 3}
-  distanceAhead: 5
+  distanceBehind: 0.05
