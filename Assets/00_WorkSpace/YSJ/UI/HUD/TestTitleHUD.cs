@@ -148,14 +148,20 @@ public sealed class TestTitleHUD : BaseUI
             matchTmp.text = "Find Player...";
             RoomManager.Instance.MatchAction();
             yield return new WaitForSeconds(3.0f);
-            RoomNameUpdate();
+            StartCoroutine(RoomNameUpdate());
         }
     }
 
-    public void RoomNameUpdate()
+    public IEnumerator RoomNameUpdate()
     {
         var matchRoomName = _uiBinder.Get<TextMeshProUGUI>(TestLobbyUI.RoomName_TMP);
+        while (!PhotonNetwork.InRoom)
+        {
+            yield return null;
+        }
+
         matchRoomName.text = PhotonNetwork.CurrentRoom.Name;
+        yield break;
     }
 
     string DumpCodes(string s) => string.Join(" ", s.Select(ch => ((int)ch).ToString("X4")));

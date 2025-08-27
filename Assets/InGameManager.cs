@@ -3,81 +3,45 @@ using Photon.Pun;
 using Photon.Realtime;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using YSJ.Util;
 using EventData = ExitGames.Client.Photon.EventData;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
-public enum MatchState { WaitPlayer, Countdown, Racing, Finish, PostGame }
-
 public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
 {
     [Header("Configs")]
-    [SerializeField] private GameRulesSO rules;
+    [SerializeField] private InGameRaceRulesConfig rules;
 
     private const byte EV_COUNTDOWN_TICK = 10;
     private const byte EV_RACE_GO        = 11;
 
     public event Action<int> OnCountdownTick;
     public event Action OnRaceGo;
-    public event Action<MatchState> OnStateChanged; // 상태에 따른 액션 해줘야 될것들(카드, UI 등등등)
+    public event Action<RaceState> OnStateChanged;
 
     private Coroutine _countdownCo;
     private bool _isMaster => PhotonNetwork.IsMasterClient;
     private Room _room => PhotonNetwork.CurrentRoom;
 
-    #region Key Maping
-    private enum RoomKey
-    {
-        RoomState,
-        CountdownStartTime,
-        RaceStartTime,
-        FinishStartTime,
-        FinishCount,
-    }
-
-    private enum PlayerKey
-    {
-        CurrentScene,
-        RaceLoaded,
-        RaceIsFinished,
-        CarId,
-        CharacterId,
-    }
-
-    private static string ToKeyString(RoomKey key) => key switch
-    {
-        RoomKey.RoomState               => PhotonNetworkCustomProperties.KEY_ROOM_STATE_TYPE,
-        RoomKey.CountdownStartTime      => PhotonNetworkCustomProperties.KEY_ROOM_COUNTDOWN_START_TIME,
-        RoomKey.RaceStartTime           => PhotonNetworkCustomProperties.KEY_ROOM_RACE_START_TIME,
-        RoomKey.FinishStartTime         => PhotonNetworkCustomProperties.KEY_ROOM_FINISH_START_TIME,
-        RoomKey.FinishCount             => PhotonNetworkCustomProperties.KEY_ROOM_FINISH_COUNT,
-        _ => key.ToString()
-    };
-
-    private static string ToKeyString(PlayerKey key) => key switch
-    {
-        PlayerKey.CurrentScene      => PhotonNetworkCustomProperties.KEY_PLAYER_CURRENT_SCENE,
-        PlayerKey.RaceLoaded        => PhotonNetworkCustomProperties.KEY_PLAYER_RACE_LOADED,
-        PlayerKey.RaceIsFinished    => PhotonNetworkCustomProperties.KEY_PLAYER_RACE_IS_FINISHED,
-        PlayerKey.CarId             => PhotonNetworkCustomProperties.KEY_PLAYER_CAR_ID,
-        PlayerKey.CharacterId       => PhotonNetworkCustomProperties.KEY_PLAYER_CHARACTER_ID,
-        _ => key.ToString()
-    };
-    #endregion
+    // 키 헬퍼 (가독성)
+    private static string K(RoomKey k) => PhotonNetworkCustomProperties.ToKeyString(k);
+    private static string PK(PlayerKey k) => PhotonNetworkCustomProperties.ToKeyString(k);
 
     protected override void Init()
     {
         base.Init();
-        PhotonNetwork.AddCallbackTarget(this);
 
-        SetLocalPlayerScene(SceneID.InGameScene);
+        // 로컬 플레이어 씬 상태 세팅
+        PlayerSetting();
 
+        // 초기 상태 동기화
         if (_room != null)
         {
-            if (_isMaster && !HasKey(_room.CustomProperties, ToKeyString(RoomKey.RoomState)))
+            if (_isMaster && !_room.CustomProperties.ContainsKey(K(RoomKey.RaceState)))
             {
-                SetRoomState(MatchState.WaitPlayer);
+                SetRoomState(RaceState.WaitPlayer);
             }
             else
             {
@@ -87,96 +51,96 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
         }
     }
 
-    private void OnDestroy()
-    {
-        PhotonNetwork.RemoveCallbackTarget(this);
-    }
-
-    // 상태머신
-    private void EnterState(MatchState state)
+    // 상태머신(초기/변경 시 진입)
+    private void EnterState(RaceState state)
     {
         OnStateChanged?.Invoke(state);
+        this.PrintLog($"MatchState: {state}");
 
         switch (state)
         {
-            case MatchState.WaitPlayer:
+            case RaceState.WaitPlayer:
                 if (_isMaster) CheckAndSpawnAllIfReady();
                 break;
 
-            case MatchState.Countdown:
+            case RaceState.Countdown:
                 StartCountdown();
                 break;
 
-            case MatchState.Racing:
+            case RaceState.Racing:
                 OnRaceGo?.Invoke();
                 break;
 
-            case MatchState.Finish:
+            case RaceState.Finish:
                 if (_isMaster) StartFinishWindow();
                 break;
 
-            case MatchState.PostGame:
+            case RaceState.PostGame:
                 StartCoroutine(Co_PostGameExit());
                 break;
         }
     }
 
-    // 상태 전환 > 마스터용
-    // 상태에 따른 시간 처리용
-    private void SetRoomState(MatchState next)
+    // ---- 상태 전환(마스터 전용) + 타임스탬프 세팅 ----
+    private void SetRoomState(RaceState next)
     {
         if (!_isMaster || _room == null) return;
 
-        var ht = new Hashtable { [ToKeyString(RoomKey.RoomState)] = (int)next };
+        var ht = new Hashtable { [K(RoomKey.RaceState)] = (int)next };
+
         switch (next)
         {
-            case MatchState.Countdown:
-                ht[ToKeyString(RoomKey.CountdownStartTime)] = PhotonNetwork.Time;
+            case RaceState.Countdown:
+                ht[K(RoomKey.CountdownStartTime)] = PhotonNetwork.Time;
                 break;
 
-            case MatchState.Racing:
-                ht[ToKeyString(RoomKey.RaceStartTime)] = PhotonNetwork.Time;
+            case RaceState.Racing:
+                ht[K(RoomKey.RaceStartTime)] = PhotonNetwork.Time;
                 break;
 
-            case MatchState.Finish:
-                ht[ToKeyString(RoomKey.FinishStartTime)] = PhotonNetwork.Time;
-                if (!HasKey(_room.CustomProperties, ToKeyString(RoomKey.FinishCount)))
-                    ht[ToKeyString(RoomKey.FinishCount)] = 0;
+            case RaceState.Finish:
+                ht[K(RoomKey.FinishStartTime)] = PhotonNetwork.Time;
+                if (!_room.CustomProperties.ContainsKey(K(RoomKey.FinishCount)))
+                    ht[K(RoomKey.FinishCount)] = 0;
                 break;
         }
+
         _room.SetCustomProperties(ht);
     }
 
-    private MatchState GetRoomState()
+    // 룸 상태 조회
+    private RaceState GetRoomState()
     {
-        if (_room == null) return MatchState.WaitPlayer;
-        if (_room.CustomProperties.TryGetValue(ToKeyString(RoomKey.RoomState), out var v) && v is int i)
-            return (MatchState)i;
-        return MatchState.WaitPlayer;
+        if (_room == null) return RaceState.WaitPlayer;
+        if (_room.CustomProperties.TryGetValue(K(RoomKey.RoomState), out var v) && v is int i)
+            return (RaceState)i;
+        return RaceState.WaitPlayer;
     }
 
-    // WaitPlayer 로직
+    // WaitPlayer 로직(마스터만): 전원 인게임 + 로드/스폰 완료 확인
     private void CheckAndSpawnAllIfReady()
     {
-        if (!_isMaster) return;
+        if (!_isMaster || _room == null) return;
 
         foreach (var p in _room.Players.Values)
         {
-            // 모든 플레이어가 InGameScene에 들어왔는지
-            if (!p.CustomProperties.TryGetValue(ToKeyString(PlayerKey.CurrentScene), out var sceneVal) 
-                || !(sceneVal is int si) || si != (int)SceneID.InGameScene)
+            // InGameScene 도착 여부
+            if (!(_room != null
+                && p.CustomProperties.TryGetValue(PK(PlayerKey.CurrentScene), out var sceneVal)
+                && sceneVal is int si && si == (int)SceneID.InGameScene))
                 return;
 
-            // 그리고 스폰/세팅까지 완료했는지
-            if (!(p.CustomProperties.TryGetValue(ToKeyString(PlayerKey.RaceLoaded), out var v) && v is bool b && b))
+            // 로드/스폰 완료 여부
+            if (!(p.CustomProperties.TryGetValue(PK(PlayerKey.RaceLoaded), out var loadedVal)
+                && loadedVal is bool loaded && loaded))
                 return;
         }
 
-        // 전원 도착 + 로드/스폰 완료 → 카운트다운
-        SetRoomState(MatchState.Countdown);
+        // 전원 준비 완료 > 카운트다운으로
+        SetRoomState(RaceState.Countdown);
     }
 
-    // Countdown 로직
+    // Countdown
     private void StartCountdown()
     {
         if (_countdownCo != null) StopCoroutine(_countdownCo);
@@ -185,21 +149,19 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
 
     private IEnumerator Co_Countdown()
     {
-        double t0 =
-            (_room.CustomProperties[ToKeyString(RoomKey.CountdownStartTime)] as double?)
-            ?? PhotonNetwork.Time;
-
+        double t0 = (_room.CustomProperties[K(RoomKey.CountdownStartTime)] as double?) ?? PhotonNetwork.Time;
         float seconds = Mathf.Max(1, rules.countdownSeconds);
 
         while (true)
         {
             double elapsed = PhotonNetwork.Time - t0;
-            float left = seconds - Mathf.FloorToInt((float)elapsed);
+            int left = Mathf.CeilToInt(seconds - (float)elapsed);
 
             if (left >= 0 && _isMaster)
             {
-                var reo = new RaiseEventOptions { Receivers = ReceiverGroup.All };
-                PhotonNetwork.RaiseEvent(EV_COUNTDOWN_TICK, left, reo, SendOptions.SendUnreliable);
+                PhotonNetwork.RaiseEvent(EV_COUNTDOWN_TICK, left,
+                    new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                    SendOptions.SendUnreliable);
             }
 
             if (left <= 0) break;
@@ -208,38 +170,38 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
 
         if (_isMaster)
         {
-            PhotonNetwork.RaiseEvent(EV_RACE_GO, null, new RaiseEventOptions { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
-            SetRoomState(MatchState.Racing);
+            PhotonNetwork.RaiseEvent(EV_RACE_GO, null,
+                new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                SendOptions.SendReliable);
+
+            SetRoomState(RaceState.Racing);
         }
     }
 
-    // Racing 단계 로직
+    // Racing 단계: 로컬 플레이어 완주 신고
     public void NotifyLocalPlayerFinished()
     {
         var me = PhotonNetwork.LocalPlayer;
-        var pp = new Hashtable { [ToKeyString(PlayerKey.RaceIsFinished)] = true };
-        me.SetCustomProperties(pp);
+        me.SetCustomProperties(new Hashtable { [PK(PlayerKey.RaceIsFinished)] = true });
 
         if (_isMaster)
         {
             int finished = GetFinishCount() + 1;
-            _room.SetCustomProperties(new Hashtable { [ToKeyString(RoomKey.FinishCount)] = finished });
+            _room.SetCustomProperties(new Hashtable { [K(RoomKey.FinishCount)] = finished });
 
-            if (GetRoomState() == MatchState.Racing && finished >= 1)
-            {
-                SetRoomState(MatchState.Finish);
-            }
+            if (GetRoomState() == RaceState.Racing && finished >= 1)
+                SetRoomState(RaceState.Finish);
         }
     }
 
     private int GetFinishCount()
     {
-        if (_room.CustomProperties.TryGetValue(ToKeyString(RoomKey.FinishCount), out var v) && v is int i)
+        if (_room.CustomProperties.TryGetValue(K(RoomKey.FinishCount), out var v) && v is int i)
             return i;
         return 0;
     }
 
-    // Finish 로직
+    // Finish 윈도우
     private void StartFinishWindow()
     {
         if (!_isMaster) return;
@@ -248,10 +210,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
 
     private IEnumerator Co_FinishWindow()
     {
-        double t0 =
-            (_room.CustomProperties[ToKeyString(RoomKey.FinishStartTime)] as double?)
-            ?? PhotonNetwork.Time;
-
+        double t0 = (_room.CustomProperties[K(RoomKey.FinishStartTime)] as double?) ?? PhotonNetwork.Time;
         float wait = Mathf.Max(1, rules.finishSeconds);
 
         while (true)
@@ -262,14 +221,14 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
             if (finished >= playerCount)
             {
                 yield return new WaitForSeconds(2f);
-                SetRoomState(MatchState.PostGame);
+                SetRoomState(RaceState.PostGame);
                 yield break;
             }
 
             if (PhotonNetwork.Time - t0 >= wait)
             {
                 yield return new WaitForSeconds(2f);
-                SetRoomState(MatchState.PostGame);
+                SetRoomState(RaceState.PostGame);
                 yield break;
             }
 
@@ -277,7 +236,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
         }
     }
 
-    // PostGame 로직
+    // PostGame
     private IEnumerator Co_PostGameExit()
     {
         yield return new WaitForSeconds(Mathf.Max(0.5f, rules.postGameSeconds));
@@ -285,36 +244,36 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
         // 타이틀로 가기 전, 씬 상태를 Title로 갱신
         SetLocalPlayerScene(SceneID.TitleScene);
 
-        PhotonNetwork.LoadLevel($"YSJ_{SceneID.TitleScene.ToString()}"); // 테스터용
+        PhotonNetwork.LoadLevel($"YSJ_{SceneID.TitleScene}");
     }
 
-    #region 
-    // 플레이어/룸 프로퍼티 변경
+    #region PUN2 Overrides
     public override void OnPlayerPropertiesUpdate(Player target, Hashtable changedProps)
     {
         base.OnPlayerPropertiesUpdate(target, changedProps);
 
-        //  씬 도착/변경도 대기 체크 트리거
+        // 도착/로드 갱신은 대기 상태에서 스폰 체크 트리거
         if (_isMaster && (
-            changedProps.ContainsKey(ToKeyString(PlayerKey.CurrentScene)) ||
-            changedProps.ContainsKey(ToKeyString(PlayerKey.RaceLoaded))
+            changedProps.ContainsKey(PK(PlayerKey.CurrentScene)) ||
+            changedProps.ContainsKey(PK(PlayerKey.RaceLoaded))
         ))
         {
             CheckAndSpawnAllIfReady();
         }
 
-        if (_isMaster && changedProps.ContainsKey(ToKeyString(PlayerKey.RaceIsFinished)))
+        // 완주 갱신 → 카운트 및 상태 전이
+        if (_isMaster && changedProps.ContainsKey(PK(PlayerKey.RaceIsFinished)))
         {
             int finished = 0;
             foreach (var p in _room.Players.Values)
             {
-                if (p.CustomProperties.TryGetValue(ToKeyString(PlayerKey.RaceIsFinished), out var v) && v is bool b && b)
+                if (p.CustomProperties.TryGetValue(PK(PlayerKey.RaceIsFinished), out var v) && v is bool b && b)
                     finished++;
             }
-            _room.SetCustomProperties(new Hashtable { [ToKeyString(RoomKey.FinishCount)] = finished });
+            _room.SetCustomProperties(new Hashtable { [K(RoomKey.FinishCount)] = finished });
 
-            if (GetRoomState() == MatchState.Racing && finished >= 1)
-                SetRoomState(MatchState.Finish);
+            if (GetRoomState() == RaceState.Racing && finished >= 1)
+                SetRoomState(RaceState.Finish);
         }
     }
 
@@ -322,7 +281,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
     {
         base.OnRoomPropertiesUpdate(propertiesThatChanged);
 
-        if (propertiesThatChanged.ContainsKey(ToKeyString(RoomKey.RoomState)))
+        if (propertiesThatChanged.ContainsKey(K(RoomKey.RoomState)))
         {
             var state = GetRoomState();
             EnterState(state);
@@ -332,7 +291,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         base.OnPlayerEnteredRoom(newPlayer);
-        if (_isMaster && GetRoomState() == MatchState.WaitPlayer)
+        if (_isMaster && GetRoomState() == RaceState.WaitPlayer)
             CheckAndSpawnAllIfReady();
     }
 
@@ -342,24 +301,22 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
 
         if (_isMaster)
         {
-            if (GetRoomState() == MatchState.WaitPlayer)
+            if (GetRoomState() == RaceState.WaitPlayer)
                 CheckAndSpawnAllIfReady();
 
-            if (GetRoomState() == MatchState.Finish || GetRoomState() == MatchState.Racing)
+            if (GetRoomState() is RaceState.Finish or RaceState.Racing)
             {
                 int finished = 0;
                 foreach (var p in _room.Players.Values)
                 {
-                    if (p.CustomProperties.TryGetValue(ToKeyString(PlayerKey.RaceIsFinished), out var v) && v is bool b && b)
+                    if (p.CustomProperties.TryGetValue(PK(PlayerKey.RaceIsFinished), out var v) && v is bool b && b)
                         finished++;
                 }
-                _room.SetCustomProperties(new Hashtable { [ToKeyString(RoomKey.FinishCount)] = finished });
+                _room.SetCustomProperties(new Hashtable { [K(RoomKey.FinishCount)] = finished });
 
                 int playerCount = _room.PlayerCount;
                 if (finished >= playerCount)
-                {
-                    SetRoomState(MatchState.PostGame);
-                }
+                    SetRoomState(RaceState.PostGame);
             }
         }
     }
@@ -382,16 +339,15 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
     }
 
     #region Util
-    private bool HasKey(Hashtable ht, string key)
-    {
-        return ht != null && ht.ContainsKey(key);
-    }
-
-    // 로컬 플레이어의 현재 씬 상태 주입(이걸로 현재 씬으로 넘어와 로드가 된 상태인지 파악)
     private void SetLocalPlayerScene(SceneID sceneId)
     {
-        var ht = new Hashtable { [ToKeyString(PlayerKey.CurrentScene)] = (int)sceneId };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(ht);
+        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.CurrentScene, (int)sceneId);
+    }
+
+    private void PlayerSetting()
+    {
+        this.PrintLog("플레이어 데이터 세팅");
+        SetLocalPlayerScene(SceneID.InGameScene);
     }
     #endregion
 }

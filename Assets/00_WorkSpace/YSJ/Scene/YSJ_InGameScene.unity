@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDontDestroyOnLoad: 1
-  rules: {fileID: 0}
+  rules: {fileID: 11400000, guid: 7feeb0493e0cffc4ebc6df9894081c0c, type: 2}
 --- !u!4 &50709435
 Transform:
   m_ObjectHideFlags: 0
