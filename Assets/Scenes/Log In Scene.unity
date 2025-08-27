@@ -12650,6 +12650,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Manager
       objectReference: {fileID: 0}
+    - target: {fileID: 6285909963348795, guid: af943ff71ce42db4fa4ac8c7e43087db, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7559943942321124910, guid: af943ff71ce42db4fa4ac8c7e43087db,
         type: 3}
       propertyPath: m_LocalPosition.x
