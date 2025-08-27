@@ -144,8 +144,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
                 catch { next = _state; }
             }
 
-            _state = next;
-            RoomStateMachine(_state);
+            RoomStateMachine(next);
         }
     }
     #endregion
@@ -253,7 +252,15 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
     private void RoomStateMachine(RoomState state)
     {
-        this.PrintLog(state.ToString());
+        if (state == _state)
+        {
+            this.PrintLog($"RoomState 이전 상태와 같습니다. Old State: {_state} > Change State: {state}");
+            return;
+        }
+
+        _state = state;
+        this.PrintLog($"RoomState 이전 상태 {state.ToString()})");
+
         switch (state)
         {
             case RoomState.WaitPlayer:
@@ -267,14 +274,18 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
             case RoomState.Race:
                 OnActionRoomRace?.Invoke();
+                SceneID sceneId = PhotonNetworkCustomProperties.GetLocalPlayerProp<SceneID>(PlayerKey.CurrentScene,SceneID.None);
+                if (SceneID.InGameScene == sceneId)
+                {
+                    this.PrintLog("현재 레이싱 씬에 있습니다.");
+                    return;
+                }
                 PhotonNetwork.LoadLevel($"YSJ_{SceneID.InGameScene}");
                 break;
 
             default:
                 break;
         }
-
-        _state = state;
     }
 
     #region Popup Opener
