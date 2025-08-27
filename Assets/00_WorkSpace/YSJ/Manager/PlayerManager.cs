@@ -2,7 +2,6 @@
 using System.Text;
 using UnityEngine;
 using YSJ.Util;
-using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerManager : SimpleSingleton<PlayerManager>
 {
