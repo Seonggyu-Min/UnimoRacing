@@ -37,11 +37,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ad8a86cb49398584eb6669673b8f12de
-    m_Address: Audio/LoopingSFX/CarEngine
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c4ef33583abe07741ab9b30329cfd6b5
     m_Address: Audio/SFX/LineMove
     m_ReadOnly: 0
