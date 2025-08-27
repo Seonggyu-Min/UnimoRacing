@@ -13,8 +13,7 @@ namespace YTW
     {
         YTW_TestScene1, 
         YTW_TestScene2, 
-        GameScene_Map1,
-        GameScene_Map2
+        Map1
     }
 
     public class SceneManager : Singleton<SceneManager>
@@ -46,41 +45,41 @@ namespace YTW
             base.Awake();
         }
 
-        private async void Start()
-        {
-            // 게임 시작 시 Loading UI 프리팹을 불러오기 위한 비동기 초기화 시작
-            await InitializeLoadingUIAsync();
-        }
+        //private async void Start()
+        //{
+        //    // 게임 시작 시 Loading UI 프리팹을 불러오기 위한 비동기 초기화 시작
+        //    await InitializeLoadingUIAsync();
+        //}
 
 
-        private async Task InitializeLoadingUIAsync()
-        {
-            Debug.Log("[SceneManager] 로딩 UI 초기화 시작");
-            // ResourceManager 통해 로딩 UI 프리팹을 Addressables에서 가져와 씬에 인스턴스 생성
-            _loadingScreenInstance = await ResourceManager.Instance.InstantiateAsync(LOADING_UI_PREFAB_ADDRESS, Vector3.zero, Quaternion.identity);
+        //private async Task InitializeLoadingUIAsync()
+        //{
+        //    Debug.Log("[SceneManager] 로딩 UI 초기화 시작");
+        //    // ResourceManager 통해 로딩 UI 프리팹을 Addressables에서 가져와 씬에 인스턴스 생성
+        //    _loadingScreenInstance = await ResourceManager.Instance.InstantiateAsync(LOADING_UI_PREFAB_ADDRESS, Vector3.zero, Quaternion.identity);
 
-            if (_loadingScreenInstance == null)
-            {
-                Debug.LogError("[SceneManager] 로딩 UI 프리팹 생성에 실패했습니다!");
-                return;
-            }
+        //    if (_loadingScreenInstance == null)
+        //    {
+        //        Debug.LogError("[SceneManager] 로딩 UI 프리팹 생성에 실패했습니다!");
+        //        return;
+        //    }
 
-            Debug.Log("[SceneManager] 로딩 UI 프리팹 생성 완료");
-            _loadingScreenInstance.transform.SetParent(this.transform);
-            _loadingScreenInstance.SetActive(false);
-            _isInitialized = true;
-        }
+        //    Debug.Log("[SceneManager] 로딩 UI 프리팹 생성 완료");
+        //    _loadingScreenInstance.transform.SetParent(this.transform);
+        //    _loadingScreenInstance.SetActive(false);
+        //    _isInitialized = true;
+        //}
 
         // 일반 씬 로드 ( 로그인 씬 -> 로비 씬)
         public async void LoadScene(SceneType sceneType)
         {
             Debug.Log($"[SceneManager] {sceneType} 로딩 시작");
-            if (!_isInitialized || _isLoading || CurrentSceneType == sceneType) return;
+            if (_isLoading || CurrentSceneType == sceneType) return;
 
             _isLoading = true;
             if (Manager.Audio != null) Manager.Audio.StopBGM(0.3f);
 
-            ShowLoadingScreen();
+            // ShowLoadingScreen();
 
             // ResourceManager의 Addressables 기반 씬 로드 실행 (enum을 string으로 변환으로 address지정)
             var sceneInstance = await ResourceManager.Instance.LoadSceneAsync(sceneType.ToString());
@@ -89,15 +88,11 @@ namespace YTW
             {
                 Debug.Log($"[SceneManager] {sceneType} 로드 성공");
                 CurrentSceneType = sceneType;
-                if (!sceneType.ToString().StartsWith("GameScene"))
-                {
-                    HideLoadingScreen();
-                }
             }
             else
             {
                 Debug.LogError($"[SceneManager] {sceneType} 씬 로드에 실패했습니다.");
-                HideLoadingScreen();
+                // HideLoadingScreen();
             }
 
             _isLoading = false;
@@ -106,10 +101,11 @@ namespace YTW
         public void LoadGameScene(SceneType sceneType)
         {
             if (!PhotonNetwork.IsMasterClient) return;
-            ShowLoadingScreen(); 
+             
             PhotonNetwork.LoadLevel(sceneType.ToString());
         }
 
+        // 지금 사용 x
         public void HideLoadingScreen()
         {
             if (_loadingScreenInstance != null)
@@ -129,6 +125,7 @@ namespace YTW
         #endif
         }
 
+        // 지금 사용 x
         private void ShowLoadingScreen()
         {
             if (_loadingScreenInstance == null)
