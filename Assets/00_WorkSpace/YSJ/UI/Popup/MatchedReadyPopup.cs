@@ -13,6 +13,7 @@ public class MatchedReadyPopup : PopupBaseUI
     [SerializeField] private Button _raceReadyButton;
     [SerializeField] private float _readyMaxTiem = 10.0f;
 
+    private double _ReadiableStartTime = 0.0f;
     private double _currentReadiableTime = 0.0f;
     private double _currentReadiableMaxTime = 0.0f;
     private Coroutine _readyCO;
@@ -22,7 +23,8 @@ public class MatchedReadyPopup : PopupBaseUI
         base.Open();
 
         // 서버 시간으로 > 준비시간 시작, 최대 준비완료 시간 갱신
-        _currentReadiableTime = RoomManager.Instance.RoomMatchReadyStartTime;
+        _ReadiableStartTime = RoomManager.Instance.RoomMatchReadyStartTime;
+        _currentReadiableTime = _ReadiableStartTime;
         _currentReadiableMaxTime = _currentReadiableTime + _readyMaxTiem;
 
         // 최초 UI 갱신
@@ -83,7 +85,7 @@ public class MatchedReadyPopup : PopupBaseUI
         }
 
         _currentReadiableTime = time;
-        _fillGaugeImage.fillAmount = (float)((_currentReadiableMaxTime - _currentReadiableTime) / _readyMaxTiem);
+        _fillGaugeImage.fillAmount = (float)((_currentReadiableTime - _ReadiableStartTime) / _readyMaxTiem);
         return true;
     }
 
