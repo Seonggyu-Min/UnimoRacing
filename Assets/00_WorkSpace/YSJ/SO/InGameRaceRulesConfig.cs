@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 [CreateAssetMenu(menuName = "Game/Rules")]
-public class GameRulesSO : ScriptableObject
+public class InGameRaceRulesConfig : ScriptableObject
 {
     [Header("Flow")]
     public int laps = 3;

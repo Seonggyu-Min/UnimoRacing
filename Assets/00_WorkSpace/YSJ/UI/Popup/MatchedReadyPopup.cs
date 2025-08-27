@@ -13,6 +13,7 @@ public class MatchedReadyPopup : PopupBaseUI
     [SerializeField] private Button _raceReadyButton;
     [SerializeField] private float _readyMaxTiem = 10.0f;
 
+    private double _ReadiableStartTime = 0.0f;
     private double _currentReadiableTime = 0.0f;
     private double _currentReadiableMaxTime = 0.0f;
     private Coroutine _readyCO;
@@ -20,17 +21,25 @@ public class MatchedReadyPopup : PopupBaseUI
     public override void Open()
     {
         base.Open();
-        _currentReadiableTime = RoomManager.Instance.RoomMatchReadyStartTime;
-        _currentReadiableMaxTime = _currentReadiableTime + _readyMaxTiem;
-        ChangeFillGauge(_currentReadiableTime);
-        _readyCO = StartCoroutine(ReadyGaugeCO());
 
+        // 서버 시간으로 > 준비시간 시작, 최대 준비완료 시간 갱신
+        _ReadiableStartTime = RoomManager.Instance.RoomMatchReadyStartTime;
+        _currentReadiableTime = _ReadiableStartTime;
+        _currentReadiableMaxTime = _currentReadiableTime + _readyMaxTiem;
+
+        // 최초 UI 갱신
+        ChangeFillGauge(_currentReadiableTime);
+        // 프레임당 필요 UI 갱신
+        _readyCO = StartCoroutine(CO_ReadyGauge());
+
+        // 버튼 예외 처리 및 이벤트 연결
         if (_raceReadyButton != null)
         {
             _raceReadyButton.onClick.AddListener(RaceMacthReady);
             _raceReadyButton.interactable = true; // 버튼 비활성화
         }
 
+        // 최초 UI 갱신 및 액션 연결
         RacePlayerCount();
         RoomManager.Instance.OnActionRoomPPTUpdate -= RacePlayerCount;
         RoomManager.Instance.OnActionRoomPPTUpdate += RacePlayerCount;
@@ -47,17 +56,17 @@ public class MatchedReadyPopup : PopupBaseUI
         }
     }
 
-    private IEnumerator ReadyGaugeCO()
+    private IEnumerator CO_ReadyGauge()
     {
         yield return new WaitForSeconds(ShowTime);
 
         bool normalOperation = false;
-        while (_currentReadiableTime < _readyMaxTiem)
+        while (_currentReadiableTime < _currentReadiableMaxTime)
         {
             yield return null;
 
-            _currentReadiableTime += Time.deltaTime;
-            normalOperation = ChangeFillGauge(_currentReadiableTime);
+            var updateTime = _currentReadiableTime + Time.deltaTime;
+            normalOperation = ChangeFillGauge(updateTime);
         }
 
         if (normalOperation)
@@ -76,7 +85,7 @@ public class MatchedReadyPopup : PopupBaseUI
         }
 
         _currentReadiableTime = time;
-        _fillGaugeImage.fillAmount = (float)((_readyMaxTiem - (_currentReadiableMaxTime - _currentReadiableTime)) / _readyMaxTiem);
+        _fillGaugeImage.fillAmount = (float)((_currentReadiableTime - _ReadiableStartTime) / _readyMaxTiem);
         return true;
     }
 

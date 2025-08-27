@@ -9,8 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd785156c10bf614486d1a26364dc127, type: 3}
-  m_Name: RaceGameConfig
+  m_Script: {fileID: 11500000, guid: 58439cdc2b858fd4d965c293b7503597, type: 3}
+  m_Name: InGameRaceRulesConfigSO
   m_EditorClassIdentifier: 
-  RaceMaxPlayer: 2
-  RaceChoosableMapCount: 3
+  laps: 1
+  countdownSeconds: 3
+  finishSeconds: 10
+  postGameSeconds: 10
+  timeLimitSeconds: 0
+  playablePlayersCount: 2
+  itemsEnabled: 1
