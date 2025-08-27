@@ -1113,10 +1113,10 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 4774977318374646965, guid: 0ad69218fc191ec4da8cae4368ba4e3c,
       type: 3}
-    weight: 2
+    weight: 0
   - itemPrefab: {fileID: 3946859079953295172, guid: c86097129e266554e8a69d54e1efd2eb,
       type: 3}
-    weight: 0
+    weight: 2
   - itemPrefab: {fileID: 7531220014660825702, guid: 959d3764f21db4b4785e27e2cc565bd6,
       type: 3}
     weight: 0
@@ -1219,7 +1219,7 @@ Transform:
   m_GameObject: {fileID: 1072761679}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.44, y: -1.3069665, z: -6.25}
+  m_LocalPosition: {x: -3.44, y: -1.3069665, z: -13.29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1438,7 +1438,7 @@ Transform:
   m_GameObject: {fileID: 1217235918}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.70424, y: -2.0569665, z: 15.301232}
+  m_LocalPosition: {x: -3.5, y: -2.0569665, z: 15.301232}
   m_LocalScale: {x: 3.1991277, y: 1, z: 7.864643}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1598,17 +1598,9 @@ MonoBehaviour:
     width: 0.2
   m_Looped: 1
   m_Waypoints:
-  - position: {x: 0, y: 0, z: -5}
+  - position: {x: -9.047232, y: 0, z: -5}
     roll: 0
-  - position: {x: -7.7056503, y: 0, z: 5}
-    roll: 0
-  - position: {x: -16.56289, y: 0, z: 15}
-    roll: 0
-  - position: {x: -25.111217, y: 0, z: 25}
-    roll: 0
-  - position: {x: -35.92549, y: 0, z: 3.3956845}
-    roll: 0
-  - position: {x: -23.4444, y: 0, z: -6.9078856}
+  - position: {x: -17.898607, y: 0, z: -13.676992}
     roll: 0
   - position: {x: 0, y: 0, z: -12.96208}
     roll: 0
