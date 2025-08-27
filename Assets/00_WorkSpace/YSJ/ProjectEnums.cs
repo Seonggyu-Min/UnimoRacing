@@ -19,6 +19,7 @@ public enum RaceState
 
 public enum SceneID
 {
+    None = 0,
     TitleScene,
     InGameScene,
 }
