@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace PJW
 {
-    [RequireComponent(typeof(Collider))]
     public class EggTrapZone : MonoBehaviour
     {
         [Header("동작 파라미터")]
@@ -17,17 +16,13 @@ namespace PJW
 
         private bool triggered;
         private Collider zoneCol;
+        private Renderer[] renderers;
 
         private void Awake()
         {
             zoneCol = GetComponent<Collider>();
-            zoneCol.isTrigger = true; // 트리거 강제
-
-            var rb = GetComponent<Rigidbody>() ?? gameObject.AddComponent<Rigidbody>();
-            rb.isKinematic = true;
-            rb.useGravity = false;
-
-            Debug.Log($"[Trap/Awake] {name} hasCol={zoneCol != null}, hasRB={rb != null}");
+            var rb = GetComponent<Rigidbody>();
+            renderers = GetComponentsInChildren<Renderer>(true);
         }
 
         private void OnTriggerEnter(Collider other)
@@ -35,28 +30,36 @@ namespace PJW
             if (triggered) return;
 
             var cart = other.GetComponentInParent<CinemachineDollyCart>();
-            if (!cart) { Debug.LogWarning("[Trap] no DollyCart on hitter"); return; }
+            if (cart == null) return;
 
             triggered = true;
 
             if (zoneCol) zoneCol.enabled = false;
 
+            HideVisuals();
+
             StartCoroutine(BoostThenPinStop(cart));
+        }
+
+        private void HideVisuals()
+        {
+            if (renderers == null) return;
+            foreach (var r in renderers)
+            {
+                if (r) r.enabled = false;
+            }
         }
 
         private IEnumerator BoostThenPinStop(CinemachineDollyCart cart)
         {
             float originalSpeed = cart.m_Speed;
-            Debug.Log($"[Trap/Start] origSpeed={originalSpeed}");
 
             // 가속
             cart.m_Speed = Mathf.Max(0.1f, originalSpeed * boostMultiplier);
-            Debug.Log($"[Trap/Boost] speed={cart.m_Speed}");
             yield return new WaitForSeconds(boostTime);
 
             // 평속
             cart.m_Speed = originalSpeed;
-            Debug.Log($"[Trap/Hold] speed={cart.m_Speed}");
             yield return new WaitForSeconds(waitAfterBoost);
 
             //  정지
@@ -84,7 +87,6 @@ namespace PJW
             // 복구
             cart.enabled = true;
             cart.m_Speed = originalSpeed;
-            Debug.Log("[Trap/End] restored");
 
             Destroy(gameObject);
         }
