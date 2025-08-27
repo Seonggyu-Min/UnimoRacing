@@ -71,6 +71,7 @@ namespace MSG
             PhotonNetwork.NickName = FirebaseManager.Instance.Auth.CurrentUser.DisplayName;
 
             PhotonNetwork.ConnectUsingSettings();
+            PhotonNetwork.AutomaticallySyncScene = true;
 
             Debug.Log($"[TestPhotonNetworkManager] Firebase와 Photon 연결 완료. 다음 씬으로 이동 가능합니다");
             Debug.Log($"파이어베이스 uid : {FirebaseManager.Instance.Auth.CurrentUser.UserId}");

@@ -5,12 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/00_WorkSpace/PJW/Scene/PJWTestScene.unity
-    guid: 137ddc10174461744876c0fc06207d38
+    path: Assets/Scenes/Log In Scene.unity
+    guid: 601b98fa88ef8ca4d9e68f09ebb47b10
+  - enabled: 1
+    path: Assets/00_WorkSpace/NTJ/NTJTestScene2.unity
+    guid: 08dc0ad32122dbd4a8449ec03d89187c
+  - enabled: 1
+    path: Assets/Scenes/Map 1.unity
+    guid: 4eb7646ad9600a4429ed0f921b19f8e8
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 3c385587428f3de41a90aaaf9600f388,
       type: 2}
