@@ -442,6 +442,58 @@ namespace MSG
             }
         }
 
+        /// <summary>
+        /// 지정된 경로의 ValueChanged를 구독합니다. 반환되는 Action을 호출하면 구독이 해제됩니다.
+        /// </summary>
+        /// <param name="path">경로 string을 전달합니다. DBRoutes를 사용하여 전달하는 것이 좋습니다.</param>
+        /// <param name="onChanged">경로의 값이 변경될 때마다 호출되는 Action입니다. DataSnapshot을 전달합니다.</param>
+        /// <param name="onError">에러 메시지를 전달합니다.</param>
+        /// <returns></returns>
+        public Action SubscribeValueChanged(string path, Action<DataSnapshot> onChanged, Action<string> onError = null)
+        {
+            try
+            {
+                DatabaseReference reference = DB.GetReference(path);
+
+                // 이벤트 핸들러 캐싱
+                EventHandler<ValueChangedEventArgs> handler = null;
+                handler = (sender, args) =>
+                {
+                    try
+                    {
+                        onChanged?.Invoke(args.Snapshot);
+                    }
+                    catch (Exception e)
+                    {
+                        onError?.Invoke(e.Message);
+                    }
+                };
+
+                reference.ValueChanged += handler;
+
+                // 구독 해제용
+                return () =>
+                {
+                    try
+                    {
+                        if (reference != null && handler != null)
+                        {
+                            reference.ValueChanged -= handler;
+                        }
+                    }
+                    catch 
+                    {
+                        // 구독 해제 실패 상황. 별도 처리 안함
+                    }
+                };
+            }
+            catch (Exception e)
+            {
+                onError?.Invoke(e.Message);
+                return null;
+            }
+        }
+
         // TODO: 타임아웃, 리스너 등록 해제, 클래스 오브젝트 직렬화?
         #endregion
     }

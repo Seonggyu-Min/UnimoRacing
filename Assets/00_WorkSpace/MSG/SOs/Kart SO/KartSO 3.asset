@@ -16,5 +16,7 @@ MonoBehaviour:
   <Index>k__BackingField: 2
   <Description>k__BackingField: 
   <SynergyUnimo>k__BackingField: {fileID: 0}
+  <MoneyType>k__BackingField: 0
+  <Price>k__BackingField: 100
   <Thumbnail>k__BackingField: {fileID: 21300000, guid: de6b1c4cc18d1514dacab49b2700bd12,
     type: 3}

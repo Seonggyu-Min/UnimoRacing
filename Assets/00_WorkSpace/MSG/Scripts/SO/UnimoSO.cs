@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace MSG
 {
+    public enum MoneyType
+    {
+        // 이름을 몰라서 임의로 타입 정의
+        Money1, Money2, Money3
+    }
+
     [CreateAssetMenu(fileName = "UnimoSO", menuName = "ScriptableObjects/UnimoSO")]
     public class UnimoSO : ScriptableObject
     {
@@ -12,6 +18,7 @@ namespace MSG
         [field: SerializeField] public int Index { get; private set; }
         [field: SerializeField] public string Description { get; private set; }
         [field: SerializeField] public UnimoSO SynergyKart { get; private set; } // 시너지 있는 캐릭터 1개 등록
+        [field: SerializeField] public MoneyType MoneyType { get; private set; } // 지출할 가격의 돈 타입 (예: 다이아, 골드)
         [field: SerializeField] public int Price { get; private set; } // 가격
 
         // ----- 상점 프리뷰용 -----

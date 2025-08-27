@@ -1128,16 +1128,16 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 9174385663795004604, guid: c08552f2a0c3d7741ad6d84cc902dbdf,
       type: 3}
-    weight: 0
+    weight: 2
   - itemPrefab: {fileID: 1260596840694590796, guid: f390d0e37dd74cc41ae61c3000800510,
       type: 3}
     weight: 0
   - itemPrefab: {fileID: 4070489616884424043, guid: 9bedcbadbf4e6864ebf67c051e2563a9,
       type: 3}
-    weight: 2
+    weight: 0
   - itemPrefab: {fileID: 3622971774366793308, guid: 84b845bc65a223042b4ab9781bd5246d,
       type: 3}
-    weight: 2
+    weight: 0
   respawnTime: 5
 --- !u!65 &1072761681
 BoxCollider:
@@ -1219,7 +1219,7 @@ Transform:
   m_GameObject: {fileID: 1072761679}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.23, y: -1.3069665, z: -4.121367}
+  m_LocalPosition: {x: -14.83, y: -1.3069665, z: -13.29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1438,7 +1438,7 @@ Transform:
   m_GameObject: {fileID: 1217235918}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.70424, y: -2.0569665, z: 15.301232}
+  m_LocalPosition: {x: -3.5, y: -2.0569665, z: 15.301232}
   m_LocalScale: {x: 3.1991277, y: 1, z: 7.864643}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1598,19 +1598,11 @@ MonoBehaviour:
     width: 0.2
   m_Looped: 1
   m_Waypoints:
-  - position: {x: 0, y: 0, z: -5}
+  - position: {x: -9.047232, y: 0, z: -5}
     roll: 0
-  - position: {x: 0, y: 0, z: 5}
+  - position: {x: -17.898607, y: 0, z: -13.676992}
     roll: 0
-  - position: {x: 0, y: 0, z: 15}
-    roll: 0
-  - position: {x: 0, y: 0, z: 25}
-    roll: 0
-  - position: {x: 0, y: 0, z: 35}
-    roll: 0
-  - position: {x: 0, y: 0, z: 45}
-    roll: 0
-  - position: {x: 0, y: 0, z: 55}
+  - position: {x: 0, y: 0, z: -12.96208}
     roll: 0
 --- !u!4 &1391082745
 Transform:
