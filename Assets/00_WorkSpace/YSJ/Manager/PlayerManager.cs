@@ -52,8 +52,8 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         PhotonNetworkManager.Instance.OnActionJoinedLobby -= OnJoinedLobby;
         PhotonNetworkManager.Instance.OnActionJoinedLobby += OnJoinedLobby;
 
-        /*PhotonNetworkManager.Instance.OnActionOnJoinedRoom -= OnJoinedRoom;
-        PhotonNetworkManager.Instance.OnActionOnJoinedRoom += OnJoinedRoom;*/
+        PhotonNetworkManager.Instance.OnActionOnJoinedRoom -= OnJoinedRoom;
+        PhotonNetworkManager.Instance.OnActionOnJoinedRoom += OnJoinedRoom;
     }
     private void NetworkPhotonNetworkSetup()
     {
@@ -107,7 +107,7 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
 
         PrintCustomProperties("On Joined Lobby");
     }
-    /*
+    
     private void OnJoinedRoom()
     {
         this.PrintLog($"Joined Room" +
@@ -115,7 +115,7 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
                 $"\nRoomName = {PhotonNetwork.CurrentRoom.Name}\n\n");
 
         PrintCustomProperties("On Joined Room");
-    }*/
+    }
 
     #endregion
 

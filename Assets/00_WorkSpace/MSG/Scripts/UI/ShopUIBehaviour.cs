@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Firebase.Database;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -9,30 +11,47 @@ namespace MSG
 {
     public class ShopUIBehaviour : MonoBehaviour
     {
+        #region Fields and Properties
+
+        [Header("Register SO")]
         [SerializeField] private UnimoSO[] _unimoSOs;
         [SerializeField] private KartSO[] _kartSOs;
 
+        [Header("Shop Panel")]
         [SerializeField] private GameObject _unimoShopPanel;
         [SerializeField] private GameObject _kartShopPanel;
 
+        [Header("Shop Panel Change Buttons")]
         [SerializeField] private Button _unimoShopButton;
         [SerializeField] private Button _kartShopButton;
 
+        [Header("Button Parent")]
         [SerializeField] private Transform _unimoParent;
         [SerializeField] private Transform _kartParent;
         [SerializeField] private BuyButtonBehaviour _buyButtonPrefab;
 
-        private List<BuyButtonBehaviour> _unimoList = new();
-        private List<BuyButtonBehaviour> _kartList = new();
+        [Header("Info Text")]
+        [SerializeField] private TMP_Text _infoText;
 
+        // 버튼 인덱스로 조회용
         private Dictionary<int, BuyButtonBehaviour> _unimoDict = new();
         private Dictionary<int, BuyButtonBehaviour> _kartDict = new();
 
+        // 패널 및 버튼 UI 상태
         private bool _showUnimoPanel = true;
         private bool _isGenerated = false;
 
+        // 구독 해제 캐싱용 Action
+        private Action _unsubUnimoInv;
+        private Action _unsubKartInv;
+
+        // 헬퍼 프로퍼티
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
 
+        #endregion
+
+
+        #region Unity Methods
 
         private void OnEnable()
         {
@@ -43,24 +62,26 @@ namespace MSG
             }
 
             ShowUnimoShop(_showUnimoPanel);
-
-            // OnValueChanged 구독
+            SubscribeInventory();
         }
 
         private void OnDisable()
         {
-            // OnValueChanged 구독 해제
+            UnsubscribeInventory();
         }
 
-        public void OnClickUnimoShopButton()
-        {
-            ShowUnimoShop(true);
-        }
+        #endregion
 
-        public void OnClickKartShopButton()
-        {
-            ShowUnimoShop(false);
-        }
+
+        #region Button Methods
+
+        public void OnClickUnimoShopButton() => ShowUnimoShop(true);
+        public void OnClickKartShopButton() => ShowUnimoShop(false);
+
+        #endregion
+
+
+        #region Private Methods
 
         private void ShowUnimoShop(bool showUnimoPanel)
         {
@@ -88,9 +109,9 @@ namespace MSG
 
                 BuyButtonBehaviour button = Instantiate(_buyButtonPrefab, _unimoParent);
                 button.name = $"UnimoButton_{so.name}";
-                button.SetupUnimo(so);
+                button.SetupUnimo(so, _infoText);
 
-                _unimoList.Add(button);
+                _unimoDict.Add(so.Index, button);
             }
 
             // 카트 버튼 생성
@@ -101,32 +122,97 @@ namespace MSG
 
                 BuyButtonBehaviour button = Instantiate(_buyButtonPrefab, _kartParent);
                 button.name = $"KartButton_{so.name}";
-                button.SetupKart(so);
+                button.SetupKart(so, _infoText);
 
-                _kartList.Add(button);
+                _kartDict.Add(so.Index, button);
             }
         }
 
-        private void CheckAndRenewOwned()
+        private void SubscribeInventory()
         {
-            DatabaseManager.Instance.GetOnMain(DBRoutes.UnimosInventory(CurrentUid), snap =>
-            {
-                if (!snap.Exists)
-                {
-                    //_testText.text = "소유한 유니모가 없습니다";
-                    return;
-                }
+            _unsubUnimoInv = DatabaseManager.Instance.SubscribeValueChanged(
+                DBRoutes.UnimosInventory(CurrentUid),
+                onChanged: OnUnimoInventorySnapshot,
+                onError: (err) => Debug.LogWarning($"[ShopUIBehaviour] 유니모 인벤토리 구독 오류: {err}")
+            );
 
-                List<string> lines = new();
-                foreach (var c in snap.Children)
-                {
-                    string id = c.Key;
-                    string level = c.Value?.ToString() ?? "0";
-                    lines.Add($"유니모 id: {id}, 레벨: {level}");
-                }
-                //_testText.text = string.Join("\n", lines);
-            },
-            err => Debug.LogWarning($"소유한 유니모 읽기 오류: {err}"));
+            _unsubKartInv = DatabaseManager.Instance.SubscribeValueChanged(
+                DBRoutes.KartsInventory(CurrentUid),
+                onChanged: OnKartInventorySnapshot,
+                onError: (err) => Debug.LogWarning($"[ShopUIBehaviour] 카트 인벤토리 구독 오류: {err}")
+            );
         }
+
+        private void UnsubscribeInventory()
+        {
+            _unsubUnimoInv?.Invoke();
+            _unsubKartInv?.Invoke();
+            _unsubUnimoInv = null;
+            _unsubKartInv = null;
+        }
+
+        // 유니모 변화 콜백
+        private void OnUnimoInventorySnapshot(DataSnapshot snap)
+        {
+            // key: int index, value: int level, 0 혹은 null이면 미획득, 1 이상은 획득 및 강화 상태
+            Dictionary<int, int> levels = new();
+
+            if (snap != null && snap.Exists)
+            {
+                foreach (var child in snap.Children)
+                {
+                    int index;
+                    if (!int.TryParse(child.Key, out index)) continue;
+
+                    int level = 0;
+                    if (child.Value != null)
+                    {
+                        int.TryParse(child.Value.ToString(), out level);
+                    }
+
+                    levels[index] = level;
+                }
+            }
+
+            foreach (KeyValuePair<int, BuyButtonBehaviour> kv in _unimoDict)
+            {
+                int level;
+                bool owned = levels.TryGetValue(kv.Key, out level) && level > 0;
+                kv.Value.SetOwnedVisual(owned);
+            }
+        }
+
+        // 카트 변화 콜백
+        private void OnKartInventorySnapshot(DataSnapshot snap)
+        {
+            // key: int index, value: int level, 0 혹은 null이면 미획득, 1 이상은 획득 및 강화 상태
+            Dictionary<int, int> levels = new();
+
+            if (snap != null && snap.Exists)
+            {
+                foreach (var child in snap.Children)
+                {
+                    int index;
+                    if (!int.TryParse(child.Key, out index)) continue;
+
+                    int level = 0;
+                    if (child.Value != null)
+                    {
+                        int.TryParse(child.Value.ToString(), out level);
+                    }
+
+                    levels[index] = level;
+                }
+            }
+
+            foreach (KeyValuePair<int, BuyButtonBehaviour> kv in _kartDict)
+            {
+                int level;
+                bool owned = levels.TryGetValue(kv.Key, out level) && level > 0;
+                kv.Value.SetOwnedVisual(owned);
+            }
+        }
+
+        #endregion
     }
 }
