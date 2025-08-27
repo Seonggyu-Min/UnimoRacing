@@ -1,7 +1,7 @@
+ï»¿using Photon.Pun;
 using System;
 using System.Collections;
 using System.Linq;
-using Photon.Pun;
 using UnityEngine;
 
 namespace PJW
@@ -13,18 +13,19 @@ namespace PJW
         private class WeightedItem
         {
             public GameObject itemPrefab;
-            public int weight = 1; // ¾ÆÀÌÅÛ µîÀå È®·ü Á¶Á¤
+            public int weight = 1; // ì•„ì´í…œ ë“±ì¥ í™•ë¥  ì¡°ì •
         }
 
-        [Header("¾ÆÀÌÅÛ ¸ñ·Ï(ÀüºÎ µå·¡±×)")]
+        [Header("ì•„ì´í…œ ëª©ë¡(ì „ë¶€ ë“œë˜ê·¸)")]
         [SerializeField] private WeightedItem[] items;
 
-        [Header("¼³Á¤")]
+        [Header("ì„¤ì •")]
         [SerializeField] private float respawnTime = 5f;
 
         private Collider boxCollider;
         private Renderer[] renders;
         private bool isAvailable = true;
+        private Coroutine respawnCO;
 
         private void Awake()
         {
@@ -41,20 +42,25 @@ namespace PJW
 
             if (!PhotonNetwork.IsMasterClient) return;
 
-            // ÇÃ·¹ÀÌ¾î ÀÎº¥Åä¸® È®ÀÎ
+            // í”Œë ˆì´ì–´ ì¸ë²¤í† ë¦¬ í™•ì¸
             var inventory = other.GetComponentInParent<PlayerItemInventory>();
             if (inventory == null) return;
 
             if (inventory.HasItem) return;
 
-            // ÃßÃ·
+            // ì¶”ì²¨
             int idx = DrawIndex();
             var prefab = items[idx].itemPrefab;
             if (prefab == null) return;
 
             photonView.RPC(nameof(RpcGiveItem), pv.Owner, prefab.name);
 
-            StartCoroutine(ConsumeAndRespawn());
+            if (respawnCO != null)
+            {
+                StopCoroutine(respawnCO);
+                respawnCO = null;
+            }
+            respawnCO = StartCoroutine(ConsumeAndRespawn());
         }
 
         private int DrawIndex()
@@ -101,20 +107,19 @@ namespace PJW
             }
         }
 
-        // ¾ÆÀÌÅÛ ¸ÔÀ»½Ã ºñÈ°¼ºÈ­ Ã³¸®ÇÔ
+        // ì•„ì´í…œ ë¨¹ì„ì‹œ ë¹„í™œì„±í™” ì²˜ë¦¬í•¨
         private IEnumerator ConsumeAndRespawn() 
         {
-            SetActiveVisual(false); 
-            isAvailable = false;
-
+            if (!PhotonNetwork.IsMasterClient) yield break; // ë§ˆìŠ¤í„° í´ë¼ì´ì–¸íŠ¸ë§Œ ìˆ˜í–‰
+            photonView.RPC(nameof(RPCSetActiveVisualRandomBox), RpcTarget.All, false); // ë°•ìŠ¤ ë¹„í™œì„±í™” ì „íŒŒ
             yield return new WaitForSeconds(respawnTime);
-
-            SetActiveVisual(true);
-            isAvailable = true;
+            photonView.RPC(nameof(RPCSetActiveVisualRandomBox), RpcTarget.All, true); // ë°•ìŠ¤ í™œì„±í™” ì „íŒŒ
         }
 
-        private void SetActiveVisual(bool active)
+        [PunRPC]
+        private void RPCSetActiveVisualRandomBox(bool active)
         {
+            isAvailable = active;
             if (boxCollider != null) boxCollider.enabled = active;
             if (renders != null)
             {

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Firebase.Database;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -30,6 +32,11 @@ namespace MSG
 
         private bool _showUnimoPanel = true;
         private bool _isGenerated = false;
+
+        private DatabaseReference _unimoInventoryReference;
+        private DatabaseReference _kartInventoryReference;
+        private EventHandler<ValueChangedEventArgs> _unimoInventoryHandler;
+        private EventHandler<ValueChangedEventArgs> _kartInventoryHandler;
 
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
 
@@ -127,6 +134,11 @@ namespace MSG
                 //_testText.text = string.Join("\n", lines);
             },
             err => Debug.LogWarning($"소유한 유니모 읽기 오류: {err}"));
+        }
+
+        private void SubscribeInventory()
+        {
+
         }
     }
 }
