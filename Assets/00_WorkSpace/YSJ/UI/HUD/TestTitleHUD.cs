@@ -130,8 +130,6 @@ public sealed class TestTitleHUD : BaseUI
         this.PrintLog($"{_matchType.ToString()}");
         yield return new WaitForSeconds(2.0f);
 
-        PlayerManager.Instance.PrintCustomProperties();
-
         // 매치 이동 후 처리
         if (!isMatchedStartable)
         {

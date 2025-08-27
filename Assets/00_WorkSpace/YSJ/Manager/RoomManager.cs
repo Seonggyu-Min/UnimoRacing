@@ -13,10 +13,10 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 {
     private RoomRaceGameConfig raceGameConfig;
 
-    private RoomState _state                = RoomState.None;
-    private bool   _isFindRoom             = false; // 방 찾았는지 여부
-    private double _matchReadyStartTime    = 0.0f;  // 매치 준비 시작 시간
-    private int    _playersReadyCount      = 0;     // 플레이어 준비 수
+    private RoomState _state              = RoomState.None;
+    private bool   _isFindRoom            = false; // 방 찾았는지 여부
+    private double _matchReadyStartTime   = 0.0f;  // 매치 준비 시작 시간
+    private int    _playersReadyCount     = 0;     // 플레이어 준비 수
 
     [SerializeField] private PopupOpener _fullPopupOpener;
 
@@ -35,14 +35,9 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
     protected override void Init()
     {
         base.Init();
+        PhotonNetwork.AddCallbackTarget(this); // IOnEventCallback 이것 땜시
 
         raceGameConfig = RoomRaceGameConfig.Load();
-        Cleanup();
-
-        PhotonNetwork.AddCallbackTarget(this);
-
-        PhotonNetworkManager.Instance.OnActionJoinedLobby -= Cleanup;
-        PhotonNetworkManager.Instance.OnActionJoinedLobby += Cleanup;
 
         PhotonNetworkManager.Instance.OnActionOnJoinedRoom -= JoinedRoom;
         PhotonNetworkManager.Instance.OnActionOnJoinedRoom += JoinedRoom;
@@ -62,11 +57,10 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
     private void OnDestroy()
     {
-        PhotonNetwork.RemoveCallbackTarget(this);
+        PhotonNetwork.RemoveCallbackTarget(this); // IOnEventCallback 이것 땜시
 
         if (PhotonNetworkManager.Instance)
         {
-            PhotonNetworkManager.Instance.OnActionJoinedLobby -= Cleanup;
             PhotonNetworkManager.Instance.OnActionOnJoinedRoom -= JoinedRoom;
             PhotonNetworkManager.Instance.OnActionPlayerEnteredRoom -= PlayerEnteredRoom;
             PhotonNetworkManager.Instance.OnActionPlayerLeftRoom -= PlayerLeftRoom;
@@ -76,24 +70,8 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
     }
 
     #region Network Flow
-    public void Cleanup()
-    {
-        // [룸데이터갱신]
-        PhotonNetworkCustomProperties.SetRoomProps(
-            new Dictionary<RoomKey, object>
-            {
-                { RoomKey.RoomState, RoomState.Race}
-            }
-        );
-
-        _isFindRoom = false;
-        _matchReadyStartTime = 0.0f;
-        _playersReadyCount = 0;
-    }
-
     private void JoinedRoom()
     {
-        // 늦게 들어온 유저도 팝업 보장: 이미 플래그가 있으면 바로 표시
         bool fullNotified = PhotonNetworkCustomProperties.GetRoomProp(RoomKey.MatchFullFlag, false);
         if (fullNotified)
         {
@@ -121,17 +99,12 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
     {
         if (!PhotonNetwork.InRoom) return;
 
-        var players = PhotonNetwork.PlayerList;
-        var readyKey = PlayerManager.Instance.ToKeyString(PlayerPropertyKey.Ready); // 기존 외부 매핑 유지
+        // 준비 인원 수 갱신 (MatchReady)
         _playersReadyCount = 0;
-
-        foreach (var p in players)
+        foreach (var p in PhotonNetwork.PlayerList)
         {
-            if (p.CustomProperties == null || !p.CustomProperties.ContainsKey(readyKey))
-                continue;
-
-            bool r = (bool)p.CustomProperties[readyKey];
-            if (r) _playersReadyCount++;
+            bool isReady = PhotonNetworkCustomProperties.GetPlayerProp(p, PlayerKey.MatchReady, false);
+            if (isReady) _playersReadyCount++;
         }
         OnActionRoomPPTUpdate?.Invoke();
 
@@ -154,19 +127,24 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
     private void RoomPropertiesUpdate(Hashtable propertiesThatChanged)
     {
-        // 매치 레디 시작 시간
-        var keyReadyStart = PhotonNetworkCustomProperties.ToKeyString(RoomKey.MatchReadyCheckStartTime);
-        if (propertiesThatChanged.ContainsKey(keyReadyStart))
-        {
-            _matchReadyStartTime = (double)propertiesThatChanged[keyReadyStart];
-        }
-
-        // 룸 상태 처리
+        // 룸 상태 처리 (int/enum 타입 모두 안전 파싱)
         var keyRoomState = PhotonNetworkCustomProperties.ToKeyString(RoomKey.RoomState);
+        this.PrintLog($"keyRoomState = {keyRoomState}");
         if (propertiesThatChanged.ContainsKey(keyRoomState))
         {
-            RoomState roomStateValue = (RoomState)propertiesThatChanged[keyRoomState];
-            RoomStateMachine(roomStateValue);
+            this.PrintLog($"hav KeyRoomState = {keyRoomState}");
+
+            var raw = propertiesThatChanged[keyRoomState];
+            RoomState next;
+            if (raw is int i) next = (RoomState)i;
+            else if (raw is RoomState rs) next = rs;
+            else
+            {
+                try { next = (RoomState)Convert.ToInt32(raw); }
+                catch { next = _state; }
+            }
+
+            RoomStateMachine(next);
         }
     }
     #endregion
@@ -175,6 +153,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
     {
         if (!PhotonNetwork.InLobby) return;
 
+
         var opts = new RoomOptions
         {
             MaxPlayers = raceGameConfig.RoomRacePlayer,
@@ -182,8 +161,14 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
             IsOpen     = true,
             CustomRoomProperties = new Hashtable
             {
-                { PhotonNetworkCustomProperties.ToKeyString(RoomKey.MatchChoosableMapCount), raceGameConfig.RaceChoosableMapCount },
-                { PhotonNetworkCustomProperties.ToKeyString(RoomKey.MatchRaceMapId),         PhotonNetworkCustomProperties.VALUE_ROOM_NOT_CHOSEN_RACE_MAP_ID },
+                { PhotonNetworkCustomProperties.ToKeyString(RoomKey.RoomState),                 RoomState.WaitPlayer                },
+
+                { PhotonNetworkCustomProperties.ToKeyString(RoomKey.MatchFullFlag),             false                               },
+                { PhotonNetworkCustomProperties.ToKeyString(RoomKey.MatchReadyCheckStartTime),  -1                                  },
+                { PhotonNetworkCustomProperties.ToKeyString(RoomKey.MatchChoosableMapCount),    raceGameConfig.RaceChoosableMapCount},
+                { PhotonNetworkCustomProperties.ToKeyString(RoomKey.MatchRaceMapId),            -1                                  },
+
+                { PhotonNetworkCustomProperties.ToKeyString(RoomKey.RaceState),                 RaceState.None                      },
             },
         };
 
@@ -199,6 +184,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
         _matchReadyStartTime = PhotonNetwork.Time;
     }
 
+    // 여기서 레디 팝업 띄움
     private void TryNotifyRoomFull()
     {
         if (!PhotonNetwork.IsMasterClient || PhotonNetwork.CurrentRoom == null)
@@ -206,6 +192,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
             this.PrintLog("마스터 클라이언트가 아니거나 현재 룸이 없습니다.", LogType.Warning);
             return;
         }
+
 
         var room = PhotonNetwork.CurrentRoom;
 
@@ -215,6 +202,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
         var toSet = new Dictionary<RoomKey, object>();
 
+        this.PrintLog("마스터 클라이언트 현재 플레이어 체크");
         // 꽉 찼는지 체크
         if (room.MaxPlayers > 0 && room.PlayerCount >= room.MaxPlayers)
         {
@@ -264,7 +252,15 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
     private void RoomStateMachine(RoomState state)
     {
-        this.PrintLog(state.ToString());
+        if (state == _state)
+        {
+            this.PrintLog($"RoomState 이전 상태와 같습니다. Old State: {_state} > Change State: {state}");
+            return;
+        }
+
+        _state = state;
+        this.PrintLog($"RoomState 이전 상태 {state.ToString()})");
+
         switch (state)
         {
             case RoomState.WaitPlayer:
@@ -278,15 +274,18 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
             case RoomState.Race:
                 OnActionRoomRace?.Invoke();
+                SceneID sceneId = PhotonNetworkCustomProperties.GetLocalPlayerProp<SceneID>(PlayerKey.CurrentScene,SceneID.None);
+                if (SceneID.InGameScene == sceneId)
+                {
+                    this.PrintLog("현재 레이싱 씬에 있습니다.");
+                    return;
+                }
                 PhotonNetwork.LoadLevel($"YSJ_{SceneID.InGameScene}");
                 break;
 
             default:
-
                 break;
         }
-
-        _state = state;
     }
 
     #region Popup Opener
@@ -323,7 +322,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
                 var key = PhotonNetworkCustomProperties.ToKeyString(e);
                 object val = null;
                 PhotonNetwork.CurrentRoom.CustomProperties?.TryGetValue(key, out val);
-                sb.Append($"{e} : {val.ToString()}\n");
+                sb.Append($"{e} : {(val != null ? val.ToString() : "null")}\n");
             }
             catch { this.PrintLog($"Type Print: {e}, Value Error"); }
         }

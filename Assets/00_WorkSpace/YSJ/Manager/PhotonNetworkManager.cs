@@ -1,4 +1,5 @@
 ﻿using ExitGames.Client.Photon;
+using Photon.Pun;
 using Photon.Realtime;
 using System;
 using System.Text;
@@ -76,5 +77,15 @@ public class PhotonNetworkManager : SimpleSingletonPun<PhotonNetworkManager>
         this.PrintLog(sb.ToString());
         
         OnActionRoomPropertiesUpdate?.Invoke(propertiesThatChanged);
+    }
+
+    // PlayerList는 이미 ActorNumber 오름차순 정렬되어 있다고 한다.
+    public int GetStartIndexFor(Player p)
+    {
+        var arr = PhotonNetwork.PlayerList; 
+        for (int i = 0; i < arr.Length; i++)
+            if (arr[i].ActorNumber == p.ActorNumber)
+                return i;
+        return 0;
     }
 }
