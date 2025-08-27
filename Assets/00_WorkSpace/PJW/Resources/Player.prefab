@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Path: {fileID: 0}
   m_UpdateMethod: 0
   m_PositionUnits: 1
-  m_Speed: 0.1
+  m_Speed: 0.5
   m_Position: 0
 --- !u!114 &8862246531464801797
 MonoBehaviour:

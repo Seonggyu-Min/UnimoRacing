@@ -46,4 +46,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bombPrefab: {fileID: 1160533761362168744, guid: 17887954d61f7a24594d3afc3bb0a8bd,
     type: 3}
-  distanceAhead: 5
+  distanceAhead: 0.5
