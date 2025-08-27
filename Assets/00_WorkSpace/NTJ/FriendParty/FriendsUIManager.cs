@@ -5,7 +5,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FriendsUIManager : MonoBehaviour
+// PopupBase를 상속받아 팝업 기능을 통합
+public class FriendsUIManager : PopupBase
 {
     [Header("UI References")]
     [SerializeField] private TMP_InputField searchInputField;
@@ -13,6 +14,7 @@ public class FriendsUIManager : MonoBehaviour
     [SerializeField] private TMP_Text logText;
     [SerializeField] private Transform friendListParent;
     [SerializeField] private GameObject friendListPrefab;
+    [SerializeField] private Button closeButton;
 
     [Header("Managers")]
     [SerializeField] private PartyManager partyManager;
@@ -28,7 +30,7 @@ public class FriendsUIManager : MonoBehaviour
 
     private List<(string uid, string name, int level, Sprite carIcon)> dummyFriends;
 
-    void Start()
+    void Awake()
     {
         friendsLogic = FindObjectOfType<FriendsLogics>();
 
@@ -40,10 +42,8 @@ public class FriendsUIManager : MonoBehaviour
             ("uid_003", "Sofo", 3, car3Icon)
         };
 
-        // UID 검색 입력 감지
+        // UI 연결
         searchInputField.onValueChanged.AddListener(value => targetUid = value);
-
-        // 친구 요청 버튼
         sendRequestButton.onClick.AddListener(() =>
         {
             if (string.IsNullOrEmpty(targetUid))
@@ -58,16 +58,25 @@ public class FriendsUIManager : MonoBehaviour
             );
         });
 
+        // 닫기 버튼 연결
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(() => Close()); // PopupBase의 Close() 함수 연결
+        }
+    }
+
+    // 팝업이 열릴 때 친구 목록을 업데이트
+    public override void Open()
+    {
+        base.Open(); // 팝업 활성화
         PopulateFriendList();
     }
 
     private void PopulateFriendList()
     {
-        // 기존 리스트 초기화
         foreach (Transform child in friendListParent)
             Destroy(child.gameObject);
 
-        // 새 친구 리스트 생성
         foreach (var friend in dummyFriends)
         {
             GameObject item = Instantiate(friendListPrefab, friendListParent);

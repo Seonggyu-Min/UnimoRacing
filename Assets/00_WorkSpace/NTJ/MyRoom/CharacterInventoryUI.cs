@@ -23,10 +23,10 @@ public class CharacterInventoryUI : MonoBehaviour
         // characterSprite를 가져올 때, data.CharacterSprite 속성 사용
         characterIcon.sprite = data.characterSprite;
         // characterName을 가져올 때, data.CharacterName 속성 사용
-        // if (characterNameText != null)
-        // {
-        //     characterNameText.text = data.characterName;
-        // }
+        if (characterNameText != null)
+        {
+            characterNameText.text = data.characterName;
+        }
 
         // 버튼 클릭 이벤트에 함수 연결
         GetComponent<Button>().onClick.AddListener(OnEquipButtonClicked);
