@@ -1122,13 +1122,13 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 363910417510501185, guid: 4730e518546517248937cdb5418ffdd2,
       type: 3}
-    weight: 1
+    weight: 0
   - itemPrefab: {fileID: 5856998634752518834, guid: d24c52130d98bcd43b8f1a602245bc63,
       type: 3}
     weight: 0
   - itemPrefab: {fileID: 9174385663795004604, guid: c08552f2a0c3d7741ad6d84cc902dbdf,
       type: 3}
-    weight: 0
+    weight: 2
   - itemPrefab: {fileID: 1260596840694590796, guid: f390d0e37dd74cc41ae61c3000800510,
       type: 3}
     weight: 0
