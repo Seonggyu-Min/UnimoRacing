@@ -7,7 +7,6 @@ using System.Collections.Generic;
 public static class PhotonNetworkCustomProperties
 {
     #region ROOM
-
     // ROOM
     public const string KEY_ROOM_STATE_TYPE                     = "room_roomStateType";             // 룸 상태 타입
 
@@ -32,9 +31,11 @@ public static class PhotonNetworkCustomProperties
     #endregion
 
     #region PLAYER
+    // SERVER
     public const string KEY_PLAYER_LEVEL                        = "player_level";                   // 플레이어 레벨
     public const string KEY_PLAYER_EXP                          = "player_exp";                     // 플레이어 경험치
 
+    // LOCAL
     public const string KEY_PLAYER_CAR_ID                       = "player_carId";                   // 선택 카트 ID
     public const string KEY_PLAYER_CHARACTER_ID                 = "player_characterId";             // 선택 캐릭터 ID
     public const string KEY_PLAYER_HOPERACEMAP_ID               = "player_HopeRaceMapId";           // 희망 맵 ID
@@ -99,9 +100,6 @@ public static class PhotonNetworkCustomProperties
     };
 
     #endregion
-
-
-    // AI > 아래로는 AI 사용
 
     // ============================
     // ========== HELPER ==========
