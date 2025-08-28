@@ -178,6 +178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b182d032026d68541976572a6c938c11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isControlsInverted: 0
 --- !u!114 &-6572955242939835773
 MonoBehaviour:
   m_ObjectHideFlags: 0

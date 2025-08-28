@@ -1,7 +1,7 @@
 using UnityEngine;
-using UnityEngine.InputSystem; 
+using UnityEngine.InputSystem;
 using Cinemachine;
-using Photon.Pun; 
+using Photon.Pun;
 
 namespace PJW
 {
@@ -12,42 +12,58 @@ namespace PJW
         private CinemachinePathBase leftTrack;
         private CinemachinePathBase rightTrack;
 
-        private PhotonView pv; 
+        private PhotonView pv;
+
+        [SerializeField] private bool isControlsInverted = false;
+        private float invertUntilTime = 0f;                      
 
         private void Awake()
         {
             pv = GetComponent<PhotonView>();
-
             cart = GetComponent<CinemachineDollyCart>();
-
             TryAutoBindTracks();
         }
 
         private void Update()
         {
+            if (isControlsInverted && Time.time >= invertUntilTime)
+            {
+                isControlsInverted = false;
+            }
+
             if (pv != null && pv.ViewID != 0 && !pv.IsMine) return;
 
-            // 모바일용
+            // 모바일 터치
             if (Touchscreen.current != null)
             {
                 var touch = Touchscreen.current.primaryTouch;
                 if (touch.press.wasPressedThisFrame)
                 {
                     Vector2 pos = touch.position.ReadValue();
-                    if (pos.x < Screen.width * 0.5f) ChangeTrack(0);
-                    else ChangeTrack(1);
+                    int targetIndex = (pos.x < Screen.width * 0.5f) ? 0 : 1;
+                    if (isControlsInverted) targetIndex = 1 - targetIndex;
+                    ChangeTrack(targetIndex);
                     return;
                 }
             }
 
-            // --- 에디터/PC용
+            // 에디터/PC 마우스
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
                 Vector2 pos = Mouse.current.position.ReadValue();
-                if (pos.x < Screen.width * 0.5f) ChangeTrack(0);
-                else ChangeTrack(1);
+                int targetIndex = (pos.x < Screen.width * 0.5f) ? 0 : 1;
+                if (isControlsInverted) targetIndex = 1 - targetIndex;
+                ChangeTrack(targetIndex);
                 return;
             }
+        }
+
+        [PunRPC]
+        public void RPCApplyInvertControls(float duration)
+        {
+            isControlsInverted = true;
+            float wantedOff = Time.time + Mathf.Max(0f, duration);
+            if (wantedOff > invertUntilTime) invertUntilTime = wantedOff;
         }
 
         private void TryAutoBindTracks()

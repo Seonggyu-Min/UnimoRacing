@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &156854505029060759
+--- !u!1 &5054080810607260841
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,41 +8,40 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7711649346836361364}
-  - component: {fileID: 7411294309187854676}
+  - component: {fileID: 2971612865150646906}
+  - component: {fileID: 5669245885566597144}
   m_Layer: 0
-  m_Name: BubbleItem
+  m_Name: GrapeItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7711649346836361364
+--- !u!4 &2971612865150646906
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 156854505029060759}
+  m_GameObject: {fileID: 5054080810607260841}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.921377, y: 14.5167465, z: -31.875772}
+  m_LocalPosition: {x: -2.9900842, y: 10.523546, z: -22.545378}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7411294309187854676
+--- !u!114 &5669245885566597144
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 156854505029060759}
+  m_GameObject: {fileID: 5054080810607260841}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ab14a25cac848d4680e5bf1a6355529, type: 3}
+  m_Script: {fileID: 11500000, guid: 0acdfb1c8716dee42850ab11a944bc6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PrefabName: BubbleItem
-  distanceAhead: 0.05
+  invertDuration: 3

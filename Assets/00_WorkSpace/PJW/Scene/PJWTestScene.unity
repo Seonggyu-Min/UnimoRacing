@@ -1140,6 +1140,9 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 156854505029060759, guid: c815e001d773f254b98861d384433f4d,
       type: 3}
+    weight: 0
+  - itemPrefab: {fileID: 5054080810607260841, guid: e9221caf7b6d40c47853da9b72c4e689,
+      type: 3}
     weight: 1
   respawnTime: 5
 --- !u!65 &1072761681
