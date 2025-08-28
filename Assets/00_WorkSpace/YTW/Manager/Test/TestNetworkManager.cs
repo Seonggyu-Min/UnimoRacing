@@ -1,18 +1,30 @@
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Threading.Tasks;
 
 namespace YTW
 {
     public class TestNetworkManager : MonoBehaviourPunCallbacks
     {
+        [Header("미리 로드할 네트워크 프리팹 라벨")]
+        [SerializeField] private string _networkPrefabLabel = "NetworkPrefab"; // 라벨 이름
+
         void Start()
         {
-            Debug.Log("[NetworkManager] 포톤 서버에 연결을 시도합니다...");
-            // 게임 버전을 설정하고 포톤 서버에 접속합니다.
+            _ = Initialize();
+        }
+
+        private async Task Initialize()
+        {
+            // NetworkAssetLoader에게 라벨을 전달하여 프리팹들을 미리 로드
+            await NetworkAssetLoader.Instance.InitializeAndPreloadAsync(_networkPrefabLabel);
+
+            Debug.Log("[NetworkManager] 에셋 준비 완료. 포톤 서버에 연결을 시도합니다.");
             PhotonNetwork.GameVersion = "1";
             PhotonNetwork.ConnectUsingSettings();
         }
+
         public override void OnConnectedToMaster()
         {
             Debug.Log("[NetworkManager] 마스터 서버에 성공적으로 접속했습니다.");

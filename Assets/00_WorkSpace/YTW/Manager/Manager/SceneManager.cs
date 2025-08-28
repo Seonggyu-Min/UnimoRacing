@@ -24,7 +24,7 @@ namespace YTW
 
         // Addressables에서 불러올 로딩 UI 프리팹의 주소.
         // ResourceManager가 이 주소를 기반으로 프리팹을 로드하고 Instantiate
-        private const string LOADING_UI_PREFAB_ADDRESS = "LoadingUIPanel";
+        // private const string LOADING_UI_PREFAB_ADDRESS = "LoadingUIPanel";
 
         // 실제 인스턴스화된 로딩 UI 오브젝트ㅁ
         private GameObject _loadingScreenInstance;
