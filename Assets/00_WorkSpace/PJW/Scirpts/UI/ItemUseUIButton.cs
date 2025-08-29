@@ -32,7 +32,6 @@ namespace PJW
 
         private IEnumerator DelayedInit()
         {
-            // 플레이어 생성/동기화 대기 (필요에 맞춰 조정 가능)
             yield return new WaitForSeconds(0.2f);
 
             // 내 소유 인벤토리만 바인딩
@@ -45,7 +44,6 @@ namespace PJW
 
             if (inventory == null)
             {
-                Debug.LogError("[ItemUseUIButton] 로컬 플레이어의 인벤토리를 찾을 수 없습니다.");
                 SetInteractable(false);
                 SetItemName("");
                 yield break;
@@ -83,7 +81,7 @@ namespace PJW
                 bool can = inventory.HasItem && inventory.CanUseItem;
                 if (useButton != null && useButton.interactable != can)
                     SetInteractable(can);
-                yield return null; // 매 프레임 체크 (부하가 걱정되면 0.05~0.1f로 조절)
+                yield return null; 
             }
         }
 

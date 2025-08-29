@@ -7,13 +7,13 @@ namespace PJW
 {
     public class RocketItem : MonoBehaviour, IUsableItem
     {
-        [Header("로켓 프리팹(Resources 경로 이름)")]
+        [Header("로켓 프리팹")]
         [SerializeField] private string rocketPrefabName = "RocketProjectile";
         [Header("스턴 시간(초)")]
-        [SerializeField] private float stunDuration = 3f;
+        [SerializeField] private float stunDuration;
         [Header("발사 위치 오프셋")]
-        [SerializeField] private Vector3 spawnOffset = new Vector3(0f, 1.2f, 0.5f);
-        [Header("타겟 탐색 최대거리")]
+        [SerializeField] private Vector3 spawnOffset = new Vector3();
+        [Header("타겟 탐색 거리")]
         [SerializeField] private float maxSearchDistance = 9999f;
 
         public void Use(GameObject owner)
