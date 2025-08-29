@@ -59,7 +59,7 @@ namespace PJW
         private void OnClickStart()
         {
             if (!PhotonNetwork.IsMasterClient) return;
-            PhotonNetwork.LoadLevel("Map1");
+            PhotonNetwork.LoadLevel("PJWTestScene");
         }
 
         private void UpdatePlayerList()

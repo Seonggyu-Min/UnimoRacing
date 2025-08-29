@@ -1113,7 +1113,7 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 4774977318374646965, guid: 0ad69218fc191ec4da8cae4368ba4e3c,
       type: 3}
-    weight: 0
+    weight: 1
   - itemPrefab: {fileID: 3946859079953295172, guid: c86097129e266554e8a69d54e1efd2eb,
       type: 3}
     weight: 0
@@ -1134,7 +1134,7 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 4070489616884424043, guid: 9bedcbadbf4e6864ebf67c051e2563a9,
       type: 3}
-    weight: 0
+    weight: 1
   - itemPrefab: {fileID: 3622971774366793308, guid: 84b845bc65a223042b4ab9781bd5246d,
       type: 3}
     weight: 0
@@ -1143,7 +1143,7 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 5054080810607260841, guid: e9221caf7b6d40c47853da9b72c4e689,
       type: 3}
-    weight: 1
+    weight: 0
   respawnTime: 5
 --- !u!65 &1072761681
 BoxCollider:

@@ -24,6 +24,16 @@ namespace PJW
         {
             if (triggered) return;
 
+            var shield = other.GetComponentInParent<PlayerShield>();
+            if (shield != null && shield.SuccessShield())
+            {
+                triggered = true;
+                if (col) col.enabled = false;
+                if (rends != null) foreach (var r in rends) if (r) r.enabled = false;
+                Destroy(gameObject);
+                return;
+            }
+
             var cart = other.GetComponentInParent<CinemachineDollyCart>();
             if (cart == null) return;
 
