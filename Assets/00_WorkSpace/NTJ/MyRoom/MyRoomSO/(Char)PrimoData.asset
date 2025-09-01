@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c1bfa4ed10688a41b54f83a1aa5e6d1, type: 3}
   m_Name: (Char)PrimoData
   m_EditorClassIdentifier: 
-  characterID: 2
+  characterID: 1
   characterName: Primo
-  description: 
+  description: primo
   characterSprite: {fileID: 21300000, guid: 02cd3a0ed43e940498bc0d9577652845, type: 3}
+  isOwned: 1

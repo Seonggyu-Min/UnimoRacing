@@ -11,9 +11,7 @@ public class MyRoomUIManager : PopupBase
     // 장착된 아이템 표시 UI
     [Header("Equipped Items UI")]
     [SerializeField] private Image equippedCharacterImage;
-    [SerializeField] private TMP_Text equippedCharacterName;
     [SerializeField] private Image equippedCarImage;
-    [SerializeField] private TMP_Text equippedCarName;
 
     // 인벤토리 패널
     [Header("Inventory Panels")]
@@ -73,8 +71,6 @@ public class MyRoomUIManager : PopupBase
     public void UpdateEquippedUI(Sprite characterSprite, string characterName, Sprite carSprite, string carName)
     {
         equippedCharacterImage.sprite = characterSprite;
-        equippedCharacterName.text = characterName;
         equippedCarImage.sprite = carSprite;
-        equippedCarName.text = carName;
     }
 }
