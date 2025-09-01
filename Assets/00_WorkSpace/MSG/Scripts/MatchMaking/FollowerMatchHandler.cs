@@ -15,7 +15,7 @@ namespace MSG
 
         public async Task JoinInviteAsync(string roomName)
         {
-            await _room.JoinOrCreateAsync(roomName, CandidateOptions());
+            await _room.JoinOrCreateAsync(roomName, RoomMakeHelper.MakeMatchOptions());
         }
 
         public async Task LeaveNowAsync()
@@ -23,7 +23,7 @@ namespace MSG
             if (PhotonNetwork.InRoom)
             {
                 PhotonNetwork.LeaveRoom();
-                await WaitUntil(() => !Photon.Pun.PhotonNetwork.InRoom);
+                await WaitUntil(() => !PhotonNetwork.InRoom);
             }
         }
 
@@ -32,17 +32,7 @@ namespace MSG
             await _room.EnsureHomeRoomAsync(homeRoom);
         }
 
-        private static RoomOptions CandidateOptions()
-        {
-            RoomOptions opts = new RoomOptions();
-            opts.PublishUserId = true;
-            opts.IsOpen = true;
-            opts.IsVisible = true;
-            opts.MaxPlayers = RoomMakeHelper.MAX_PLAYERS;
-            return opts;
-        }
-
-        private static async Task WaitUntil(Func<bool> predicate)
+        private async Task WaitUntil(Func<bool> predicate)
         {
             while (!predicate())
             {
