@@ -12,7 +12,6 @@ namespace MSG
     {
         [SerializeField] private TMP_Text _debugText;
 
-
         private void Update()
         {
             var state = PhotonNetwork.NetworkClientState;
@@ -21,7 +20,7 @@ namespace MSG
             if (inRoom && PhotonNetwork.CurrentRoom != null)
             {
                 var room = PhotonNetwork.CurrentRoom;
-                // UserId가 null일 수 있으니 fallback 준비
+
                 var ids = PhotonNetwork.PlayerList
                     .Select(p => !string.IsNullOrEmpty(p.UserId) ? p.UserId
                             : (!string.IsNullOrEmpty(p.NickName) ? p.NickName
@@ -31,7 +30,9 @@ namespace MSG
                     $"ClientState : {state}\n" +
                     $"InRoom      : {inRoom}\n" +
                     $"Room        : {room.Name} ({room.PlayerCount}/{room.MaxPlayers})  Open={room.IsOpen} Visible={room.IsVisible}\n" +
-                    $"Players     : {string.Join(", ", ids)}";
+                    $"Players     : {string.Join(", ", ids)}" +
+                    $"Is Visible  : {room.IsVisible}" +
+                    $"Is Open     : {room.IsOpen}";
             }
             else
             {

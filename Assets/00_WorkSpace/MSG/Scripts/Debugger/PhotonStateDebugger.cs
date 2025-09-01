@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using MSG;
+using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,6 +33,17 @@ public class PhotonStateDebugger : MonoBehaviour
             {
                 Player p = kvp.Value;
                 sb.AppendLine($"- Player {p.ActorNumber} | UserId={p.UserId} | Nick={p.NickName}");
+            }
+
+            sb.AppendLine($"Is Visible: {room.IsVisible}, Is Open: {room.IsOpen}");
+
+            if (room.CustomProperties != null && room.CustomProperties.TryGetValue(RoomMakeHelper.ROOM_TYPE, out object rt))
+            {
+                sb.AppendLine($"RoomType Property: Room Type: ({(RoomType)rt})");
+            }
+            else
+            {
+                sb.AppendLine("RoomType Property: 없음");
             }
         }
         else
