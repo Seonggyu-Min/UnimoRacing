@@ -16,34 +16,57 @@ namespace MSG
             if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom != null && PhotonNetwork.CurrentRoom.Name == roomName)
                 return;
 
-            await JoinOrCreateAsync(roomName, MakeHomeOptions());
+            Debug.Log($"EnsureHomeRoomAsync 호출됨. 들어가고자 하는 방 이름: {roomName}");
+
+            var opts = roomName.StartsWith("p_")
+                ? RoomMakeHelper.MakePartyHomeOptions()
+                : RoomMakeHelper.MakeHomeOptions();
+
+            await JoinOrCreateAsync(roomName, opts);
         }
 
         public async Task JoinOrCreateAsync(string roomName, RoomOptions options)
         {
-            if (PhotonNetwork.InRoom) 
+            if (PhotonNetwork.InRoom)
             {
+                Debug.Log($"[JoinOrCreateAsync] 이미 방({PhotonNetwork.CurrentRoom.Name})에 있어 LeaveRoom 호출");
                 PhotonNetwork.LeaveRoom();
             }
 
-            await WaitUntil(() => PhotonNetwork.NetworkClientState == ClientState.ConnectedToMasterServer);
+            Debug.Log("[JoinOrCreateAsync] MasterServer로 복귀 대기 시작");
+
+            await WaitUntil(() =>
+            {
+                return PhotonNetwork.NetworkClientState == ClientState.ConnectedToMasterServer;
+            });
+
+            Debug.Log("[JoinOrCreateAsync] MasterServer로 복귀 완료");
+
+            Debug.Log($"[JoinOrCreateAsync] {roomName}으로 JoinOrCreateRoom 시도");
+
             PhotonNetwork.JoinOrCreateRoom(roomName, options, TypedLobby.Default);
-            await WaitUntil(() => PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name == roomName);
+            Debug.Log("[JoinOrCreateAsync] 방 입장 대기 시작");
+            await WaitUntil(() =>
+            {
+                //Debug.Log($"[JoinOrCreateAsync] InRoom: {PhotonNetwork.InRoom}, CurrentRoom: {PhotonNetwork.CurrentRoom?.Name}");
+                return PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name == roomName;
+            });
+            Debug.Log($"[JoinOrCreateAsync] 방 입장 성공, 방 이름: {PhotonNetwork.CurrentRoom.Name}");
+
             await LeaveIfOverCapacityAsync();
         }
 
         public async Task<bool> TryJoinRandomWithSlotAsync(int minFreeSlots)
         {
-            if (PhotonNetwork.InRoom) 
+            if (PhotonNetwork.InRoom)
             {
                 PhotonNetwork.LeaveRoom();
             }
             await WaitUntil(() => PhotonNetwork.NetworkClientState == ClientState.ConnectedToMasterServer);
 
-            ExitGames.Client.Photon.Hashtable expectedProps = new ExitGames.Client.Photon.Hashtable();
-
-            PhotonNetwork.JoinRandomRoom(expectedProps, 0);
-            bool joined = await WaitUntilOrTimeout(() => PhotonNetwork.InRoom, 2000);
+            var expected = new ExitGames.Client.Photon.Hashtable{ { RoomMakeHelper.ROOM_TYPE, RoomType.Match } };
+            PhotonNetwork.JoinRandomRoom(expected, RoomMakeHelper.MAX_PLAYERS);
+            bool joined = await WaitUntilOrTimeout(() => PhotonNetwork.InRoom, 3000);
             if (!joined) return false;
 
             int free = PhotonNetwork.CurrentRoom.MaxPlayers - PhotonNetwork.CurrentRoom.PlayerCount;
@@ -55,6 +78,7 @@ namespace MSG
 
             PhotonNetwork.LeaveRoom();
             await WaitUntil(() => !PhotonNetwork.InRoom);
+            Debug.Log("남는 방 찾기 실패");
             return false;
         }
 
@@ -67,25 +91,17 @@ namespace MSG
 
             if (count > max)
             {
+                Debug.Log("인원이 다 차서 파티가 못들어와 나가기 시작");
                 PhotonNetwork.LeaveRoom();
                 await WaitUntil(() => PhotonNetwork.NetworkClientState == ClientState.ConnectedToMasterServer);
             }
-        }
-
-        private RoomOptions MakeHomeOptions()
-        {
-            RoomOptions opts = new RoomOptions();
-            opts.IsOpen = true;
-            opts.IsVisible = true;
-            opts.MaxPlayers = RoomMakeHelper.MAX_PLAYERS;
-            return opts;
         }
 
         private async Task WaitUntil(Func<bool> predicate)
         {
             while (!predicate())
             {
-                await Task.Yield(); 
+                await Task.Yield();
             }
         }
 
