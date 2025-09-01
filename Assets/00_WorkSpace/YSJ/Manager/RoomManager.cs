@@ -1,17 +1,15 @@
-﻿using Photon.Pun;
-using Photon.Realtime;
+﻿using Photon.Realtime;
 using Runtime.UI;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using YSJ.Util;
-using EventData = ExitGames.Client.Photon.EventData;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
-public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
+public class RoomManager : SimpleSingleton<RoomManager> // , IOnEventCallback
 {
-    private RoomRaceGameConfig raceGameConfig;
+    [SerializeField] private bool _isTest = false;
+    [SerializeField] private MSG.NoPartyMatchMaker _matchMaker;
+    private MatchingConfig raceGameConfig;
 
     private RoomState _state              = RoomState.None;
     private bool   _isFindRoom            = false; // 방 찾았는지 여부
@@ -26,20 +24,42 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
     public int PlayersReadyCount => _playersReadyCount;
     public double RoomMatchReadyStartTime => _matchReadyStartTime;
 
-    public Action OnActionRoomWaitPlayer;
-    public Action OnActionRoomReady;
-    public Action OnActionRoomStart;
-    public Action OnActionRoomRace;
-    public Action OnActionRoomRaceResult;
 
-    protected override void Init()
+    /*public Action OnActionRoomWaitPlayer;
+    public Action OnActionRoomReady;
+    public Action OnActionRoomRace;*/
+
+    /*protected override void Init()
     {
         base.Init();
-        PhotonNetwork.AddCallbackTarget(this); // IOnEventCallback 이것 땜시
+        // PhotonNetwork.AddCallbackTarget(this); // IOnEventCallback 이것 땜시
+        raceGameConfig = MatchingConfig.Load();
 
-        raceGameConfig = RoomRaceGameConfig.Load();
+        if (_isTest)
+        {
+            _matchMaker.OnActionWaitPlayer -= TestRoomWaitPlayer;
+            _matchMaker.OnActionWaitPlayer += TestRoomWaitPlayer;
 
-        PhotonNetworkManager.Instance.OnActionOnJoinedRoom -= JoinedRoom;
+            _matchMaker.OnActionMatchReady -= TestRoomMatchReady;
+            _matchMaker.OnActionMatchReady += TestRoomMatchReady;
+
+            _matchMaker.OnActionRace -= TestRoomRace;
+            _matchMaker.OnActionRace += TestRoomRace;
+        }
+        else
+        {
+            // 현재는 이것도 Test 입니다.
+            _matchMaker.OnActionWaitPlayer -= TestRoomWaitPlayer;
+            _matchMaker.OnActionWaitPlayer += TestRoomWaitPlayer;
+
+            _matchMaker.OnActionMatchReady -= TestRoomMatchReady;
+            _matchMaker.OnActionMatchReady += TestRoomMatchReady;
+
+            _matchMaker.OnActionRace -= TestRoomRace;
+            _matchMaker.OnActionRace += TestRoomRace;
+        }
+
+            PhotonNetworkManager.Instance.OnActionOnJoinedRoom -= JoinedRoom;
         PhotonNetworkManager.Instance.OnActionOnJoinedRoom += JoinedRoom;
 
         PhotonNetworkManager.Instance.OnActionPlayerEnteredRoom -= PlayerEnteredRoom;
@@ -57,7 +77,7 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
     private void OnDestroy()
     {
-        PhotonNetwork.RemoveCallbackTarget(this); // IOnEventCallback 이것 땜시
+        // PhotonNetwork.RemoveCallbackTarget(this); // IOnEventCallback 이것 땜시
 
         if (PhotonNetworkManager.Instance)
         {
@@ -252,38 +272,37 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
 
     private void RoomStateMachine(RoomState state)
     {
+        this.PrintLog($"RoomState: {_state.ToString()} > {state.ToString()})");
         if (state == _state)
-        {
-            this.PrintLog($"RoomState 이전 상태와 같습니다. Old State: {_state} > Change State: {state}");
             return;
-        }
 
         _state = state;
-        this.PrintLog($"RoomState 이전 상태 {state.ToString()})");
-
         switch (state)
         {
             case RoomState.WaitPlayer:
                 OnActionRoomWaitPlayer?.Invoke();
+                PhotonNetworkCustomProperties.RoomWaitPlayerStateSetting(raceGameConfig.RoomRacePlayer);
+
                 break;
 
             case RoomState.MatchReady:
                 OnActionRoomReady?.Invoke();
+                PhotonNetworkCustomProperties.RoomWaitPlayerStateSetting(0);
                 // 필요 시 RaiseEvent 등으로 UI 오픈 신호 처리
                 break;
 
             case RoomState.Race:
                 OnActionRoomRace?.Invoke();
-                SceneID sceneId = PhotonNetworkCustomProperties.GetLocalPlayerProp<SceneID>(PlayerKey.CurrentScene,SceneID.None);
+                SceneID sceneId = PhotonNetworkCustomProperties.GetLocalPlayerProp<SceneID>(PlayerKey.CurrentScene, SceneID.None);
                 if (SceneID.InGameScene == sceneId)
                 {
                     this.PrintLog("현재 레이싱 씬에 있습니다.");
                     return;
                 }
-                PhotonNetwork.LoadLevel($"YSJ_{SceneID.InGameScene}");
                 break;
 
             default:
+                PhotonNetworkCustomProperties.RoomNoneStateSetting();
                 break;
         }
     }
@@ -304,41 +323,104 @@ public class RoomManager : SimpleSingleton<RoomManager>, IOnEventCallback
         if (_fullPopupOpener != null) _fullPopupOpener.OpenPopup();
         else Debug.LogWarning("PopupOpener가 설정되지 않았습니다.");
     }
-    #endregion
+    #endregion*/
 
-    #region Util
-    public string PrintCustomProperties(string methodName = "\n")
+    /* #region Util
+     public string PrintCustomProperties(string methodName = "\n")
+     {
+         if (PhotonNetwork.CurrentRoom == null)
+             return "[Room] No CurrentRoom";
+
+         var sb = new StringBuilder();
+         sb.Append(methodName).Append("\n");
+
+         foreach (RoomKey e in Enum.GetValues(typeof(RoomKey)))
+         {
+             try
+             {
+                 var key = PhotonNetworkCustomProperties.ToKeyString(e);
+                 object val = null;
+                 PhotonNetwork.CurrentRoom.CustomProperties?.TryGetValue(key, out val);
+                 sb.Append($"{e} : {(val != null ? val.ToString() : "null")}\n");
+             }
+             catch { this.PrintLog($"Type Print: {e}, Value Error"); }
+         }
+         return sb.ToString();
+     }
+
+     public string PrintCurrentPlayers()
+     {
+         var sb = new StringBuilder();
+         sb.Append("Player List\n");
+         foreach (var p in PhotonNetwork.PlayerList)
+         {
+             try { sb.Append($"Player Name: {p.NickName}\n"); }
+             catch { this.PrintLog($"Player Print Error"); }
+         }
+         return sb.ToString();
+     }
+     #endregion*/
+
+    #region V2
+    protected override void Init()
     {
-        if (PhotonNetwork.CurrentRoom == null)
-            return "[Room] No CurrentRoom";
+        base.Init();
 
-        var sb = new StringBuilder();
-        sb.Append(methodName).Append("\n");
-
-        foreach (RoomKey e in Enum.GetValues(typeof(RoomKey)))
+        if (_matchMaker != null && _isTest)
         {
-            try
-            {
-                var key = PhotonNetworkCustomProperties.ToKeyString(e);
-                object val = null;
-                PhotonNetwork.CurrentRoom.CustomProperties?.TryGetValue(key, out val);
-                sb.Append($"{e} : {(val != null ? val.ToString() : "null")}\n");
-            }
-            catch { this.PrintLog($"Type Print: {e}, Value Error"); }
+            _matchMaker.OnActionWaitPlayer -= TestRoomWaitPlayer;
+            _matchMaker.OnActionMatchReady -= TestRoomMatchReady;
+            _matchMaker.OnActionRace -= TestRoomRace;
+
+            PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate -= PlayerPropertiesUpdate;
+            PhotonNetworkManager.Instance.OnActionRoomPropertiesUpdate -= RoomPropertiesUpdate;
+
+
+            _matchMaker.OnActionWaitPlayer += TestRoomWaitPlayer;
+            _matchMaker.OnActionMatchReady += TestRoomMatchReady;
+            _matchMaker.OnActionRace += TestRoomRace;
+
+            PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate += PlayerPropertiesUpdate;
+            PhotonNetworkManager.Instance.OnActionRoomPropertiesUpdate += RoomPropertiesUpdate;
         }
-        return sb.ToString();
     }
 
-    public string PrintCurrentPlayers()
+    private void OnDestroy()
     {
-        var sb = new StringBuilder();
-        sb.Append("Player List\n");
-        foreach (var p in PhotonNetwork.PlayerList)
+        if (_matchMaker != null)
         {
-            try { sb.Append($"Player Name: {p.NickName}\n"); }
-            catch { this.PrintLog($"Player Print Error"); }
+            _matchMaker.OnActionWaitPlayer -= TestRoomWaitPlayer;
+            _matchMaker.OnActionMatchReady -= TestRoomMatchReady;
+            _matchMaker.OnActionRace -= TestRoomRace;
+
+            PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate -= PlayerPropertiesUpdate;
+            PhotonNetworkManager.Instance.OnActionRoomPropertiesUpdate -= RoomPropertiesUpdate;
         }
-        return sb.ToString();
+    }
+
+    private void TestRoomWaitPlayer()
+    {
+        PhotonNetworkCustomProperties.RoomWaitPlayerStateSetting();
+        PhotonNetworkCustomProperties.LocalPlayerRoomWaitPlayerSetting();
+    }
+    private void TestRoomMatchReady()
+    {
+        PhotonNetworkCustomProperties.RoomMatchReadyStateSetting(0);
+        PhotonNetworkCustomProperties.LocalPlayerRoomMatchReadySetting();
+    }
+    private void TestRoomRace()
+    {
+        PhotonNetworkCustomProperties.RoomRaceStateSetting();
+    }
+
+    private void PlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        this.PrintLog(PhotonNetworkCustomProperties.PrintPlayerCustomProperties(targetPlayer));
+    }
+
+    private void RoomPropertiesUpdate(Hashtable propertiesThatChanged)
+    {
+        this.PrintLog(PhotonNetworkCustomProperties.PrintRoomCustomProperties());
     }
     #endregion
 }
