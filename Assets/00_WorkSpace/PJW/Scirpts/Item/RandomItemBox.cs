@@ -13,6 +13,7 @@ namespace PJW
         private class WeightedItem
         {
             public GameObject itemPrefab;
+            public Sprite icon;
             public int weight = 1; // 아이템 등장 확률 조정
         }
 
@@ -20,7 +21,7 @@ namespace PJW
         [SerializeField] private WeightedItem[] items;
 
         [Header("설정")]
-        [SerializeField] private float respawnTime = 5f;
+        [SerializeField] private float respawnTime;
 
         private Collider boxCollider;
         private Renderer[] renders;
@@ -31,6 +32,14 @@ namespace PJW
         {
             boxCollider = GetComponent<Collider>();
             renders = GetComponentsInChildren<Renderer>(true);
+
+            foreach (var it in items)
+            {
+                if (it != null && it.itemPrefab != null && it.icon != null)
+                {
+                    ItemSpriteRegistry.Instance.RegisterIcon(it.itemPrefab.name, it.icon);
+                }
+            }
         }
 
         private void OnTriggerEnter(Collider other)
