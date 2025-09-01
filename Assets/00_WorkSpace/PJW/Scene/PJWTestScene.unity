@@ -1085,6 +1085,7 @@ GameObject:
   - component: {fileID: 1072761685}
   - component: {fileID: 1072761686}
   - component: {fileID: 1072761680}
+  - component: {fileID: 1072761687}
   m_Layer: 0
   m_Name: RandomItemBox
   m_TagString: Untagged
@@ -1113,7 +1114,7 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 4774977318374646965, guid: 0ad69218fc191ec4da8cae4368ba4e3c,
       type: 3}
-    weight: 1
+    weight: 0
   - itemPrefab: {fileID: 3946859079953295172, guid: c86097129e266554e8a69d54e1efd2eb,
       type: 3}
     weight: 0
@@ -1134,7 +1135,7 @@ MonoBehaviour:
     weight: 0
   - itemPrefab: {fileID: 4070489616884424043, guid: 9bedcbadbf4e6864ebf67c051e2563a9,
       type: 3}
-    weight: 1
+    weight: 0
   - itemPrefab: {fileID: 3622971774366793308, guid: 84b845bc65a223042b4ab9781bd5246d,
       type: 3}
     weight: 0
@@ -1144,6 +1145,9 @@ MonoBehaviour:
   - itemPrefab: {fileID: 5054080810607260841, guid: e9221caf7b6d40c47853da9b72c4e689,
       type: 3}
     weight: 0
+  - itemPrefab: {fileID: 1260596840694590796, guid: f390d0e37dd74cc41ae61c3000800510,
+      type: 3}
+    weight: 1
   respawnTime: 5
 --- !u!65 &1072761681
 BoxCollider:
@@ -1280,6 +1284,20 @@ MonoBehaviour:
   sceneViewId: 2
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &1072761687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072761679}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 262ad69288eaad64b940491c614dbfce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupVfxPrefab: {fileID: 5770648796258790689, guid: 0d50af6752e39b041b752aad587d4412,
+    type: 3}
 --- !u!1 &1107674731
 GameObject:
   m_ObjectHideFlags: 0
@@ -1581,6 +1599,7 @@ GameObject:
   - component: {fileID: 1343458198}
   - component: {fileID: 1343458197}
   - component: {fileID: 1343458196}
+  - component: {fileID: 1343458201}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -1689,6 +1708,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &1343458201
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343458195}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1391082743
 GameObject:
   m_ObjectHideFlags: 0
