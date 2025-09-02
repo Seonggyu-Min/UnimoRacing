@@ -3,26 +3,41 @@ using Photon.Pun;
 using Photon.Realtime;
 using System;
 using System.Collections.Generic;
+using System.Text;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public static class PhotonNetworkCustomProperties
 {
+    // 서버
+
+    // 카트 정보 ID
+    // 캐릭터 정보 ID
+
+    // Player Level
+    // Player Exp
+
+    // 맵 투표 정보 
+    //
+
     #region ROOM
     // ROOM
-    public const string KEY_ROOM_STATE_TYPE                     = "room_roomStateType";             // 룸 상태 타입
+    public const string KEY_ROOM_STATE_TYPE                     = "room_roomStateType";             // 룸 상태 타입                       포톤
 
     // MATCH
-    public const string KEY_MATCH_FULL_FLAG                     = "room_fullNotified";              // 방이 다 찼음을 알림
-    public const string KEY_MATCH_READY_CHECK_START_TIME        = "room_matchReadyCheckStartTime";  // 매치 레디 체크 시작 시간
+    public const string KEY_MATCH_FULL_FLAG                     = "room_fullNotified";              // 방이 다 찼음을 알림                 포톤
+    public const string KEY_MATCH_READY_CHECK_START_TIME        = "room_matchReadyCheckStartTime";  // 매치 레디 체크 시작 시간            필요없음(테스트용)  
 
-    public const string KEY_MATCH_CHOOSABLE_MAP_COUNT           = "room_raceChoosableMapCount";     // 선택 가능한 맵의 갯수
-    public const string KEY_MATCH_RACE_MAP_ID                   = "room_raceMapId";                 // 선택된 맵 ID
+    public const string KEY_MATCH_CHOOSABLE_MAP_COUNT           = "room_raceChoosableMapCount";     // 선택 가능한 맵의 갯수               포톤
+    public const string KEY_MATCH_RACE_MAP_ID                   = "room_raceMapId";                 // 선택된 맵 ID                       포톤
 
     // RACE
-    public const string KEY_RACE_STATE_TYPE                     = "room_raceStateType";             // 레이싱 상태 타입
-    public const string KEY_RACE_COUNTDOWN_START_TIME           = "room_countStartTime";            // 카운트다운 시작(PhotonServerTime)
-    public const string KEY_RACE_START_TIME                     = "room_raceStartTime";             // 레이싱 시작(PhotonServerTime)
-    public const string KEY_RACE_FINISH_START_TIME              = "room_finishStartTime";           // 피니시 시작(PhotonServerTime)
-    public const string KEY_RACE_FINISH_COUNT                   = "room_finishCount";               // 완주 인원 수
+    public const string KEY_RACE_STATE_TYPE                     = "room_raceStateType";             // 레이싱 상태 타입                    포톤
+    public const string KEY_RACE_COUNTDOWN_START_TIME           = "room_countStartTime";            // 카운트다운 시작(PhotonServerTime)   포톤
+    public const string KEY_RACE_START_TIME                     = "room_raceStartTime";             // 레이싱 시작(PhotonServerTime)       포톤
+    public const string KEY_RACE_FINISH_START_TIME              = "room_finishStartTime";           // 피니시 시작(PhotonServerTime)       포톤
+    public const string KEY_RACE_FINISH_END_TIME                = "room_finishEndTime";           // 피니시 끝(PhotonServerTime)          포톤
+    public const string KEY_RACE_FINISH_COUNT                   = "room_finishCount";               // 완주 인원 수                        포톤
 
     // DEFAULT VALUE
     public const int VALUE_ROOM_DEFAULT_RACE_MAP_ID             = 0;
@@ -32,26 +47,26 @@ public static class PhotonNetworkCustomProperties
 
     #region PLAYER
     // SERVER
-    public const string KEY_PLAYER_LEVEL                        = "player_level";                   // 플레이어 레벨
-    public const string KEY_PLAYER_EXP                          = "player_exp";                     // 플레이어 경험치
+    public const string KEY_PLAYER_LEVEL                        = "player_level";                   // 플레이어 레벨                      서버
+    public const string KEY_PLAYER_EXP                          = "player_exp";                     // 플레이어 경험치                     서버
 
     // LOCAL
-    public const string KEY_PLAYER_CAR_ID                       = "player_carId";                   // 선택 카트 ID
-    public const string KEY_PLAYER_CHARACTER_ID                 = "player_characterId";             // 선택 캐릭터 ID
-    public const string KEY_PLAYER_HOPERACEMAP_ID               = "player_HopeRaceMapId";           // 희망 맵 ID
+    public const string KEY_PLAYER_CAR_ID                       = "player_carId";                   // 선택 카트 ID                      서버
+    public const string KEY_PLAYER_CHARACTER_ID                 = "player_characterId";             // 선택 캐릭터 ID                    서버
+    public const string KEY_PLAYER_HOPERACEMAP_ID               = "player_HopeRaceMapId";           // 희망 맵 ID                        포톤
 
-    public const string KEY_PLAYER_MATCH_READY                  = "player_match_ready";             // 매치 준비 여부
+    public const string KEY_PLAYER_MATCH_READY                  = "player_match_ready";             // 매치 준비 여부                     필요 없음(테스트용)
 
-    public const string KEY_PLAYER_RACE_LOADED                  = "player_race_loaded";             // 레이싱 로드 여부
-    public const string KEY_PLAYER_RACE_IS_FINISHED             = "player_race_isFinished";         // 개인 레이싱 완료 여부
-    public const string KEY_PLAYER_RACE_FINISHED_TIME           = "player_race_finishedTime";       // 개인 레이싱 완료 시간
+    public const string KEY_PLAYER_RACE_LOADED                  = "player_race_loaded";             // 레이싱 로드 여부                    포톤
+    public const string KEY_PLAYER_RACE_IS_FINISHED             = "player_race_isFinished";         // 개인 레이싱 완료 여부               포톤
+    public const string KEY_PLAYER_RACE_FINISHED_TIME           = "player_race_finishedTime";       // 개인 레이싱 완료 시간               포톤 
 
-    public const string KEY_PLAYER_CURRENT_SCENE                = "player_currentSceneId";          // 현재 씬 (int SceneID)
+    public const string KEY_PLAYER_CURRENT_SCENE                = "player_currentSceneId";          // 현재 씬 (int SceneID)              포톤
 
     public const int VALUE_PLAYER_DEFAULT_LEVEL                 = 1;
     public const int VALUE_PLAYER_DEFAULT_EXP                   = 0;
 
-    public const int VALUE_PLAYER_DEFAULT_CAR_ID                = 0;
+    public const int VALUE_PLAYER_DEFAULT_KART_ID               = 0;
     public const int VALUE_PLAYER_DEFAULT_CHARACTER_ID          = 0;
     public const int VALUE_PLAYER_DEFAULT_HOPERACEMAP_ID        = 0;
 
@@ -74,6 +89,7 @@ public static class PhotonNetworkCustomProperties
         RoomKey.CountdownStartTime => KEY_RACE_COUNTDOWN_START_TIME,
         RoomKey.RaceStartTime => KEY_RACE_START_TIME,
         RoomKey.FinishStartTime => KEY_RACE_FINISH_START_TIME,
+        RoomKey.FinishEndTime => KEY_RACE_FINISH_END_TIME,
         RoomKey.FinishCount => KEY_RACE_FINISH_COUNT,
 
         _ => key.ToString()
@@ -133,13 +149,18 @@ public static class PhotonNetworkCustomProperties
 
     #region Room Get
     /// <summary>룸 커스텀 프로퍼티 조회 (존재 안 하면 defaultValue 반환)</summary>
-    public static T GetRoomProp<T>(RoomKey key, T defaultValue = default)
+    public static T GetRoomProp<T>(RoomKey key, T defaultValue = default, Action onSuccess = null, Action onError = null)
     {
         EnsureInRoom();
         var sKey = ToKeyString(key);
+        // 특정 타입으로 캐스팅 보정
         if (PhotonNetwork.CurrentRoom.CustomProperties != null &&
             PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(sKey, out var raw) &&
-            raw is T t) return t;
+            raw is T t)
+        {
+            onSuccess?.Invoke();
+            return t;
+        }
 
         // 숫자 캐스팅 보정 (byte/int/long/float -> 원하는 T)
         if (PhotonNetwork.CurrentRoom.CustomProperties != null &&
@@ -147,11 +168,16 @@ public static class PhotonNetworkCustomProperties
         {
             try
             {
-                if (raw is IConvertible) return (T)Convert.ChangeType(raw, typeof(T));
+                if (raw is IConvertible)
+                {
+                    onSuccess?.Invoke();
+                    return (T)Convert.ChangeType(raw, typeof(T));
+                }
             }
             catch { /* 무시 */ }
         }
 
+        onError?.Invoke();
         return defaultValue;
     }
 
@@ -230,16 +256,26 @@ public static class PhotonNetworkCustomProperties
         if (player == null) throw new ArgumentNullException(nameof(player));
         var sKey = ToKeyString(key);
 
-        if (player.CustomProperties != null &&
+        // 그냥 기본형태의 클래스 등의 타입으로만 형변환 됨. Enum은 안됨
+        /*if (player.CustomProperties != null &&
             player.CustomProperties.TryGetValue(sKey, out var raw) &&
-            raw is T t) return t;
+            raw is T t) return t;*/
 
         if (player.CustomProperties != null &&
-            player.CustomProperties.TryGetValue(sKey, out raw))
+        player.CustomProperties.TryGetValue(sKey, out var raw))
         {
+            if (raw is T t) return t;
+
             try
             {
-                if (raw is IConvertible) return (T)Convert.ChangeType(raw, typeof(T));
+                var target = typeof(T);
+                if (target.IsEnum)
+                {
+                    if (raw is string es) return (T)Enum.Parse(target, es, ignoreCase: true);   // 문자 Enum 변환
+                    if (raw is IConvertible) return (T)Enum.ToObject(target, raw);              // 오젝 Enum 변환
+                }
+
+                if (raw is IConvertible) return (T)Convert.ChangeType(raw, typeof(T));          // 숫자 Enum 변환
             }
             catch { /* 무시 */ }
         }
@@ -256,12 +292,20 @@ public static class PhotonNetworkCustomProperties
         if (player == null) throw new ArgumentNullException(nameof(player));
         var sKey = ToKeyString(key);
         value = default;
+
         if (player.CustomProperties != null &&
-            player.CustomProperties.TryGetValue(sKey, out var raw))
+        player.CustomProperties.TryGetValue(sKey, out var raw))
         {
             if (raw is T t) { value = t; return true; }
+
             try
             {
+                var target = typeof(T);
+                if (target.IsEnum)
+                {
+                    if (raw is string es) { value = (T)Enum.Parse(target, es, true); return true; }
+                    if (raw is IConvertible) { value = (T)Enum.ToObject(target, raw); return true; }
+                }
                 if (raw is IConvertible)
                 {
                     value = (T)Convert.ChangeType(raw, typeof(T));
@@ -315,4 +359,478 @@ public static class PhotonNetworkCustomProperties
         return player.SetCustomProperties(set, expected, webFlags);
     }
     #endregion
+
+    // ============================
+    // = ROOM STATE SETTING PROPS =
+    // ============================
+
+    #region Room Setting
+    public static void RoomNoneStateSetting()
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        // 방이 없어질 때, 초기화 되는 값 상정(null, 서버에서 값을 날리는 것임)
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            { RoomKey.RoomState,                    null                        },
+
+            // Match
+            { RoomKey.MatchFullFlag,                null                        },
+            { RoomKey.MatchReadyCheckStartTime,     null                        },
+            { RoomKey.MatchChoosableMapCount,       null                        },
+            { RoomKey.MatchRaceMapId,               null                        },
+                                                    
+            // Race                                 
+            { RoomKey.RaceState,                    null                        },
+            { RoomKey.CountdownStartTime,           null                        },
+            { RoomKey.RaceStartTime,                null                        },
+            { RoomKey.FinishStartTime,              null                        },
+            { RoomKey.FinishEndTime,                null                        },
+            { RoomKey.FinishCount,                  null                        },
+        });
+    }
+
+    public static void RoomWaitPlayerStateSetting(int raceChoosableMapCount = 2)
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        // 매칭 되어 플레이어들 기다릴 때(막 룸이 만들어졌을 때), 값 상정
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            { RoomKey.RoomState,                    RoomState.WaitPlayer                },
+
+            // Match
+            { RoomKey.MatchFullFlag,                false                               },
+            { RoomKey.MatchReadyCheckStartTime,     -1                                  },
+            { RoomKey.MatchChoosableMapCount,       raceChoosableMapCount               },
+            { RoomKey.MatchRaceMapId,               -1                                  },
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.None                      },
+            { RoomKey.CountdownStartTime,           -1                                  },
+            { RoomKey.RaceStartTime,                -1                                  },
+            { RoomKey.FinishStartTime,              -1                                  },
+            { RoomKey.FinishEndTime,                -1                                          },
+            { RoomKey.FinishCount,                  -1                                  },
+        });
+    }
+
+    public static void RoomMatchReadyStateSetting(int MatchRaceMapId = -1)
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        // 매칭해서 다음 씬 넘어가기 전, 투표시간 상정
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            { RoomKey.RoomState,                    RoomState.MatchReady                },
+
+            // Match
+            { RoomKey.MatchFullFlag,                true                                },
+            { RoomKey.MatchReadyCheckStartTime,     PhotonNetwork.Time                  },
+            // { RoomKey.MatchChoosableMapCount,       raceChoosableMapCount               },
+            { RoomKey.MatchRaceMapId,               MatchRaceMapId                      },
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.None                      },
+            { RoomKey.CountdownStartTime,           -1                                  },
+            { RoomKey.RaceStartTime,                -1                                  },
+            { RoomKey.FinishStartTime,              -1                                  },
+            { RoomKey.FinishEndTime,                -1                                          },
+            { RoomKey.FinishCount,                  -1                                  },
+        });
+    }
+
+    public static void RoomRaceStateSetting()
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        // 레이싱으로 씬이 넘어가는 상태, 상정 값
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            { RoomKey.RoomState,                    RoomState.Race                              },
+
+            // Match
+            // { RoomKey.MatchFullFlag,                true                                        },
+            // { RoomKey.MatchReadyCheckStartTime,     PhotonNetwork.Time                          }, // 이전 상태에서 처리
+            // { RoomKey.MatchChoosableMapCount,       raceGameConfig.RaceChoosableMapCount        }, // 이전 상태에서 처리
+            // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.None                              },  // InGameManager 가 자신 초기화 되면서 처리할 거임
+            { RoomKey.CountdownStartTime,           -1                                          },
+            { RoomKey.RaceStartTime,                -1                                          },
+            { RoomKey.FinishStartTime,              -1                                          },
+            { RoomKey.FinishEndTime,                -1                                          },
+            { RoomKey.FinishCount,                  -1                                          },
+        });
+    }
+
+    public static void RaceWaitPlayerSetting()
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        // 레이싱으로 씬이 넘어가서 레이싱 시작 전 다른 플레이어 기다리는 중
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            { RoomKey.RoomState,                    RoomState.Race                              },
+
+            // Match
+            // { RoomKey.MatchFullFlag,                true                                        },
+            // { RoomKey.MatchReadyCheckStartTime,     PhotonNetwork.Time                          }, // 이전 상태에서 처리
+            // { RoomKey.MatchChoosableMapCount,       raceGameConfig.RaceChoosableMapCount        }, // 이전 상태에서 처리
+            // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.WaitPlayer                        },  
+            { RoomKey.CountdownStartTime,           -1                                          },
+            { RoomKey.RaceStartTime,                -1                                          },
+            { RoomKey.FinishStartTime,              -1                                          },
+            { RoomKey.FinishEndTime,                -1                                          },
+            { RoomKey.FinishCount,                  -1                                          },
+        });
+    }
+
+    public static void RaceLoadPlayersSetting()
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        // 다른 플레이어들 다 들어오고 소환 중
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            // { RoomKey.RoomState,                    RoomState.Race                              },
+
+            // Match
+            // { RoomKey.MatchFullFlag,                true                                        },
+            // { RoomKey.MatchReadyCheckStartTime,     PhotonNetwork.Time                          }, // 이전 상태에서 처리
+            // { RoomKey.MatchChoosableMapCount,       raceGameConfig.RaceChoosableMapCount        }, // 이전 상태에서 처리
+            // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.LoadPlayers                       }, 
+            { RoomKey.CountdownStartTime,           -1                                          },
+            { RoomKey.RaceStartTime,                -1                                          },
+            { RoomKey.FinishStartTime,              -1                                          },
+            { RoomKey.FinishEndTime,                -1                                          },
+            // { RoomKey.FinishCount,                  -1                                          },
+        });
+    }
+
+    public static void RaceCountdownSetting(int raceStartDelayTime = 3)
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        double countdownStartTime = PhotonNetwork.Time;
+
+        // 다른 플레이어들 다 들어오고 소환 중
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            // { RoomKey.RoomState,                    RoomState.Race                              },
+
+            // Match
+            // { RoomKey.MatchFullFlag,                true                                        },
+            // { RoomKey.MatchReadyCheckStartTime,     PhotonNetwork.Time                          }, // 이전 상태에서 처리
+            // { RoomKey.MatchChoosableMapCount,       raceGameConfig.RaceChoosableMapCount        }, // 이전 상태에서 처리
+            // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.Countdown                         }, 
+            { RoomKey.CountdownStartTime,           countdownStartTime                          },
+            { RoomKey.RaceStartTime,                countdownStartTime + raceStartDelayTime     },
+            { RoomKey.FinishStartTime,              -1                                          },            
+            { RoomKey.FinishEndTime,                -1                                          },
+            // { RoomKey.FinishCount,                  -1                                          },
+        });
+    }
+
+    public static void RaceRacingSetting()
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        // 다른 플레이어들 다 들어오고 소환 중
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            { RoomKey.RoomState,                    RoomState.Race                              },
+
+            // Match
+            // { RoomKey.MatchFullFlag,                true                                        },
+            // { RoomKey.MatchReadyCheckStartTime,     PhotonNetwork.Time                          }, // 이전 상태에서 처리
+            // { RoomKey.MatchChoosableMapCount,       raceGameConfig.RaceChoosableMapCount        }, // 이전 상태에서 처리
+            // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.Racing                            },
+            // { RoomKey.CountdownStartTime,           countdownStartTime                          },
+            // { RoomKey.RaceStartTime,                countdownStartTime + raceStartDelayTime     },
+            { RoomKey.FinishStartTime,              -1                                          },
+            { RoomKey.FinishEndTime,                -1                                          },
+            // { RoomKey.FinishCount,                  -1                                          },
+        });
+    }
+
+    public static void RaceFinishSetting(int postGameChangeDely = 10)
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        double finishStartTime = PhotonNetwork.Time;
+
+        // 다른 플레이어들 다 들어오고 소환 중
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            { RoomKey.RoomState,                    RoomState.Race                              },
+
+            // Match
+            // { RoomKey.MatchFullFlag,                true                                        },
+            // { RoomKey.MatchReadyCheckStartTime,     PhotonNetwork.Time                          }, // 이전 상태에서 처리
+            // { RoomKey.MatchChoosableMapCount,       raceGameConfig.RaceChoosableMapCount        }, // 이전 상태에서 처리
+            // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.Finish                            },
+            // { RoomKey.CountdownStartTime,           countdownStartTime                          },
+            // { RoomKey.RaceStartTime,                countdownStartTime + raceStartDelayTime     },
+            { RoomKey.FinishStartTime,              finishStartTime                             },
+            { RoomKey.FinishEndTime,                finishStartTime + postGameChangeDely        },
+            // { RoomKey.FinishCount,                  -1                                          },
+        });
+    }
+
+    public static void RacePostGameSetting()
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        double finishStartTime = PhotonNetwork.Time;
+
+        // 다른 플레이어들 다 들어오고 소환 중
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            { RoomKey.RoomState,                    RoomState.Race                              },
+
+            // Match
+            // { RoomKey.MatchFullFlag,                true                                        },
+            // { RoomKey.MatchReadyCheckStartTime,     PhotonNetwork.Time                          }, // 이전 상태에서 처리
+            // { RoomKey.MatchChoosableMapCount,       raceGameConfig.RaceChoosableMapCount        }, // 이전 상태에서 처리
+            // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.PostGame                          },
+            // { RoomKey.CountdownStartTime,           countdownStartTime                          },
+            // { RoomKey.RaceStartTime,                countdownStartTime + raceStartDelayTime     },
+            // { RoomKey.FinishStartTime,              finishStartTime                             },
+            // { RoomKey.FinishEndTime,                finishStartTime + postGameChangeDely        },
+            // { RoomKey.FinishCount,                  -1                                          },
+        });
+    }
+
+    public static void RaceFailedGameSetting()
+    {
+        if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+
+        double finishStartTime = PhotonNetwork.Time;
+
+        // 다른 플레이어들 다 들어오고 소환 중
+        PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
+        {
+            { RoomKey.RoomState,                    RoomState.Race                              },
+
+            // Match
+            // { RoomKey.MatchFullFlag,                true                                        },
+            // { RoomKey.MatchReadyCheckStartTime,     PhotonNetwork.Time                          }, // 이전 상태에서 처리
+            // { RoomKey.MatchChoosableMapCount,       raceGameConfig.RaceChoosableMapCount        }, // 이전 상태에서 처리
+            // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
+
+            // Race
+            { RoomKey.RaceState,                    RaceState.FailedGame                        },
+            // { RoomKey.CountdownStartTime,           countdownStartTime                          },
+            // { RoomKey.RaceStartTime,                countdownStartTime + raceStartDelayTime     },
+            // { RoomKey.FinishStartTime,              finishStartTime                             },
+            // { RoomKey.FinishEndTime,                finishStartTime + postGameChangeDely        },
+            // { RoomKey.FinishCount,                  -1                                          },
+        });
+    }
+
+    #endregion
+
+    // ==============================
+    // = PLAYER STATE SETTING PROPS =
+    // ==============================
+
+    #region Player Setting
+    public static void LocalPlayerRoomWaitPlayerSetting()
+    {
+        if (!PhotonNetwork.InRoom) return;
+
+        PhotonNetworkCustomProperties.SetPlayerProps(PhotonNetwork.LocalPlayer,
+            new Dictionary<PlayerKey, object>()
+            {
+                // SERVER
+                // { PlayerKey.Level,                    null        },
+                // { PlayerKey.Exp,                      null        },
+                // { PlayerKey.CarId,                    null        },
+                // { PlayerKey.CharacterId,              null        },
+
+                // PHOTON - Match
+                { PlayerKey.HopeRaceMapId,            -1            },
+                { PlayerKey.MatchReady,               false         },
+
+                // PHOTON - Race
+                { PlayerKey.RaceLoaded,               false         },
+                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceFinishedTime,         -1            },
+                // { PlayerKey.CurrentScene,             sceneId       },
+            }
+        );
+    }
+
+    public static void LocalPlayerRoomMatchReadySetting(int hopeRaceMapId = -1)
+    {
+        if (!PhotonNetwork.InRoom) return;
+
+        PhotonNetworkCustomProperties.SetPlayerProps(PhotonNetwork.LocalPlayer,
+            new Dictionary<PlayerKey, object>()
+            {
+                // SERVER
+                // { PlayerKey.Level,                    null        },
+                // { PlayerKey.Exp,                      null        },
+                // { PlayerKey.CarId,                    null        },
+                // { PlayerKey.CharacterId,              null        },
+
+                // PHOTON - Match
+                { PlayerKey.HopeRaceMapId,            hopeRaceMapId },
+                { PlayerKey.MatchReady,               true          },
+
+                // PHOTON - Race
+                { PlayerKey.RaceLoaded,               false         },
+                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceFinishedTime,         -1            },
+                // { PlayerKey.CurrentScene,             -1            },
+            }
+        );
+    }
+
+    public static void LocalPlayerRaceWaitPlayerSetting()
+    {
+        if (!PhotonNetwork.InRoom) return;
+
+        PhotonNetworkCustomProperties.SetPlayerProps(PhotonNetwork.LocalPlayer,
+            new Dictionary<PlayerKey, object>()
+            {
+                // SERVER
+                // { PlayerKey.Level,                    null          },
+                // { PlayerKey.Exp,                      null          },
+                // { PlayerKey.CarId,                    null          },
+                // { PlayerKey.CharacterId,              null          },
+
+                // PHOTON - Match
+                // { PlayerKey.HopeRaceMapId,            hopeRaceMapId },
+                // { PlayerKey.MatchReady,               true          },
+
+                // PHOTON - Race
+                { PlayerKey.RaceLoaded,               false         },
+                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceFinishedTime,         -1            },
+                // { PlayerKey.CurrentScene,             -1            },
+            }
+        );
+    }
+
+    public static void LocalPlayerRaceLoadPlayersSetting()
+    {
+        if (!PhotonNetwork.InRoom) return;
+
+        PhotonNetworkCustomProperties.SetPlayerProps(PhotonNetwork.LocalPlayer,
+            new Dictionary<PlayerKey, object>()
+            {
+                // SERVER
+                // { PlayerKey.Level,                    null          },
+                // { PlayerKey.Exp,                      null          },
+                // { PlayerKey.CarId,                    null          },
+                // { PlayerKey.CharacterId,              null          },
+
+                // PHOTON - Match
+                // { PlayerKey.HopeRaceMapId,            hopeRaceMapId },
+                // { PlayerKey.MatchReady,               true          },
+
+                // PHOTON - Race
+                { PlayerKey.RaceLoaded,               true          },
+                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceFinishedTime,         -1            },
+                // { PlayerKey.CurrentScene,             -1            },
+            }
+        );
+    }
+
+    #endregion
+
+    // =============================
+    // == PRINT CUSTOM PROPERTIES ==
+    // ============================= 
+
+    /// <summary>
+    /// 현재 룸의 모든 CustomProperties 출력
+    /// </summary>
+    public static string PrintRoomCustomProperties()
+    {
+        var sb = new StringBuilder();
+        if (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null)
+        {
+            sb.AppendLine("[RoomProps] 현재 룸이 아님");
+        }
+        else
+        {
+            sb.AppendLine("==== [Room CustomProperties] ====");
+            foreach (var kv in PhotonNetwork.CurrentRoom.CustomProperties)
+            {
+                sb.AppendLine($"{kv.Key} = {kv.Value}");
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// 특정 플레이어의 CustomProperties 출력
+    /// </summary>
+    public static string PrintPlayerCustomProperties(Player player)
+    {
+        var sb = new StringBuilder();
+        if (player == null)
+        {
+            sb.AppendLine("[PlayerProps] 대상 플레이어가 null");
+        }
+        else
+        {
+            sb.AppendLine($"==== [Player {player.ActorNumber} / {player.NickName}] ====");
+            if (player.CustomProperties == null || player.CustomProperties.Count == 0)
+            {
+                sb.AppendLine("(No CustomProperties)");
+            }
+            else
+            {
+                foreach (var kv in player.CustomProperties)
+                {
+                    sb.AppendLine($"{kv.Key} = {kv.Value}");
+                }
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// 현재 룸에 속한 모든 플레이어의 CustomProperties 출력
+    /// </summary>
+    public static void PrintAllPlayersCustomProperties()
+    {
+        if (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null)
+        {
+            Debug.LogWarning("[PlayerProps] 현재 룸이 아님");
+            return;
+        }
+
+        foreach (var p in PhotonNetwork.PlayerList)
+        {
+            PrintPlayerCustomProperties(p);
+        }
+    }
+
 }

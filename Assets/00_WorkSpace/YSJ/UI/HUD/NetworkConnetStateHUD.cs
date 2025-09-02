@@ -25,8 +25,8 @@ public class NetworkConnetStateHUD : MonoBehaviour
                     $"Current Room CountOfPlayersInRooms: {PhotonNetwork.CountOfPlayersInRooms}\n" +
                     $"Current Room CountOfPlayersOnMaster: {PhotonNetwork.CountOfPlayersOnMaster}\n" +
                     $"Current Room MaxPlayer: {PhotonNetwork.CurrentRoom.MaxPlayers}\n" +
-                    $"{RoomManager.Instance?.PrintCustomProperties("NetworkConnetStateHUD.Update")}" +
-                    $"{RoomManager.Instance?.PrintCurrentPlayers()}";
+                    $"{PhotonNetworkCustomProperties.PrintRoomCustomProperties()}" +
+                    $"{PhotonNetworkCustomProperties.PrintPlayerCustomProperties(PhotonNetwork.LocalPlayer)}";
             }
         }
     }

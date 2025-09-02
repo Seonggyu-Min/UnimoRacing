@@ -1,7 +1,8 @@
+ï»¿using Cinemachine;
+using Photon.Pun;
 using UnityEngine;
-using UnityEngine.InputSystem; 
-using Cinemachine;
-using Photon.Pun; 
+using UnityEngine.InputSystem;
+using YSJ.Util;
 
 namespace PJW
 {
@@ -12,7 +13,7 @@ namespace PJW
         private CinemachinePathBase leftTrack;
         private CinemachinePathBase rightTrack;
 
-        private PhotonView pv; 
+        private PhotonView pv;
 
         private void Awake()
         {
@@ -27,7 +28,7 @@ namespace PJW
         {
             if (pv != null && pv.ViewID != 0 && !pv.IsMine) return;
 
-            // ¸ğ¹ÙÀÏ¿ë
+            // ëª¨ë°”ì¼ìš©
             if (Touchscreen.current != null)
             {
                 var touch = Touchscreen.current.primaryTouch;
@@ -40,7 +41,7 @@ namespace PJW
                 }
             }
 
-            // --- ¿¡µğÅÍ/PC¿ë
+            // --- ì—ë””í„°/PCìš©
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
                 Vector2 pos = Mouse.current.position.ReadValue();
@@ -74,7 +75,7 @@ namespace PJW
             return TrackRegistry.Instance;
         }
 
-        // Æ®·¢ ¹è¿­¿¡¼­ ÀÌ¸§ ±â¹İÀ¸·Î ÁÂ/¿ì Æ®·¢ °áÁ¤
+        // íŠ¸ë™ ë°°ì—´ì—ì„œ ì´ë¦„ ê¸°ë°˜ìœ¼ë¡œ ì¢Œ/ìš° íŠ¸ë™ ê²°ì •
         private void PickLeftRightFromArray(CinemachinePathBase[] arr, out CinemachinePathBase left, out CinemachinePathBase right)
         {
             left = null;
