@@ -1,4 +1,5 @@
-﻿using Photon.Realtime;
+﻿using Photon.Pun;
+using Photon.Realtime;
 using Runtime.UI;
 using System;
 using UnityEngine;
@@ -382,6 +383,9 @@ public class RoomManager : SimpleSingleton<RoomManager> // , IOnEventCallback
 
             PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate += PlayerPropertiesUpdate;
             PhotonNetworkManager.Instance.OnActionRoomPropertiesUpdate += RoomPropertiesUpdate;
+
+            PhotonNetwork.SendRate          = 60; // 초당 패킷 전송 횟수(기본 20)
+            PhotonNetwork.SerializationRate = 20; // OnPhotonSerializeView 호출 빈도(기본 10)
         }
     }
 
