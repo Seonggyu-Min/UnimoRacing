@@ -567,11 +567,9 @@ public static class PhotonNetworkCustomProperties
         });
     }
 
-    public static void RaceFinishSetting(float postGameChangeDely = 10)
+    public static void RaceFinishSetting(float finishStartTime, float postGameChangeDely)
     {
         if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
-
-        double finishStartTime = PhotonNetwork.Time;
 
         // 다른 플레이어들 다 들어오고 소환 중
         PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
@@ -754,6 +752,32 @@ public static class PhotonNetworkCustomProperties
                 { PlayerKey.RaceLoaded,               true          },
                 { PlayerKey.RaceIsFinished,           -1            },
                 { PlayerKey.RaceFinishedTime,         -1            },
+                // { PlayerKey.CurrentScene,             -1            },
+            }
+        );
+    }
+
+    public static void LocalPlayerRaceFinishedSetting(float finishTime)
+    {
+        if (!PhotonNetwork.InRoom) return;
+
+        PhotonNetworkCustomProperties.SetPlayerProps(PhotonNetwork.LocalPlayer,
+            new Dictionary<PlayerKey, object>()
+            {
+                // SERVER
+                // { PlayerKey.Level,                    null          },
+                // { PlayerKey.Exp,                      null          },
+                // { PlayerKey.CarId,                    null          },
+                // { PlayerKey.CharacterId,              null          },
+
+                // PHOTON - Match
+                // { PlayerKey.HopeRaceMapId,            hopeRaceMapId },
+                // { PlayerKey.MatchReady,               true          },
+
+                // PHOTON - Race
+                // { PlayerKey.RaceLoaded,               true          },
+                { PlayerKey.RaceIsFinished,           true           },
+                { PlayerKey.RaceFinishedTime,         finishTime     },
                 // { PlayerKey.CurrentScene,             -1            },
             }
         );

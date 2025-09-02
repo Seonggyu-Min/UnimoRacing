@@ -38,6 +38,8 @@ namespace PJW
         private int _raceLap = 0;
         private int _endLap = int.MinValue;
 
+        private bool _isFinished = false;
+
         public int RaceLap => _raceLap;
 
         private void Awake()
@@ -91,6 +93,7 @@ namespace PJW
             {
                 float norm = Mathf.Repeat(cart.m_Position, 1f);
                 CheckLap(norm);
+                PlayerLapCheck((float)PhotonNetwork.Time);
                 return;
             }
 
@@ -319,6 +322,15 @@ namespace PJW
             }
 
             _lastSentNorm = norm;
+        }
+
+        private void PlayerLapCheck(float tiem)
+        {
+            if (_endLap > _raceLap) return;
+            if (_isFinished) return;
+
+            PhotonNetworkCustomProperties.LocalPlayerRaceFinishedSetting(tiem);
+            _isFinished = true;
         }
     }
 }
