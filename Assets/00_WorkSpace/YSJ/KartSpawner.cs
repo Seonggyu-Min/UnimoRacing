@@ -65,6 +65,7 @@ public class KartSpawner : MonoBehaviour
         object[] instData = { me.ActorNumber, startIndex, characterID, kartID, me.UserId };
 
         // 서버 데이터가지고 왔을 때까지, 딜레이하다가 소환
+        this.PrintLog($"Spawner User ID: {me.UserId}");
         StartCoroutine(DelayKartSpawn(_kartPrefabName, pos, rot, 0, instData));
     }
 

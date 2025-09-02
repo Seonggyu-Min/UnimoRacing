@@ -515,11 +515,11 @@ public static class PhotonNetworkCustomProperties
         });
     }
 
-    public static void RaceCountdownSetting(int raceStartDelayTime = 3)
+    public static void RaceCountdownSetting(int countDownTime = 3)
     {
         if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
 
-        double countdownStartTime = PhotonNetwork.Time;
+        double serverTime = PhotonNetwork.Time;
 
         // 다른 플레이어들 다 들어오고 소환 중
         PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
@@ -534,8 +534,8 @@ public static class PhotonNetworkCustomProperties
 
             // Race
             { RoomKey.RaceState,                    RaceState.Countdown                         }, 
-            { RoomKey.CountdownStartTime,           countdownStartTime                          },
-            { RoomKey.RaceStartTime,                countdownStartTime + raceStartDelayTime     },
+            { RoomKey.CountdownStartTime,           serverTime                                  },
+            { RoomKey.RaceStartTime,                serverTime + countDownTime                  },
             { RoomKey.FinishStartTime,              -1                                          },            
             { RoomKey.FinishEndTime,                -1                                          },
             // { RoomKey.FinishCount,                  -1                                          },
