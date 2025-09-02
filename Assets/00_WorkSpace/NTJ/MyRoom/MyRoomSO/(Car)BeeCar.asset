@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 61de40b822b256b4395c4f18a05ec1dd, type: 3}
-  m_Name: (Car)NewCarData
+  m_Name: (Car)BeeCar
   m_EditorClassIdentifier: 
-  carID: 
-  carName: 
-  description: 
-  carSprite: {fileID: 0}
+  carID: 12
+  carName: BeeCar
+  description: beecar
+  carSprite: {fileID: 21300000, guid: 7b93000b215e8024198619d99f5dd32b, type: 3}
+  isOwned: 1

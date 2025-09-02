@@ -10,6 +10,7 @@ public class CarInventoryUI : MonoBehaviour
     private CarData carData;
     private MyRoomManager myRoomManager;
     [SerializeField] private Image carIcon;
+    [SerializeField] private TMP_Text carNameText;
 
     // 선택 표시를 위한 변수
     [SerializeField] private Image selectionOverlay;
@@ -19,6 +20,11 @@ public class CarInventoryUI : MonoBehaviour
         this.carData = data;
         this.myRoomManager = manager;
         carIcon.sprite = data.carSprite;
+        // carName을 가져올 때, data.CarName 속성 사용
+        if (carNameText != null)
+        {
+            carNameText.text = data.carName;
+        }
         GetComponent<Button>().onClick.AddListener(OnEquipButtonClicked);
 
         // 초기 상태는 선택되지 않음

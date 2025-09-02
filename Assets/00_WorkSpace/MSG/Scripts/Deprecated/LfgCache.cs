@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace MSG
+namespace MSG.Deprecated
 {
     public class LfgCache
     {
@@ -23,7 +23,15 @@ namespace MSG
         {
             foreach (var kv in _byRoom)
             {
-                if (kv.Value.expiresAt >= nowMs) yield return kv.Value;
+                if (kv.Value.expiresAt >= nowMs)
+                {
+                    Debug.Log($"[LFG CACHE] {kv.Value.id}는 살아있어서 평가 대상");
+                    yield return kv.Value;
+                }
+                else
+                {
+                    Debug.Log($"[LFG CACHE] {kv.Value.id}는 만료되어서 평가 대상 제외");
+                }
             }
         }
 

@@ -13,7 +13,7 @@ public class MyRoomManager : MonoBehaviour
     [SerializeField] private List<CharacterData> allCharacterData;
 
     // UI 관리 스크립트 참조
-    private MyRoomUIManager uiManager;
+    [SerializeField] private MyRoomUIManager uiManager;
 
     // 인벤토리 UI를 생성할 부모와 프리팹
     [SerializeField] private Transform carInventoryParent;
@@ -21,9 +21,14 @@ public class MyRoomManager : MonoBehaviour
     [SerializeField] private Transform characterInventoryParent;
     [SerializeField] private GameObject characterInventoryPrefab;
 
-    // 현재 장착된 아이템 변수
+    // 현재 장착된 아이템 데이터 변수
     private CarData currentEquippedCar;
     private CharacterData currentEquippedCharacter;
+
+    // 상단에 표시될 2D 이미지용 Image 컴포넌트
+    [Header("Display Images")]
+    [SerializeField] private Image characterDisplayImage;
+    [SerializeField] private Image carDisplayImage;
 
     private void Start()
     {
@@ -34,7 +39,7 @@ public class MyRoomManager : MonoBehaviour
         PopulateCarInventory();
         PopulateCharacterInventory();
 
-        // 게임 시작 시 기본 아이템 장착
+        // 게임 시작 시 기본 아이템 장착 (데이터가 있는 경우)
         if (allCarData.Count > 0) EquipCar(allCarData[0]);
         if (allCharacterData.Count > 0) EquipCharacter(allCharacterData[0]);
     }
@@ -68,14 +73,32 @@ public class MyRoomManager : MonoBehaviour
     // 차량 장착 로직
     public void EquipCar(CarData car)
     {
+        // 현재 장착 데이터 업데이트
         currentEquippedCar = car;
+
+        // 2D 이미지 업데이트
+        if (carDisplayImage != null && car.carSprite != null)
+        {
+            carDisplayImage.sprite = car.carSprite;
+            carDisplayImage.enabled = true;
+        }
+
         UpdateEquippedUI();
     }
 
     // 캐릭터 장착 로직
     public void EquipCharacter(CharacterData character)
     {
+        // 현재 장착 데이터 업데이트
         currentEquippedCharacter = character;
+
+        // 2D 이미지 업데이트
+        if (characterDisplayImage != null && character.characterSprite != null)
+        {
+            characterDisplayImage.sprite = character.characterSprite;
+            characterDisplayImage.enabled = true;
+        }
+
         UpdateEquippedUI();
     }
 

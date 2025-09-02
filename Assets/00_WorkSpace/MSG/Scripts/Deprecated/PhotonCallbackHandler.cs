@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-namespace MSG
+namespace MSG.Deprecated
 {
     public class PhotonCallbackHandler : MonoBehaviourPunCallbacks
     {
@@ -69,7 +69,7 @@ namespace MSG
 
             var opts = new RoomOptions
             {
-                MaxPlayers = (byte)maxPlayers,
+                MaxPlayers = maxPlayers,
                 IsVisible = false,
                 PublishUserId = true
             };
@@ -93,7 +93,8 @@ namespace MSG
             var info = _cachedPartyInfo.uids != null ? _cachedPartyInfo : await FetchPartyInfo(uid);
 
             var partyId = info.partyId ?? $"solo-{uid}";
-            var leaderUid = info.leaderUid ?? uid;
+            var contactUid = info.leaderUid ?? uid;
+            var anchorUid = uid;
             var uids = info.uids ?? new List<string> { uid };
             var size = uids.Count;
             var max = maxPlayers;
@@ -102,7 +103,8 @@ namespace MSG
             matchClient.SetLocalPartyRoom(
                 partyId: partyId,
                 room: _roomName,
-                leaderUid: leaderUid,
+                contactUid: contactUid,
+                anchorUid: anchorUid,
                 uids: uids,
                 size: size,
                 max: max,
@@ -219,9 +221,9 @@ namespace MSG
 
             var opts = new RoomOptions
             {
-                MaxPlayers = (byte)maxPlayers,
+                MaxPlayers = maxPlayers,
                 IsVisible = false,
-                PublishUserId = true
+                PublishUserId = true,
             };
 
             var initialWhitelist = _cachedPartyInfo.uids ?? new List<string> { uid };

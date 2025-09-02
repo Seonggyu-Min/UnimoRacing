@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c1bfa4ed10688a41b54f83a1aa5e6d1, type: 3}
   m_Name: (Char)HighfishData
   m_EditorClassIdentifier: 
-  characterID: 1
+  characterID: 3
   characterName: Highfish
-  description: 
+  description: highfish
   characterSprite: {fileID: 21300000, guid: 52dcd754192c79b47ae18c36331c08da, type: 3}
+  isOwned: 0

@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c1bfa4ed10688a41b54f83a1aa5e6d1, type: 3}
-  m_Name: (Char)SofoData
+  m_Script: {fileID: 11500000, guid: 61de40b822b256b4395c4f18a05ec1dd, type: 3}
+  m_Name: (Car)PrimoCar
   m_EditorClassIdentifier: 
-  characterID: 2
-  characterName: Sofo
-  description: sofa
-  characterSprite: {fileID: 21300000, guid: e58d009362b32734d8a4ade12bd84a01, type: 3}
+  carID: 11
+  carName: PrimoCar
+  description: primocar
+  carSprite: {fileID: 21300000, guid: 48bc28cebf59fe24d8afb042a9c96c0c, type: 3}
   isOwned: 0
