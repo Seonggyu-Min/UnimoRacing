@@ -62,11 +62,13 @@ public class KartSpawner : MonoBehaviour
         DatabaseManager.Instance.GetOnMain(DBRoutes.Karts(me.UserId), GetSuccessKartID, GetErrorKartID);
 
         // 인스턴스 데이터(늦게 들어온 플레이어도 동일 데이터로 재생성됨)
-        object[] instData = { me.ActorNumber, startIndex, characterID, kartID };
+        object[] instData = { me.ActorNumber, startIndex, characterID, kartID, me.UserId };
 
         // 서버 데이터가지고 왔을 때까지, 딜레이하다가 소환
         StartCoroutine(DelayKartSpawn(_kartPrefabName, pos, rot, 0, instData));
     }
+
+    
 
     private IEnumerator DelayKartSpawn(string kartID, Vector3 spawnPosition, Quaternion spawnRotation, byte group, object[] data)
     {
