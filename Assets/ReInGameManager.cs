@@ -339,11 +339,21 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
     private IEnumerator CO_EnterCountDown()
     {
         double delay = PhotonNetwork.Time - _countDownStartTime;
-        this.PrintLog($"카운트 다운[Count Down]                          \n" +
+        _raceStartDelayTime = PhotonNetwork.Time - _raceStartTime;
+
+        this.PrintLog(
+            $"카운트 다운[Count Down]                                    \n" +
             $"< _Client_ > {_countDownStartTime}                        \n" +
             $"< _Server Get Time 1_ > {PhotonNetwork.Time}              \n" +
             $"< _Server Get Time 2_ > {PhotonNetwork.Time}              \n" +
-            $"< **Delay** > {delay}                                     \n");
+            $"< **Delay** > {delay}                                     \n" +
+
+            $"레이싱 시작[Race Start Time]                               \n" +
+            $"< _Client_ > {_raceStartTime}                             \n" +
+            $"< _Server Get Time 1_ > {PhotonNetwork.Time}              \n" +
+            $"< _Server Get Time 2_ > {PhotonNetwork.Time}              \n" +
+            $"< **Race Start Delay Time** > {_raceStartDelayTime}       \n" +
+            $"< **Race Start Delay Time** > {PhotonNetwork.Time - _countDownStartTime}\n");
 
         // 받은 시작 시간으로 시간을 확인하다가, 시작 시간이 된다면 Racing으로 전환한다.
         while (true)
@@ -353,7 +363,6 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
             yield return null;
         }
 
-        _raceStartDelayTime = PhotonNetwork.Time - _raceStartTime;
         this.PrintLog($"레이싱 시작[Race Start Time]                     \n" +
             $"< _Client_ > {_raceStartTime}                             \n" +
             $"< _Server Get Time 1_ > {PhotonNetwork.Time}              \n" +
