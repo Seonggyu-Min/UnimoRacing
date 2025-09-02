@@ -77,5 +77,11 @@ namespace MSG
             yield return new WaitForSeconds(5f);
             PhotonNetwork.LoadLevel(2); // 임의로 2
         }
+
+        // TODO: 투표 중 인원이 나갔을 때, 즉시 투표 종료하는 기능 추가
+        private void StopWhileVoting()
+        {
+
+        }
     }
 }

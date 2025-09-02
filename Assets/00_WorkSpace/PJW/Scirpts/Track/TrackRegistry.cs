@@ -1,4 +1,4 @@
-using Cinemachine;
+﻿using Cinemachine;
 using UnityEngine;
 
 namespace PJW
@@ -22,7 +22,7 @@ namespace PJW
 
         public CinemachinePathBase GetPathForLocalPlayer(int actorNumber)
         {
-            int index = actorNumber - 1;
+            int index = actorNumber % tracks.Length;
 
             return tracks[index];
         }
