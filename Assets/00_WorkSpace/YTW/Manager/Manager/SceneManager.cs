@@ -11,6 +11,7 @@ namespace YTW
     // 씬 일므을 enum으로 관리
     public enum SceneType
     {
+        None,
         YTW_TestScene1, 
         YTW_TestScene2, 
         Map1
@@ -38,7 +39,7 @@ namespace YTW
         public bool IsInitialized => _isInitialized;
 
         // 현재 어떤 씬에 있는지 enum으로 추적
-        public SceneType CurrentSceneType { get; private set; }
+        public SceneType CurrentSceneType { get; private set; } = SceneType.None;
 
         protected override void Awake()
         {
