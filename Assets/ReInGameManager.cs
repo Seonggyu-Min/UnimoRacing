@@ -20,8 +20,10 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
     private float   _postGameSeconds = 10f;     // 결과, 보여주는 시간
 
     private bool    _itemsEnabled = true;       // 아이템 사용 가능 여부
-    
-    
+
+    private float _finishedEndTime = 0.0f;
+    private float _postGameEndTime = 0.0f;
+
     #endregion
 
     // private Value
@@ -42,6 +44,8 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
 
     private SceneID GetPlayerSceneID(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<SceneID>(p, PlayerKey.CurrentScene);
     private bool GetPlayerRaceLoaded(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceLoaded);
+    private bool GetPlayerRaceFinished(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceIsFinished);
+    private float GetPlayerRaceFinishTime(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<float>(p, PlayerKey.RaceFinishedTime);
 
     // public Value
     public RaceState CurrentRaceState => _currentRaceState;
@@ -133,6 +137,7 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
                     break;
 
                 case RaceState.Racing:
+                    IsRaceFinished();
                     break;
 
                 case RaceState.Finish:
@@ -226,7 +231,6 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
             // 어떤 데이터를 받았을 때 해당 상태로 변하냐
             // 1. 쿨다운 시간이 끝났을 때
             case RaceState.Finish:
-                PhotonNetworkCustomProperties.RaceFinishSetting(_postGameSeconds);
                 break;
 
             // 정상 인게임 종료
@@ -289,21 +293,19 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
                 break;
 
             case RaceState.Racing:
-
-
-
                 // 후 처리
                 OnRaceState_Racing?.Invoke();
                 break;
 
             case RaceState.Finish:
-
+                StartCoroutine(CO_finishedCountDown());
                 // 후 처리
                 OnRaceState_Finish?.Invoke();
                 break;
 
             case RaceState.PostGame:
-
+                _postGameEndTime += _postGameSeconds;
+                StartCoroutine(CO_PostGameCountDown());
                 // 후 처리
                 OnRaceState_PostGame?.Invoke();
                 break;
@@ -374,6 +376,32 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
         SendRaceState(RaceState.Countdown);
     }
 
+    private void IsRaceFinished()
+    {
+        this.PrintLog("Checked >>>>>>>>>>>>> IsRaceFinished");
+        if (!IsMasterClient || CurrentRoom == null) return;
+
+        this.PrintLog($"Action >>>>>>>>>>>>> IsRaceFinished {CurrentRoom.Players.Values.Count}");
+
+        float finishTime = float.MaxValue;
+        foreach (var p in CurrentRoom.Players.Values)
+        {
+            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
+            var finished = GetPlayerRaceFinished(p);
+            var playerFinishTime = GetPlayerRaceFinishTime(p);
+
+            if(finishTime > playerFinishTime)
+                finishTime = playerFinishTime;
+            if (!finished) return;
+
+            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
+        }
+
+        PhotonNetworkCustomProperties.RaceFinishSetting(finishTime, _finishSeconds);
+        _finishedEndTime = finishTime + _finishSeconds;
+        SendRaceState(RaceState.Finish);
+    }
+
     private IEnumerator CO_EnterCountDown()
     {
         double delay = PhotonNetwork.Time - _countDownStartTime;
@@ -409,5 +437,29 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
             $"< **Race Start Delay Time** > {PhotonNetwork.Time - _countDownStartTime}\n");
 
         SendRaceState(RaceState.Racing);
+    }
+    private IEnumerator CO_finishedCountDown()
+    {
+        while (true)
+        {
+            if (_finishedEndTime <= PhotonNetwork.Time)
+                break;
+            yield return null;
+        }
+
+        SendRaceState(RaceState.PostGame);
+    }
+
+    private IEnumerator CO_PostGameCountDown()
+    {
+        while (true)
+        {
+            if (_postGameEndTime <= PhotonNetwork.Time)
+                break;
+            yield return null;
+        }
+
+        PhotonNetwork.LoadLevel(1);
+        PhotonNetwork.LeaveRoom();
     }
 }
