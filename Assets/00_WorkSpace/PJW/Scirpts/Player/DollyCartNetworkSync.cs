@@ -62,21 +62,21 @@ namespace PJW
                 // 경로를 따라 움직일 때, 내부적으로 위치를 어떤 단위로 다룰지 정해줌(0~1 정규화로 다룰거임)
                 cart.m_PositionUnits = CinemachinePathBase.PositionUnits.Normalized;
 
-                _netPosition = cart.m_Position;                     // 현재 위치 카트 위치 캐싱        (넷상으로 보낼거임)
-                _netSpeed = cart.m_Speed;                           // 현재 속도 캐싱                 (넷상으로 보낼거임)
-                _netTrackIndex = FindTrackIndex(cart.m_Path);       // 현재 몇번째 트랙에서 달릴 것인지 (넷상으로 보낼거임)
+                _netPosition = cart.m_Position;                     
+                _netSpeed = cart.m_Speed;                           
+                _netTrackIndex = FindTrackIndex(cart.m_Path);       
 
-                _raceSpeed = _netSpeed;                             // 현재 속도 (넷 보낼 속도 == 현 속도)
-                _netSpeed = 0;                                      // 넷 속도
-                cart.m_Speed = 0;                                   // 카 속도
+                _raceSpeed = _netSpeed;                             
+                _netSpeed = 0;                                      
+                cart.m_Speed = 0;                                   
 
-                _posUnwrapped = cart.m_Position;                    // 현재 직선상 위치
-                _targetUnwrapped = _posUnwrapped;                   // 직선상 목표 위치
-                _lastNetNormPos = cart.m_Position;                  // 경계 접기 기준값
+                _posUnwrapped = cart.m_Position;                    
+                _targetUnwrapped = _posUnwrapped;                   
+                _lastNetNormPos = cart.m_Position;                  
 
                 // 송신측 랩 상태 초기화
-                _lastSentNorm = cart.m_Position;                    // 마지막으로 보낼 정규화 위치
-                _sendLap = 0;                                       // 현재 몇 바뀌 돌았는지 확인 용(누적 바뀌 수)
+                _lastSentNorm = cart.m_Position;                    
+                _sendLap = 0;                                       
             }
         }
 
