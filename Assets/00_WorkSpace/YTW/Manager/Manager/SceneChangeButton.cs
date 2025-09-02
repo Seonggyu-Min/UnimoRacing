@@ -32,7 +32,7 @@ namespace YTW
             }
             else
             {
-                Debug.LogError("SceneManager를 찾을 수 없습니다! Manager 프리팹이 씬에 있는지 확인하세요.");
+                Debug.LogError("SceneManager를 찾을 수 없습니다.");
             }
         }
 

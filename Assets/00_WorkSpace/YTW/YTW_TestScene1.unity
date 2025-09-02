@@ -687,7 +687,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 807e88d411cf0bd4ab1d39b703b8a556, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetScene: 2
+  targetScene: 3
 --- !u!114 &1708097254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -948,6 +948,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5222303babe38864bafda1339b1b96f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _networkPrefabLabel: NetworkPrefab
 --- !u!4 &2041736509
 Transform:
   m_ObjectHideFlags: 0
@@ -1372,8 +1373,8 @@ SceneRoots:
   - {fileID: 1783917728}
   - {fileID: 692269223}
   - {fileID: 5560385636448942165}
-  - {fileID: 8345975623852068654}
   - {fileID: 1183573950}
   - {fileID: 5318230159182246646}
   - {fileID: 430455041}
   - {fileID: 2041736509}
+  - {fileID: 8345975623852068654}

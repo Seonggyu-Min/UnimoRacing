@@ -11,6 +11,7 @@ namespace YTW
     // 씬 일므을 enum으로 관리
     public enum SceneType
     {
+        None,
         YTW_TestScene1, 
         YTW_TestScene2, 
         Map1
@@ -24,7 +25,7 @@ namespace YTW
 
         // Addressables에서 불러올 로딩 UI 프리팹의 주소.
         // ResourceManager가 이 주소를 기반으로 프리팹을 로드하고 Instantiate
-        private const string LOADING_UI_PREFAB_ADDRESS = "LoadingUIPanel";
+        // private const string LOADING_UI_PREFAB_ADDRESS = "LoadingUIPanel";
 
         // 실제 인스턴스화된 로딩 UI 오브젝트ㅁ
         private GameObject _loadingScreenInstance;
@@ -38,7 +39,7 @@ namespace YTW
         public bool IsInitialized => _isInitialized;
 
         // 현재 어떤 씬에 있는지 enum으로 추적
-        public SceneType CurrentSceneType { get; private set; }
+        public SceneType CurrentSceneType { get; private set; } = SceneType.None;
 
         protected override void Awake()
         {
