@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,8 +24,8 @@ namespace MSG
 
         // ----- Equipped Data -----
         public static string Equipped(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.equipped); // 현재 장착한 아이템들
-        public static string Karts(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.equipped, DatabaseKeys.karts); // 현재 장착한 카트
-        public static string Unimos(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.equipped, DatabaseKeys.unimos); // 현재 장착한 유니모
+        public static string EquippedKart(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.equipped, DatabaseKeys.karts); // 현재 장착한 카트
+        public static string EquippedUnimo(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.equipped, DatabaseKeys.unimos); // 현재 장착한 유니모
 
 
         // ----- Inventory Data -----
@@ -66,7 +67,15 @@ namespace MSG
         public static string InBox(string uid, string pairId) => DBPathMaker.Join(DatabaseKeys.inbox, uid, pairId);
 
 
-        // ----- Presence Data -----
+        // ----- Catalog -----
+        public static string CatalogRoot() => DBPathMaker.Join(DatabaseKeys.catalog);
+        public static string CatalogVersion() => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.version);
+        public static string CatalogGlobals() => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.globals);
+        public static string CatalogKarts() => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.karts);
+        public static string CatalogKart(int kartId) => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.karts, kartId.ToString());
+
+
+        // ----- Presence Data(WIP) -----
         public static string Presence(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid);
         public static string OnlineStatus(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.online);
         public static string InRoomStatus(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.inRoom);
@@ -78,7 +87,9 @@ namespace MSG
         public static string Heartbeat(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.heartbeat); // Heartbeat 타임스탬프
 
 
-        // ------ Party Data -----
+        #region Deprecated
+
+        // ------ Party Data(Deprecated) -----
         public static string PartyRoot(string partyId) => DBPathMaker.Join(DatabaseKeys.parties, partyId); // 파티 데이터
         public static string PartyMembers(string partyId) => DBPathMaker.Join(DatabaseKeys.parties, partyId, DatabaseKeys.members); // 파티 멤버 목록
         public static string PartyLeader(string partyId) => DBPathMaker.Join(DatabaseKeys.parties, partyId, DatabaseKeys.leaderUid); // 파티장 UID
@@ -87,12 +98,12 @@ namespace MSG
         //public static string PartyTargetRoom(string partyId) => DBPathMaker.Join(DatabaseKeys.parties, partyId, DatabaseKeys.targetRoom); // 파티가 들어갈 방 이름
 
 
-        //// ----- Party Membership Data -----
+        //// ----- Party Membership Data(Deprecated) -----
         public static string PartyMembershipsRoot(string uid) => DBPathMaker.Join(DatabaseKeys.partyMemberships, uid); // 유저의 파티 멤버십 목록
         public static string PartyMembership(string uid) => DBPathMaker.Join(DatabaseKeys.partyMemberships, uid, DatabaseKeys.partyId); // 특정 파티 멤버십 데이터
 
 
-        //// ----- Invitation Data -----
+        //// ----- Invitation Data(Deprecated) -----
         //public static string InvitationsRoot(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId); // 초대 데이터
         //public static string InvitationPartyId(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId, DatabaseKeys.partyId); // 초대된 파티 ID
         //public static string InvitationFrom(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId, DatabaseKeys.from); // 초대 보낸 사람의 UID
@@ -101,9 +112,10 @@ namespace MSG
         //public static string InvitationCreatedAt(string inviteId) => DBPathMaker.Join(DatabaseKeys.invitations, inviteId, DatabaseKeys.createdAt); // 초대 생성 시간
 
 
-        //// ----- UserInvitations Data -----
+        //// ----- UserInvitations Data(Deprecated) -----
         //public static string UserInvitations(string uid) => DBPathMaker.Join(DatabaseKeys.userInvitations, uid); // 유저의 초대 목록
         //public static string UserInvitation(string uid, string inviteId) => DBPathMaker.Join(DatabaseKeys.userInvitations, uid, inviteId); // 특정 초대 데이터
 
+        #endregion
     }
 }
