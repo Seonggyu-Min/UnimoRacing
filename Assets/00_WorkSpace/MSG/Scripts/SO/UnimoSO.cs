@@ -17,9 +17,11 @@ namespace MSG
         [field: SerializeField] public string Name { get; private set; }
         [field: SerializeField] public int Index { get; private set; }
         [field: SerializeField] public string Description { get; private set; }
-        [field: SerializeField] public UnimoSO SynergyKart { get; private set; } // 시너지 있는 캐릭터 1개 등록
+        [field: SerializeField] public KartSO SynergyKart { get; private set; } // 시너지 있는 캐릭터 1개 등록
         [field: SerializeField] public MoneyType MoneyType { get; private set; } // 지출할 가격의 돈 타입 (예: 다이아, 골드)
         [field: SerializeField] public int Price { get; private set; } // 가격
+
+        // 가격 index를 기반으로 DB조회
 
         // ----- 상점 프리뷰용 -----
 

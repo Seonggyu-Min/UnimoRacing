@@ -5,10 +5,9 @@ public class InGameRaceRulesConfig : ScriptableObject
 {
     [Header("Flow")]
     public int laps = 3;
-    public float countdownSeconds = 3f;
+    public int countdownSeconds = 3;
     public float finishSeconds = 10f;
     public float postGameSeconds = 10f;
-    public float timeLimitSeconds = 0f; // 0=무제한
 
     [Header("Players")]
     public int playablePlayersCount = 4;

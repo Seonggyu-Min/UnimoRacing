@@ -9,14 +9,17 @@ EditorBuildSettings:
     path: Assets/Scenes/Log In Scene.unity
     guid: 601b98fa88ef8ca4d9e68f09ebb47b10
   - enabled: 1
-    path: Assets/00_WorkSpace/NTJ/NTJTestScene2.unity
-    guid: 08dc0ad32122dbd4a8449ec03d89187c
+    path: Assets/00_WorkSpace/NTJ/NTJTestScene2 1.unity
+    guid: 5a5fabb214248234e9c832324ee09207
+  - enabled: 0
+    path: Assets/00_WorkSpace/MSG/Scenes/Copied Lobby Test Scene.unity
+    guid: 40d3e0905ac295d43b19eeabd460088c
   - enabled: 1
+    path: Assets/Scenes/Map1 For Prototype.unity
+    guid: f5ec85332c4aaa74e9f66e1f00f116fe
+  - enabled: 0
     path: Assets/Scenes/Map1.unity
     guid: 4eb7646ad9600a4429ed0f921b19f8e8
-  - enabled: 0
-    path: Assets/00_WorkSpace/PJW/Scene/PJWTestScene.unity
-    guid: 137ddc10174461744876c0fc06207d38
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 3c385587428f3de41a90aaaf9600f388,
       type: 2}

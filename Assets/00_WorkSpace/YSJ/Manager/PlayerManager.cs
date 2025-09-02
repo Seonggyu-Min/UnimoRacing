@@ -1,17 +1,14 @@
 ﻿using Photon.Pun;
+using Photon.Realtime;
 using System.Text;
 using UnityEngine;
 using YSJ.Util;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class PlayerManager : SimpleSingleton<PlayerManager>
 {
     [SerializeField] private bool _isTest = false;
     private bool _isSetup = false;
-
-    // (필요 시 사용할 예정이라면 유지)
-    private string raceCharacterIdString;
-    private string raceCarIdString;
-    private string hopeRaceMapIdString;
 
     public bool IsSetup
     {
@@ -19,6 +16,9 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         {
             if (!_isSetup)
                 this.PrintLog("`Setup` 되지 않았습니다.");
+
+            if(PhotonNetwork.IsConnected)
+                PhotonPlayerSetup();
             return _isSetup;
         }
     }
@@ -27,42 +27,33 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     {
         base.Init();
 
-        // 테스트 모드일 때 자동 접속
-        if (!PhotonNetwork.IsConnected && _isTest)
-            PhotonNetwork.ConnectUsingSettings();
-
-        PhotonNetworkManager.Instance.OnActionConnectedToMaster -= OnConnectedToMaster;
-        PhotonNetworkManager.Instance.OnActionConnectedToMaster += OnConnectedToMaster;
-
-        PhotonNetworkManager.Instance.OnActionJoinedLobby -= OnJoinedLobby;
-        PhotonNetworkManager.Instance.OnActionJoinedLobby += OnJoinedLobby;
-
-        PhotonNetworkManager.Instance.OnActionOnJoinedRoom -= OnJoinedRoom;
-        PhotonNetworkManager.Instance.OnActionOnJoinedRoom += OnJoinedRoom;
+        PhotonMethedSetup();
     }
 
-    private void NetworkPhotonNetworkSetup()
+    private void PhotonMethedSetup()
     {
+        PhotonNetworkManager.Instance.OnActionOnJoinedRoom -= OnJoinedRoom;
+        PhotonNetworkManager.Instance.OnActionOnJoinedRoom += OnJoinedRoom;
+
+        PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate -= OnPrint;
+        PhotonNetworkManager.Instance.OnActionPlayerPropertiesUpdate += OnPrint;
+    }
+    private void PhotonPlayerSetup()
+    {
+        if (_isSetup) return;
 
         // 한 번에 배치 세팅
         PhotonNetworkCustomProperties.SetPlayerProps(
             PhotonNetwork.LocalPlayer,
             new System.Collections.Generic.Dictionary<PlayerKey, object>
             {
-                { PlayerKey.Level,              -1                      },
-                { PlayerKey.Exp,                -1                      },
-
-                { PlayerKey.CarId,              -1                      },
-                { PlayerKey.CharacterId,        -1                      },
                 { PlayerKey.HopeRaceMapId,      -1                      },
-
-                { PlayerKey.MatchReady,         false                   },
 
                 { PlayerKey.RaceLoaded,         false                   },
                 { PlayerKey.RaceIsFinished,     false                   },
                 { PlayerKey.RaceFinishedTime,   0.0f                    },
 
-                { PlayerKey.CurrentScene,       SceneID.TitleScene      },
+                // { PlayerKey.CurrentScene,       SceneID.TitleScene      },
             }
         );
 
@@ -72,37 +63,7 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     }
 
     #region Test Code(Photon PUN2)
-    private void OnConnectedToMaster()
-    {
-        if (_isTest)
-        {
-            PhotonNetwork.NickName =
-                string.IsNullOrEmpty(PhotonNetwork.NickName)
-                ? $"Test_User_{UnityEngine.Random.Range(int.MinValue, int.MaxValue)}"
-                : PhotonNetwork.NickName;
-        }
 
-        this.PrintLog($"Connected To Master\nNickName = {PhotonNetwork.NickName}");
-
-        NetworkPhotonNetworkSetup();
-
-        if (_isTest)
-        {
-            SetPlayerBaseInfoSelection(
-                PhotonNetworkCustomProperties.VALUE_PLAYER_DEFAULT_LEVEL,
-                PhotonNetworkCustomProperties.VALUE_PLAYER_DEFAULT_EXP
-            );
-        }
-
-        PrintCustomProperties("On Connected To Master");
-        PhotonNetwork.JoinLobby();
-    }
-
-    private void OnJoinedLobby()
-    {
-        this.PrintLog($"Joined Lobby\nNickName = {PhotonNetwork.NickName}");
-        PrintCustomProperties("On Joined Lobby");
-    }
 
     private void OnJoinedRoom()
     {
@@ -114,9 +75,8 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     #region CustomProperties
     public void SetPlayerBaseInfoSelection(int level, int exp)
     {
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.Level, level);
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.Exp, exp);
-        PrintCustomProperties("Set PlayerBaseInfo Selection");
+        // PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.Level, level);
+        // PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.Exp, exp);
     }
 
     public void SetRaceInfoSelection(int carId, int characterId)
@@ -131,8 +91,6 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
                 { PlayerKey.CharacterId, characterId },
             }
         );
-
-        PrintCustomProperties("Set RaceInfo Selection");
     }
 
     public void SetRaceReadySelection(bool isReady)
@@ -140,7 +98,6 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         if (!IsSetup) return;
 
         PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.MatchReady, isReady);
-        PrintCustomProperties("Set Race Ready Selection");
     }
 
     public void SetRaceHopeRaceMapIdSelection(int hopeRaceMapId)
@@ -152,19 +109,31 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
             : hopeRaceMapId;
 
         PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.HopeRaceMapId, value);
-        PrintCustomProperties("Set RaceHopeRaceMapId Selection");
     }
 
     public void SetRaceLoadedSelection(bool isLoaded = true)
     {
+        if (!IsSetup) return;
+
         PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.RaceLoaded, isLoaded);
-        PrintCustomProperties("Set Race Loaded Selection ");
+    }
+    public void SetSceneIDSelection(SceneID sceneID)
+    {
+        if (!IsSetup) return;
+
+        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.CurrentScene, (int)sceneID);
     }
     #endregion
 
     #region CustomProperties (Print / Clear)
+
+    public void OnPrint(Player targetPlayer, Hashtable changedProps)
+    {
+        PrintCustomProperties();
+    }
     public void PrintCustomProperties(string methodName = "\n")
     {
+        return;
         // 이 매니저에서 관리하는 핵심 키만 출력
         var keysToPrint = new[]
         {
