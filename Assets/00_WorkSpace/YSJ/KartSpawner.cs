@@ -61,8 +61,10 @@ public class KartSpawner : MonoBehaviour
         DatabaseManager.Instance.GetOnMain(DBRoutes.Unimos(me.UserId), GetSuccessCharacterID, GetErrorCharacterID);
         DatabaseManager.Instance.GetOnMain(DBRoutes.Karts(me.UserId), GetSuccessKartID, GetErrorKartID);
 
+        var endLapCount = ReInGameManager.Instance.RaceEndLapCount;
+
         // 인스턴스 데이터(늦게 들어온 플레이어도 동일 데이터로 재생성됨)
-        object[] instData = { me.ActorNumber, startIndex, characterID, kartID, me.UserId };
+        object[] instData = { me.ActorNumber, startIndex, characterID, kartID, me.UserId, endLapCount };
 
         // 서버 데이터가지고 왔을 때까지, 딜레이하다가 소환
         this.PrintLog($"Spawner User ID: {me.UserId}");

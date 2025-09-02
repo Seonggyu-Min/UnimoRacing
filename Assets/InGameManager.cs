@@ -13,7 +13,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>, IOnEventCallback
 {
     [Header("Configs")]
     [SerializeField] private InGameRaceRulesConfig rules;
-    private Dictionary<Player, PhotonKartLoadedChecker> _racerRegister;
+    private Dictionary<Player, PhotonKartChecker> _racerRegister;
 
     private const byte EV_COUNTDOWN_TICK = 10;
     private const byte EV_RACE_GO        = 11;

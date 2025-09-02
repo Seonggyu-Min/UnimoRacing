@@ -19,7 +19,6 @@ namespace PJW
 
         private CinemachinePathBase[] tracks;   // 이동할 수 있는 트랙
 
-        private float _netPosition;             // 네트워크에서 받은 카트 위치(내 화면의 카트 위치 > cart.m_Position)
         private float _netSpeed;
         private int _netTrackIndex;
 
@@ -36,7 +35,10 @@ namespace PJW
         private int   _sendLap = 0;
         private float _lastSentNorm = 0.0f;
 
-        private int   _recvLap = 0;
+        private int _raceLap = 0;
+        private int _endLap = int.MinValue;
+
+        public int RaceLap => _raceLap;
 
         private void Awake()
         {
@@ -62,7 +64,6 @@ namespace PJW
                 // 경로를 따라 움직일 때, 내부적으로 위치를 어떤 단위로 다룰지 정해줌(0~1 정규화로 다룰거임)
                 cart.m_PositionUnits = CinemachinePathBase.PositionUnits.Normalized;
 
-                _netPosition = cart.m_Position;                     
                 _netSpeed = cart.m_Speed;                           
                 _netTrackIndex = FindTrackIndex(cart.m_Path);       
 
@@ -76,48 +77,43 @@ namespace PJW
 
                 // 송신측 랩 상태 초기화
                 _lastSentNorm = cart.m_Position;                    
-                _sendLap = 0;                                       
+                _sendLap = 0;
+                _raceLap = 0;
             }
         }
 
         private void Update()
         {
-            if (cart == null) return;                               // 차 여부
-            if (!_isRacable) return;                                // 레이싱 가능 여부
+            if (cart == null) return;                               
+            if (!_isRacable) return;                                
 
-            // 내가 소유하지 않은(원격) 카트를 화면에서 재생하려고 쓰는 거라 소유자라면 위치를 받아오지 않음
-            if (photonView.IsMine) return;
+            if (photonView.IsMine)
+            {
+                float norm = Mathf.Repeat(cart.m_Position, 1f);
+                CheckLap(norm);
+                return;
+            }
 
-            // 트랙이 없고, 넷트랙 인덱스가 0이상이고, 넷인댁스가 트랙 배열의 최대를 넣지 않았다면
             if (tracks != null && _netTrackIndex >= 0 && _netTrackIndex < tracks.Length)
             {
                 if (cart.m_Path != tracks[_netTrackIndex])
                 {
-                    // 카트 경로를 트랙의 넷 트랙으로 변경
                     cart.m_Path = tracks[_netTrackIndex];
-
+                    
                     if (!float.IsNaN(_lastNetNormPos))
                     {
                         _posUnwrapped = Mathf.Floor(_posUnwrapped) + _lastNetNormPos;
                         _targetUnwrapped = _posUnwrapped;
                     }
                     // 위에 코드로 진행 상황 갱신
-
                     _lastNetTrackIndex = _netTrackIndex; // 트랙 갱신
                 }
             }
 
-            // 에초에 이상한 값들어가도 정규화로 처리해버릴거임, 나를 막지마셈(왜 또해주냐고? 혹시몰라서)
             cart.m_PositionUnits = CinemachinePathBase.PositionUnits.Normalized;
-
-            // 속도 보간(현재속도 + (목표속도 - 현재속도) * (dt * smoothing))
-            // dt = deltaTime
             cart.m_Speed = Mathf.Lerp(cart.m_Speed, _netSpeed, Time.deltaTime * smoothing);
-
-            // 핵심: 언랩 보간 ㅋ / 보간 이 자식아 ㅋㅋ
             _posUnwrapped = Mathf.Lerp(_posUnwrapped, _targetUnwrapped, Time.deltaTime * smoothing);
 
-            // 적용은 마지막에만 래핑(최대 1)
             // Repeat
             // (-0.10f, 1f) => 0.90   // 음수도 안전하게 변경됨
             // ( 1.00f, 1f) => 0.00   // 1은 0과 같은 자리
@@ -129,6 +125,8 @@ namespace PJW
             UnLinkAction();
         }
 
+
+        #region PhotonNetwork
         // 네트워크 동기화용 콜백
         // 보내는 쪽 & 받는 쪽 필요
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -145,24 +143,12 @@ namespace PJW
             }
         }
 
+        // 데이터 보내기
         private void Send(PhotonStream stream, PhotonMessageInfo info)
         {
-            // 0~1 정규화 위치(Owner의 진실)
             float norm = Mathf.Repeat(cart.m_Position, 1f);
-
-            // 첫 프레임 방어(직전 표본 없으면 기준만 세팅)
-            if (float.IsNaN(_lastSentNorm))
-            {
-                _lastSentNorm = norm;
-                // return; // 완전 스킵하고 싶으면 주석 해제
-            }
-
-            // 랩 감지: '접기 전(raw)' 차이로만 판단
-            float deltaRaw = norm - _lastSentNorm; // [-1, +1)
-            if (cart.m_Speed > EPS && deltaRaw < -0.5f) _sendLap++; // 전진 1→0 통과
-            if (cart.m_Speed < -EPS && deltaRaw > +0.5f) _sendLap--; // 후진 0→1 통과
-
-            _lastSentNorm = norm;
+            CheckLap(norm);
+            _sendLap = _raceLap;
 
             int index = FindTrackIndex(cart.m_Path);
 
@@ -171,18 +157,9 @@ namespace PJW
             stream.SendNext(_sendLap);
             stream.SendNext(cart.m_Speed);
             stream.SendNext(index);
-
-            // ==========================================
-
-            /*float position = cart.m_Position;
-            float speed = cart.m_Speed;
-            int index = FindTrackIndex(cart.m_Path);
-
-            stream.SendNext(position);
-            stream.SendNext(speed);
-            stream.SendNext(index);*/
         }
 
+        // 데이터 받기 > 실 카트 갱신은 Update()
         private void Receive(PhotonStream stream, PhotonMessageInfo info)
         {
             // 패킷 포맷: [norm(0~1), lap(int), speed, trackIndex]
@@ -198,7 +175,7 @@ namespace PJW
             float  predictedNorm = Mathf.Repeat(recvNorm + recvSpeed * lag, 1f);
 
             _netSpeed = recvSpeed;
-            _recvLap = recvLap; // UI나 등등에서 사용
+            _raceLap = recvLap; // UI나 등등에서 사용
 
             // 언랩 목표 복원: lap + predictedNorm
             float predictedUnwrapped = recvLap + predictedNorm;
@@ -211,29 +188,68 @@ namespace PJW
                 return;
             }
 
-            // 이후엔 타겟만 갱신 → Update()에서 Lerp로 부드럽게 수렴
+            // 이후엔 타겟만 갱신 > Update()에서 Lerp로 부드럽게 수렴
             _targetUnwrapped = predictedUnwrapped;
             _lastNetNormPos = predictedNorm;
+        }
 
-            // ==========================================
+        // 스폰 진행 한쪽에서 넣어준 object형 배열 데이터를 받아서 처리
+        // 해당 오브젝트 식별을 위한 오브젝트 이름 수정
+        // 데이터 받으려면 IPunInstantiateMagicCallback 필요함
+        public void OnPhotonInstantiate(PhotonMessageInfo info)
+        {
+            var view = GetComponent<PhotonView>();
+            if (view == null)
+                return;
 
-            /*
-            float recvPos = (float)stream.ReceiveNext();                            // 위치
-            float recvSpeed = (float)stream.ReceiveNext();                          // 스피드
-            _netTrackIndex = (int)stream.ReceiveNext();                              // 현재 달리는 트랙
+            // InstantiationData 읽기
+            object[] data = view.InstantiationData;
 
-            double now = PhotonNetwork.Time;                                        // 포톤 현 시간
-            double sent = info.SentServerTime;                                      // 포톤서버에서 받은 시간
-            float lag = Mathf.Max(0f, (float)(now - sent));                         // 현 시간과 받은 시간으로 보간  
+            int actorNumber = view.Owner != null ? view.Owner.ActorNumber : 0;
+            string userId = view.Owner != null ? view.Owner.UserId : null;
 
-            float predictedNorm = Mathf.Repeat(recvPos + recvSpeed * lag, 1f);      // 0
+            if (data != null)
+            {
+                // 안전하게 꺼내기 (전송한 순서 > actor, startIndex, characterID, kartID, userId, endLapCount)
 
-            _netSpeed = recvSpeed;
-            */
+                // actorNumber
+                if (data.Length >= 1 && data[0] is int an)
+                    actorNumber = an;
+
+                // track
+                if ((data.Length >= 2 && data[1] is int si)
+                    && (tracks != null && tracks[si] != null))
+                    cart.m_Path = tracks[si];
+
+                // userId
+                if (data.Length >= 5 && data[4] is string uid && !string.IsNullOrEmpty(uid))
+                    userId = uid;
+
+                // endLapCount
+                if (data.Length >= 1 && data[0] is int endlap)
+                {
+                    if (ReInGameManager.Instance.RaceEndLapCount == endlap)
+                    {
+                        _endLap = endlap;
+                    }
+                    else
+                    {
+                        _endLap = 1;
+                    }
+                }
+
+                // 일단은 끝나는 렙 수를 받을 거임
+                // 그런데 처리를 어디에서 해주냐임.
+
+                // 일단 여기에서 해주면 안됨. 문제가 생김
+            }
+
+            string safeUserId = string.IsNullOrEmpty(userId) ? "NoUserId" : userId;
+            gameObject.name = $"Kart_Actor{actorNumber}_{safeUserId}";
         }
 
 
-
+        #endregion
 
         #region About InGameManager Action
         // Link
@@ -270,6 +286,7 @@ namespace PJW
             _netSpeed = _raceSpeed;
             this.PrintLog($"Server Time: {PhotonNetwork.Time}, [RaceStart] > {this.gameObject.name} / {moveS} > {_raceSpeed}");
         }
+
         #endregion
 
         // 트랙 변경해 가지고 오기
@@ -282,34 +299,26 @@ namespace PJW
             }
             return -1;
         }
-
-        // 스폰 진행 한쪽에서 넣어준 object형 배열 데이터를 받아서 처리
-        // 해당 오브젝트 식별을 위한 오브젝트 이름 수정
-        // 데이터 받으려면 IPunInstantiateMagicCallback 필요함
-        public void OnPhotonInstantiate(PhotonMessageInfo info)
+        private void CheckLap(float norm)
         {
-            var view = GetComponent<PhotonView>();
-            if (view == null)
-                return;
-
-            // InstantiationData 읽기
-            object[] data = view.InstantiationData;
-
-            int actorNumber = view.Owner != null ? view.Owner.ActorNumber : 0;
-            string userId = view.Owner != null ? view.Owner.UserId : null;
-
-            if (data != null)
+            // 첫 프레임 방어(직전 표본 없으면 기준만 세팅)
+            if (float.IsNaN(_lastSentNorm))
             {
-                // 안전하게 꺼내기 (전송한 순서 > actor, startIndex, characterID, kartID, userId)
-                if (data.Length >= 1 && data[0] is int an)
-                    actorNumber = an;
-
-                if (data.Length >= 5 && data[4] is string uid && !string.IsNullOrEmpty(uid))
-                    userId = uid;
+                _lastSentNorm = norm;
             }
 
-            string safeUserId = string.IsNullOrEmpty(userId) ? "NoUserId" : userId;
-            gameObject.name = $"Kart_Actor{actorNumber}_{safeUserId}";
+            // 랩 감지: '접기 전(raw)' 차이로만 판단
+            float deltaRaw = norm - _lastSentNorm;
+            if (cart.m_Speed > EPS && deltaRaw < -0.5f)
+            {
+                _raceLap++;
+            }
+            else if (cart.m_Speed < -EPS && deltaRaw > +0.5f)
+            {
+                _raceLap--;
+            }
+
+            _lastSentNorm = norm;
         }
     }
 }

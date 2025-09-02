@@ -567,7 +567,7 @@ public static class PhotonNetworkCustomProperties
         });
     }
 
-    public static void RaceFinishSetting(int postGameChangeDely = 10)
+    public static void RaceFinishSetting(float postGameChangeDely = 10)
     {
         if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
 
