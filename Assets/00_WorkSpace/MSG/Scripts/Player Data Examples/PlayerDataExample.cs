@@ -271,7 +271,7 @@ namespace MSG
         {
             int unimoId = 0; // 예시로 0번 Unimo를 장착한다고 가정
 
-            DatabaseManager.Instance.SetOnMain(DBRoutes.Unimos(CurrentUid),
+            DatabaseManager.Instance.SetOnMain(DBRoutes.EquippedUnimo(CurrentUid),
                 unimoId, // 장착할 Unimo의 ID
                 onSuccess: () => _testText.text = $"유니모 id({unimoId}) 장착 완료",
                 onError: err => _testText.text = $"유니모 장착 오류: {err}");
@@ -281,7 +281,7 @@ namespace MSG
         {
             int kartId = 0; // 예시로 0번 Kart를 장착한다고 가정
 
-            DatabaseManager.Instance.SetOnMain(DBRoutes.Karts(CurrentUid),
+            DatabaseManager.Instance.SetOnMain(DBRoutes.EquippedKart(CurrentUid),
                 kartId, // 장착할 Kart의 ID
                 onSuccess: () => _testText.text = $"카트 id({kartId}) 장착 완료",
                 onError: err => _testText.text = $"카트 장착 오류: {err}");
@@ -289,14 +289,14 @@ namespace MSG
 
         private void OnClickEquippedUnimo()
         {
-            DatabaseManager.Instance.GetOnMain(DBRoutes.Unimos(CurrentUid),
+            DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedUnimo(CurrentUid),
                 snap => _testText.text = $"장착 중인 유니모: {snap.Value ?? "없음"}",
                 err => _testText.text = $"장착 중인 유니모 읽기 오류: {err}");
         }
 
         private void OnClickShowEqippedKart()
         {
-            DatabaseManager.Instance.GetOnMain(DBRoutes.Karts(CurrentUid),
+            DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedKart(CurrentUid),
                 snap => _testText.text = $"장착 중인 카트: {snap.Value ?? "없음"}",
                 err => _testText.text = $"장착 중인 카트 읽기 오류: {err}");
         }

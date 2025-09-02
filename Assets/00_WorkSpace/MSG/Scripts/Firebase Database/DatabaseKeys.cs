@@ -112,5 +112,12 @@ namespace MSG
 
         // -- userInvitations Keys --
         public const string userInvitations = "userInvitations"; // 유저별 초대장 목록
+
+
+        // -- Catalog Keys --
+        public const string catalog = "catalog";
+        public const string version = "version";
+        public const string globals = "globals";
+
     }
 }

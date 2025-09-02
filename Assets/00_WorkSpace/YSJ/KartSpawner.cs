@@ -58,8 +58,8 @@ public class KartSpawner : MonoBehaviour
         Quaternion rot = Quaternion.identity;
 
         // 서버에서 현 로컬 플레이어의 IDs 가지고 오기
-        DatabaseManager.Instance.GetOnMain(DBRoutes.Unimos(me.UserId), GetSuccessCharacterID, GetErrorCharacterID);
-        DatabaseManager.Instance.GetOnMain(DBRoutes.Karts(me.UserId), GetSuccessKartID, GetErrorKartID);
+        DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedKart(me.UserId), GetSuccessCharacterID, GetErrorCharacterID);
+        DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedUnimo(me.UserId), GetSuccessKartID, GetErrorKartID);
 
         var endLapCount = ReInGameManager.Instance.RaceEndLapCount;
 
