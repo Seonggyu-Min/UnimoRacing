@@ -1,74 +1,54 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;   
 
 namespace PJW
 {
     [DisallowMultipleComponent]
     public class PlayerShield : MonoBehaviour
     {
-        [Header("상태")]
-        [SerializeField] private int charges = 0;        
-        [SerializeField] private float timeLeft = 0f;    
+        private bool isShieldActive;
+        private Coroutine shieldRoutine;
 
-        [Header("표시(선택)")]
-        [SerializeField] private GameObject shieldIndicator; 
+        public bool IsShieldActive => isShieldActive;
 
-        public bool HasShield => charges > 0 && (timeLeft <= 0f || timeLeft > 0f);
-
-        private void Update()
+        [PunRPC]
+        public void RpcActivateShield(float duration)
         {
-            if (charges <= 0) return;
-            if (timeLeft > 0f)
+            ActivateShield(duration);
+        }
+
+        public void ActivateShield(float duration)
+        {
+            if (shieldRoutine != null)
+                StopCoroutine(shieldRoutine);
+
+            shieldRoutine = StartCoroutine(ShieldRoutine(duration));
+        }
+
+        private IEnumerator ShieldRoutine(float duration)
+        {
+            isShieldActive = true;
+            yield return new WaitForSeconds(duration);
+            isShieldActive = false;
+            shieldRoutine = null;
+        }
+
+        public bool SuccessShield(bool consume = false)
+        {
+            if (!isShieldActive) return false;
+
+            if (consume)
             {
-                timeLeft -= Time.deltaTime;
-                if (timeLeft <= 0f)
+                if (shieldRoutine != null)
                 {
-                    charges = 0;
-                    RefreshIndicator();
+                    StopCoroutine(shieldRoutine);
+                    shieldRoutine = null;
                 }
+                isShieldActive = false;
             }
-        }
 
-        public void AddShield(int addCharges = 1, float durationSeconds = 0f)
-        {
-            charges += Mathf.Max(1, addCharges);
-            timeLeft = Mathf.Max(0f, durationSeconds);
-            RefreshIndicator();
-        }
-
-        public bool TryConsume()
-        {
-            if (charges <= 0) return false;
-
-            charges--;
-            if (charges <= 0)
-            {
-                timeLeft = 0f;
-            }
-            RefreshIndicator();
             return true;
-        }
-
-        private void RefreshIndicator()
-        {
-            if (shieldIndicator != null)
-                shieldIndicator.SetActive(charges > 0 && (timeLeft <= 0f || timeLeft > 0f));
-        }
-
-        public static bool TryConsume(GameObject target)
-        {
-            if (target == null) return false;
-            var ps = target.GetComponent<PlayerShield>() ?? target.GetComponentInParent<PlayerShield>();
-            return ps != null && ps.TryConsume();
-        }
-
-        public static void Give(GameObject target, int count = 1, float durationSeconds = 0f)
-        {
-            if (target == null) return;
-            var ps = target.GetComponent<PlayerShield>() ?? target.GetComponentInParent<PlayerShield>();
-            if (ps == null) ps = target.AddComponent<PlayerShield>();
-            ps.AddShield(count, durationSeconds);
         }
     }
 }
