@@ -15,6 +15,8 @@ public enum RaceState
     Racing,
     Finish,
     PostGame,
+
+    FailedGame, // WaitPlayer, LoadPlayers 쪽에서 플레이어들이 다 준비 되지 않으면 룸 터트리기
 }
 
 public enum SceneID
@@ -39,6 +41,7 @@ public enum RoomKey
     CountdownStartTime,         // KEY_RACE_COUNTDOWN_START_TIME
     RaceStartTime,              // KEY_RACE_START_TIME
     FinishStartTime,            // KEY_RACE_FINISH_START_TIME
+    FinishEndTime,              // KEY_RACE_FINISH_END_TIME
     FinishCount,                // KEY_RACE_FINISH_COUNT
 }
 

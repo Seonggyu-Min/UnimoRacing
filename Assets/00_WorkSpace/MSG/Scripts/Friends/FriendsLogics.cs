@@ -10,7 +10,7 @@ namespace MSG
     /// <summary>
     /// 팬아웃을 통해 읽기를 빠르게 하는 동시에, 여러 곳의 데이터를 동일하게 보장하기 위해서 원자적으로 Update 수행하기 위한 친구 로직 클래스입니다.
     /// </summary>
-    public class FriendsLogics : MonoBehaviour
+    public class FriendsLogics : SceneSingleton<FriendsLogics>
     {
         /// <summary>
         /// 친구 요청을 보내는 메서드입니다.
@@ -320,9 +320,6 @@ namespace MSG
                         { DBPathMaker.Join(link, DatabaseKeys.status), DatabaseKeys.removed },
                         { DBPathMaker.Join(DBRoutes.OutBox(fromUid, pairId), DatabaseKeys.status), DatabaseKeys.removed },
                         { DBPathMaker.Join(DBRoutes.InBox(toUid, pairId), DatabaseKeys.status), DatabaseKeys.removed },
-
-                        { DBPathMaker.Join(DBRoutes.OutBox(fromUid, pairId), DatabaseKeys.status), DatabaseKeys.removed },
-                        { DBPathMaker.Join(DBRoutes.InBox(toUid,   pairId), DatabaseKeys.status), DatabaseKeys.removed },
 
                         { DBRoutes.Friend(fromUid, toUid), null },
                         { DBRoutes.Friend(toUid, fromUid), null }

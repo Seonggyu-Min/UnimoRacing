@@ -2,14 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
-namespace MSG
+namespace MSG.Deprecated
 {
     public enum MatchState
     {
         None,           // 매칭 아닌 상태
-        Idle,           // 매칭 대기 상태 
+        Finding,        // 매칭 대기 상태 
         Locking,        // 합류 제안을 보낸 상태
         WaitingAck,     // 합류 제안을 보낸 뒤 ACK 답장 기다리는 상태
         Whitelisting,   // ACK를 받고 화이트리스트 작업 중인 상태
@@ -20,33 +21,36 @@ namespace MSG
 
     public class MatchFSM
     {
-        public MatchState State { get; private set; } = MatchState.Idle;
+        public MatchState State { get; private set; } = MatchState.None;
 
         // MatchClient의 콜백
-        public Action<string, object> Publish;           // 채널 송신
-        public Action<string, object> SendDM;            // DM 송신
-        public Func<long> NowMs;                         // 현재 시간
-        public Action<List<string>> SetExpectedUsers;    // PUN 화이트리스트 확장
-        public Action<string, long, Action<bool>> TryJoinRoomUntil;    // 티켓 Join 재시도
-        public Func<string, MatchMessages.LfgMsg> FindLfgByRoom;       // 캐시에 저장된 특정 방의 LFG 조회
-        public Func<MatchMessages.LfgMsg> GetMyLfg;                    // 내 LFG 조회
-        public Action CloseMyRoomForMerge;               // 게스트 ACK 후 내 방 닫기
-        public Action<List<string>, int> UpdateLocalPartyAdvertised;  // 사이즈, 멤버 갱신용
-        public Action<string, List<string>, long> BeginObserve;       // Join 관찰용
+        public Action<string, object> Publish;                              // 채널 송신
+        public Action<string, object> SendDM;                               // DM 송신
+        public Func<long> NowMs;                                            // 현재 시간
+        public Action<List<string>> SetExpectedUsers;                       // PUN 화이트리스트 확장
+        public Action<string, long, Action<bool>> TryJoinRoomUntil;         // 티켓 Join 재시도
+        public Func<MatchMessages.LfgMsg> GetMyLfg;                         // 내 LFG 조회용
+        public Action CloseMyRoomForMerge;                                  // 게스트 ACK 후 내 방 닫기용
+        public Action<List<string>, int> UpdateLocalPartyAdvertised;        // 사이즈, 멤버 갱신용
+        public Action<string, List<string>, long> BeginObserve;             // Join 관찰용                                       
+        public Action OnGuestTicketTimeout;                                 // 게스트 티켓 대기 타임아웃 알림용
 
-        private readonly Dictionary<string, long> _lockCooldown = new(); // 같은 쌍 재시도 방지, key: myRoom|otherRoom -> untilMs
+        private readonly Dictionary<string, long> _lockCooldown = new();    // 같은 쌍 재시도 방지, key: myRoom|otherRoom -> untilMs
 
         public string ChannelName;
         public string MyUid;
         private string _pendingMatchId;
-        private string _pendingMyRoom; // 내 방 저장용
+        private string _pendingMyRoom;                      // 내 방 저장용
         private MatchMessages.LfgMsg _pendingOther;
-        private long _ackDeadlineMs = 0; // ACK 타임아웃 관리
+        private long _ackDeadlineMs = 0;                    // ACK 타임아웃 관리
+        private long _guestTicketDeadlineMs = 0;            // 게스트가 ACK 이후 티켓 대기 마감 시간
 
-        private const int LOCK_COOLDOWN_MS = 2000; // 특정 페어에 대한 LOCK 재시도 쿨다운
-        private const int ACK_TIMEOUT_MS = 3000; // ACK 대기 시간
-        private const int TICKET_TTL_MS = 10000; // 티켓 만료 시간
-        private const int FAIL_GRACE_MS = 2000;  // 티켓 만료 시간에 더하는 접속 실패 용인 시간
+        private const int LOCK_COOLDOWN_MS = 2000;          // 특정 페어에 대한 LOCK 재시도 쿨다운
+        private const int ACK_TIMEOUT_MS = 3000;            // ACK 대기 시간
+        private const int TICKET_TTL_MS = 10000;            // 티켓 만료 시간
+        private const int FAIL_GRACE_MS = 2000;             // 티켓 만료 시간에 더하는 접속 실패 용인 시간
+        private const int GUEST_TICKET_WAIT_MS = 10000;      // 티켓 대기 시간
+
 
         public void Tick()
         {
@@ -59,22 +63,53 @@ namespace MSG
                     SetCooldownPair(meNow.room, _pendingOther.room, NowMs(), LOCK_COOLDOWN_MS);
                 }
 
-                State = MatchState.Idle;
+                State = MatchState.Finding;
                 _pendingMatchId = null;
                 _pendingMyRoom = null;
                 _pendingOther = null;
 
-                //State = MatchState.Idle;
-                //_pendingMatchId = null;
-                //_pendingOther = null;
-                Debug.Log("[FSM] WaitingAck 타임아웃되어 idle 복귀");
+                Debug.Log("[FSM] WaitingAck 타임아웃되어 Finding 복귀");
+            }
+
+            if (State == MatchState.Joining &&    // 합류 중인데
+                _guestTicketDeadlineMs > 0 &&     // 타이머가 설정 되었고
+                NowMs() > _guestTicketDeadlineMs) // 타이머가 다 됐으면
+            {
+                _guestTicketDeadlineMs = 0;     // 타이머 해제
+                State = MatchState.Finding;     // 상태 복구
+                OnGuestTicketTimeout?.Invoke(); // 타임아웃
+
+                Debug.Log("[FSM] (게스트) 티켓 미수신 타임아웃 -> Finding 복귀 + 방 재오픈 요청");
             }
         }
 
-        // 매칭 시도
+        public void EnableMatching()
+        {
+            if (State == MatchState.None)
+            {
+                State = MatchState.Finding; // 매칭 시작
+            }
+            else
+            {
+                Debug.LogWarning($"[FSM] 현재 상태 {State}일 때 매치 시작 호출됨. 중복 호출 여부 확인 요망");
+            }
+        }
+
+        public void DisableMatching()
+        {
+            State = MatchState.None;
+            _pendingMatchId = null;
+            _pendingMyRoom = null;
+            _pendingOther = null;
+            _ackDeadlineMs = 0;
+            _guestTicketDeadlineMs = 0;
+            Debug.Log("[FSM] None으로 복귀");
+        }
+
+        // 다른 파티 혹은 솔로와 매칭 시도
         public void TryMatchWith(LfgCache cache)
         {
-            if (State != MatchState.Idle) return; // 내가 대기 중이지 않으면 return
+            if (State != MatchState.Finding) return; // 내가 대기 중이지 않으면 return
 
             var me = GetMyLfg?.Invoke(); // 내 LFG 조회
             if (me == null) return;
@@ -85,10 +120,9 @@ namespace MSG
                 // 조건 검사
                 if (other.partyId == me.partyId) continue;      // 내 파티가 발행한 LFG는 continue
                 if (other.room == me.room) continue;            // 내 방은 continue
-                if (other.leaderUid == me.leaderUid) continue;  // 리더 UID가 같으면 continue
 
                 int sum = me.size + other.size;
-                bool amHost = IAmHost(me, other);
+                bool amHost = IAmHost(me.anchorUid, other.anchorUid);
                 int hostMax = amHost ? me.max : other.max;
 
                 // 다른 방과 합쳤을 때
@@ -102,7 +136,7 @@ namespace MSG
                 if (IsOnCooldownPair(me.room, other.room, now)) continue; // 쿨다운 동안 매칭 시도 중지
 
                 // 내가 호스트라면
-                if (IAmHost(me, other))
+                if (IAmHost(me.anchorUid, other.anchorUid))
                 {
                     Debug.Log($"[매치] 내가 호스트 조건 -> LOCK 시도 (내방:{me.room}, 상대방:{other.room}, 합치면 {sum}/{me.max})");
 
@@ -121,50 +155,63 @@ namespace MSG
         // LOCK 수신
         public void OnLock(MatchMessages.MatchLockMsg m)
         {
+            if (State == MatchState.None)
+            {
+                Debug.Log("[LOCK] 매칭이 취소된 상태라 무시");
+                return;
+            }
+
             var me = GetMyLfg?.Invoke();
             if (me == null) return;
-            if (m.guestRoom != me.room) return; // 내 방이 대상이 아니면 무시
 
-            // Idle이 아니면 NACK 발신
-            if (State != MatchState.Idle)
+            if (!string.Equals(m.guestRoom, me.room))
+                return;
+
+            // Finding이 아닐 때는 즉시 NACK
+            if (State != MatchState.Finding)
             {
-                var otherBusy = FindLfgByRoom?.Invoke(m.hostRoom);
-                if (otherBusy != null)
+                if (!string.IsNullOrEmpty(m.hostContactUid))
                 {
-                    SendDM?.Invoke(otherBusy.leaderUid, new MatchMessages.MatchAckMsg { matchId = m.matchId, ok = false });
-                    SetCooldownPair(me.room, otherBusy.room, NowMs(), LOCK_COOLDOWN_MS); // 딜레이 설정
+                    SendDM?.Invoke(m.hostContactUid, new MatchMessages.MatchAckMsg { matchId = m.matchId, ok = false });
                 }
-                Debug.Log($"[LOCK] Idle 상태가 아니기에 ({State}) -> NACK 전송 및 무시");
+
+                SetCooldownPair(me.room, m.hostRoom, NowMs(), LOCK_COOLDOWN_MS);
+                Debug.Log($"[LOCK] 상태: {State} -> NACK 전송 및 무시");
                 return;
             }
 
-            var other = FindLfgByRoom?.Invoke(m.hostRoom);
-            if (other == null)
+            // 사전순으로 더 작은 uid가 호스트
+            // 즉, 내가 더 작으면 내가 호스트여야 하므로 상대 LOCK을 NACK
+            var myUid = MyUid;
+            if (string.CompareOrdinal(myUid, m.hostContactUid) < 0)
             {
-                Debug.LogWarning("[LOCK] 게스트가 LOCK 수신했지만 호스트 정보를 못 찾음");
+                SendDM?.Invoke(m.hostContactUid, new MatchMessages.MatchAckMsg { matchId = m.matchId, ok = false });
+                SetCooldownPair(me.room, m.hostRoom, NowMs(), LOCK_COOLDOWN_MS);
+                Debug.Log("[LOCK] 타이브레이커에 따라 내가 호스트 -> 상대 LOCK NACK");
                 return;
             }
 
-            // 내가 호스트라고 판단되면 NACK 발신
-            if (IAmHost(me, other))
+            // 게스트로서 수락
+            if (!string.IsNullOrEmpty(m.hostContactUid))
             {
-                // 동시 LOCK -> NACK
-                SendDM?.Invoke(other.leaderUid, new MatchMessages.MatchAckMsg { matchId = m.matchId, ok = false });
-                SetCooldownPair(me.room, other.room, NowMs(), LOCK_COOLDOWN_MS); // 딜레이 설정
-                Debug.Log("[ACK] 내가 호스트라서 충돌 -> NACK 보냄");
-                return;
+                SendDM?.Invoke(m.hostContactUid, new MatchMessages.MatchAckMsg { matchId = m.matchId, ok = true });
             }
 
-            // ACK 보내고 방 닫기 콜백 호출
-            SendDM?.Invoke(other.leaderUid, new MatchMessages.MatchAckMsg { matchId = m.matchId, ok = true });
-            CloseMyRoomForMerge?.Invoke();    // 새 입장 차단(IsOpen=false 등)
-            State = MatchState.Joining;       // 티켓 대기 단계
-            Debug.Log($"[ACK] 게스트가 ACK 보냄 -> 매치ID:{m.matchId}, 상태 전환: Joining");
+            CloseMyRoomForMerge?.Invoke();       // 새 입장 차단
+            State = MatchState.Joining;          // 티켓 대기
+            _guestTicketDeadlineMs = NowMs() + GUEST_TICKET_WAIT_MS;
+            Debug.Log($"[ACK] 게스트 ACK -> matchId: {m.matchId}, 상태: Joining, 티켓기한: {_guestTicketDeadlineMs}");
         }
 
         // ACK 수신
         public void OnAck(MatchMessages.MatchAckMsg a)
         {
+            if (State == MatchState.None)
+            {
+                Debug.Log("[ACK] ACK 수신하였으나 매칭이 취소되어 return");
+                return;
+            }
+
             // Ack을 기다리고 있지 않거나 오래되었다면 무시
             if (State != MatchState.WaitingAck || a.matchId != _pendingMatchId)
             {
@@ -180,12 +227,12 @@ namespace MSG
                     SetCooldownPair(_pendingMyRoom, _pendingOther.room, NowMs(), LOCK_COOLDOWN_MS);
                 }
 
-                State = MatchState.Idle;
+                State = MatchState.Finding;
                 _pendingMatchId = null;
                 _pendingOther = null;
                 _pendingMyRoom = null;
 
-                Debug.Log("[ACK] NACK 수신 -> Idle로 복귀");
+                Debug.Log("[ACK] NACK 수신 -> Finding으로 복귀");
                 return;
             }
 
@@ -195,14 +242,14 @@ namespace MSG
             var me = GetMyLfg?.Invoke();
             if (me == null || _pendingOther == null)
             {
-                State = MatchState.Idle;
+                State = MatchState.Finding;
                 _pendingMatchId = null;
                 _pendingMyRoom = null;
                 _pendingOther = null;
-                Debug.LogWarning("[FSM] Whitelisting 전 me 혹은 other 누락 -> Idle 복귀");
+                Debug.LogWarning("[FSM] Whitelisting 전 me 혹은 other 누락 -> Finding 복귀");
                 return;
             }
-            
+
             // 양쪽 Uid 합치기
             var merged = Merge(me.uids, _pendingOther.uids);
 
@@ -218,7 +265,7 @@ namespace MSG
                 uids = _pendingOther.uids,
                 exp = NowMs() + TICKET_TTL_MS
             };
-            
+
             // 게스트 전원에게 DM
             if (_pendingOther.uids != null)
             {
@@ -234,26 +281,34 @@ namespace MSG
             BeginObserve?.Invoke(_pendingMatchId, merged, failTime);
 
             // 이후 Idle 복귀
-            State = MatchState.Idle;
+            State = MatchState.Finding;
             _pendingMatchId = null;
             _pendingMyRoom = null;
             _pendingOther = null;
-            Debug.Log("[FSM] 상태 전환: Idle (대기)");
+            Debug.Log("[FSM] 상태 전환: Finding (대기)");
         }
 
         // 티켓 수신
         public void OnTicket(MatchMessages.TicketMsg t)
         {
+            if (State == MatchState.None)
+            {
+                Debug.Log("[TICKET] TICKET 수신하였으나 매칭이 취소되어 return");
+                return;
+            }
+
             if (t.uids == null || !t.uids.Contains(MyUid)) return; // 내 UID가 포함되어있지 않으면 return
 
             Debug.Log($"[TICKET] 게스트가 티켓 받음 -> 방:{t.room}, 매치ID:{t.matchId}, Join 시도 시작");
             State = MatchState.Joining;
+            _guestTicketDeadlineMs = 0; // 티켓 타이머 리셋
+
             TryJoinRoomUntil?.Invoke(t.room, t.exp, ok =>
             {
                 if (!ok)
                 {
-                    State = MatchState.Idle;
-                    Debug.Log("[FSM] Join 만료 혹은 실패 -> Idle 복귀");
+                    State = MatchState.Finding;
+                    Debug.Log("[FSM] Join 만료 혹은 실패 -> Finding 복귀");
                 }
             });
         }
@@ -262,8 +317,8 @@ namespace MSG
         {
             if (State == MatchState.Joining)
             {
-                State = MatchState.Idle;
-                Debug.Log("[FSM] MATCH_CANCEL 수신, 상태 전환: Idle (대기)");
+                State = MatchState.Finding;
+                Debug.Log("[FSM] MATCH_CANCEL 수신, 상태 전환: Finding (대기)");
             }
         }
 
@@ -280,7 +335,7 @@ namespace MSG
                 matchId = _pendingMatchId,
                 hostRoom = me.room,
                 guestRoom = other.room,
-                hostKey = $"{me.roomCreatedAt}:{me.leaderUid}",
+                hostContactUid = MyUid,
                 ts = NowMs()
             };
 
@@ -295,19 +350,18 @@ namespace MSG
         }
 
         // 방 생성 시점이 오래된 사람이 호스트가 되도록 결정
-        private bool IAmHost(MatchMessages.LfgMsg me, MatchMessages.LfgMsg other)
+        private bool IAmHost(string me, string other)
         {
-            int c = me.roomCreatedAt.CompareTo(other.roomCreatedAt);
-            if (c != 0) return c < 0;
-            return string.CompareOrdinal(me.leaderUid, other.leaderUid) < 0; // 만약 같으면 leaderUid 사전 순으로 비교
+            return string.CompareOrdinal(me, other) < 0;
         }
 
         // 중복 제거
         private List<string> Merge(List<string> a, List<string> b)
         {
-            IEnumerable<string> seqA = a ?? Enumerable.Empty<string>();
-            IEnumerable<string> seqB = b ?? Enumerable.Empty<string>();
-            return seqA.Concat(seqB).Distinct(StringComparer.Ordinal).ToList();
+            var set = new HashSet<string>();
+            if (a != null) set.UnionWith(a);
+            if (b != null) set.UnionWith(b);
+            return set.ToList();
         }
 
         // 쿨다운 키의 순서 보장

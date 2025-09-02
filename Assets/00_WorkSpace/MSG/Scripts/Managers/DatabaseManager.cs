@@ -461,6 +461,11 @@ namespace MSG
                 {
                     try
                     {
+                        if (args.DatabaseError != null)
+                        {
+                            onError?.Invoke(args.DatabaseError.Message);
+                            return;
+                        }
                         onChanged?.Invoke(args.Snapshot);
                     }
                     catch (Exception e)

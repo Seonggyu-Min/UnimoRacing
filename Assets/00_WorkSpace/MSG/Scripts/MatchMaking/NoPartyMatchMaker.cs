@@ -1,5 +1,6 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,10 @@ namespace MSG
         [SerializeField] private int _gameLevel = 2;
 
         private Coroutine _voteCO;
+
+        public Action OnActionWaitPlayer;
+        public Action OnActionMatchReady;
+        public Action OnActionRace;
 
         public void OnClickTryQuickMatch()
         {
@@ -33,6 +38,7 @@ namespace MSG
             Debug.Log($"[NoPartyMatchMaker] 방 참가 성공");
             DecideToShowVoteUI();
 
+            OnActionWaitPlayer?.Invoke();
             Debug.Log($"[NoPartyMatchMaker] AutomaticallySyncScene ? {PhotonNetwork.AutomaticallySyncScene}");
         }
 
@@ -131,13 +137,22 @@ namespace MSG
             float elapsed = 0f;
 
             Debug.Log("10초간 투표 시작");
+            OnActionMatchReady?.Invoke();
             while (elapsed < 10f)
             {
                 elapsed += Time.deltaTime;
+
+                if(elapsed > 5.0f)
+
                 yield return null;
             }
+            OnActionRace?.Invoke();
 
             // TODO: 투표 집계 로직 추가
+
+            // TODO: 맵 ID가 -1 아닐 때 확인
+            // (RoomKey.MatchRaceMapId로 룸커스텀 프롬퍼티 확인 필요)
+            
             PhotonNetwork.LoadLevel(_gameLevel);
         }
 

@@ -204,7 +204,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cart: {fileID: 8350315474151748375}
-  lerp: 1
+  smoothing: 0
 --- !u!114 &-6355999653499677689
 MonoBehaviour:
   m_ObjectHideFlags: 0

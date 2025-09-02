@@ -12565,7 +12565,7 @@ GameObject:
   - component: {fileID: 2042329270}
   - component: {fileID: 2042329271}
   m_Layer: 0
-  m_Name: Nickname Setter
+  m_Name: Nickname Setter and DB Initializer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12602,6 +12602,13 @@ MonoBehaviour:
   _nicknameObj: {fileID: 1118810639}
   _infoText: {fileID: 537792165}
   _nicknameInputField: {fileID: 1118810643}
+  _initInventoryUnimos: 0000000002000000
+  _initInventoryKarts: 0000000002000000
+  _initEquippedUnimo: 2
+  _initEquippedKart: 2
+  _initMoney1: 100
+  _initMoney2: 200
+  _initMoney3: 300
 --- !u!1 &2067430003
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -272,7 +271,7 @@ namespace MSG
         {
             int unimoId = 0; // 예시로 0번 Unimo를 장착한다고 가정
 
-            DatabaseManager.Instance.SetOnMain(DBRoutes.Unimos(CurrentUid),
+            DatabaseManager.Instance.SetOnMain(DBRoutes.EquippedUnimo(CurrentUid),
                 unimoId, // 장착할 Unimo의 ID
                 onSuccess: () => _testText.text = $"유니모 id({unimoId}) 장착 완료",
                 onError: err => _testText.text = $"유니모 장착 오류: {err}");
@@ -282,7 +281,7 @@ namespace MSG
         {
             int kartId = 0; // 예시로 0번 Kart를 장착한다고 가정
 
-            DatabaseManager.Instance.SetOnMain(DBRoutes.Karts(CurrentUid),
+            DatabaseManager.Instance.SetOnMain(DBRoutes.EquippedKart(CurrentUid),
                 kartId, // 장착할 Kart의 ID
                 onSuccess: () => _testText.text = $"카트 id({kartId}) 장착 완료",
                 onError: err => _testText.text = $"카트 장착 오류: {err}");
@@ -290,14 +289,14 @@ namespace MSG
 
         private void OnClickEquippedUnimo()
         {
-            DatabaseManager.Instance.GetOnMain(DBRoutes.Unimos(CurrentUid),
+            DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedUnimo(CurrentUid),
                 snap => _testText.text = $"장착 중인 유니모: {snap.Value ?? "없음"}",
                 err => _testText.text = $"장착 중인 유니모 읽기 오류: {err}");
         }
 
         private void OnClickShowEqippedKart()
         {
-            DatabaseManager.Instance.GetOnMain(DBRoutes.Karts(CurrentUid),
+            DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedKart(CurrentUid),
                 snap => _testText.text = $"장착 중인 카트: {snap.Value ?? "없음"}",
                 err => _testText.text = $"장착 중인 카트 읽기 오류: {err}");
         }
@@ -379,7 +378,7 @@ namespace MSG
 
                             if (--left == 0)
                             {
-                                lines.Sort(StringComparer.OrdinalIgnoreCase);
+                                lines.Sort();
                                 _testText.text = "친구 목록\n" + string.Join("\n", lines);
                             }
                         },
@@ -390,7 +389,7 @@ namespace MSG
 
                             if (--left == 0)
                             {
-                                lines.Sort(StringComparer.OrdinalIgnoreCase);
+                                lines.Sort();
                                 _testText.text = "친구 목록\n" + string.Join("\n", lines);
                             }
                         });
@@ -530,136 +529,6 @@ namespace MSG
         // 그러나 해당 방식은 Firebase Functions를 사용해야 되는데, 해당 기능은 유료 요금제에서만 지원함
         // 따라서 직접 users/{myUid}/friends/list 및 users/{friendUid}/friends/list 를 직접 수정하는 방법으로 바꾸고,
         // 복잡하지만 보안 규칙을 해당 경로에서 ComposePairId를 사용하여 검증하는 식으로 사용해야 될 것 같음
-
-        //private void OnClickShowFriendList()
-        //{
-        //    _testText.text = "친구 목록을 불러오는 중…";
-
-        //    // 상태 초기화
-        //    _pairIds = new HashSet<string>();
-        //    _acceptedUids = new HashSet<string>();
-        //    _pendingPairReads = 2;   // outbox + inbox
-
-        //    // 1) /outbox/{myUid}
-        //    DatabaseManager.Instance.GetOnMain(DBRoutes.OutBoxRoot(CurrentUid), snap1 =>
-        //    {
-        //        if (snap1.Exists)
-        //        {
-        //            foreach (var c in snap1.Children)
-        //                _pairIds.Add(c.Key);
-        //        }
-        //        FinishCollectingPairIds(CurrentUid);
-        //    },
-        //    err =>
-        //    {
-        //        Debug.LogWarning($"Outbox 조회 오류: {err}");
-        //        FinishCollectingPairIds(CurrentUid);
-        //    });
-
-        //    // 2) /inbox/{myUid}
-        //    DatabaseManager.Instance.GetOnMain(DBRoutes.InBoxRoot(CurrentUid), snap2 =>
-        //    {
-        //        if (snap2.Exists)
-        //        {
-        //            foreach (var c in snap2.Children)
-        //                _pairIds.Add(c.Key);
-        //        }
-        //        FinishCollectingPairIds(CurrentUid);
-        //    },
-        //    err =>
-        //    {
-        //        Debug.LogWarning($"Inbox 조회 오류: {err}");
-        //        FinishCollectingPairIds(CurrentUid);
-        //    });
-        //}
-
-        //// outbox/inbox 두 요청 완료 후 friendLinks를 확인해 accepted만 add
-        //private void FinishCollectingPairIds(string myUid)
-        //{
-        //    if (--_pendingPairReads > 0) return;
-
-        //    if (_pairIds == null || _pairIds.Count == 0)
-        //    {
-        //        _testText.text = "친구 링크가 없습니다.";
-        //        return;
-        //    }
-
-        //    _linksLeft = _pairIds.Count;
-
-        //    foreach (var pairId in _pairIds)
-        //    {
-        //        var linkPath = DBRoutes.FriendLinks(pairId);
-
-        //        DatabaseManager.Instance.GetOnMain(linkPath, snap =>
-        //        {
-        //            if (snap.Exists)
-        //            {
-        //                var status = snap.Child(DatabaseKeys.status).Value?.ToString();
-        //                if (status == DatabaseKeys.accepted)
-        //                {
-        //                    var otherUid = OtherUidFromPair(pairId, myUid);
-        //                    if (!string.IsNullOrEmpty(otherUid))
-        //                        _acceptedUids.Add(otherUid);
-        //                }
-        //            }
-        //            AfterFriendLinksScanned();
-        //        },
-        //        err =>
-        //        {
-        //            Debug.LogWarning($"friendLinks 읽기 오류 ({linkPath}): {err}");
-        //            AfterFriendLinksScanned();
-        //        });
-        //    }
-        //}
-
-        //private void AfterFriendLinksScanned()
-        //{
-        //    if (--_linksLeft > 0) return;
-
-        //    if (_acceptedUids == null || _acceptedUids.Count == 0)
-        //    {
-        //        _testText.text = "수락된 친구가 없습니다.";
-        //        return;
-        //    }
-
-        //    // 수락된 uid들에 대해 닉네임 병행 조회
-        //    _nickLeft = _acceptedUids.Count;
-        //    var lines = new List<string>();
-
-        //    foreach (var uid in _acceptedUids)
-        //    {
-        //        DatabaseManager.Instance.GetOnMain(DBRoutes.Nickname(uid), snap =>
-        //        {
-        //            var nick = snap.Value?.ToString() ?? uid;
-        //            lines.Add($"{nick} ({uid})");
-        //            if (--_nickLeft == 0)
-        //            {
-        //                lines.Sort(StringComparer.OrdinalIgnoreCase);
-        //                _testText.text = "친구 목록\n" + string.Join("\n", lines);
-        //            }
-        //        },
-        //        err =>
-        //        {
-        //            Debug.LogWarning($"닉네임 읽기 오류 ({uid}): {err}");
-        //            lines.Add(uid);
-        //            if (--_nickLeft == 0)
-        //            {
-        //                lines.Sort(StringComparer.OrdinalIgnoreCase);
-        //                _testText.text = "친구 목록\n" + string.Join("\n", lines);
-        //            }
-        //        });
-        //    }
-        //}
-
-        //private string OtherUidFromPair(string pairId, string myUid)
-        //{
-        //    // pairId = "{minUid}_{maxUid}"
-        //    var parts = pairId.Split('_');
-        //    if (parts.Length != 2) return null;
-        //    if (parts[0] == myUid) return parts[1];
-        //    if (parts[1] == myUid) return parts[0];
-        //    return null;
-        //}
         #endregion
     }
 }

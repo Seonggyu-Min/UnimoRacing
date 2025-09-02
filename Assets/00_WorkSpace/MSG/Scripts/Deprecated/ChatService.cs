@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace MSG
+namespace MSG.Deprecated
 {
     public class ChatService : IChatClientListener
     {
