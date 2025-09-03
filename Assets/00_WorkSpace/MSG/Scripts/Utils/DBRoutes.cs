@@ -68,11 +68,11 @@ namespace MSG
 
 
         // ----- Catalog -----
-        public static string CatalogRoot() => DBPathMaker.Join(DatabaseKeys.catalog);
-        public static string CatalogVersion() => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.version);
-        public static string CatalogGlobals() => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.globals);
-        public static string CatalogKarts() => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.karts);
-        public static string CatalogKart(int kartId) => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.karts, kartId.ToString());
+        public static string PatchRoot() => DBPathMaker.Join(DatabaseKeys.patch);
+        public static string PatchVersion() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.version);
+        public static string PatchGlobals() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.globals);
+        public static string PatchKarts() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.karts);
+        public static string PatchKart(int kartId) => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.karts, kartId.ToString());
 
 
         // ----- Presence Data(WIP) -----
