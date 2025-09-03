@@ -1,7 +1,9 @@
 ﻿using Cinemachine;
 using Photon.Pun;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 using YSJ.Util;
+using static Reporter;
 
 namespace PJW
 {
@@ -15,16 +17,19 @@ namespace PJW
         [SerializeField] private CinemachineDollyCart cart;
 
         [Header("Sync")]
-        [SerializeField, Range(0f, 1f)] private float smoothing = 1.0f;
+        [SerializeField, Range(0f, 100f)] private float smoothing = 1.0f;
 
         private CinemachinePathBase[] tracks;   // 이동할 수 있는 트랙
 
         private float _netSpeed;
+        private double _gapTime;
         private int _netTrackIndex;
 
 
         private bool _isRacable = false;
+        private bool _isMine = false;
         private float _raceSpeed;
+        [SerializeField] private float _lagCompensationFactor = 1.0f;
 
         private float _posUnwrapped;           // 현재(보간된) 언랩 위치
         private float _targetUnwrapped;        // 목표 언랩 위치
@@ -81,6 +86,8 @@ namespace PJW
                 _lastSentNorm = cart.m_Position;                    
                 _sendLap = 0;
                 _raceLap = 0;
+
+                _isMine = photonView.IsMine;
             }
         }
 
@@ -89,7 +96,7 @@ namespace PJW
             if (cart == null) return;                               
             if (!_isRacable) return;                                
 
-            if (photonView.IsMine)
+            if (_isMine)
             {
                 float norm = Mathf.Repeat(cart.m_Position, 1f);
                 CheckLap(norm);
@@ -146,11 +153,10 @@ namespace PJW
             }
         }
 
-        // 데이터 보내기
+        // 데이터 보내기(
         private void Send(PhotonStream stream, PhotonMessageInfo info)
         {
             float norm = Mathf.Repeat(cart.m_Position, 1f);
-            CheckLap(norm);
             _sendLap = _raceLap;
 
             int index = FindTrackIndex(cart.m_Path);
@@ -172,28 +178,31 @@ namespace PJW
             _netTrackIndex      = (int)stream.ReceiveNext();
 
             // 지연 보정
+            cart.m_PositionUnits = CinemachinePathBase.PositionUnits.Normalized;
+
             double now  = PhotonNetwork.Time;
+            float nowNorm = cart.m_Position;
+
             double sent = info.SentServerTime;
-            float  lag  = Mathf.Max(0f, (float)(now - sent));
-            float  predictedNorm = Mathf.Repeat(recvNorm + recvSpeed * lag, 1f);
+            float sentNorm = recvNorm;
 
-            _netSpeed = recvSpeed;
-            _raceLap = recvLap; // UI나 등등에서 사용
+            float lagTime  = Mathf.Max(0f, (float)(now - sent));
+            float lagNorm = nowNorm - sentNorm;
 
+            float predictedNorm = Mathf.Repeat(recvNorm + (recvSpeed * lagTime) * _lagCompensationFactor , 1f);
             // 언랩 목표 복원: lap + predictedNorm
             float predictedUnwrapped = recvLap + predictedNorm;
-
-            if (float.IsNaN(_lastNetNormPos))
-            {
-                _posUnwrapped = predictedUnwrapped;     // 바로 맞춰 놓고
-                _targetUnwrapped = predictedUnwrapped;  // 목표도 동일하게(오차 0으로 시작)
-                _lastNetNormPos = predictedNorm;        // 이후 비교 기준
-                return;
-            }
-
+            
             // 이후엔 타겟만 갱신 > Update()에서 Lerp로 부드럽게 수렴
             _targetUnwrapped = predictedUnwrapped;
             _lastNetNormPos = predictedNorm;
+
+            CheckLap(recvNorm);
+
+            _netSpeed   = recvSpeed;
+
+            _raceLap    = recvLap;     // UI나 등등에서 사용
+            _gapTime    = lagTime;
         }
 
         // 스폰 진행 한쪽에서 넣어준 object형 배열 데이터를 받아서 처리
