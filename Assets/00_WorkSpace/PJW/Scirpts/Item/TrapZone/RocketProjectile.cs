@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Photon.Pun;
 using ExitGames.Client.Photon;
 using Photon.Realtime;
@@ -7,16 +8,15 @@ using Cinemachine;
 
 namespace PJW
 {
-    [RequireComponent(typeof(Collider))]
-    [RequireComponent(typeof(Rigidbody))]
     public class RocketProjectile : MonoBehaviourPun, IPunInstantiateMagicCallback, IOnEventCallback
     {
         [Header("유도 설정")]
-        [SerializeField] private float speed = 18f;
-        [SerializeField] private float turnRate = 720f; 
-        [SerializeField] private float maxLifeTime = 8f;
-        [Header("충돌 반경(추가 판정 여유)")]
-        [SerializeField] private float hitRadius = 0.5f;
+        [SerializeField] private float speed;
+        [SerializeField] private float turnRate;
+        [SerializeField] private float maxLifeTime;
+
+        [Header("충돌 반경")]
+        [SerializeField] private float hitRadius;
 
         private int targetViewId;
         private int targetActor;
@@ -27,7 +27,48 @@ namespace PJW
 
         private const byte RocketStunEvent = 41;
 
-        private static bool s_IsStunning;
+        private sealed class StunRunner : MonoBehaviour
+        {
+            private static StunRunner _instance;
+            private readonly Dictionary<int, Coroutine> running = new Dictionary<int, Coroutine>();
+
+            public static StunRunner Instance
+            {
+                get
+                {
+                    if (_instance == null)
+                    {
+                        var go = new GameObject("[RocketStunRunner]");
+                        DontDestroyOnLoad(go);
+                        _instance = go.AddComponent<StunRunner>();
+                    }
+                    return _instance;
+                }
+            }
+
+            public void ApplyStun(int actorNumber, CinemachineDollyCart cart, float duration)
+            {
+                if (cart == null || duration <= 0f) return;
+
+                if (running.TryGetValue(actorNumber, out var co) && co != null)
+                {
+                    StopCoroutine(co);
+                }
+                running[actorNumber] = StartCoroutine(StunRoutine(actorNumber, cart, duration));
+            }
+
+            private IEnumerator StunRoutine(int actorNumber, CinemachineDollyCart cart, float duration)
+            {
+                float originalSpeed = cart.m_Speed;
+                cart.m_Speed = 0f;            
+                yield return new WaitForSecondsRealtime(duration);
+                if (cart != null)
+                {
+                    cart.m_Speed = originalSpeed;
+                }
+                running.Remove(actorNumber);
+            }
+        }
 
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
@@ -121,42 +162,25 @@ namespace PJW
 
             var me = PhotonNetwork.LocalPlayer;
             if (me == null || me.ActorNumber != targetActorNumber) return;
-            if (s_IsStunning) return;
 
-            var myRoot = FindMyPlayerRoot();
-            if (myRoot == null) return;
-
-            var cart = myRoot.GetComponentInChildren<CinemachineDollyCart>(true);
+            var cart = FindMyDollyCart();
             if (cart == null) return;
 
-            StartCoroutine(StopCartFor(cart, duration));
+            StunRunner.Instance.ApplyStun(targetActorNumber, cart, duration);
         }
 
-        private GameObject FindMyPlayerRoot()
+        private CinemachineDollyCart FindMyDollyCart()
         {
             var pvs = FindObjectsOfType<PhotonView>();
             foreach (var pv in pvs)
             {
                 if (pv != null && pv.IsMine)
-                    return pv.gameObject;
+                {
+                    var cart = pv.GetComponentInChildren<CinemachineDollyCart>(true);
+                    if (cart != null) return cart;
+                }
             }
             return null;
-        }
-
-        private IEnumerator StopCartFor(CinemachineDollyCart cart, float duration)
-        {
-            s_IsStunning = true;
-
-            float originalSpeed = cart.m_Speed;
-            cart.m_Speed = 0f;
-            cart.enabled = false;
-
-            yield return new WaitForSeconds(duration);
-
-            cart.enabled = true;
-            cart.m_Speed = originalSpeed;
-
-            s_IsStunning = false;
         }
     }
 }

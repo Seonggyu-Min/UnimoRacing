@@ -10,120 +10,86 @@ namespace PJW
     [RequireComponent(typeof(Button))]
     public class ItemUseUIButton : MonoBehaviour
     {
-        [Header("UI 참조")]
+        [Header("UI")]
         [SerializeField] private Button useButton;
-        [SerializeField] private TextMeshProUGUI itemNameText;
+        [SerializeField] private Image iconImage;
+
 
         private PlayerItemInventory inventory;
 
         private void Awake()
         {
-            if (useButton == null)
-                useButton = GetComponent<Button>();
-
-            if (itemNameText != null)
-                itemNameText.gameObject.SetActive(false);
+            SetUI(null, false);
         }
 
         private void Start()
         {
-            StartCoroutine(DelayedInit());
+            // 내 아이템 인벤토리만 가져오는 방어 코드
+            var myInven = FindObjectsOfType<PlayerItemInventory>(true).FirstOrDefault(inven =>
+                      {
+                          var pv = inven.GetComponentInParent<PhotonView>();
+                          return pv != null && pv.IsMine;
+                      });
+
+            if (myInven != null) Bind(myInven);
+
+            if (useButton != null) useButton.onClick.AddListener(OnClickUse);
         }
-
-        private IEnumerator DelayedInit()
-        {
-            // 플레이어 생성/동기화 대기 (필요에 맞춰 조정 가능)
-            yield return new WaitForSeconds(0.2f);
-
-            // 내 소유 인벤토리만 바인딩
-            inventory = FindObjectsOfType<PlayerItemInventory>(true)
-                .FirstOrDefault(inv =>
-                {
-                    var pv = inv.GetComponent<PhotonView>() ?? inv.GetComponentInParent<PhotonView>();
-                    return pv != null && pv.IsMine;
-                });
-
-            if (inventory == null)
-            {
-                Debug.LogError("[ItemUseUIButton] 로컬 플레이어의 인벤토리를 찾을 수 없습니다.");
-                SetInteractable(false);
-                SetItemName("");
-                yield break;
-            }
-
-            // 클릭 핸들러
-            useButton.onClick.RemoveAllListeners();
-            useButton.onClick.AddListener(() =>
-            {
-                // 혹시라도 다른 인벤토리에 연결되었을 가능성 방지
-                var pv = inventory.GetComponent<PhotonView>() ?? inventory.GetComponentInParent<PhotonView>();
-                if (pv != null && !pv.IsMine) return;
-
-                if (inventory.HasItem && inventory.CanUseItem)
-                    inventory.UseItem();
-            });
-
-            // 이벤트 구독(보유 상태/이름 반영)
-            inventory.OnItemAvailabilityChanged += OnAvailabilityChanged;
-            inventory.OnItemAssigned += OnItemAssigned;
-
-            // 초기 상태 반영
-            OnAvailabilityChanged(inventory.HasItem);
-            OnItemAssigned(inventory.CurrentItemName() ?? "");
-
-            // 봉인(CanUseItem) 상태는 이벤트가 없으니 가볍게 모니터링
-            StartCoroutine(MonitorLockState());
-        }
-
-        private IEnumerator MonitorLockState()
-        {
-            // 인벤토리가 사라질 때까지 주기적으로 버튼 상태 동기화
-            while (inventory != null)
-            {
-                bool can = inventory.HasItem && inventory.CanUseItem;
-                if (useButton != null && useButton.interactable != can)
-                    SetInteractable(can);
-                yield return null; // 매 프레임 체크 (부하가 걱정되면 0.05~0.1f로 조절)
-            }
-        }
-
-        private void OnAvailabilityChanged(bool hasItem)
-        {
-            bool can = inventory != null && hasItem && inventory.CanUseItem;
-            SetInteractable(can);
-
-            if (!hasItem) SetItemName("");
-        }
-
-        private void OnItemAssigned(string itemName)
-        {
-            SetItemName(itemName);
-            // 이름 갱신 시에도 버튼 활성 상태 재평가
-            if (inventory != null)
-                SetInteractable(inventory.HasItem && inventory.CanUseItem);
-        }
-
-        private void SetInteractable(bool value)
-        {
-            if (useButton != null)
-                useButton.interactable = value;
-        }
-
-        private void SetItemName(string name)
-        {
-            if (itemNameText == null) return;
-
-            bool show = !string.IsNullOrEmpty(name);
-            itemNameText.text = show ? name : "";
-            itemNameText.gameObject.SetActive(show);
-        }
-
         private void OnDestroy()
         {
             if (inventory != null)
             {
-                inventory.OnItemAvailabilityChanged -= OnAvailabilityChanged;
-                inventory.OnItemAssigned -= OnItemAssigned;
+                inventory.OnItemAssigned -= HandleAssigned;
+                inventory.OnItemAvailabilityChanged -= HandleAvailability;
+            }
+            if (useButton != null) useButton.onClick.RemoveListener(OnClickUse);
+        }
+
+        private void Bind(PlayerItemInventory inv)
+        {
+            inventory = inv;
+            inventory.OnItemAssigned += HandleAssigned;
+            inventory.OnItemAvailabilityChanged += HandleAvailability;
+
+            if (inventory.HasItem)
+            {
+                var icon = ItemSpriteRegistry.Instance.GetIcon(inventory.CurrentItemName());
+                SetUI(icon, true);
+            }
+            else
+            {
+                SetUI(null, false);
+            }
+        }
+
+        private void HandleAssigned(string prefabName)
+        {
+            var icon = ItemSpriteRegistry.Instance.GetIcon(prefabName);
+            SetUI(icon, true);
+        }
+
+        private void HandleAvailability(bool hasItem)
+        {
+            if (!hasItem) SetUI(null, false);
+        }
+
+        private void OnClickUse()
+        {
+            if (inventory == null) return;
+            inventory.UseItem();
+        }
+
+        private void SetUI(Sprite icon, bool hasItem)
+        {
+            if (iconImage != null)
+            {
+                iconImage.sprite = icon;
+                iconImage.enabled = icon != null;   
+            }
+            if (useButton != null)
+            {
+                useButton.gameObject.SetActive(true);        
+                useButton.interactable = hasItem && icon != null;
             }
         }
     }

@@ -2,7 +2,6 @@
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using YSJ.Util;
 
 namespace PJW
 {
@@ -15,17 +14,23 @@ namespace PJW
 
         private PhotonView pv;
 
+        [SerializeField] private bool isControlsInverted = false;
+        private float invertUntilTime = 0f;
+
         private void Awake()
         {
             pv = GetComponent<PhotonView>();
-
             cart = GetComponent<CinemachineDollyCart>();
-
             TryAutoBindTracks();
         }
 
         private void Update()
         {
+            if (isControlsInverted && Time.time >= invertUntilTime)
+            {
+                isControlsInverted = false;
+            }
+
             if (pv != null && pv.ViewID != 0 && !pv.IsMine) return;
 
             // 모바일용
@@ -35,8 +40,9 @@ namespace PJW
                 if (touch.press.wasPressedThisFrame)
                 {
                     Vector2 pos = touch.position.ReadValue();
-                    if (pos.x < Screen.width * 0.5f) ChangeTrack(0);
-                    else ChangeTrack(1);
+                    int targetIndex = (pos.x < Screen.width * 0.5f) ? 0 : 1;
+                    if (isControlsInverted) targetIndex = 1 - targetIndex;
+                    ChangeTrack(targetIndex);
                     return;
                 }
             }
@@ -45,10 +51,19 @@ namespace PJW
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
                 Vector2 pos = Mouse.current.position.ReadValue();
-                if (pos.x < Screen.width * 0.5f) ChangeTrack(0);
-                else ChangeTrack(1);
+                int targetIndex = (pos.x < Screen.width * 0.5f) ? 0 : 1;
+                if (isControlsInverted) targetIndex = 1 - targetIndex;
+                ChangeTrack(targetIndex);
                 return;
             }
+        }
+
+        [PunRPC]
+        public void RPCApplyInvertControls(float duration)
+        {
+            isControlsInverted = true;
+            float wantedOff = Time.time + Mathf.Max(0f, duration);
+            if (wantedOff > invertUntilTime) invertUntilTime = wantedOff;
         }
 
         private void TryAutoBindTracks()
