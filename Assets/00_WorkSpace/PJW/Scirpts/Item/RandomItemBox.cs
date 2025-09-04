@@ -23,6 +23,9 @@ namespace PJW
         [Header("설정")]
         [SerializeField] private float respawnTime;
 
+        [Header("회전 설정")]
+        [SerializeField] private Vector3 rotationSpeed = new Vector3(0f, 60f, 0f);
+
         private Collider boxCollider;
         private Renderer[] renders;
         private bool isAvailable = true;
@@ -40,6 +43,11 @@ namespace PJW
                     ItemSpriteRegistry.Instance.RegisterIcon(it.itemPrefab.name, it.icon);
                 }
             }
+        }
+
+        private void Update()
+        {
+            transform.Rotate(rotationSpeed * Time.deltaTime, Space.Self);
         }
 
         private void OnTriggerEnter(Collider other)
