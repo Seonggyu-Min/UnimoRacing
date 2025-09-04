@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5841794030822327515
+--- !u!1 &129496214721802186
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,49 +8,49 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 221960289329052854}
-  - component: {fileID: 5162342335587883123}
-  - component: {fileID: 7413856086071560306}
-  - component: {fileID: 2301524557946115433}
-  - component: {fileID: -3150642357021649002}
-  - component: {fileID: 5358765231294120948}
+  - component: {fileID: 1575612507654297444}
+  - component: {fileID: 3443066097655442963}
+  - component: {fileID: 5786382612942634894}
+  - component: {fileID: 6630953751490825512}
+  - component: {fileID: 4986260443535547155}
+  - component: {fileID: 970545542288703565}
   m_Layer: 0
-  m_Name: BananaZone
+  m_Name: BoosterPad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &221960289329052854
+--- !u!4 &1575612507654297444
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5841794030822327515}
+  m_GameObject: {fileID: 129496214721802186}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 67.53849, y: -30.390198, z: 93.6956}
+  m_LocalPosition: {x: -4.59, y: -1.14, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &5162342335587883123
+--- !u!33 &3443066097655442963
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5841794030822327515}
+  m_GameObject: {fileID: 129496214721802186}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &7413856086071560306
+--- !u!23 &5786382612942634894
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5841794030822327515}
+  m_GameObject: {fileID: 129496214721802186}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 3868567644372501216, guid: 97c60562260cbad4b8d34e014b05ea71, type: 3}
+  - {fileID: -2152856844485526421, guid: e490e8712a20df0448dc60df5b5a5f97, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -86,13 +86,13 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2301524557946115433
+--- !u!65 &6630953751490825512
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5841794030822327515}
+  m_GameObject: {fileID: 129496214721802186}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -107,13 +107,13 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &-3150642357021649002
+--- !u!54 &4986260443535547155
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5841794030822327515}
+  m_GameObject: {fileID: 129496214721802186}
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
@@ -134,19 +134,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &5358765231294120948
+--- !u!114 &970545542288703565
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5841794030822327515}
+  m_GameObject: {fileID: 129496214721802186}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fe8aa754d36b6c45a2bc67aa76a0472, type: 3}
+  m_Script: {fileID: 11500000, guid: 53950189fd2019d4a979fd86c94e14dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   boostMultiplier: 2
-  boostTime: 1
-  waitAfterBoost: 1
-  stopDuration: 1.5
+  boostDuration: 2
+  canRetrigger: 1
+  retriggerCooldown: 0.1
