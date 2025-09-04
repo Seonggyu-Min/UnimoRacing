@@ -10,7 +10,6 @@ using UnityEngine;
 
 namespace MSG
 {
-    // TODO: 추가적으로 파티에서 직접 나오도록 parties/{partyId}/members/{uid} 에서 자신 유저를 삭제하는 방식으로 파티 상태 업데이트 추가 해야됨
     public class PresenceUpdater : MonoBehaviour
     {
         [SerializeField] private float _heartbeatIntervalSeconds = 30f; // Heartbeat를 보내는 간격 (초 단위)
@@ -103,31 +102,6 @@ namespace MSG
         }
 
 
-        // 해당 메서드는 PartyServices 클래스로 이동함
-
-        /// <summary>
-        /// 플레이어가 파티에 있는지 여부를 업데이트합니다.
-        /// </summary>
-        /// <param name="partyId">플레이어가 파티에 있다면 partyId를 전달합니다. 없으면 전달하지 않아도 됩니다. (Optional Parameter)</param>
-        //public void SetPartyStatus(bool isInParty, string partyId = null)
-        //{
-        //    // 파티 들어가면 partyId 업데이트, lastSeen 업데이트
-        //    // 파티 나가면 partyId null로 업데이트, lastSeen 업데이트
-
-        //    Dictionary<string, object> updates = new()
-        //    {
-        //        { DBRoutes.InPartyStatus(CurrentUid), isInParty },
-        //        { DBRoutes.PartyIdForPresence(CurrentUid), isInParty ? partyId : null },
-        //        { DBRoutes.LastSeen(CurrentUid), ServerValue.Timestamp }
-        //    };
-
-        //    DatabaseManager.Instance.UpdateOnMain(
-        //        updates,
-        //        () => Debug.Log($"유저: {CurrentUid}의 파티 ID {partyId} 로 업데이트 완료"),
-        //        error => Debug.LogError($"유저: {CurrentUid}의 파티 ID 업데이트 실패: {error}")
-        //    );
-        //}
-
 
         private void OnApplicationPause(bool pause)
         {
@@ -172,8 +146,6 @@ namespace MSG
                     ["online"] = false,
                     ["inRoom"] = false,
                     ["inGame"] = false,
-                    ["partyId"] = null,  // 파티 ID 삭제
-                    ["roomName"] = null, // 방 이름 삭제
                     ["lastSeen"] = ServerValue.Timestamp, // 서버시간
                 });
         }
@@ -241,7 +213,6 @@ namespace MSG
             SetOnlineStatus(false);
             // SetInRoomStatus(false); 이건 온라인 여부를 판단하지 않기때문에 업데이트 불필요
             // SetInGameStatus(false); 이건 게임 씬 진입 시점에서 처리해야 될 듯??
-            // SetPartyStatus(false); // 이건 PartyServices에서 처리해야 됨
             StopHeartbeat();
         }
 
@@ -307,6 +278,8 @@ namespace MSG
         }
 
 
+        #region Depricated
+        // 파티가 더 이상 Firebase에 의존하지 않기 때문에 삭제함
         /// <summary>
         /// 온라인 상태 판별을 위해 사용하는 메서드입니다.
         /// 방 진입 상태, 게임 진입 상태, 파티 진입 상태를 추가로 확인하는 오버로딩입니다.
@@ -320,84 +293,85 @@ namespace MSG
         /// <param name="onInPartySuccess">파티 참가 여부를 전달받을 Action<bool>을 전달합니다.</param>
         /// <param name="onError">에러 로그를 전달받을 Action<string>을 전달합니다. (Optional Parameter)</param>
         /// <param name="validMs">HeartBeat를 통한 오프라인 판단 기준 ms입니다. 기본 60초입니다. (Optional Parameter)</param>
-        public void IsOnline(string uid, Action<bool> onOnlineSuccess, Action<bool> onInRoomSuccess,
-            Action<bool> onInGameSuccess, Action<bool> onInPartySuccess, Action<string> onError = null, int validMs = 60000)
-        {
-            if (string.IsNullOrEmpty(uid))
-            {
-                onOnlineSuccess?.Invoke(false);
-                return;
-            }
+        //public void IsOnline(string uid, Action<bool> onOnlineSuccess, Action<bool> onInRoomSuccess,
+        //    Action<bool> onInGameSuccess, Action<bool> onInPartySuccess, Action<string> onError = null, int validMs = 60000)
+        //{
+        //    if (string.IsNullOrEmpty(uid))
+        //    {
+        //        onOnlineSuccess?.Invoke(false);
+        //        return;
+        //    }
 
-            // 클라이언트 시간 얻기
-            long clientNow = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        //    // 클라이언트 시간 얻기
+        //    long clientNow = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-            // presence/{uid}를 online상태와 heartbeat 교차 검증을 위해 Snapshot으로 읽기
-            FirebaseManager.Instance.Database.GetReference(DBRoutes.Presence(uid)).GetValueAsync()
-                .ContinueWithOnMainThread(presenceTask =>
-                {
-                    if (presenceTask.IsCanceled || presenceTask.IsFaulted || presenceTask.Result == null || !presenceTask.Result.Exists)
-                    {
-                        onOnlineSuccess?.Invoke(false); // 유저의 Presence 정보가 없어 false 처리. 첫 로그인 후 로비에 진입하지 않아 정보가 없을 수도 있음
-                        return;
-                    }
+        //    // presence/{uid}를 online상태와 heartbeat 교차 검증을 위해 Snapshot으로 읽기
+        //    FirebaseManager.Instance.Database.GetReference(DBRoutes.Presence(uid)).GetValueAsync()
+        //        .ContinueWithOnMainThread(presenceTask =>
+        //        {
+        //            if (presenceTask.IsCanceled || presenceTask.IsFaulted || presenceTask.Result == null || !presenceTask.Result.Exists)
+        //            {
+        //                onOnlineSuccess?.Invoke(false); // 유저의 Presence 정보가 없어 false 처리. 첫 로그인 후 로비에 진입하지 않아 정보가 없을 수도 있음
+        //                return;
+        //            }
 
-                    var snap = presenceTask.Result;
+        //            var snap = presenceTask.Result;
 
-                    // online 파싱
-                    bool online = false;
-                    var onlineChild = snap.Child(DatabaseKeys.online);
-                    if (onlineChild.Exists && onlineChild.Value is bool b)
-                    {
-                        online = b;
-                    }
+        //            // online 파싱
+        //            bool online = false;
+        //            var onlineChild = snap.Child(DatabaseKeys.online);
+        //            if (onlineChild.Exists && onlineChild.Value is bool b)
+        //            {
+        //                online = b;
+        //            }
 
-                    // inRoom 파싱
-                    bool inRoom = false;
-                    var inRoomChild = snap.Child(DatabaseKeys.inRoom);
-                    if (inRoomChild.Exists && inRoomChild.Value is bool r)
-                    {
-                        inRoom = r;
-                    }
-                    onInRoomSuccess?.Invoke(inRoom);
+        //            // inRoom 파싱
+        //            bool inRoom = false;
+        //            var inRoomChild = snap.Child(DatabaseKeys.inRoom);
+        //            if (inRoomChild.Exists && inRoomChild.Value is bool r)
+        //            {
+        //                inRoom = r;
+        //            }
+        //            onInRoomSuccess?.Invoke(inRoom);
 
-                    // inGame 파싱
-                    bool inGame = false;
-                    var inGameChild = snap.Child(DatabaseKeys.inGame);
-                    if (inGameChild.Exists && inGameChild.Value is bool g)
-                    {
-                        inGame = g;
-                    }
-                    onInGameSuccess?.Invoke(inGame);
+        //            // inGame 파싱
+        //            bool inGame = false;
+        //            var inGameChild = snap.Child(DatabaseKeys.inGame);
+        //            if (inGameChild.Exists && inGameChild.Value is bool g)
+        //            {
+        //                inGame = g;
+        //            }
+        //            onInGameSuccess?.Invoke(inGame);
 
-                    // inParty 파싱
-                    bool inParty = false;
-                    var inPartyChild = snap.Child(DatabaseKeys.inParty);
-                    if (inPartyChild.Exists && inPartyChild.Value is bool p)
-                    {
-                        inParty = p;
-                    }
-                    onInPartySuccess?.Invoke(inParty);
+        //            // inParty 파싱
+        //            bool inParty = false;
+        //            var inPartyChild = snap.Child(DatabaseKeys.inParty);
+        //            if (inPartyChild.Exists && inPartyChild.Value is bool p)
+        //            {
+        //                inParty = p;
+        //            }
+        //            onInPartySuccess?.Invoke(inParty);
 
-                    // heartbeat 파싱
-                    long lastHb = 0;
-                    var hbChild = snap.Child(DatabaseKeys.heartbeat);
-                    if (hbChild.Exists)
-                    {
-                        try
-                        {
-                            lastHb = Convert.ToInt64(hbChild.Value);
-                        }
-                        catch
-                        {
-                            // 변환 실패 시 기본값 0으로 설정
-                        }
-                    }
+        //            // heartbeat 파싱
+        //            long lastHb = 0;
+        //            var hbChild = snap.Child(DatabaseKeys.heartbeat);
+        //            if (hbChild.Exists)
+        //            {
+        //                try
+        //                {
+        //                    lastHb = Convert.ToInt64(hbChild.Value);
+        //                }
+        //                catch
+        //                {
+        //                    // 변환 실패 시 기본값 0으로 설정
+        //                }
+        //            }
 
-                    bool isAlive = (clientNow - lastHb) <= validMs; // TODO: 현재는 서버 시간 보정이 없어 클라이언트가 시간을 바꾸면 isAlive가 잘못 판단될 수 있음
-                    onOnlineSuccess?.Invoke(online && isAlive);
-                });
-        }
+        //            bool isAlive = (clientNow - lastHb) <= validMs; // TODO: 현재는 서버 시간 보정이 없어 클라이언트가 시간을 바꾸면 isAlive가 잘못 판단될 수 있음
+        //            onOnlineSuccess?.Invoke(online && isAlive);
+        //        });
+        //}
+        #endregion
     }
 }
 
