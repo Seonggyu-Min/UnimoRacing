@@ -18,6 +18,9 @@ namespace MSG
         private CostRuleDTO _globalCost;
         private readonly Dictionary<int, CostRuleDTO> _costOverrides = new();
 
+        private UnimoCostDTO _globalUnimoCost;
+        private readonly Dictionary<int, UnimoCostDTO> _unimoOverrides = new();
+
         private bool _patchReady;
 
         #endregion
@@ -52,12 +55,15 @@ namespace MSG
                      }
 
                      var gSpeed = snap.Child(DatabaseKeys.globals).Child(DatabaseKeys.speed);
-                     var gCost = snap.Child(DatabaseKeys.globals).Child(DatabaseKeys.cost);
+                     var gKartCost = snap.Child(DatabaseKeys.globals).Child(DatabaseKeys.cost);
+                     var gUnimoCost = snap.Child(DatabaseKeys.globals).Child(DatabaseKeys.unimoCost);
                      _globalSpeed = ParseSpeed(gSpeed);
-                     _globalCost = ParseCost(gCost);
+                     _globalCost = ParseCost(gKartCost);
+                     _globalUnimoCost = ParseUnimoCost(gUnimoCost);
 
                      _speedOverrides.Clear();
                      _costOverrides.Clear();
+                     _unimoOverrides.Clear();
 
                      var karts = snap.Child(DatabaseKeys.karts);
                      if (karts.Exists)
@@ -78,6 +84,23 @@ namespace MSG
                                  c.HasChild(DatabaseKeys.cost))
                              {
                                  _costOverrides[kartId] = ParseCost(c.Child(DatabaseKeys.cost));
+                             }
+                         }
+                     }
+
+                     var unimos = snap.Child(DatabaseKeys.unimos);
+                     if (unimos.Exists)
+                     {
+                         foreach (var u in unimos.Children)
+                         {
+                             if (!int.TryParse(u.Key, out int unimoId)) continue;
+                             if (u.HasChild(DatabaseKeys.costOverride) && Convert.ToBoolean(u.Child(DatabaseKeys.costOverride).Value))
+                             {
+                                 _unimoOverrides[unimoId] = new()
+                                 {
+                                     moneyType = ReadString(u, DatabaseKeys.moneyType),
+                                     cost = ReadInt(u, DatabaseKeys.cost)
+                                 };
                              }
                          }
                      }
@@ -176,7 +199,7 @@ namespace MSG
 
                         // 이미 MaxLevel이면 0 전달. 애초에 호출되지 않도록 할 필요 있음
                         var moneyType = ParseMoneyType(costRule.MoneyType);
-                        if (level >= costRule.MaxLevel)
+                        if (costRule.MaxLevel > 0 && level >= costRule.MaxLevel)
                         {
                             onSuccess?.Invoke(0, moneyType);
                             Debug.LogWarning($"[PatchService] 이미 최대 레벨인 카트{kartId}의 비용을 조회하였습니다");
@@ -189,6 +212,42 @@ namespace MSG
                     },
                     err => onError?.Invoke(err)
                 );
+        }
+
+        public void GetCostOfUnimo(int unimoId, Action<int, MoneyType> onSuccess, Action<string> onError = null)
+        {
+            if (!_patchReady) 
+            {
+                onError?.Invoke("[PatchService] 패치를 불러오지 못하여 가격을 반환할 수 없습니다"); 
+                return; 
+            }
+
+            var auth = FirebaseManager.Instance?.Auth?.CurrentUser;
+            if (auth == null)
+            { 
+                onError?.Invoke("[PatchService] 유저가 null입니다"); 
+                return; 
+            }
+
+            DatabaseManager.Instance.GetOnMain(
+                DBRoutes.UnimoInventory(auth.UserId, unimoId),
+                snap =>
+                {
+                    int owned = 0;
+                    if (snap != null && snap.Exists && snap.Value != null)
+                        int.TryParse(snap.Value.ToString(), out owned);
+
+                    // 오버라이드가 있는지 먼저 확인 후 없으면 글로벌 룰 적용
+                    var rule = _globalUnimoCost;
+                    if (_unimoOverrides.TryGetValue(unimoId, out var ovr)) rule = ovr;
+
+                    var money = ParseMoneyType(rule.moneyType);
+
+                    // 이미 갖고 있으면 0원 전달, 애초에 호출되지 않도록 할 필요 있음
+                    onSuccess?.Invoke(owned >= 1 ? 0 : rule.cost, money);
+                },
+                err => onError?.Invoke(err)
+            );
         }
 
         /// <summary>
@@ -242,6 +301,12 @@ namespace MSG
             public List<int> Table;
         }
 
+        private struct UnimoCostDTO
+        {
+            public string moneyType;
+            public int cost;
+        }
+
         private float ComputeSpeed(SpeedRuleDTO rule, int lv)
         {
             switch (rule.CurveType)
@@ -252,8 +317,8 @@ namespace MSG
 
                 // BaseValue * (MultiplierStep)^(lv - 1). 예) BaseValue = 100, MultiplierStep = 1.1 일 때, 1레벨: 100, 2레벨 110, 3레벨 121, 4레벨 133.1...
                 case SpeedCurveType.Multiplier:
-                        double step = rule.MultiplierStep <= 0 ? 1.0 : rule.MultiplierStep;
-                        return (float)(rule.BaseValue * Math.Pow(step, lv - 1));
+                    double step = rule.MultiplierStep <= 0 ? 1.0 : rule.MultiplierStep;
+                    return (float)(rule.BaseValue * Math.Pow(step, lv - 1));
 
                 // BaseValue를 무시하고 테이블이 직접 지정. 예) 테이블[0]의 값은 1레벨 속도, 테이블[1]의 값은 2레벨 속도...
                 case SpeedCurveType.Table:
@@ -274,7 +339,7 @@ namespace MSG
                 case CostGrowthType.Arithmetic:
                     return rule.BaseCost + rule.Step * currentLevel;
 
-                // BaseCost * (GrowthRate)^(currentLevel + 1). 예) aseCost = 100, GrowthRate = 2일 때, 0->1레벨: 100, 1->2레벨: 200. 2->3레벨: 400...
+                // BaseCost * (GrowthRate)^(currentLevel). 예) BaseCost = 100, GrowthRate = 2일 때, 0->1레벨: 100, 1->2레벨: 200. 2->3레벨: 400...
                 case CostGrowthType.Geometric:
                     double pow = Math.Pow(rule.GrowthRate <= 0 ? 1.0 : rule.GrowthRate, currentLevel);
                     return Mathf.RoundToInt((float)(rule.BaseCost * pow));
@@ -317,6 +382,12 @@ namespace MSG
                 MaxLevel = ReadInt(s, DatabaseKeys.maxLevel)
             };
         }
+
+        private UnimoCostDTO ParseUnimoCost(DataSnapshot s) => new()
+        {
+            moneyType = ReadString(s, DatabaseKeys.moneyType),
+            cost = ReadInt(s, DatabaseKeys.cost)
+        };
 
         private SpeedCurveType ParseCurveType(string v)
             => Enum.TryParse(v, out SpeedCurveType t) ? t : SpeedCurveType.Linear;

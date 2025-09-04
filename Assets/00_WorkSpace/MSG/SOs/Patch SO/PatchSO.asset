@@ -20,12 +20,20 @@ MonoBehaviour:
       LinearStep: 10
       MultiplierStep: 0
       Table: []
-    CostRule:
-      GrowthType: 1
-      MoneyType: 1
-      BaseCost: 200
-      MaxLevel: 5
-      GrowthRate: 2
+    KartCostRule:
+      GrowthType: 0
+      MoneyType: 0
+      BaseCost: 0
+      MaxLevel: 0
+      GrowthRate: 0
       Step: 0
       Table: 
+    UnimoCostRule:
+      Cost: 5000
+      MoneyType: 0
   LocalRuleKarts: []
+  LocalRuleUnimos:
+  - UnimoId: 5
+    CostOverride: 1
+    Cost: 100
+    MoneyType: 2

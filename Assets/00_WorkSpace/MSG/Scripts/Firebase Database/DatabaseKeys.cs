@@ -134,6 +134,7 @@ namespace MSG
         public const string baseCost = "baseCost";
         public const string growthRate = "growthRate";
         public const string step = "step";
+        public const string unimoCost = "unimoCost";
 
     }
 }

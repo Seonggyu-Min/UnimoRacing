@@ -83,6 +83,7 @@ namespace MSG
         public class UnimoEntry
         {
             public int UnimoId;
+            public bool CostOverride;
             public int Cost;
             public MoneyType MoneyType;         // 어떤 재화를 소모할 지 설정
         }

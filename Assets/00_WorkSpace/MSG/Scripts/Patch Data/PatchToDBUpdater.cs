@@ -67,7 +67,8 @@ namespace MSG
             Dictionary<string, object> globals = new()
             {
                 [DatabaseKeys.speed] = MapSpeed(so.GlobalRule.SpeedRule),
-                [DatabaseKeys.cost] = MapCost(so.GlobalRule.KartCostRule)
+                [DatabaseKeys.cost] = MapCost(so.GlobalRule.KartCostRule),
+                [DatabaseKeys.unimoCost] = MapUnimoCost(so.GlobalRule.UnimoCostRule)
             };
 
             // karts
@@ -96,6 +97,27 @@ namespace MSG
                 }
             }
 
+            Dictionary<string, object> unimos = new();
+            if (so.LocalRuleUnimos != null)
+            {
+                foreach (var u in so.LocalRuleUnimos)
+                {
+                    Dictionary<string, object> node = new()
+                    {
+                        [DatabaseKeys.costOverride] = u.CostOverride
+                    };
+
+                    if (u.CostOverride)
+                    {
+                        node[DatabaseKeys.moneyType] = u.MoneyType.ToString();
+                        node[DatabaseKeys.cost] = u.Cost;
+                    }
+
+                    unimos[u.UnimoId.ToString()] = node;
+                }
+            }
+
+            root[DatabaseKeys.unimos] = unimos;
             root[DatabaseKeys.globals] = globals;
             root[DatabaseKeys.karts] = karts;
             return root;
@@ -134,6 +156,15 @@ namespace MSG
                 costDict[DatabaseKeys.table] = new List<object>(c.Table.ConvertAll(x => (object)x));
             }
             return costDict;
+        }
+
+        private Dictionary<string, object> MapUnimoCost(PatchSO.UnimoCostRule u)
+        {
+            return new Dictionary<string, object>
+            {
+                [DatabaseKeys.moneyType] = u.MoneyType.ToString(),
+                [DatabaseKeys.cost] = u.Cost
+            };
         }
 
         #endregion

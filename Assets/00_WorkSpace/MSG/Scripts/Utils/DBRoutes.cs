@@ -73,6 +73,8 @@ namespace MSG
         public static string PatchGlobals() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.globals);
         public static string PatchKarts() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.karts);
         public static string PatchKart(int kartId) => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.karts, kartId.ToString());
+        public static string PatchUnimos() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.unimos);
+        public static string PatchUnimo(int unimoId) => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.unimos, unimoId.ToString());
 
 
         // ----- Presence Data(WIP) -----
