@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66d715f8abd3ec546b8978090e0ea5c8, type: 3}
+  m_Name: UnimoKartSO_10011
+  m_EditorClassIdentifier: 
+  carId: 10011
+  carName: "\uB315\uB315\uC774\uC9D1"
+  kartPrefab: {fileID: 8633999724210498100, guid: f2f3ff0c209828546a07a77e79db6faa,
+    type: 3}
+  carDesc: 
+  passiveSkillId: 11011
