@@ -11,8 +11,6 @@ namespace MSG
     // TODO: 모든 방에 사람이 찼을 때 띄울 투표 로직 추가
     public class GameStarter : MonoBehaviourPunCallbacks
     {
-        [SerializeField] private PartyService _party;
-
         [SerializeField] private bool _dontTryStartWhenInHomeRoom = true;  // 매치룸에서만 시작 (홈룸 말고)
 
         private bool _isStarted = false; // TODO: false로 다시 바꾸는 로직도 필요

@@ -87,7 +87,7 @@ namespace MSG
             foreach (var uid in friendUids)
             {
                 PartyRequestCard card = Instantiate(_partyRequestCard, _parent);
-                card.Init(uid, _chatDM, _partyService);
+                card.Init(uid, _chatDM);
                 _cardList.Add(card.gameObject);
             }
         }
