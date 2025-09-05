@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
-
+using AddrRM = UnityEngine.ResourceManagement.ResourceManager;
 
 namespace YTW
 {
@@ -32,13 +32,16 @@ namespace YTW
         protected override void Awake()
         {
             base.Awake();
+
+            AddrRM.ExceptionHandler = (op, ex) =>
+        Debug.LogError($"[Addr] {op}: {ex}");
             // 비동기 초기화 메소드를 호출합니다. `_ = `는 '이 작업의 결과를 기다리지 않고 일단 시작만 시켜라'라는 의미(fire-and-forget 패턴)
             _ = InitializeAsyncInternal();
         }
 
         // 초기화 보장 함수
         // 외부 API(Load/Instantiate/LoadScene) 진입 시, Addressables가 초기화되었는지 보장
-        private async Task EnsureInitializedAsync()
+        public async Task EnsureInitializedAsync()
         {
             if (_initialized) return;
             Debug.Log("[ResourceManager] EnsureInitializedAsync 대기중...");
@@ -52,47 +55,76 @@ namespace YTW
             Debug.Log("[ResourceManager] InitializeAsyncInternal 시작");
             try
             {
-                // Addressables 시스템 초기화 비동기 핸들 획득
-                var initHandle = Addressables.InitializeAsync();
-                try
-                {
-                    // 내부적으로 어드레서블 설정, 카탈로그 로드 등 수행
-                    await initHandle.Task;
-                }
-                catch (Exception ex)
-                {
-                    // 핸들.Task 대기 중 발생할 수 있는 예외 로깅
-                    Debug.LogError($"[ResourceManager] Addressables.InitializeAsync 예외: {ex}");
-                }
+                var h = Addressables.InitializeAsync();
+                Exception taskEx = null;
+                try { await h.Task; } catch (Exception ex) { taskEx = ex; }
 
-                // 핸들이 유효한지 점검 (에디터 특정 모드에서 무효일 가능성 있음)
-                if (initHandle.IsValid())
+                if (h.IsValid())
                 {
-                    if (initHandle.Status == AsyncOperationStatus.Succeeded)
+                    if (h.Status == AsyncOperationStatus.Succeeded)
                         Debug.Log("[ResourceManager] Addressables 초기화 성공.");
                     else
-                        Debug.LogError($"[ResourceManager] Addressables 초기화 실패: {initHandle.OperationException}");
-                    // 초기화 핸들은 더 이상 필요 없으므로 안전하게 릴리스
-                    try { Addressables.Release(initHandle); } catch { }
+                        Debug.LogError($"[ResourceManager] Addressables 초기화 실패: {h.OperationException ?? taskEx}");
+                    try { Addressables.Release(h); } catch { }
                 }
                 else
                 {
-                    // 에디터 Play Mode Script가 Asset Database 모드일 때 등 무효 핸들이 돌아올 수 있음
-                    Debug.LogWarning("[ResourceManager] InitializeAsync 반환 핸들이 유효하지 않습니다. (에디터의 Play Mode Script 설정에 의해 발생할 수 있음) " +
-                                     "필요시 Addressables 설정(Play Mode Script / Content build)을 확인하세요.");
-                    // 핸들이 무효여도 에디터 DB 모드 등에서 정상 동작할 수 있으므로 초기화 성공으로 처리
+                    Debug.LogWarning("[ResourceManager] InitializeAsync 핸들이 유효하지 않지만 계속 진행합니다.");
                 }
 
-                // 초기화 성공 플래그 설정 및 대기자들에게 완료 신호
                 _initialized = true;
                 _initTcs.TrySetResult(true);
             }
             catch (Exception ex)
             {
-                // 초기화 단계에서 예기치 못한 예외 발생 시 실패 신호 전파
-                Debug.LogError($"[ResourceManager] InitializeAsyncInternal 최종 예외: {ex}");
+                Debug.LogError($"[ResourceManager] InitializeAsyncInternal 예외: {ex}");
                 _initTcs.TrySetException(ex);
             }
+        }
+
+        /// <summary>
+        /// 주소에 해당하는 기존 핸들을 강제로 릴리즈하고 새로 로드하여 결과를 반환합니다.
+        /// 테스트/패치 후 특정 에셋만 갱신할 때 사용.
+        /// </summary>
+        public async Task<T> ForceReloadAsync<T>(string address) where T : UnityEngine.Object
+        {
+            if (string.IsNullOrWhiteSpace(address)) return null;
+
+            // 기존 핸들 강제 제거 (lock으로 동기화)
+            lock (_lock)
+            {
+                if (_handles.TryGetValue(address, out var existingHandle))
+                {
+                    try
+                    {
+                        if (existingHandle.IsValid())
+                            Addressables.Release(existingHandle);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"[ResourceManager] ForceReload: Release 예외 ({address}) => {ex}");
+                    }
+
+                    _handles.Remove(address);
+                    _refCounts.Remove(address);
+                }
+            }
+
+            // 이제 정상적으로 LoadAsync를 호출하면 새 핸들이 생성되어 로드됩니다.
+            return await LoadAsync<T>(address);
+        }
+
+        /// <summary>
+        /// 여러 주소를 강제로 재로딩 (병렬로 모두 재로드)
+        /// </summary>
+        public async Task ForceReloadMultipleAsync<T>(IEnumerable<string> addresses) where T : UnityEngine.Object
+        {
+            var tasks = new List<Task<T>>();
+            foreach (var addr in addresses)
+            {
+                tasks.Add(ForceReloadAsync<T>(addr));
+            }
+            await Task.WhenAll(tasks);
         }
 
         // 에셋 로드

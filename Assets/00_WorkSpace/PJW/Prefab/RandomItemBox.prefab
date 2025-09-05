@@ -172,29 +172,43 @@ MonoBehaviour:
   items:
   - itemPrefab: {fileID: 5181480731156703607, guid: fa7b523d06a461b478fda40692032014,
       type: 3}
-    weight: 1
-  - itemPrefab: {fileID: 7444250990446430230, guid: c3d2694bbb29ab34a82e93ab8ea26b7e,
-      type: 3}
-    weight: 1
-  - itemPrefab: {fileID: 4774977318374646965, guid: 0ad69218fc191ec4da8cae4368ba4e3c,
-      type: 3}
-    weight: 1
+    icon: {fileID: 21300000, guid: 9518248f58a0c9a478e149a0baba64d5, type: 3}
+    weight: 30
   - itemPrefab: {fileID: 3946859079953295172, guid: c86097129e266554e8a69d54e1efd2eb,
       type: 3}
-    weight: 1
+    icon: {fileID: 21300000, guid: 7e9a8494d5c459645862c4b64f2896df, type: 3}
+    weight: 8
   - itemPrefab: {fileID: 7531220014660825702, guid: 959d3764f21db4b4785e27e2cc565bd6,
       type: 3}
-    weight: 1
+    icon: {fileID: 21300000, guid: fd826a4c1d7fd8c45b49d8a774f4329b, type: 3}
+    weight: 12
   - itemPrefab: {fileID: 363910417510501185, guid: 4730e518546517248937cdb5418ffdd2,
       type: 3}
-    weight: 1
+    icon: {fileID: 0}
+    weight: 8
   - itemPrefab: {fileID: 5856998634752518834, guid: d24c52130d98bcd43b8f1a602245bc63,
       type: 3}
-    weight: 1
+    icon: {fileID: 21300000, guid: 8624b4c5855548c4a8ac0fae1a06d74b, type: 3}
+    weight: 15
   - itemPrefab: {fileID: 9174385663795004604, guid: c08552f2a0c3d7741ad6d84cc902dbdf,
       type: 3}
-    weight: 1
-  - itemPrefab: {fileID: 3622971774366793308, guid: 84b845bc65a223042b4ab9781bd5246d,
+    icon: {fileID: 21300000, guid: 05e56fdb813c8484f9967b9f8c5eb238, type: 3}
+    weight: 10
+  - itemPrefab: {fileID: 156854505029060759, guid: c815e001d773f254b98861d384433f4d,
       type: 3}
-    weight: 1
+    icon: {fileID: 0}
+    weight: 10
+  - itemPrefab: {fileID: 5054080810607260841, guid: e9221caf7b6d40c47853da9b72c4e689,
+      type: 3}
+    icon: {fileID: 0}
+    weight: 10
+  - itemPrefab: {fileID: 1260596840694590796, guid: f390d0e37dd74cc41ae61c3000800510,
+      type: 3}
+    icon: {fileID: 21300000, guid: 46dd9f7c57a11f64f8750d7c1d335dda, type: 3}
+    weight: 5
+  - itemPrefab: {fileID: 4070489616884424043, guid: 9bedcbadbf4e6864ebf67c051e2563a9,
+      type: 3}
+    icon: {fileID: 21300000, guid: 62d7615b245028d469567231e8e636dc, type: 3}
+    weight: 20
   respawnTime: 5
+  rotationSpeed: {x: 0, y: 60, z: 0}

@@ -12,6 +12,7 @@ namespace PJW
         private CinemachinePathBase leftTrack;
         private CinemachinePathBase rightTrack;
 
+
         private PhotonView pv;
 
         [SerializeField] private bool isControlsInverted = false;
@@ -23,6 +24,9 @@ namespace PJW
             cart = GetComponent<CinemachineDollyCart>();
             TryAutoBindTracks();
         }
+
+        public bool IsOnLeft => cart != null && cart.m_Path == leftTrack;
+        public bool IsOnRight => cart != null && cart.m_Path == rightTrack;
 
         private void Update()
         {
@@ -135,6 +139,26 @@ namespace PJW
 
             cart.m_Path = toPath;
             cart.m_Position = newPos;
+        }
+
+        public void ForceSwitchLeft()
+        {
+            if (cart == null || leftTrack == null) return;
+            if (pv != null && pv.ViewID != 0 && !pv.IsMine) return; 
+            ChangeTrack(0);
+        }
+
+        public void ForceSwitchRight()
+        {
+            if (cart == null || rightTrack == null) return;
+            if (pv != null && pv.ViewID != 0 && !pv.IsMine) return;
+            ChangeTrack(1);
+        }
+
+        public void ForceSwitchOpposite()
+        {
+            if (IsOnLeft) ForceSwitchRight();
+            else ForceSwitchLeft();
         }
     }
 }
