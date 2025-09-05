@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6e4f4b921608e34791765bcba60a541, type: 3}
   m_Name: NTJ Account
   m_EditorClassIdentifier: 
-  Email1: 
-  Password1: 
-  Email2: 
-  Password2: 
-  Email3: 
-  Password3: 
-  Email4: 
-  Password4: 
+  Email1: testerNTJ0@naver.com
+  Password1: 12341234
+  Email2: testerNTJ1@naver.com
+  Password2: 12341234
+  Email3: testerNTJ2@naver.com
+  Password3: 12341234
+  Email4: testerNTJ3@naver.com
+  Password4: 12341234
