@@ -11,9 +11,7 @@ namespace PJW
         {
             Left,       
             Right,      
-            Opposite,   
-            Alternate,  
-            Random      
+            Opposite,
         }
 
         [Header("스위치 방식")]
@@ -25,7 +23,6 @@ namespace PJW
         [SerializeField] private float reuseDelay = 0f;             
 
         private bool isCoolingDown;
-        private bool alternateLeft = true; // Alternate 모드에서 방향 토글 상태
 
         private void OnTriggerEnter(Collider other)
         {
@@ -50,15 +47,6 @@ namespace PJW
                 break;
             case SwitchMode.Opposite:
                 switcher.ForceSwitchOpposite();
-                break;
-            case SwitchMode.Alternate:
-                if (alternateLeft) switcher.ForceSwitchLeft();
-                else switcher.ForceSwitchRight();
-                alternateLeft = !alternateLeft;
-                break;
-            case SwitchMode.Random:
-                if (Random.value < 0.5f) switcher.ForceSwitchLeft();
-                else switcher.ForceSwitchRight();
                 break;
             }
 

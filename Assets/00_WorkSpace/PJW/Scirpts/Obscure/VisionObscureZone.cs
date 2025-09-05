@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace PJW
 {
-    public class ObscureZone : MonoBehaviour
+    public class VisionObscureZone : MonoBehaviour
     {
         [Header("방해 이미지 프리팹")]
         [SerializeField] private GameObject obscureImagePrefab;
