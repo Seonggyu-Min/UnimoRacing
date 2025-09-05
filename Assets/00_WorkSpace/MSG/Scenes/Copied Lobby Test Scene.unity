@@ -774,6 +774,67 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 881958885}
   m_CullTransparentMesh: 1
+--- !u!1 &901683052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 901683054}
+  - component: {fileID: 901683053}
+  - component: {fileID: 901683055}
+  m_Layer: 0
+  m_Name: Match Maker w/ DontDestroy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &901683053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901683052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 387e12a5adf66b5408a56e9688dabf61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &901683054
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901683052}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 228.6557, y: 1483.4115, z: 1.6376274}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &901683055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901683052}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23b3252183dfe4340b586c93aaf8e574, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _room: {fileID: 1944148136}
+  _willDecideByName: 0
+  _lobbySceneIndex: 1
+  _lobbySceneName: 
 --- !u!1 &904112973
 GameObject:
   m_ObjectHideFlags: 0
@@ -3083,7 +3144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16bfc91bba3836d43b57bb6f07d140d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _party: {fileID: 1944148131}
+  _party: {fileID: 0}
   _messageText: {fileID: 1805167486}
   _chat: {fileID: 1944148132}
 --- !u!1 &1803493144
@@ -4394,7 +4455,6 @@ GameObject:
   - component: {fileID: 1944148132}
   - component: {fileID: 1944148138}
   - component: {fileID: 1944148136}
-  - component: {fileID: 1944148131}
   m_Layer: 0
   m_Name: Match Maker
   m_TagString: Untagged
@@ -4402,18 +4462,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1944148131
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1944148130}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 387e12a5adf66b5408a56e9688dabf61, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1944148132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4454,7 +4502,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0a15e6fbe521644bae8f5f44ebe9bd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _party: {fileID: 1944148131}
   _room: {fileID: 1944148136}
   _chat: {fileID: 1944148132}
   _gameStarter: {fileID: 1944148138}
@@ -4470,7 +4517,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e5329c470da3f640b60159a199eb3bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _party: {fileID: 1944148131}
+  _party: {fileID: 0}
   _room: {fileID: 1944148136}
   _chat: {fileID: 1944148132}
   _leaderMatch: {fileID: 1944148134}
@@ -4516,7 +4563,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de189602488d6bf4b9a62dd88bcf1f58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _party: {fileID: 1944148131}
   _dontTryStartWhenInHomeRoom: 1
 --- !u!1 &1965432112
 GameObject:
@@ -4774,7 +4820,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _chatDM: {fileID: 1944148132}
-  _partyService: {fileID: 1944148131}
+  _partyService: {fileID: 0}
   _partyRequestCard: {fileID: 5197459068078785615, guid: 3575c06f731fa3543894ba43c653a652,
     type: 3}
   _parent: {fileID: 2062639914}
@@ -7832,6 +7878,7 @@ SceneRoots:
   - {fileID: 1942212187}
   - {fileID: 1843808340}
   - {fileID: 1944148137}
+  - {fileID: 901683054}
   - {fileID: 2138024573}
   - {fileID: 719650735}
   - {fileID: 128724174}
