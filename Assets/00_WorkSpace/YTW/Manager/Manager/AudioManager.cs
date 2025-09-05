@@ -26,6 +26,7 @@ namespace YTW
         [Header("기본 오디오 소스")]
         [SerializeField] private AudioSource _bgmSource;
 
+        [SerializeField] private bool initializeOnStart = true;
         // 내부 변수
         // 오디오 데이터를 이름으로 빠르게 찾기 위한 Dictionary
         private Dictionary<string, AudioData> _audioDataDict;
@@ -39,7 +40,7 @@ namespace YTW
         private Coroutine _bgmFadeCo;
         private bool _isInitialized = false;
         public bool IsInitialized => _isInitialized;
-
+        public string CurrentBgmKey { get; private set; }
         // 상수
         // SFX 오브젝트 풀을 처음에 몇 개 만들어 둘지 정하는 상수
         private const int POOL_INITIAL_SIZE = 10;
@@ -57,12 +58,14 @@ namespace YTW
 
         private async void Start()
         {
-            // 비동기 초기화
-            await InitializeAsync();
+            if (initializeOnStart)
+                await InitializeAsync();
         }
 
-        private async Task InitializeAsync()
+        public async Task InitializeAsync()
         {
+            if (_isInitialized) return;
+
             // ResourceManager가 생성될 때까지 대기
             while (Manager.Resource == null)
             {
@@ -70,14 +73,14 @@ namespace YTW
                 await Task.Yield();
             }
 
-            // ResourceManager를 통해 AudioDB와 AudioMixer를 비동기로 로드
-            // (Addressables/리소스 매니저에서 가져오는 비동기 로직)
-            _audioDB = await Manager.Resource.LoadAsync<AudioDB>(AUDIO_DB_ADDRESS);
-            _mixer = await Manager.Resource.LoadAsync<AudioMixer>(AUDIO_MIXER_ADDRESS);
+            //_audioDB = await Manager.Resource.LoadAsync<AudioDB>(AUDIO_DB_ADDRESS);
+            //_mixer = await Manager.Resource.LoadAsync<AudioMixer>(AUDIO_MIXER_ADDRESS);
+            if (_audioDB == null) _audioDB = Resources.Load<AudioDB>("Audio/AudioDB");
+            if (_mixer == null) _mixer = Resources.Load<AudioMixer>("Audio/GameAudioMixer");
 
             if (_audioDB == null || _mixer == null)
             {
-                Debug.LogError("[AudioManager] 필수 에셋 로드 실패!");
+                Debug.LogError("[AudioManager] 필수 에셋 로드 실패");
                 return;
             }
 
@@ -105,7 +108,6 @@ namespace YTW
         // AudioDB에 등록된 모든 오디오 데이터를 돌면서 해당 오디오 클립을 Addressables에서 미리 로드
         private async Task PreloadAudioClips()
         {
-            // StringComparer.OrdinalIgnoreCase : 대소문자 구분 없이 키를 찾도록 설정. (선택입니다)
             _audioDataDict = new Dictionary<string, AudioData>(_audioDB.AudioDataList.Count, StringComparer.OrdinalIgnoreCase);
 
             var loadingTasks = new List<Task>();
@@ -151,6 +153,9 @@ namespace YTW
                 Debug.LogWarning($"[AudioManager] BGM '{name}'을 찾을 수 없거나 클립이 비어있습니다.");
                 return;
             }
+
+            CurrentBgmKey = name;
+
             if (_bgmSource == null) return;
             if (!forceRestart && _bgmSource.isPlaying && _bgmSource.clip == data.Clip) return;
             if (_bgmFadeCo != null) StopCoroutine(_bgmFadeCo);
@@ -467,6 +472,63 @@ namespace YTW
             }
         }
 
+        #endregion
+
+        #region 패치 후 재로딩
+        // 패치 완료 후 DB 등록 AudioData의 AudioClip을 강제로 재로딩. 옵션으로 기존 BGM 재개
+        public async Task ReloadAllAudioClipsAfterPatchAsync(bool replayCurrentBgm = true)
+        {
+            bool wasPlaying = _bgmSource != null && _bgmSource.isPlaying;
+            string keepKey = CurrentBgmKey;
+
+            var tasks = new List<Task>(_audioDataDict.Count);
+            foreach (var kv in _audioDataDict)
+            {
+                var data = kv.Value;
+                if (data == null || string.IsNullOrWhiteSpace(data.ClipAddress)) continue;
+                tasks.Add(ReloadOne(data));
+            }
+
+            await Task.WhenAll(tasks);
+
+            if (replayCurrentBgm && wasPlaying && !string.IsNullOrWhiteSpace(keepKey))
+            {
+                PlayBGM(keepKey, fadeTime: 0.25f, forceRestart: true);
+            }
+        }
+
+        private async Task ReloadOne(AudioData data)
+        {
+            var newClip = await Manager.Resource.ForceReloadAsync<AudioClip>(data.ClipAddress);
+            if (newClip != null)
+            {
+                data.Clip = newClip;
+                Debug.Log($"[AudioManager] Reloaded: {data.ClipName} ({data.ClipAddress})");
+            }
+            else
+            {
+                Debug.LogWarning($"[AudioManager] Reload failed: {data.ClipName} ({data.ClipAddress})");
+            }
+        }
+
+        public async Task ReloadAudioClipByNameAsync(string clipName)
+        {
+            if (!_audioDataDict.TryGetValue(clipName.Trim(), out var data) || data == null) return;
+
+
+            var newClip = await Manager.Resource.ForceReloadAsync<AudioClip>(data.ClipAddress);
+            if (newClip != null)
+            {
+                data.Clip = newClip;
+
+                // 현재 재생 중 BGM이면 즉시 반영
+                if (CurrentBgmKey?.Equals(clipName, StringComparison.OrdinalIgnoreCase) == true && _bgmSource != null)
+                {
+                    _bgmSource.clip = newClip;
+                    _bgmSource.Play();
+                }
+            }
+        }
         #endregion
     }
 

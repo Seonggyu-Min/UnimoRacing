@@ -13,8 +13,9 @@ namespace YTW
     {
         None,
         YTW_TestScene1, 
-        YTW_TestScene2, 
-        Map1
+        YTW_TestScene2,
+        YTW_TestScene3,
+        Map1_TEST
     }
 
     public class SceneManager : Singleton<SceneManager>
