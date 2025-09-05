@@ -17,11 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: ce9d3d6cd27594040abc7adee1cfba5b
   m_SerializeEntries:
-  - m_GUID: 012da8a3996f9794a9567550a5291df2
-    m_Address: GameAudioMixer
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 11e60bbd464b4c048bca3c2a6a4334c3
     m_Address: TempMap1
     m_ReadOnly: 0
@@ -29,16 +24,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3f2e10d0590e1b14488dd31e4c5d44db
     m_Address: YTW_TestScene2
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 55d4a2584eb636a4c868215766eab598
-    m_Address: LoadingUIPanel
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 735240edc2851ac43bbde40036e16f6b
-    m_Address: AudioDB
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
