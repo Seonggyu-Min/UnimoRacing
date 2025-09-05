@@ -10,6 +10,7 @@ namespace MSG
     public class PartyRequestCard : MonoBehaviour
     {
         [SerializeField] private TMP_Text _nicknameText;
+        [SerializeField] private TMP_Text _levelText;
 
         private ChatDM _chat;
         private string _targetUid;
@@ -28,6 +29,19 @@ namespace MSG
                 snap => _nicknameText.text = $"{snap.Value}",
                 err => Debug.LogWarning($"현재 닉네임 읽기 오류: {err}")
                 );
+            DatabaseManager.Instance.GetOnMain(DBRoutes.Experience(CurrentUid),
+                snap =>
+                {
+                    long exp = 0;
+                    if (snap.Exists && snap.Value != null)
+                    {
+                        long.TryParse(snap.Value.ToString(), out exp);
+                    }
+                    _levelText.text = $"lv {ExpToLevel.Convert((int)snap.Value)}";
+                },
+                err => Debug.LogWarning($"레벨 읽기 오류: {err}")
+                );
+
         }
 
         public void OnClickPartyRequest()
