@@ -16,5 +16,6 @@ MonoBehaviour:
   carName: "\uC2A4\uCFE0\uD130"
   kartPrefab: {fileID: 2003348548835744149, guid: 4a9f26e45d862df49b161133c6994e68,
     type: 3}
+  kartSprite: {fileID: 21300000, guid: 2e5cd44ea3d59974ab58e33d71b3bd43, type: 3}
   carDesc: 
   passiveSkillId: 11008

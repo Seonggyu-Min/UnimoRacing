@@ -15,6 +15,10 @@ public class UnimoKartSO : ScriptableObject
     [Tooltip("차량 프리팹")]
     public GameObject kartPrefab;
 
+    [Tooltip("차량 스프라이트")]
+    public Sprite kartSprite;
+
+
     [TextArea]
     [Tooltip("차량 설명")]
     public string carDesc;

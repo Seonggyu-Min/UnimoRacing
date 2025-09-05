@@ -14,6 +14,9 @@ public class UnimoCharacterSO : ScriptableObject
     [Tooltip("테이블의 '캐릭터 이름'")]
     public GameObject characterPrefab;
 
+    [Tooltip("테이블의 '캐릭터 스프라이트'")]
+    public Sprite characterSprite;
+
     [TextArea]
     [Tooltip("테이블의 '캐릭터 설명'")]
     public string characterInfo;
