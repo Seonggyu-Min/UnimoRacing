@@ -33,11 +33,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - NetworkPrefab
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ae4bc337421af0a43b74517a8f307aa0
-    m_Address: TempMap2
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 77e2d83c7e8f57943b8b09c4fc47a174, type: 2}
   m_SchemaSet:
