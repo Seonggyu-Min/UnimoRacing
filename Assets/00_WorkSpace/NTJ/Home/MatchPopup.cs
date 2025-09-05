@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using MSG;
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine.UI;
 
 public class MatchPopup : PopupBase
 {
-    [SerializeField] private MSG.NoPartyMatchMaker _matchMaker;
+    [SerializeField] private MatchFlowManager _matchFlowManager;
 
     [Header("매칭 관련 버튼")]
     [SerializeField] private GameObject playButtonGroup;     // Play! 버튼 그룹
@@ -32,7 +33,7 @@ public class MatchPopup : PopupBase
     private void OnStartMatch()
     {
         //MatchManager.Instance.StartMatch();
-        _matchMaker.OnClickTryQuickMatch();
+        _matchFlowManager.OnClickQuickMatch();
 
         RefreshUI(true); // 매칭중 상태로 전환
     }
@@ -40,7 +41,7 @@ public class MatchPopup : PopupBase
     private void OnCancelMatch()
     {
         //MatchManager.Instance.CancelMatch();
-        _matchMaker.OnClickCancelMatch();
+        _matchFlowManager.OnClickCancelMatch();
 
         UIManager.Instance.ClosePopup();
         RefreshUI(false); // 다시 Play 상태
