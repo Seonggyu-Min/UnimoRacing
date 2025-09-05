@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace MSG
 {
+    // 자신에게 친구 요청이 왔는지 확인 후 친구 요청 UI를 생성하는 컴포넌트
     public class FriendBoxSubscriber : MonoBehaviour
     {
         [SerializeField] private FriendRequestPanel _inboxPanelPrefab;
@@ -16,6 +17,10 @@ namespace MSG
         private DatabaseReference _inboxRef;
 
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
+
+        public event Action<int> OnPendingCountChanged;
+        public int PendingCount { get; private set; }
+
 
         private void OnEnable()
         {
@@ -81,6 +86,14 @@ namespace MSG
             }
 
             RemoveDictionary(_inboxPanels, live);
+
+            // 요청 개수 변경 시 이벤트 발생
+            int newCount = live.Count;
+            if (newCount != PendingCount)
+            {
+                PendingCount = newCount;
+                OnPendingCountChanged?.Invoke(PendingCount);
+            }
         }
 
         private void ClearAll()

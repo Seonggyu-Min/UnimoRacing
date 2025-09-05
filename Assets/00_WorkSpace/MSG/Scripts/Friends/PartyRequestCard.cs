@@ -14,57 +14,63 @@ namespace MSG
 
         private ChatDM _chat;
         private string _targetUid;
-        private PartyService _party;
 
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
 
 
-        public void Init(string uid, ChatDM chat, PartyService party)
+        public void Init(string uid, ChatDM chat)
         {
             _targetUid = uid;
             _chat = chat;
-            _party = party;
 
-            DatabaseManager.Instance.GetOnMain(DBRoutes.Nickname(_targetUid),
-                snap => _nicknameText.text = $"{snap.Value}",
-                err => Debug.LogWarning($"현재 닉네임 읽기 오류: {err}")
-                );
-            DatabaseManager.Instance.GetOnMain(DBRoutes.Experience(CurrentUid),
+            DatabaseManager.Instance.GetOnMain(
+                DBRoutes.Users(_targetUid),
                 snap =>
                 {
-                    long exp = 0;
-                    if (snap.Exists && snap.Value != null)
+                    string nickname = "";
+                    var nickSnap = snap.Child(DatabaseKeys.nickname);
+                    if (nickSnap.Exists && nickSnap.Value != null)
                     {
-                        long.TryParse(snap.Value.ToString(), out exp);
+                        nickname = nickSnap.Value.ToString();
                     }
-                    _levelText.text = $"lv {ExpToLevel.Convert((int)snap.Value)}";
-                },
-                err => Debug.LogWarning($"레벨 읽기 오류: {err}")
-                );
+                    _nicknameText.text = nickname;
 
+                    int level = 1;
+                    var expSnap = snap.Child(DatabaseKeys.gameData).Child(DatabaseKeys.experience);
+                    if (expSnap.Exists && expSnap.Value != null)
+                    {
+                        long exp = 0;
+                        long.TryParse(expSnap.Value.ToString(), out exp);
+                        level = ExpToLevel.Convert((int)exp);
+                    }
+                    _levelText.text = $"lv {level}";
+                    Debug.Log($"{nickname}의 레벨: {level}");
+                },
+                err => Debug.LogWarning($"[PartyRequestCard] 사용자 정보 읽기 오류: {err}")
+                );
         }
 
         public void OnClickPartyRequest()
         {
-            if (!_party.IsLeader)
+            if (!PartyService.Instance.IsLeader)
             {
                 Debug.Log("리더만 초대할 수 있습니다.");
                 return;
             }
 
-            if (_party.Members.Contains(_targetUid))
+            if (PartyService.Instance.Members.Contains(_targetUid))
             {
                 Debug.Log("이미 파티에 있는 인원입니다");
                 return;
             }
 
-            if (!_party.IsInParty) _party.SetParty(CurrentUid, new List<string>()); // 파티에 없는 솔로 상태면 상태 전환
+            if (!PartyService.Instance.IsInParty) PartyService.Instance.SetParty(CurrentUid, new List<string>()); // 파티에 없는 솔로 상태면 상태 전환
 
-            _party.EnsurePartyIdForLeader(CurrentUid); // 파티 아이디 없을까봐 생성
+            PartyService.Instance.EnsurePartyIdForLeader(CurrentUid); // 파티 아이디 없을까봐 생성
 
-            string partyId = _party.CurrentPartyId;
-            string leaderUid = _party.LeaderUid;
-            string[] members = _party.Members.ToArray();
+            string partyId = PartyService.Instance.CurrentPartyId;
+            string leaderUid = PartyService.Instance.LeaderUid;
+            string[] members = PartyService.Instance.Members.ToArray();
 
             _chat.SendPartyInvite(_targetUid, partyId, leaderUid, members);
 

@@ -9,7 +9,6 @@ namespace MSG
 {
     public class MatchFlowManager : MonoBehaviour
     {
-        [SerializeField] private PartyService _party;
         [SerializeField] private RoomAgent _room;
         [SerializeField] private ChatDM _chat;
         [SerializeField] private LeaderMatchFinder _leaderMatch;
@@ -23,18 +22,20 @@ namespace MSG
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
 
 
-        private void Start()
+        private async void Start()
         {
             _chat.Initialize(CurrentUid);
 
             _chat.OnDirectMessageReceived += OnDm;
-            _party.OnPartyChanged += OnPartyChanged;
+            PartyService.Instance.OnPartyChanged += OnPartyChanged;
 
-            if (!_initialized)
-            {
-                _party.SetSolo();
-                _initialized = true;
-            }
+            //if (!_initialized)
+            //{
+            //    PartyService.Instance.SetSolo();
+            //    _initialized = true;
+            //}
+
+            await _room.EnsureHomeRoomAsync(GetCurrentHome());
         }
 
         private async void OnPartyChanged()
@@ -46,7 +47,7 @@ namespace MSG
             }
             string home = GetCurrentHome();
 
-            Debug.Log($"[OnPartyChanged] IsInParty: {_party.IsInParty}, Leader: {_party.LeaderUid}, home: {home}");
+            Debug.Log($"[OnPartyChanged] IsInParty: {PartyService.Instance.IsInParty}, Leader: {PartyService.Instance.LeaderUid}, home: {home}");
 
             await _room.EnsureHomeRoomAsync(home);
         }
@@ -54,14 +55,14 @@ namespace MSG
         private void OnDestroy()
         {
             _chat.OnDirectMessageReceived -= OnDm;
-            _party.OnPartyChanged -= OnPartyChanged;
+            PartyService.Instance.OnPartyChanged -= OnPartyChanged;
         }
 
         private string GetCurrentHome()
         {
-            if (_party.IsInParty)
+            if (PartyService.Instance.IsInParty)
             {
-                return RoomMakeHelper.PartyHome(_party.LeaderUid);
+                return RoomMakeHelper.PartyHome(PartyService.Instance.LeaderUid);
             }
             return RoomMakeHelper.Personal(CurrentUid);
         }
@@ -70,7 +71,7 @@ namespace MSG
         public async void OnClickQuickMatch()
         {
             // 파티가 아닌 경우에는 바로 퀵매치
-            if (!_party.IsInParty)
+            if (!PartyService.Instance.IsInParty)
             {
                 Debug.Log("솔로로 매치 시작");
                 await _leaderMatch.StartQuickMatchAsync(0); // 랜덤방 참여 시도 후 실패 시 후보방 생성
@@ -78,23 +79,23 @@ namespace MSG
             }
 
             // 파티인 경우는 리더만 시작
-            if (!_party.IsLeader)
+            if (!PartyService.Instance.IsLeader)
             {
                 Debug.Log("리더만 시작 가능");
                 return;
             }
 
-            int partySize = _party.Members.Count;
+            int partySize = PartyService.Instance.Members.Count;
             await _leaderMatch.StartQuickMatchAsync(partySize - 1);
         }
 
         public async void OnClickCancelMatch()
         {
-            if (_party.IsInParty && _party.IsLeader)
+            if (PartyService.Instance.IsInParty && PartyService.Instance.IsLeader)
             {
                 _leaderMatch.CancelMatch();
             }
-            else if (!_party.IsInParty)
+            else if (!PartyService.Instance.IsInParty)
             {
                 await _followerMatch.ReturnHomeAsync(RoomMakeHelper.Personal(CurrentUid));
             }
@@ -102,29 +103,29 @@ namespace MSG
 
         public void OnClickLeaveParty()
         {
-            if (!_party.IsInParty)
+            if (!PartyService.Instance.IsInParty)
             {
                 Debug.Log("파티에 있지 않습니다");
                 return;
             }
 
             // 리더는 파티 탈퇴 시 해산
-            if (_party.IsLeader)
+            if (PartyService.Instance.IsLeader)
             {
                 // 모든 멤버에게 해산 통지
-                foreach (var uid in _party.Members)
+                foreach (var uid in PartyService.Instance.Members)
                 {
-                    if (uid == _party.LeaderUid) continue;
-                    _chat.SendPartyDisband(uid, _party.LeaderUid);
+                    if (uid == PartyService.Instance.LeaderUid) continue;
+                    _chat.SendPartyDisband(uid, PartyService.Instance.LeaderUid);
                 }
 
-                _party.SetSolo(); // 리더 자신도 나가기
+                PartyService.Instance.SetSolo(); // 리더 자신도 나가기
             }
             // 팔로워는 파티 탈퇴 시 혼자만 나감
             else
             {
-                _chat.SendPartyLeave(_party.LeaderUid, CurrentUid); // 나갔다는 통보 전달
-                _party.SetSolo(); // 로컬에서 자신이 나가기
+                _chat.SendPartyLeave(PartyService.Instance.LeaderUid, CurrentUid); // 나갔다는 통보 전달
+                PartyService.Instance.SetSolo(); // 로컬에서 자신이 나가기
             }
         }
 
@@ -134,17 +135,17 @@ namespace MSG
             switch (type)
             {
                 case DMType.Invite:
-                    if (_party.IsInParty && _party.IsLeader) return;
+                    if (PartyService.Instance.IsInParty && PartyService.Instance.IsLeader) return;
                     await _followerMatch.JoinInviteAsync(payload);
                     break;
 
                 case DMType.Out:
-                    if (_party.IsInParty && _party.IsLeader) return;
+                    if (PartyService.Instance.IsInParty && PartyService.Instance.IsLeader) return;
                     await _followerMatch.LeaveNowAsync();
                     break;
 
                 case DMType.Recall:
-                    if (_party.IsInParty && _party.IsLeader) return;
+                    if (PartyService.Instance.IsInParty && PartyService.Instance.IsLeader) return;
                     await _followerMatch.ReturnHomeAsync(payload);
                     break;
 
@@ -155,7 +156,7 @@ namespace MSG
 
                 case DMType.PartyInvite:
                     var pInvite = JsonUtility.FromJson<PartyInviteMsg>(payload);
-                    if (_party.IsInParty) // 파티에 이미 있으면 거절
+                    if (PartyService.Instance.IsInParty) // 파티에 이미 있으면 거절
                     {
                         _chat.SendPartyReject(pInvite.leaderUid, pInvite.partyId, CurrentUid, "user_declined_already_in_party");
                         return;
@@ -166,15 +167,15 @@ namespace MSG
                     break;
 
                 case DMType.PartyAccept:
-                    if (!_party.IsLeader) return; // 리더만 처리
+                    if (!PartyService.Instance.IsLeader) return; // 리더만 처리
                     //if (!_party.IsInParty) _party.SetParty(CurrentUid, _party.Members);
                     var pAccept = JsonUtility.FromJson<PartyAcceptMsg>(payload);
-                    if (!_party.Members.Contains(senderUid)) _party.AddMember(senderUid); // 파티에 멤버 추가
+                    if (!PartyService.Instance.Members.Contains(senderUid)) PartyService.Instance.AddMember(senderUid); // 파티에 멤버 추가
                     BroadcastPartySync(); // 이후 파티 브로드캐스트
                     break;
 
                 case DMType.PartyReject:
-                    if (!_party.IsLeader) return; // 리더만 처리
+                    if (!PartyService.Instance.IsLeader) return; // 리더만 처리
                     // 일단 지금 당장은 할 일은 없는 듯
                     break;
 
@@ -184,15 +185,15 @@ namespace MSG
 
 
                 case DMType.PartyLeave:
-                    if (!_party.IsLeader) break; // 리더만 멤버 제거 후 브로드캐스트
+                    if (!PartyService.Instance.IsLeader) break; // 리더만 멤버 제거 후 브로드캐스트
                     var pLeave = JsonUtility.FromJson<PartyLeaveMsg>(payload);
-                    if (_party.IsMember(pLeave.leaverUid))
+                    if (PartyService.Instance.IsMember(pLeave.leaverUid))
                     {
-                        _party.RemoveMember(pLeave.leaverUid);
-                        if (_party.HasOnlyLeader) // 나간 시점에 파티에 리더 혼자면
+                        PartyService.Instance.RemoveMember(pLeave.leaverUid);
+                        if (PartyService.Instance.HasOnlyLeader) // 나간 시점에 파티에 리더 혼자면
                         {
                             Debug.Log("파티에 리더 혼자만 남아 자동 해산");
-                            _party.SetSolo();
+                            PartyService.Instance.SetSolo();
                         }
                         else
                         {
@@ -204,7 +205,7 @@ namespace MSG
 
                 case DMType.PartyDisband:
                     var pDisband = JsonUtility.FromJson<PartyDisbandMsg>(payload);
-                    _party.SetSolo(); // 해산 통보 받고 알아서 솔로 전환
+                    PartyService.Instance.SetSolo(); // 해산 통보 받고 알아서 솔로 전환
                     break;
             }
         }
@@ -217,16 +218,16 @@ namespace MSG
 
             Debug.Log($"[HandlePartySync]  리더: {msg.leaderUid}, 멤버: [{string.Join(",", msg.members ?? new string[0])}]");
 
-            _party.SetParty(msg.leaderUid, msg.members?.ToList()); // 파티 상태 동기화
+            PartyService.Instance.SetParty(msg.leaderUid, msg.members?.ToList()); // 파티 상태 동기화
         }
 
         private void BroadcastPartySync()
         {
-            if (!_party.IsLeader) return;
+            if (!PartyService.Instance.IsLeader) return;
 
-            string partyId = _party.CurrentPartyId;
-            string leaderUid = _party.LeaderUid;
-            string[] members = _party.Members.ToArray();
+            string partyId = PartyService.Instance.CurrentPartyId;
+            string leaderUid = PartyService.Instance.LeaderUid;
+            string[] members = PartyService.Instance.Members.ToArray();
 
             Debug.Log($"[BroadcastPartySync] leader: {leaderUid}, members: [{string.Join(",", members)}]");
 
