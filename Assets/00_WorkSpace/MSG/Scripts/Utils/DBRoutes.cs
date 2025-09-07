@@ -89,6 +89,12 @@ namespace MSG
         public static string Heartbeat(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.heartbeat); // Heartbeat 타임스탬프
 
 
+        // ----- Missions -----
+        public static string MissionsRoot => DBPathMaker.Join(DatabaseKeys.missions);
+        public static string UserDailyMissionRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.daily);
+        public static string UserAchievementMissionRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.achievement);
+
+
         #region Deprecated
 
         // ------ Party Data(Deprecated) -----
