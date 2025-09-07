@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class CharacterInventoryUI : MonoBehaviour
 {
-    private CharacterData characterData;
+    private UnimoCharacterSO characterData;
     private MyRoomManager myRoomManager;
 
     [SerializeField] private Image characterIcon;
@@ -15,14 +15,12 @@ public class CharacterInventoryUI : MonoBehaviour
     // 선택 상태를 표시할 이미지 오버레이 변수 추가
     [SerializeField] private Image selectionOverlay;
 
-    public void Init(CharacterData data, MyRoomManager manager)
+    public void Init(UnimoCharacterSO data, MyRoomManager manager)
     {
         this.characterData = data;
         this.myRoomManager = manager;
 
-        // characterSprite를 가져올 때, data.CharacterSprite 속성 사용
         characterIcon.sprite = data.characterSprite;
-        // characterName을 가져올 때, data.CharacterName 속성 사용
         if (characterNameText != null)
         {
             characterNameText.text = data.characterName;
@@ -37,7 +35,6 @@ public class CharacterInventoryUI : MonoBehaviour
 
     private void OnEquipButtonClicked()
     {
-        // myRoomManager의 EquipCharacter 메서드 호출
         myRoomManager.EquipCharacter(characterData);
     }
 
