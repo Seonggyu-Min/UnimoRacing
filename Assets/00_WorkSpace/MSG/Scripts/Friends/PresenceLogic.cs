@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace MSG
 {
-    public class PresenceUpdater : MonoBehaviour
+    public class PresenceLogic : MonoBehaviour
     {
         [SerializeField] private float _heartbeatIntervalSeconds = 30f; // Heartbeat를 보내는 간격 (초 단위)
         [SerializeField] private float _killCountDownSeconds = 10f; // 앱이 포커스를 잃거나 종료될 때, 온라인 상태를 false로 전환하는 시간 (초 단위)
