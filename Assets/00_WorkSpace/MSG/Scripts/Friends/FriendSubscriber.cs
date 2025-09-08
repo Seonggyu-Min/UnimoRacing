@@ -11,7 +11,6 @@ namespace MSG
     public class FriendSubscriber : MonoBehaviour
     {
         [SerializeField] private ChatDM _chatDM;
-        [SerializeField] private PartyService _partyService;
 
         [SerializeField] private PartyRequestCard _partyRequestCard;
         [SerializeField] private Transform _parent;

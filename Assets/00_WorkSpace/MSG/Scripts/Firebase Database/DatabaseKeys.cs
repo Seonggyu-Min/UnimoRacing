@@ -136,5 +136,18 @@ namespace MSG
         public const string step = "step";
         public const string unimoCost = "unimoCost";
 
+        // -- Missions Keys --
+        public const string missions = "missions";
+        public const string daily = "daily";
+        public const string achievement = "achievement";
+        public const string title = "title";
+        public const string missionType = "missionType";
+        public const string description = "description";
+        public const string rewardQuantity = "rewardQuantity";
+        public const string targetCount = "targetCount";
+        public const string progress = "progress";
+        public const string cleared = "cleared";
+        public const string claimed = "claimed";
+        public const string dateKey = "dateKey";
     }
 }
