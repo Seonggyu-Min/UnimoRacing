@@ -7,8 +7,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-namespace MSG
+namespace MSG.Deprecated
 {
+    // SO에 Price가 사라짐으로써 사용되지 않습니다
     public class ShopUIBehaviour : MonoBehaviour
     {
         #region Fields and Properties
