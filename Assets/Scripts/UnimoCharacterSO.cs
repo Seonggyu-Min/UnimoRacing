@@ -23,7 +23,7 @@ public class UnimoCharacterSO : ScriptableObject
 
     [Header("연관/시너지")]
     [Tooltip("테이블의 '시너지 차량 ID'")]
-    public int synergyCarId = -1;
+    public int SynergyKartID = -1;
 
     [Tooltip("테이블의 '관계 캐릭터 ID'")]
     public int relationCharacterId = -1;
