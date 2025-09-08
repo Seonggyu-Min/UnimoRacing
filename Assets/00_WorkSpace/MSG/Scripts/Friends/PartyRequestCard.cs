@@ -13,11 +13,37 @@ namespace MSG
         [SerializeField] private TMP_Text _nicknameText;
         [SerializeField] private TMP_Text _levelText;
         [SerializeField] private Image _unimoIcon;
+        [SerializeField] private float _refreshSeconds = 10f;       // 몇 초 마다 온라인 상태를 주기적으로 체크할 것인지
+        [SerializeField] private Color _onlineColor = Color.green;  // 온라인   상태일 때의 닉네임 색깔
+        [SerializeField] private Color _offlineColor = Color.white; // 오프라인 상태일 때의 닉네임 색깔
 
         private ChatDM _chat;
         private string _targetUid;
+        private Coroutine _watchCO;
 
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
+
+
+        private void OnEnable()
+        {
+            if (!string.IsNullOrEmpty(_targetUid))
+            {
+                _watchCO = StartCoroutine(WatchPresence());
+            }
+            else
+            {
+                Debug.LogWarning("_targetUid가 null입니다");
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (_watchCO != null) 
+            {
+                StopCoroutine(_watchCO); 
+                _watchCO = null; 
+            }
+        }
 
 
         public void Init(string uid, ChatDM chat)
@@ -74,6 +100,12 @@ namespace MSG
                 },
                 err => Debug.LogWarning($"[PartyRequestCard] 사용자 정보 읽기 오류: {err}")
                 );
+
+            PresenceLogic.Instance.IsOnline(
+                uid,
+                online => _nicknameText.color = online ? _onlineColor : _offlineColor,
+                err => Debug.LogWarning($"[PartyRequestCard] 온라인 상태 읽기 오류: {err}")
+                );
         }
 
         public void OnClickPartyRequest()
@@ -101,6 +133,20 @@ namespace MSG
             _chat.SendPartyInvite(_targetUid, partyId, leaderUid, members);
 
             Debug.Log($"{_targetUid}에게 {partyId}로 초대 완료");
+        }
+
+
+        private IEnumerator WatchPresence()
+        {
+            var wait = new WaitForSeconds(_refreshSeconds);
+            while (true)
+            {
+                PresenceLogic.Instance.IsOnline(
+                    _targetUid,
+                    online => _nicknameText.color = online ? _onlineColor : _offlineColor
+                );
+                yield return wait;
+            }
         }
     }
 }
