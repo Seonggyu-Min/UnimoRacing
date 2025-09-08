@@ -114,10 +114,40 @@ namespace MSG
         public const string userInvitations = "userInvitations"; // 유저별 초대장 목록
 
 
-        // -- Catalog Keys --
-        public const string catalog = "catalog";
+        // -- Patch Keys --
+        public const string patch = "patch";
         public const string version = "version";
         public const string globals = "globals";
+        public const string updatedAt = "updatedAt";
+        public const string speed = "speed";
+        public const string cost = "cost";
+        public const string speedOverride = "speedOverride";
+        public const string costOverride = "costOverride";
+        public const string curveType = "curveType";
+        public const string baseValue = "baseValue";
+        public const string linearStep = "linearStep";
+        public const string multiplierStep = "multiplierStep";
+        public const string maxLevel = "maxLevel";
+        public const string table = "table";
+        public const string growthType = "growthType";
+        public const string moneyType = "moneyType";
+        public const string baseCost = "baseCost";
+        public const string growthRate = "growthRate";
+        public const string step = "step";
+        public const string unimoCost = "unimoCost";
 
+        // -- Missions Keys --
+        public const string missions = "missions";
+        public const string daily = "daily";
+        public const string achievement = "achievement";
+        public const string title = "title";
+        public const string missionType = "missionType";
+        public const string description = "description";
+        public const string rewardQuantity = "rewardQuantity";
+        public const string targetCount = "targetCount";
+        public const string progress = "progress";
+        public const string cleared = "cleared";
+        public const string claimed = "claimed";
+        public const string dateKey = "dateKey";
     }
 }

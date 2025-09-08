@@ -385,7 +385,7 @@ public class RoomManager : SimpleSingleton<RoomManager> // , IOnEventCallback
             PhotonNetworkManager.Instance.OnActionRoomPropertiesUpdate += RoomPropertiesUpdate;
 
             PhotonNetwork.SendRate          = 60; // 초당 패킷 전송 횟수(기본 20)
-            PhotonNetwork.SerializationRate = 20; // OnPhotonSerializeView 호출 빈도(기본 10)
+            PhotonNetwork.SerializationRate = 30; // OnPhotonSerializeView 호출 빈도(기본 10)
         }
     }
 

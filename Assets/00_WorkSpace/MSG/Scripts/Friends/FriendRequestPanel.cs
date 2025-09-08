@@ -23,8 +23,8 @@ namespace MSG
             _infoText.text = "요청 로딩 중…";
 
             DatabaseManager.Instance.GetOnMain(DBRoutes.Nickname(_fromUid),
-                snap => _infoText.text = $"{snap.Value} 님이 친구 요청을 보냈습니다.",
-                err => _infoText.text = $"{_fromUid} 님이 친구 요청을 보냈습니다."
+                snap => _infoText.text = $"{snap.Value}",
+                err => Debug.LogWarning($"친구 요청 로딩 에러: {err}")
             );
         }
 

@@ -20,37 +20,38 @@ MonoBehaviour:
   - m_GUID: 22ede9d2fb2b0874bb006b34fa24f73c
     m_Address: Audio/BGM/GameBGM01
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5b007e2aaf716264b8ee10d9b457b6c7
     m_Address: Audio/SFX/TouchTest
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 79ca93df23195594b8eb63f6c1a22256
     m_Address: Audio/BGM/GameBGM02
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 83e89c63ddc06ec4aac9d7e9ca0cbedb
     m_Address: Audio/SFX/Collision
     m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ad8a86cb49398584eb6669673b8f12de
-    m_Address: Audio/LoopingSFX/CarEngine
-    m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c4ef33583abe07741ab9b30329cfd6b5
     m_Address: Audio/SFX/LineMove
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: dd2c69cd0537ea245ab40ee695a4781a
+  - m_GUID: cc40445874badd94cafb38c3ac1aa433
     m_Address: Audio/BGM/LobbyBGM
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 77e2d83c7e8f57943b8b09c4fc47a174, type: 2}

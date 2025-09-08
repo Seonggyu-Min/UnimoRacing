@@ -10,7 +10,6 @@ namespace MSG
 {
     public class LeaderMatchFinder : MonoBehaviourPunCallbacks
     {
-        [SerializeField] private PartyService _party;
         [SerializeField] private RoomAgent _room;
         [SerializeField] private ChatDM _chat;
         [SerializeField] private GameStarter _gameStarter;
@@ -36,9 +35,9 @@ namespace MSG
             int free = PhotonNetwork.CurrentRoom.MaxPlayers - PhotonNetwork.CurrentRoom.PlayerCount;
             if (free >= partySize - 1)
             {
-                foreach (string uid in _party.Members)
+                foreach (string uid in PartyService.Instance.Members)
                 {
-                    if (uid == _party.LeaderUid) continue;
+                    if (uid == PartyService.Instance.LeaderUid) continue;
                     _chat.SendInvite(uid, PhotonNetwork.CurrentRoom.Name);
                 }
             }
@@ -47,13 +46,13 @@ namespace MSG
         public async void CancelMatch()
         {
             // 파티원들 복귀 명령
-            foreach (string uid in _party.Members)
+            foreach (string uid in PartyService.Instance.Members)
             {
-                if (uid == _party.LeaderUid) continue;
+                if (uid == PartyService.Instance.LeaderUid) continue;
                 _chat.SendCancel(uid);
             }
 
-            await _room.EnsureHomeRoomAsync(RoomMakeHelper.PartyHome(_party.LeaderUid)); // 자신도 복귀
+            await _room.EnsureHomeRoomAsync(RoomMakeHelper.PartyHome(PartyService.Instance.LeaderUid)); // 자신도 복귀
         }
 
         public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -74,30 +73,30 @@ namespace MSG
             List<string> memberUids = new();
             foreach (var player in PhotonNetwork.CurrentRoom.Players)
             {
-                if (_party.Members.Contains(player.Value.UserId))
+                if (PartyService.Instance.Members.Contains(player.Value.UserId))
                 {
                     memberUids.Add(player.Value.UserId);
                 }
             }
 
-            bool same = new HashSet<string>(_party.Members).SetEquals(memberUids);
+            bool same = new HashSet<string>(PartyService.Instance.Members).SetEquals(memberUids);
 
             // 모든 멤버가 방에 있지 않으면
             if (!same)
             {
                 // 즉시 OUT하여 파티원이 다른 방에 있게하지 말기
-                foreach (string uid in _party.Members)
+                foreach (string uid in PartyService.Instance.Members)
                 {
-                    if (uid == _party.LeaderUid) continue;
+                    if (uid == PartyService.Instance.LeaderUid) continue;
                     _chat.SendOut(uid);
                 }
 
                 string newMatchRoom = RoomMakeHelper.MatchCandidate();
                 await _room.JoinOrCreateAsync(newMatchRoom, RoomMakeHelper.MakeMatchOptions());
 
-                foreach (string uid in _party.Members)
+                foreach (string uid in PartyService.Instance.Members)
                 {
-                    if (uid == _party.LeaderUid) continue;
+                    if (uid == PartyService.Instance.LeaderUid) continue;
                     _chat.SendInvite(uid, newMatchRoom);
                 }
             }

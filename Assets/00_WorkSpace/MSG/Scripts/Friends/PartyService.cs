@@ -10,8 +10,8 @@ namespace MSG
     {
         #region Fields, Properties and Actions
 
-        private bool _isInParty;
-        private bool _isLeader;
+        private bool _isInParty = false;
+        private bool _isLeader = true;
         private string _leaderUid;
         private List<string> _members = new();
         private string _currentPartyId;

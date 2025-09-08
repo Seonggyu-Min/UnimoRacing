@@ -68,11 +68,13 @@ namespace MSG
 
 
         // ----- Catalog -----
-        public static string CatalogRoot() => DBPathMaker.Join(DatabaseKeys.catalog);
-        public static string CatalogVersion() => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.version);
-        public static string CatalogGlobals() => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.globals);
-        public static string CatalogKarts() => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.karts);
-        public static string CatalogKart(int kartId) => DBPathMaker.Join(DatabaseKeys.catalog, DatabaseKeys.karts, kartId.ToString());
+        public static string PatchRoot() => DBPathMaker.Join(DatabaseKeys.patch);
+        public static string PatchVersion() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.version);
+        public static string PatchGlobals() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.globals);
+        public static string PatchKarts() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.karts);
+        public static string PatchKart(int kartId) => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.karts, kartId.ToString());
+        public static string PatchUnimos() => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.unimos);
+        public static string PatchUnimo(int unimoId) => DBPathMaker.Join(DatabaseKeys.patch, DatabaseKeys.unimos, unimoId.ToString());
 
 
         // ----- Presence Data(WIP) -----
@@ -85,6 +87,12 @@ namespace MSG
         public static string LastSeen(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.lastSeen); // 마지막 업데이트 타임스탬프
         public static string RoomName(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.roomName); // 현재 방 이름
         public static string Heartbeat(string uid) => DBPathMaker.Join(DatabaseKeys.presence, uid, DatabaseKeys.heartbeat); // Heartbeat 타임스탬프
+
+
+        // ----- Missions -----
+        public static string MissionsRoot => DBPathMaker.Join(DatabaseKeys.missions);
+        public static string UserDailyMissionRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.daily);
+        public static string UserAchievementMissionRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.achievement);
 
 
         #region Deprecated

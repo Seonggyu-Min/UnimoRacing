@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56ced7404462cb1429f509e00dd27fd8, type: 3}
+  m_Name: UnimoCharacterSO_20007
+  m_EditorClassIdentifier: 
+  characterId: 20007
+  characterName: "\uB460\uB460"
+  characterPrefab: {fileID: 4295636587615923878, guid: 57de376fda9433f4a90d660f8399a687,
+    type: 3}
+  characterSprite: {fileID: 21300000, guid: d63fbd7e2ab1c9b4c9a716db8f129885, type: 3}
+  characterInfo: 
+  synergyCarId: -1
+  relationCharacterId: -1
+  dialogId: -1

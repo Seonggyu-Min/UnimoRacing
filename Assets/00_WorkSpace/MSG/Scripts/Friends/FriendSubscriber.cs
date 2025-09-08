@@ -11,7 +11,6 @@ namespace MSG
     public class FriendSubscriber : MonoBehaviour
     {
         [SerializeField] private ChatDM _chatDM;
-        [SerializeField] private PartyService _partyService;
 
         [SerializeField] private PartyRequestCard _partyRequestCard;
         [SerializeField] private Transform _parent;
@@ -87,7 +86,7 @@ namespace MSG
             foreach (var uid in friendUids)
             {
                 PartyRequestCard card = Instantiate(_partyRequestCard, _parent);
-                card.Init(uid, _chatDM, _partyService);
+                card.Init(uid, _chatDM);
                 _cardList.Add(card.gameObject);
             }
         }
