@@ -11,11 +11,15 @@ namespace MSG
     public enum DeveloperAccountType
     {
         None,
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+        Tester01, Tester02, Tester03, Tester04
+#else
         MSG1, MSG2, MSG3, MSG4,
         YSJ1, YSJ2, YSJ3, YSJ4,
         PJY1, PJY2, PJY3, PJY4,
         YTW1, YTW2, YTW3, YTW4,
         NTJ1, NTJ2, NTJ3, NTJ4
+#endif
     }
 
     public class AutoLogIn : MonoBehaviour
@@ -26,7 +30,11 @@ namespace MSG
         [SerializeField] private TMP_InputField _passwordInputField;
         [SerializeField] private DevModeLogInHelper _devModeLogInHelper;
 
+
         [Header("AccountSO")]
+        [Header("Tester (Standalone)")]
+        [SerializeField] private AccountSO _testerAccount;
+
         [Header("MSG")]
         [SerializeField] private AccountSO _msgAccount;
         [Header("YSJ")]
@@ -42,6 +50,15 @@ namespace MSG
 
         private void Start()
         {
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+            _developerCredentials = new()
+            {
+                { DeveloperAccountType.Tester01, (_testerAccount.Email1, _testerAccount.Password1) },
+                { DeveloperAccountType.Tester02, (_testerAccount.Email2, _testerAccount.Password2) },
+                { DeveloperAccountType.Tester03, (_testerAccount.Email3, _testerAccount.Password3) },
+                { DeveloperAccountType.Tester04, (_testerAccount.Email4, _testerAccount.Password4) },
+            };
+#else
             _developerCredentials = new()
             {
                 { DeveloperAccountType.MSG1, (_msgAccount.Email1, _msgAccount.Password1) },
@@ -69,7 +86,7 @@ namespace MSG
                 { DeveloperAccountType.NTJ3, (_ntjAccount.Email3, _ntjAccount.Password3) },
                 { DeveloperAccountType.NTJ4, (_ntjAccount.Email4, _ntjAccount.Password4) },
             };
-
+#endif
             _accountDropdown.ClearOptions();
 
             List<string> options = new();
