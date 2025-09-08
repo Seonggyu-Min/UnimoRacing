@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8785110951555464498
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5728381264042515187}
+  - component: {fileID: 7195596161801598769}
+  - component: {fileID: 7381467126380754241}
+  - component: {fileID: 1830223126246198942}
+  - component: {fileID: 7233425448228037678}
+  - component: {fileID: 4988840961492710059}
+  - component: {fileID: 5797398090929796781}
+  m_Layer: 0
+  m_Name: Match Maker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5728381264042515187
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8785110951555464498}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7195596161801598769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8785110951555464498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e5329c470da3f640b60159a199eb3bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _room: {fileID: 5797398090929796781}
+  _chat: {fileID: 7233425448228037678}
+  _leaderMatch: {fileID: 7381467126380754241}
+  _followerMatch: {fileID: 1830223126246198942}
+  _gameStarter: {fileID: 4988840961492710059}
+  _partyJoinPanel: {fileID: 0}
+--- !u!114 &7381467126380754241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8785110951555464498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0a15e6fbe521644bae8f5f44ebe9bd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _room: {fileID: 5797398090929796781}
+  _chat: {fileID: 7233425448228037678}
+  _gameStarter: {fileID: 4988840961492710059}
+--- !u!114 &1830223126246198942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8785110951555464498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bb34a3fcfafda84ba9199ad830a238e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _room: {fileID: 5797398090929796781}
+--- !u!114 &7233425448228037678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8785110951555464498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 058672b8068f71947bc094482a3936f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _region: ASIA
+  _autoReconnect: 1
+  _reconnectDelaySec: 2
+--- !u!114 &4988840961492710059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8785110951555464498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de189602488d6bf4b9a62dd88bcf1f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _dontTryStartWhenInHomeRoom: 1
+  _dontTryStartWhenInPartyRoom: 1
+--- !u!114 &5797398090929796781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8785110951555464498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3b2d335c065bb5468d015749ebfebc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
