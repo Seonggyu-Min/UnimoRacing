@@ -7,7 +7,7 @@ public class UnimoKartSO : ScriptableObject
 {
     [Header("기본 정보")]
     [Tooltip("차량 ID")]
-    public int carId;
+    public int KartID;
 
     [Tooltip("차량 이름")]
     public string carName;
