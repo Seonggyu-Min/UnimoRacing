@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 namespace MSG
@@ -11,6 +12,7 @@ namespace MSG
     {
         [SerializeField] private TMP_Text _nicknameText;
         [SerializeField] private TMP_Text _levelText;
+        [SerializeField] private Image _unimoIcon;
 
         private ChatDM _chat;
         private string _targetUid;
@@ -27,6 +29,7 @@ namespace MSG
                 DBRoutes.Users(_targetUid),
                 snap =>
                 {
+                    // 닉네임
                     string nickname = "";
                     var nickSnap = snap.Child(DatabaseKeys.nickname);
                     if (nickSnap.Exists && nickSnap.Value != null)
@@ -35,6 +38,7 @@ namespace MSG
                     }
                     _nicknameText.text = nickname;
 
+                    // 레벨
                     int level = 1;
                     var expSnap = snap.Child(DatabaseKeys.gameData).Child(DatabaseKeys.experience);
                     if (expSnap.Exists && expSnap.Value != null)
@@ -45,6 +49,28 @@ namespace MSG
                     }
                     _levelText.text = $"lv {level}";
                     Debug.Log($"{nickname}의 레벨: {level}");
+
+                    // 아이콘
+                    int equippedIndex = -1;
+
+                    var unimoSnap = snap.Child(DatabaseKeys.equipped).Child(DatabaseKeys.unimos);
+                    if (unimoSnap.Exists && unimoSnap.Value != null)
+                    {
+                        if (!int.TryParse(unimoSnap.Value.ToString(), out equippedIndex))
+                        {
+                            Debug.LogWarning("[PartyRequestCard] 올바르지 않은 저장 형식을 불러왔습니다");
+                        }
+                    }
+
+                    Debug.Log($"equippedIndex: {equippedIndex}");
+
+                    if (UnimoKartDatabase.Instance.TryGetByUnimoIndex(
+                        equippedIndex, out UnimoCharacterSO unimo) && 
+                        unimo != null && 
+                        unimo.characterSprite != null)
+                    {
+                        _unimoIcon.sprite = unimo.characterSprite;
+                    }
                 },
                 err => Debug.LogWarning($"[PartyRequestCard] 사용자 정보 읽기 오류: {err}")
                 );
