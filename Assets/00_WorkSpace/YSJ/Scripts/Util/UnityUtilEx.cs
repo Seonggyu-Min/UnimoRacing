@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using Photon.Realtime;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +14,18 @@ namespace YSJ.Util
             if (comp == null)
                 comp = go.AddComponent<T>();
             return comp;
+        }
+
+        public static T GetChild<T>(this GameObject go, string name) where T : Component
+        {
+            var comps = go.GetComponentsInChildren<T>();
+            foreach (var comp in comps)
+            {
+                if (comp is T && comp.gameObject.name.Equals(name))
+                    return comp;
+            }
+
+            return null;
         }
 
         public static GameObject FindOrCreateGameObject(string name) 
@@ -43,6 +57,15 @@ namespace YSJ.Util
             }
 
             return nearest;
+        }
+
+        public static int GetPlayerRoomIndex(this Player p)
+        {
+            var arr = PhotonNetwork.PlayerList;
+            for (int i = 0; i < arr.Length; i++)
+                if (arr[i].ActorNumber == p.ActorNumber)
+                    return i;
+            return -1;
         }
 
         public static void PrintLog<T>(this T type, string log, LogType logType = LogType.Log, bool isPrint = true)
