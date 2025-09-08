@@ -40,6 +40,7 @@ namespace MSG
         [SerializeField] private bool _autoStart = true;
         [SerializeField] private float _silentDelaySec = 0.1f;
         [SerializeField] private float _silentTimeoutSec = 6f;
+        [SerializeField] private bool _autoFallbackToInteractive = true; // UI 상황에 맞게 사일런트 로그인 실패 시 구글 로그인 UI를 호출하도록 함
 
         public event Action OnAuthSucceeded;
         public event Action<string> OnAuthFailed;
@@ -164,6 +165,7 @@ namespace MSG
 #if UNITY_EDITOR
             SetUI(AuthState.SignedIn, string.Format(WELCOME_FMT, user.DisplayName ?? "Player"), showError: false);
             OnAuthSucceeded?.Invoke();
+            return;
 #endif
             if (_failedHandledOnce) return;
 
@@ -189,9 +191,26 @@ namespace MSG
             {
                 _attempt = AttemptKind.None;
 
-                if (_statusText) _statusText.text = AUTO_FAIL_PROMPT;
-                EnableButtons(interactive: true);
-                _errorPanel?.SetActive(false);
+                // 자동으로 Interactive로 전환
+                if (_autoFallbackToInteractive && isActiveAndEnabled)
+                {
+                    // UI 안내 메시지 (현재는 안 쓸 듯)
+                    //if (_statusText) _statusText.text = "Automatic login failed. Opening Google sign-in…";
+                    _errorPanel?.SetActive(false);
+                    EnableButtons(false);
+
+                    // Silent 실패 처리 가드를 풀고 다음 콜백을 받게
+                    _failedHandledOnce = false;
+
+                    AutoInteract();
+                }
+                else
+                {
+                    // 기존 동작(버튼 눌러 달라고 안내)
+                    if (_statusText) _statusText.text = AUTO_FAIL_PROMPT;
+                    EnableButtons(interactive: true);
+                    _errorPanel?.SetActive(false);
+                }
 
                 OnAuthFailed?.Invoke(rawMessage);
                 return;
@@ -235,6 +254,16 @@ namespace MSG
                 Debug.LogWarning("[AuthFlow] Silent sign-in timeout.");
                 HandleSignInFailed("Silent sign-in timeout");
             }
+        }
+
+        // 사일런트 로그인 실패 시 자동으로 구글 로그인 실행
+        private void AutoInteract()
+        {
+            // 이미 비활성이거나 다른 상태로 바뀌었으면 중단
+            if (!isActiveAndEnabled) return;
+            if (_busy) return;
+
+            OnClickGoogleLogin();
         }
 
         private void StopAttemptTimeout()
