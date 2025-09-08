@@ -236,7 +236,7 @@ public class MyRoomManager : MonoBehaviour
             GameObject item = Instantiate(kartInventoryPrefab, kartInventoryParent);
             var ui = item.GetComponent<KartInventoryUI>();
 
-            bool isOwned = (_ownedKarts != null && _ownedKarts.ContainsKey(kartData.carId.ToString())) || IsDefaultOwned(kartData);
+            bool isOwned = (_ownedKarts != null && _ownedKarts.ContainsKey(kartData.carId.ToString())); // || IsDefaultOwned(kartData);
 
             // Pass ownership status to your UI component
             ui.Init(kartData, this, isOwned);
@@ -252,7 +252,7 @@ public class MyRoomManager : MonoBehaviour
             GameObject item = Instantiate(characterInventoryPrefab, characterInventoryParent);
             var ui = item.GetComponent<CharacterInventoryUI>();
 
-            bool isOwned = (_ownedCharacters != null && _ownedCharacters.ContainsKey(charData.characterId.ToString())) || IsDefaultOwned(charData);
+            bool isOwned = (_ownedCharacters != null && _ownedCharacters.ContainsKey(charData.characterId.ToString()));// || IsDefaultOwned(charData);
 
             // Pass ownership status to your UI component
             ui.Init(charData, this, isOwned);
@@ -311,11 +311,11 @@ public class MyRoomManager : MonoBehaviour
    
     private bool IsDefaultOwned(UnimoCharacterSO character)
     {
-        return character.characterId >= 1 && character.characterId <= 3;
+        return character.characterId >= 20001 && character.characterId <= 20003;
     }
 
     private bool IsDefaultOwned(UnimoKartSO kart)
     {
-        return kart.carId >= 1 && kart.carId <= 3;
+        return kart.carId >= 10001 && kart.carId <= 10003;
     }
 }
