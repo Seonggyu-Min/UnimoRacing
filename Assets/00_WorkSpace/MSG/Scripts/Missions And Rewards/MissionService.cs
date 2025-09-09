@@ -73,7 +73,7 @@ namespace MSG
                         RewardQuantity = ToInt(child.Child(DatabaseKeys.rewardQuantity).Value),
                         TargetCount = ToInt(child.Child(DatabaseKeys.targetCount).Value),
                         MissionType = ToEnum(child.Child(DatabaseKeys.missionType).Value?.ToString(), MissionType.RaceFinish),
-                        MoneyType = ToEnum(child.Child(DatabaseKeys.moneyType).Value?.ToString(), MoneyType.Money1),
+                        MoneyType = ToEnum(child.Child(DatabaseKeys.moneyType).Value?.ToString(), MoneyType.Gold),
                     };
                     _dailyDefs[index] = entry;
                 }
@@ -95,7 +95,7 @@ namespace MSG
                         RewardQuantity = ToInt(child.Child(DatabaseKeys.rewardQuantity).Value),
                         TargetCount = ToInt(child.Child(DatabaseKeys.targetCount).Value),
                         MissionType = ToEnum(child.Child(DatabaseKeys.missionType).Value?.ToString(), MissionType.RaceFinish),
-                        MoneyType = ToEnum(child.Child(DatabaseKeys.moneyType).Value?.ToString(), MoneyType.Money1),
+                        MoneyType = ToEnum(child.Child(DatabaseKeys.moneyType).Value?.ToString(), MoneyType.Gold),
                     };
                     _achievementDefs[index] = entry;
                 }

@@ -166,7 +166,7 @@ namespace MSG
         private void OnClickShowLevel()
         {
             DatabaseManager.Instance.GetOnMain(DBRoutes.Experience(CurrentUid),
-                snap =>
+                (Action<Firebase.Database.DataSnapshot>)(                snap =>
                 {
                     long exp = 0;
                     if (snap.Exists && snap.Value != null)
@@ -174,8 +174,8 @@ namespace MSG
                         long.TryParse(snap.Value.ToString(), out exp);
                     }
 
-                    _testText.text = $"레벨: {ExpToLevel.Convert((int)snap.Value)}";
-                },
+                    _testText.text = $"레벨: {ExpToLevel.LevelFromTotalExp((int)snap.Value)}";
+                }),
                 err => _testText.text = $"레벨 읽기 오류: {err}"
                 );
         }

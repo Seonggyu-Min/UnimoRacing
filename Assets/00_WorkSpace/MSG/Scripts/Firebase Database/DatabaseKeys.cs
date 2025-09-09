@@ -42,9 +42,9 @@ namespace MSG
 
         // -- Game Data Keys --
         public const string gameData = "gameData";
-        public const string money1 = "money1";
-        public const string money2 = "money2";
-        public const string money3 = "money3";
+        public const string gold = "gold";
+        public const string blueHoneyGem = "blueHoneyGem";
+        //public const string money3 = "money3";
         public const string level = "level";
         public const string experience = "experience";
 

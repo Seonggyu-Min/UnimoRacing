@@ -12,16 +12,20 @@ namespace MSG
         [SerializeField] private GameObject _nicknameObj; // 끈 상태로 시작
         [SerializeField] private TMP_Text _infoText;
         [SerializeField] private TMP_InputField _nicknameInputField;
+        [SerializeField] private GameObject _tapToStartObj; // tap to start로 다음 씬으로 넘어가게 하는 오브젝트
 
         [Header("Init elements")]
-        [SerializeField][Min(0)] private int[] _initInventoryUnimos = new int[0];    // 최초 회원가입 시 가져야할 유니모 배열 (인덱스)
-        [SerializeField][Min(0)] private int[] _initInventoryKarts = new int[0];     // 최초 회원가입 시 가져야할 카트 배열 (인덱스)
-        [SerializeField][Min(0)] private int _initEquippedUnimo;                     // 최초 회원가입 시 장착하고 있을 유니모 (인덱스)
-        [SerializeField][Min(0)] private int _initEquippedKart;                      // 최초 회원가입 시 장착하고 있을 카트 (인덱스)
-        [SerializeField][Min(0)] private int _initMoney1;                            // 최초 회원가입 시 가져야할 돈1의 양
-        [SerializeField][Min(0)] private int _initMoney2;                            // 최초 회원가입 시 가져야할 돈2의 양
-        [SerializeField][Min(0)] private int _initMoney3;                            // 최초 회원가입 시 가져야할 돈3의 양
+        [SerializeField][Min(20000)] private int[] _initInventoryUnimos = new int[0];       // 최초 회원가입 시 가져야할 유니모 배열 (인덱스)
+        [SerializeField][Min(10000)] private int[] _initInventoryKarts = new int[0];        // 최초 회원가입 시 가져야할 카트 배열 (인덱스)
+        [SerializeField][Min(0)] private int _initEquippedUnimo;                            // 최초 회원가입 시 장착하고 있을 유니모 (인덱스)
+        [SerializeField][Min(0)] private int _initEquippedKart;                             // 최초 회원가입 시 장착하고 있을 카트 (인덱스)
+        [SerializeField][Min(0)] private int _initGold;                                     // 최초 회원가입 시 가져야할 골드의 양
+        [SerializeField][Min(0)] private int _initBlueHoneyGem;                             // 최초 회원가입 시 가져야할 블루허니잼의 양
+        //[SerializeField][Min(0)] private int _initMoney3;                                 // 최초 회원가입 시 가져야할 돈3의 양
+        //[SerializeField][Min(0)] private int _initExp = 100;                              // 최초 회원가입 시 가져야할 경험치의 양 (경험치 테이블은 100으로 되어 있음)
 
+        [Header("Behaviour")]
+        [SerializeField][Min(0)] private float _vanishSec = 5f; // 몇 초 뒤에 _infoText가 사라질 지
 
         private const int INIT_LEVEL = 1; // 1이 강화가 안된, 소지 여부만을 검증하는 레벨로 간주
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
@@ -29,8 +33,10 @@ namespace MSG
 
         private void Start()
         {
+            _infoText.text = string.Empty;
             _authFlowController.OnAuthSucceeded += CheckNicknameSet;
         }
+
 
         private void OnDisable()
         {
@@ -49,18 +55,24 @@ namespace MSG
                     _nicknameObj.SetActive(true);
                     InitDB();
                 }
+                else
+                {
+                    _tapToStartObj.SetActive(true); // 있으면 바로 다음 씬으로 넘어갈 수 있도록 함
+                }
             });
         }
 
         public void OnClickSetNickName()
         {
+            // TODO: 추가적으로 닉네임 사용 규칙 할거면 여기서 하면 될 듯
+            
             string newNickname = _nicknameInputField.text;
 
             DatabaseManager.Instance.GetOnMain(DBRoutes.Nicknames(newNickname), snap =>
             {
                 if (snap.Exists)
                 {
-                    _infoText.text = $"닉네임: {newNickname}가 이미 존재합니다";
+                    TextVanishRoutine($"닉네임: {newNickname}가 이미 존재합니다");
                 }
                 else
                 {
@@ -71,8 +83,12 @@ namespace MSG
                     };
 
                     DatabaseManager.Instance.UpdateOnMain(updates,
-                        onSuccess: () => _infoText.text = $"{newNickname}로 닉네임 설정 완료. 다음으로 넘어갈 수 있다는 안내 문구 띄우기",
-                        onError: err => _infoText.text = $"닉네임 설정 오류: {err}"
+                        onSuccess: () =>
+                        {
+                            Debug.Log($"{newNickname}로 닉네임 설정 완료. 다음으로 넘어갈 수 있다는 안내 문구 띄우기");
+                            _tapToStartObj.SetActive(true);
+                        },
+                        onError: err => Debug.LogWarning($"닉네임 설정 오류: {err}")
                         );
                 }
             });
@@ -86,9 +102,12 @@ namespace MSG
             updates[DBRoutes.Losses(CurrentUid)] = 0;
             updates[DBRoutes.Experience(CurrentUid)] = 0;
 
-            updates[DBRoutes.Money1(CurrentUid)] = _initMoney1;
-            updates[DBRoutes.Money2(CurrentUid)] = _initMoney2;
-            updates[DBRoutes.Money3(CurrentUid)] = _initMoney3;
+            updates[DBRoutes.Gold(CurrentUid)] = _initGold;
+            updates[DBRoutes.BlueHoneyGem(CurrentUid)] = _initBlueHoneyGem;
+            //updates[DBRoutes.Money3(CurrentUid)] = _initMoney3;
+
+            //updates[DBRoutes.Experience(CurrentUid)] = _initExp;
+
 
             if (_initInventoryUnimos != null)
             {
@@ -111,6 +130,13 @@ namespace MSG
             DatabaseManager.Instance.UpdateOnMain(updates,
                 () => Debug.Log("[DBInitializer] DB 초기화 완료"),
                 err => Debug.LogError($"[DBInitializer] DB 초기화 실패: {err}"));
+        }
+
+        private IEnumerator TextVanishRoutine(string text)
+        {
+            _infoText.text = text;
+            yield return new WaitForSeconds(_vanishSec);
+            _infoText.text = string.Empty;
         }
     }
 }

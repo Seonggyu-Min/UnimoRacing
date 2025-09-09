@@ -9,6 +9,7 @@ using UnityEngine.UI;
 
 namespace MSG
 {
+    // SO에 Price가 사라짐으로써 사용되지 않습니다
     public class BuyButtonBehaviour : MonoBehaviour
     {
         [SerializeField] private Image _icon;
@@ -124,9 +125,9 @@ namespace MSG
         {
             string path = moneyType switch
             {
-                MoneyType.Money1 => DBRoutes.Money1(CurrentUid),
-                MoneyType.Money2 => DBRoutes.Money2(CurrentUid),
-                MoneyType.Money3 => DBRoutes.Money3(CurrentUid),
+                MoneyType.Gold => DBRoutes.Gold(CurrentUid),
+                MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(CurrentUid),
+                //MoneyType.Money3 => DBRoutes.Money3(CurrentUid),
                 _ => null
             };
 
@@ -156,6 +157,7 @@ namespace MSG
                     // 부족하면 Abort
                     if (current < price)
                     {
+                        // 구매할 수 없다
                         return TransactionResult.Abort();
                     }
 
