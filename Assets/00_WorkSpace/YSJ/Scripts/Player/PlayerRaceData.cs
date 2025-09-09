@@ -70,31 +70,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     public DollyCartController Controller => _cartController;
     public DollyCartMovement Movement => _cartMovement;
 
-    /// <summary>
-    /// 초기화 여부를 판단합니다. 기본적으로 로드가 되어 초기화가 되었는지 확인하는 용도입니다.
-    /// </summary>
-    public bool IsSetups => _isSetups;
-    public bool IsSync => _isSync;
-    public bool IsSynergy => _isSynergy;
-
-    /// <summary>
-    /// 현재의 트랙의 인텍스 정보입니다. '_currentTrackIndex' 값은 Controller에서 변경을 담당하고 변경 시, 값이 수정됩니다.
-    /// </summary>
-    public int CurrentTrackIndex => _currentTrackIndex;
-
-    /// <summary>
-    /// 렙은 현재 몇 바퀴를 돌았는지를 체크하는 용도입니다.
-    /// </summary>
-    public int Lap => _lap;
-    /// <summary>
-    /// 현재 트랙의 진행 상황입니다.
-    /// </summary>
-    public float Norm => _norm;
-    /// <summary>
-    /// 실직적으로 적용되어 이동을 도움을 주는 값입니다.
-    /// </summary>
-    public float KartSpeed => _kartCurrentSpeed;
-
+    
 
     #region Unity
     private void Awake()
@@ -231,6 +207,42 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     #endregion
 
+    #region Get / Set > Other Out Input Datas
+
+    /// <summary>
+    /// 초기화 여부를 판단합니다. 기본적으로 로드가 되어 초기화가 되었는지 확인하는 용도입니다.
+    /// </summary>
+    public bool IsSetups => _isSetups;
+    public bool IsSync => _isSync;
+    public bool IsSynergy => _isSynergy;
+
+
+
+    /// <summary>
+    /// 현재의 트랙의 인텍스 정보입니다. '_currentTrackIndex' 값은 Controller에서 변경을 담당하고 변경 시, 값이 수정됩니다.
+    /// </summary>
+    public int CurrentTrackIndex => _currentTrackIndex;
+
+    /// <summary>
+    /// 렙은 현재 몇 바퀴를 돌았는지를 체크하는 용도입니다.
+    /// </summary>
+    public int Lap => _lap;
+    /// <summary>
+    /// 현재 트랙의 진행 상황입니다.
+    /// </summary>
+    public float Norm => _norm;
+    /// <summary>
+    /// 실직적으로 적용되어 이동을 도움을 주는 값입니다.
+    /// </summary>
+    public float KartSpeed => _kartCurrentSpeed;
+
+    public void SetKartSpeed(float applySpeed)
+    {
+        double applyTime;
+
+    }
+
+    #endregion
 
     public void OnPhotonInstantiate(PhotonMessageInfo info)
     {

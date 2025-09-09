@@ -31,9 +31,9 @@ namespace MSG
 
             foreach (var kart in _unimoKartSOs)
             {
-                if (!_kartIndexDict.ContainsKey(kart.carId))
+                if (!_kartIndexDict.ContainsKey(kart.KartID))
                 {
-                    _kartIndexDict.Add(kart.carId, kart);
+                    _kartIndexDict.Add(kart.KartID, kart);
                 }
             }
         }

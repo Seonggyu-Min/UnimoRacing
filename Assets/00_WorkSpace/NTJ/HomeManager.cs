@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -63,53 +63,53 @@ public class HomeManager : Singleton<HomeManager>
 
     private void OnKartLoaded(DataSnapshot snapshot)
     {
-        Debug.Log($"Firebaseø°º≠ ƒ´∆Æ µ•¿Ã≈Õ ∫“∑Øø¿±‚ Ω√µµ. ∞Ê∑Œ: {DBRoutes.EquippedKart(CurrentUid)}");
+        Debug.Log($"FirebaseÏóêÏÑú Ïπ¥Ìä∏ Îç∞Ïù¥ÌÑ∞ Î∂àÎü¨Ïò§Í∏∞ ÏãúÎèÑ. Í≤ΩÎ°ú: {DBRoutes.EquippedKart(CurrentUid)}");
         if (snapshot.Exists && snapshot.Value != null)
         {
-            Debug.Log($"ƒ´∆Æ µ•¿Ã≈Õ ∑Œµ˘ º∫∞¯! ∞™: {snapshot.Value}");
+            Debug.Log($"Ïπ¥Ìä∏ Îç∞Ïù¥ÌÑ∞ Î°úÎî© ÏÑ±Í≥µ! Í∞í: {snapshot.Value}");
             if (int.TryParse(snapshot.Value.ToString(), out int kartId))
             {
-                UnimoKartSO savedKart = allKartData.FirstOrDefault(k => k.carId == kartId);
+                UnimoKartSO savedKart = allKartData.FirstOrDefault(k => k.KartID == kartId);
                 if (savedKart != null)
                 {
                     UpdateKartUI(savedKart);
-                    Debug.Log($"ƒ´∆Æ UI æ˜µ•¿Ã∆Æ º∫∞¯: {savedKart.carName}");
+                    Debug.Log($"Ïπ¥Ìä∏ UI ÏóÖÎç∞Ïù¥Ìä∏ ÏÑ±Í≥µ: {savedKart.carName}");
                 }
             }
         }
         else
         {
-            Debug.Log("¿˙¿Âµ» ƒ´∆Æ µ•¿Ã≈Õ∞° æ¯Ω¿¥œ¥Ÿ.");
+            Debug.Log("Ï†ÄÏû•Îêú Ïπ¥Ìä∏ Îç∞Ïù¥ÌÑ∞Í∞Ä ÏóÜÏäµÎãàÎã§.");
             if (allKartData.Count > 0) UpdateKartUI(allKartData[0]);
         }
     }
 
     private void OnCharacterLoaded(DataSnapshot snapshot)
     {
-        Debug.Log($"Firebaseø°º≠ ƒ≥∏Ø≈Õ µ•¿Ã≈Õ ∫“∑Øø¿±‚ Ω√µµ. ∞Ê∑Œ: {DBRoutes.EquippedUnimo(CurrentUid)}");
+        Debug.Log($"FirebaseÏóêÏÑú Ï∫êÎ¶≠ÌÑ∞ Îç∞Ïù¥ÌÑ∞ Î∂àÎü¨Ïò§Í∏∞ ÏãúÎèÑ. Í≤ΩÎ°ú: {DBRoutes.EquippedUnimo(CurrentUid)}");
         if (snapshot.Exists && snapshot.Value != null)
         {
-            Debug.Log($"ƒ≥∏Ø≈Õ µ•¿Ã≈Õ ∑Œµ˘ º∫∞¯! ∞™: {snapshot.Value}");
+            Debug.Log($"Ï∫êÎ¶≠ÌÑ∞ Îç∞Ïù¥ÌÑ∞ Î°úÎî© ÏÑ±Í≥µ! Í∞í: {snapshot.Value}");
             if (int.TryParse(snapshot.Value.ToString(), out int characterId))
             {
                 UnimoCharacterSO savedCharacter = allCharacterData.FirstOrDefault(c => c.characterId == characterId);
                 if (savedCharacter != null)
                 {
                     UpdateCharacterUI(savedCharacter);
-                    Debug.Log($"ƒ≥∏Ø≈Õ UI æ˜µ•¿Ã∆Æ º∫∞¯: {savedCharacter.characterName}");
+                    Debug.Log($"Ï∫êÎ¶≠ÌÑ∞ UI ÏóÖÎç∞Ïù¥Ìä∏ ÏÑ±Í≥µ: {savedCharacter.characterName}");
                 }
             }
         }
         else
         {
-            Debug.Log("¿˙¿Âµ» ƒ≥∏Ø≈Õ µ•¿Ã≈Õ∞° æ¯Ω¿¥œ¥Ÿ.");
+            Debug.Log("Ï†ÄÏû•Îêú Ï∫êÎ¶≠ÌÑ∞ Îç∞Ïù¥ÌÑ∞Í∞Ä ÏóÜÏäµÎãàÎã§.");
             if (allCharacterData.Count > 0) UpdateCharacterUI(allCharacterData[0]);
         }
     }
 
     private void OnLoadError(string error)
     {
-        Debug.LogError($"Firebase µ•¿Ã≈Õ ∫“∑Øø¿±‚ Ω«∆–: {error}");
+        Debug.LogError($"Firebase Îç∞Ïù¥ÌÑ∞ Î∂àÎü¨Ïò§Í∏∞ Ïã§Ìå®: {error}");
     }
 
     private void UpdateKartUI(UnimoKartSO kart)
