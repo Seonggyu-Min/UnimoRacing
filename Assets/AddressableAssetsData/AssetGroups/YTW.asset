@@ -38,6 +38,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ddaf5916e2b237d418f40639d2f4808f
+    m_Address: Player1
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - NetworkPrefab
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 77e2d83c7e8f57943b8b09c4fc47a174, type: 2}
   m_SchemaSet:

@@ -36,14 +36,14 @@ namespace YTW
             _isInitializing = true;
             Debug.Log($"[NetworkAssetLoader] '{label}' 라벨을 가진 프리팹 사전 로드를 시작.");
 
-            // 1. 커스텀 풀 생성 및 포톤에 등록
+            // 커스텀 풀 생성 및 포톤에 등록
             PrefabPool = new AddressablePrefabPool();
             PhotonNetwork.PrefabPool = PrefabPool;
 
-            // 2. 라벨을 사용하여 프리팹 비동기 로드 및 등록
+            // 라벨을 사용하여 프리팹 비동기 로드 및 등록
             await PreloadNetworkPrefabsByLabel(label);
 
-            // 3. 준비 완료 상태로 전환하고 이벤트 호출
+            // 준비 완료 상태로 전환하고 이벤트 호출
             IsReady = true;
             _isInitializing = false;
             OnAssetsReady?.Invoke();
@@ -52,7 +52,7 @@ namespace YTW
 
         private async Task PreloadNetworkPrefabsByLabel(string label)
         {
-            // 1. 라벨을 사용하여 해당 에셋들의 위치(주소 정보)를 먼저 찾습니다.
+            // 라벨을 사용하여 해당 에셋들의 위치(주소 정보)를 먼저 찾습니다.
             var locationsHandle = Addressables.LoadResourceLocationsAsync(label, typeof(GameObject));
             IList<IResourceLocation> locations = await locationsHandle.Task;
 
@@ -63,11 +63,11 @@ namespace YTW
                 return;
             }
 
-            // 2. 찾은 위치들을 기반으로 실제 GameObject들을 한 번에 로드합니다.
+            // 찾은 위치들을 기반으로 실제 GameObject들을 한 번에 로드
             _loadHandle = Addressables.LoadAssetsAsync<GameObject>(locations, null);
             IList<GameObject> loadedPrefabs = await _loadHandle.Task;
 
-            // 3. 로드된 프리팹과 위치 정보를 매칭하여 실제 주소로 풀에 등록합니다.
+            // 로드된 프리팹과 위치 정보를 매칭하여 실제 주소로 풀에 등록
             if (loadedPrefabs != null)
             {
                 for (int i = 0; i < loadedPrefabs.Count; i++)
@@ -76,14 +76,14 @@ namespace YTW
                     var location = locations[i];
                     if (prefab != null && location != null)
                     {
-                        // prefab.name 대신, 실제 어드레서블 주소인 location.PrimaryKey를 사용합니다.
+                        // prefab.name 대신, 실제 어드레서블 주소인 location.PrimaryKey를 사용
                         string address = location.PrimaryKey;
                         PrefabPool.RegisterPrefab(address, prefab);
                     }
                 }
             }
 
-            // 위치 정보를 담고 있던 핸들은 더 이상 필요 없으므로 해제합니다.
+            // 위치 정보를 담고 있던 핸들은 더 이상 필요 없으므로 해제
             Addressables.Release(locationsHandle);
         }
 
@@ -92,11 +92,40 @@ namespace YTW
         /// </summary>
         public void ReleasePreloadedAssets()
         {
-            if (!_loadHandle.IsValid()) return;
+            // Addressables 로드 핸들 해제
+            if (_loadHandle.IsValid())
+            {
+                Debug.Log("[NetworkAssetLoader] 미리 로드했던 에셋들을 해제합니다.");
+                Addressables.Release(_loadHandle);
+            }
 
-            Debug.Log("[NetworkAssetLoader] 미리 로드했던 에셋들을 해제합니다.");
-            Addressables.Release(_loadHandle);
+            // PrefabPool 정리: 풀 내부 캐시 비우기
+            try
+            {
+                PrefabPool?.Clear();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[NetworkAssetLoader] PrefabPool.Clear 중 경고: {ex}");
+            }
 
+            // PhotonNetwork.PrefabPool 원복
+            // 현재 풀을 우리가 세팅했던 풀로 사용중인 경우에만 해제
+            try
+            {
+                if (PhotonNetwork.PrefabPool == PrefabPool)
+                {
+                    PhotonNetwork.PrefabPool = null; // 또는 기본 풀 인스턴스가 있다면 그걸로 교체
+                    Debug.Log("[NetworkAssetLoader] PhotonNetwork.PrefabPool 해제 완료.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[NetworkAssetLoader] PrefabPool 원복 중 경고: {ex}");
+            }
+
+            // 4) 내부 상태 초기화
+            PrefabPool = null;
             IsReady = false;
             _instance = null;
         }
