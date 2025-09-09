@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7256501748806434507}
   - component: {fileID: 7978271638079185026}
   - component: {fileID: 4597734339329165852}
+  - component: {fileID: 9202115109069327173}
   - component: {fileID: 7014212326858916259}
   - component: {fileID: 8211016670444567718}
   m_Layer: 0
@@ -104,6 +105,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothingHz: 8
   snapIfDiffOver: 0.07
+--- !u!114 &9202115109069327173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8330706411905914188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0399bf5f4b30714396f512c0a020771, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _blinkLoopTime: 3
+  _shake1LoopTime: 3
+  _shake2LoopTime: 3
 --- !u!114 &7014212326858916259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,3 +148,6 @@ MonoBehaviour:
   _useFollowCam: 1
   _kartBaseSpeed: 20
   _kartCurrentSpeed: 0
+  _isControlable: 1
+  _isMovable: 1
+  _isItemUsable: 1
