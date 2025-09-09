@@ -149,5 +149,9 @@ namespace MSG
         public const string cleared = "cleared";
         public const string claimed = "claimed";
         public const string dateKey = "dateKey";
+        public const string missionVerb = "missionVerb";
+        public const string missionObject = "missionObject";
+        public const string partyCondition = "partyCondition";
+        public const string subType = "subType";
     }
 }
