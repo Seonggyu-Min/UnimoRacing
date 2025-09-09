@@ -18,6 +18,6 @@ MonoBehaviour:
     type: 3}
   characterSprite: {fileID: 21300000, guid: ef44c939a53ca04458f792fdd2a46891, type: 3}
   characterInfo: 
-  synergyCarId: -1
+  SynergyKartID: 10011
   relationCharacterId: -1
   dialogId: -1
