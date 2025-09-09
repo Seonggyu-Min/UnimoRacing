@@ -17,7 +17,8 @@ namespace MSG
     public static class RoomMakeHelper
     {
         public const string ROOM_TYPE = "RoomType";
-        public const int MAX_PLAYERS = 4;
+        public const int MAX_PLAYERS = 2;
+        public const int VOTE_TIME = 10;
 
         public static string Personal(string uid) => $"h_{uid}";
         public static string PartyHome(string leaderUid) => $"p_{leaderUid}";

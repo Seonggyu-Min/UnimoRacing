@@ -48,6 +48,11 @@ namespace MSG
         //    _isReady = true;
         //}
 
+        public void RegisterPlayer(Transform player)
+        {
+            _player = player;
+        }
+
         private void Follow()
         {
             // 월드 기준 오프셋 계산
