@@ -27,13 +27,13 @@ namespace MSG
         {
             if (photonView.IsMine)
             {
-                _arrowObj.SetActive(true);
-                _circleObj.SetActive(false);
+                _arrowObj?.SetActive(true);
+                _circleObj?.SetActive(false);
             }
             else
             {
-                _arrowObj.SetActive(false);
-                _circleObj.SetActive(true);
+                _arrowObj?.SetActive(false);
+                _circleObj?.SetActive(true);
             }
         }
     }
