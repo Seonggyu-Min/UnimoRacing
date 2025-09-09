@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66d715f8abd3ec546b8978090e0ea5c8, type: 3}
   m_Name: UnimoKartSO_10006
   m_EditorClassIdentifier: 
-  carId: 10006
+  KartID: 10006
   carName: "\uBAA8\uB178 \uD50C\uB808\uC778"
   kartPrefab: {fileID: 794864633689217840, guid: f80c16893823df847a2cc56799da5eca,
     type: 3}
