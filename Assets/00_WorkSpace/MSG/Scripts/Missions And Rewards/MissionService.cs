@@ -8,12 +8,30 @@ using UnityEngine;
 
 namespace MSG
 {
+    public struct MatchKey : IEquatable<MatchKey>
+    {
+        public MissionVerb Verb;
+        public MissionObject Obj;
+        public PartyCondition Party;
+        public string Subtype;
+
+        public bool Equals(MatchKey other) =>
+            Verb == other.Verb && Obj == other.Obj && Party == other.Party &&
+            string.Equals(Subtype, other.Subtype);
+
+        public override int GetHashCode() =>
+            HashCode.Combine(Verb, Obj, Party, Subtype ?? "");
+    }
+
+
     public class MissionService : Singleton<MissionService>
     {
         #region Fields and Properties
 
         private readonly Dictionary<int, MissionEntry> _dailyDefs = new();
         private readonly Dictionary<int, MissionEntry> _achievementDefs = new();
+        private readonly Dictionary<MatchKey, List<int>> _dailyIndex = new();
+        private readonly Dictionary<MatchKey, List<int>> _achvIndex = new();
 
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
 
@@ -74,6 +92,10 @@ namespace MSG
                         TargetCount = ToInt(child.Child(DatabaseKeys.targetCount).Value),
                         MissionType = ToEnum(child.Child(DatabaseKeys.missionType).Value?.ToString(), MissionType.RaceFinish),
                         MoneyType = ToEnum(child.Child(DatabaseKeys.moneyType).Value?.ToString(), MoneyType.Gold),
+                        MissionVerb = ToEnum(child.Child(DatabaseKeys.missionVerb).Value?.ToString(), MissionVerb.Obtain),
+                        MissionObject = ToEnum(child.Child(DatabaseKeys.missionObject).Value?.ToString(), MissionObject.Item),
+                        PartyCondition = ToEnum(child.Child(DatabaseKeys.partyCondition).Value?.ToString(), PartyCondition.Any),
+                        // SubKey 추가 필요 시 삽입
                     };
                     _dailyDefs[index] = entry;
                 }
@@ -96,10 +118,16 @@ namespace MSG
                         TargetCount = ToInt(child.Child(DatabaseKeys.targetCount).Value),
                         MissionType = ToEnum(child.Child(DatabaseKeys.missionType).Value?.ToString(), MissionType.RaceFinish),
                         MoneyType = ToEnum(child.Child(DatabaseKeys.moneyType).Value?.ToString(), MoneyType.Gold),
+                        MissionVerb = ToEnum(child.Child(DatabaseKeys.missionVerb).Value?.ToString(), MissionVerb.Obtain),
+                        MissionObject = ToEnum(child.Child(DatabaseKeys.missionObject).Value?.ToString(), MissionObject.Item),
+                        PartyCondition = ToEnum(child.Child(DatabaseKeys.partyCondition).Value?.ToString(), PartyCondition.Any),
+                        // SubKey 추가 필요 시 삽입
                     };
                     _achievementDefs[index] = entry;
                 }
             }
+
+            BuildIndexes();
         }
 
         #endregion
@@ -134,95 +162,20 @@ namespace MSG
             );
         }
 
-        /// <summary>
-        /// 데일리 진행도를 증가시킨 후 목표 달성 시 목표 달성 처리합니다.
-        /// </summary>
-        /// <param name="index">진행도를 증가시킬 미션의 index</param>
-        /// <param name="delta">진행도를 증가시킬 수치</param>
-        public void IncrementDailyProgress(int index, int delta)
+        public void Report(MissionVerb verb, MissionObject obj, bool? isParty, int quantity = 1 /*, string subtype = null*/) // SubType은 일단 안씀
         {
-            if (!_dailyDefs.TryGetValue(index, out MissionEntry def))
-            {
-                Debug.LogWarning($"데일리 미션이 _dailyDefs에 없습니다: {index}");
-                return;
-            }
+            var partyKey = isParty == true ? PartyCondition.True : PartyCondition.False;
 
-            DatabaseManager.Instance.RunTransactionOnMain(
-                DBRoutes.UserDailyMissionRoot(CurrentUid),
-                mutable =>
-                {
-                    // 날짜 보정
-                    string today = GetServerDateKey();
-                    string dateKey = mutable.Child(DatabaseKeys.dateKey).Value?.ToString();
-                    if (dateKey != today) // 날짜가 다르면 reset
-                    {
-                        mutable.Child(DatabaseKeys.progress).Value = null;
-                        mutable.Child(DatabaseKeys.cleared).Value = null;
-                        mutable.Child(DatabaseKeys.claimed).Value = null;
-                        mutable.Child(DatabaseKeys.dateKey).Value = today;
-                    }
+            var key = new MatchKey { Verb = verb, Obj = obj, Party = partyKey, Subtype = null };
 
-                    // progress/{index}에 delta 더하고 업데이트
-                    var pNode = mutable.Child(DatabaseKeys.progress).Child(index.ToString());
-                    int prev = 0;
-                    if (pNode.Value != null)
-                    {
-                        int.TryParse(pNode.Value.ToString(), out prev);
-                    }
-                    int next = Math.Max(0, prev + delta);
-                    mutable.Child(DatabaseKeys.progress).Child(index.ToString()).Value = next;
+            // 매칭된 미션들 수집
+            var daily = _dailyIndex.TryGetValue(key, out var d) ? d : null;
+            var achv = _achvIndex.TryGetValue(key, out var a) ? a : null;
 
-                    // 만약 목표 달성했으면 cleared = true
-                    if (next >= def.TargetCount)
-                    {
-                        mutable.Child(DatabaseKeys.cleared).Child(index.ToString()).Value = true;
-                    }
+            quantity = Mathf.Max(1, quantity);
 
-                    return TransactionResult.Success(mutable);
-                },
-                _ => Debug.Log("[MissionService] 데일리 미션 업데이트 완료"),
-                err => Debug.Log($"[MissionService] 데일리 미션 업데이트 실패: {err}")
-            );
-        }
-
-        /// <summary>
-        /// achievement 진행도를 증가시킨 후 목표 달성 시 목표 달성 처리합니다.
-        /// </summary>
-        /// <param name="index">진행도를 증가시킬 미션의 index</param>
-        /// <param name="delta">진행도를 증가시킬 수치</param>
-        public void IncrementAchievementProgress(int index, int delta)
-        {
-            if (!_achievementDefs.TryGetValue(index, out MissionEntry def))
-            {
-                Debug.LogWarning($"achievement 미션이 _achievementDefs에 없습니다: {index}");
-                return;
-            }
-
-            DatabaseManager.Instance.RunTransactionOnMain(
-                DBRoutes.UserAchievementMissionRoot(CurrentUid),
-                mutable =>
-                {
-                    // progress/{index}에 delta 더하고 업데이트
-                    var pNode = mutable.Child(DatabaseKeys.progress).Child(index.ToString());
-                    int prev = 0;
-                    if (pNode.Value != null)
-                    {
-                        int.TryParse(pNode.Value.ToString(), out prev);
-                    }
-                    int next = Math.Max(0, prev + delta);
-                    mutable.Child(DatabaseKeys.progress).Child(index.ToString()).Value = next;
-
-                    // 만약 목표 달성했으면 cleared = true
-                    if (next >= def.TargetCount)
-                    {
-                        mutable.Child(DatabaseKeys.cleared).Child(index.ToString()).Value = true;
-                    }
-
-                    return TransactionResult.Success(mutable);
-                },
-                _ => Debug.Log("[MissionService] achievement 미션 업데이트 완료"),
-                err => Debug.Log($"[MissionService] achievement 미션 업데이트 실패: {err}")
-            );
+            if (daily != null && daily.Count > 0) IncrementDailyMissions(daily, quantity);
+            if (achv != null && achv.Count > 0) IncrementAchvMissions(achv, quantity);
         }
 
         /// <summary>
@@ -315,6 +268,129 @@ namespace MSG
         private string GetServerDateKey()
         {
             return DateTime.UtcNow.ToString("yyyy-MM-dd");
+        }
+
+        // 특정 키 조합에 해당하는 미션 빠른 조회용 Dict 생성
+        private void BuildIndexes()
+        {
+            _dailyIndex.Clear();
+            _achvIndex.Clear();
+
+            foreach (var e in _dailyDefs.Values)
+            {
+                if (e.PartyCondition == PartyCondition.Any)
+                {
+                    // Any라면 양쪽 Dict에 캐싱해서 런타임 조회 빠르게 함
+                    Add(_dailyIndex, e, PartyCondition.True);
+                    Add(_dailyIndex, e, PartyCondition.False);
+                }
+                else
+                {
+                    Add(_dailyIndex, e, e.PartyCondition);
+                }
+            }
+
+            foreach (var e in _achievementDefs.Values)
+            {
+                if (e.PartyCondition == PartyCondition.Any)
+                {
+                    Add(_achvIndex, e, PartyCondition.True);
+                    Add(_achvIndex, e, PartyCondition.False);
+                }
+                else
+                {
+                    Add(_achvIndex, e, e.PartyCondition);
+                }
+            }
+        }
+
+        private void Add(Dictionary<MatchKey, List<int>> dict, MissionEntry e, PartyCondition partyKey)
+        {
+            var key = new MatchKey { Verb = e.MissionVerb, Obj = e.MissionObject, Party = partyKey, Subtype = null }; // SubType은 일단 안써서 null로 넣어둠
+            if (!dict.TryGetValue(key, out var list))
+            {
+                dict[key] = list = new List<int>();
+            }
+            list.Add(e.Index);
+        }
+
+        private void IncrementDailyMissions(List<int> ids, int delta)
+        {
+            DatabaseManager.Instance.RunTransactionOnMain(
+                DBRoutes.UserDailyMissionRoot(CurrentUid),
+                mutable =>
+                {
+                    // 날짜가 다르면 리셋
+                    string today = GetServerDateKey();
+                    string dateKey = mutable.Child(DatabaseKeys.dateKey).Value?.ToString();
+                    if (dateKey != today)
+                    {
+                        mutable.Child(DatabaseKeys.progress).Value = null;
+                        mutable.Child(DatabaseKeys.cleared).Value = null;
+                        mutable.Child(DatabaseKeys.claimed).Value = null;
+                        mutable.Child(DatabaseKeys.dateKey).Value = today;
+                    }
+
+                    // 일치하는 미션의 진행도 증가
+                    foreach (var id in ids)
+                    {
+                        // 현재까지의 진행도 확인
+                        var pNode = mutable.Child(DatabaseKeys.progress).Child(id.ToString());
+                        int prev = 0;
+                        if (pNode.Value != null)
+                        {
+                            int.TryParse(pNode.Value.ToString(), out prev);
+                        }
+
+                        // 현재까지의 진행도 += 추가된 진행도
+                        int next = Math.Max(0, prev + delta);
+                        mutable.Child(DatabaseKeys.progress).Child(id.ToString()).Value = next;
+
+                        // 목표에 도달했으면 완료 처리
+                        if (_dailyDefs.TryGetValue(id, out var def) && next >= def.TargetCount)
+                        {
+                            mutable.Child(DatabaseKeys.cleared).Child(id.ToString()).Value = true;
+                        }
+                    }
+                    return TransactionResult.Success(mutable);
+                },
+                _ => { Debug.Log("[MissionService] 데일리 미션 업데이트 완료"); },
+                err => Debug.LogWarning(err)
+            );
+        }
+
+        private void IncrementAchvMissions(List<int> ids, int delta)
+        {
+            DatabaseManager.Instance.RunTransactionOnMain(
+                DBRoutes.UserAchievementMissionRoot(CurrentUid),
+                mutable =>
+                {
+                    // 일치하는 미션의 진행도 증가
+                    foreach (var id in ids)
+                    {
+                        // 현재까지의 진행도 확인
+                        var pNode = mutable.Child(DatabaseKeys.progress).Child(id.ToString());
+                        int prev = 0;
+                        if (pNode.Value != null)
+                        {
+                            int.TryParse(pNode.Value.ToString(), out prev);
+                        }
+
+                        // 현재까지의 진행도 += 추가된 진행도
+                        int next = Math.Max(0, prev + delta);
+                        mutable.Child(DatabaseKeys.progress).Child(id.ToString()).Value = next;
+
+                        // 목표에 도달했으면 완료 처리
+                        if (_achievementDefs.TryGetValue(id, out var def) && next >= def.TargetCount)
+                        {
+                            mutable.Child(DatabaseKeys.cleared).Child(id.ToString()).Value = true;
+                        }
+                    }
+                    return TransactionResult.Success(mutable);
+                },
+                _ => { Debug.Log("[MissionService] Achievement 미션 업데이트 완료"); },
+                err => Debug.LogWarning(err)
+            );
         }
 
         #endregion
