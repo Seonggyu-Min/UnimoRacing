@@ -17,8 +17,7 @@ namespace PJW
         [SerializeField] private float waitAtBottom = 0.1f;
 
         [Header("카메라 흔들림(반경/세기)")] 
-        [SerializeField] private float slamStrength = 1.2f;  
-        [SerializeField] private float slamDuration = 0.35f; 
+        [SerializeField] private float slamStrength = 1.2f;
 
         [Header("옵션")]
         [SerializeField] private AnimationCurve dropCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -37,7 +36,6 @@ namespace PJW
             waitAtTop = 0.4f;
             waitAtBottom = 0.1f;
             slamStrength = 1.2f;
-            slamDuration = 0.35f;
         }
 
         private void Awake()
