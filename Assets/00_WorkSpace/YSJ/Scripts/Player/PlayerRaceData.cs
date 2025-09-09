@@ -10,11 +10,10 @@ using YSJ.Util;
 // 필수 기능 추가
 [RequireComponent(typeof(DollyCartController))] // 경로 컨트롤
 [RequireComponent(typeof(DollyCartMovement))] // 이동 제어
-[RequireComponent(typeof(DollyCartSync))] // 싱크(=동기화)
 // 인벤
-// 시너즈
-// 캐릭터 애니 <
-// 카트 애니 <
+// 시너지
+[RequireComponent(typeof(UnimoRaceAnimationController))] // 유니모 애니메이션 컨트롤러
+[RequireComponent(typeof(DollyCartSync))] // 싱크(=동기화)
 public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 {
     private const float EPS = 0.0001f; // 미세 흔들림 방지
@@ -23,11 +22,16 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     [Header("Config")]
     [SerializeField] private string _sitPointName = "pivot_Character";
-    [SerializeField] private bool _useFollowCam = true;
+    [SerializeField] private string _followCam = "VirtualCam";
+    [SerializeField] private bool _useLoadFollowCam = true;
 
     [Header("Data")]
     [SerializeField] private float _kartBaseSpeed = 0.0f;
     [SerializeField] private float _kartCurrentSpeed = 0.0f;
+
+    [SerializeField] private bool _isControlable = true;    // 컨트롤 가능 여부
+    [SerializeField] private bool _isMovable = true;        // 이동 가능 여부
+    [SerializeField] private bool _isItemUsable = true;     // 아이템 사용가능 여부
 
     private int _currentTrackIndex = -1;
     private int _lap = 0;
@@ -38,15 +42,19 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     private PhotonView _view;
     private CinemachineDollyCart _cart;
+
     private DollyCartController _cartController;
     private DollyCartMovement _cartMovement;
+
+    private UnimoRaceAnimationController _unimoRaceAniCtrl;
     private DollyCartSync _sync;
+
 
     private int _characterID = -1;
     private int _kartID = -1;
 
-    private UnimoCharacterSO characterSO;  // CharacterSetup
-    private UnimoKartSO kartSO;            // KartSetup
+    private UnimoCharacterSO _characterSO;  // CharacterSetup
+    private UnimoKartSO _kartSO;            // KartSetup
 
     private GameObject _kartBody;
     private GameObject _characterBody;
@@ -67,6 +75,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     /// </summary>
     public bool IsSetups => _isSetups;
     public bool IsSync => _isSync;
+    public bool IsSynergy => _isSynergy;
 
     /// <summary>
     /// 현재의 트랙의 인텍스 정보입니다. '_currentTrackIndex' 값은 Controller에서 변경을 담당하고 변경 시, 값이 수정됩니다.
@@ -100,39 +109,42 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     #endregion
 
-    #region
+    #region Setup
     private void KartSetup()
     {
         this.PrintLog("KartSetup 진행");
         // Kart ID로 Kart 속성 및 SO Load
-        kartSO = Resources.Load<UnimoKartSO>($"{LoadPath.PLAYER_UNIMO_KART_SO}_{_kartID}");
+        _kartSO = Resources.Load<UnimoKartSO>($"{LoadPath.PLAYER_UNIMO_KART_SO}_{_kartID}");
 
         // TODO: 서버에서 필요 데이터 불러오기
         // _speed = 서버 속도
 
         // 프리팹 생성
-        _kartBody = GameObject.Instantiate(kartSO.kartPrefab, transform);
+        _kartBody = GameObject.Instantiate(_kartSO.kartPrefab, transform);
 
         // 생성한 카트 바디 오브젝트의 sitPoint 찾기
         var findSitPoint = _kartBody.GetChild<Transform>(_sitPointName);
         _kartSitPoint = findSitPoint?.gameObject;
 
+        _kartBody.GetOrAddComponent<UnimoKartAniCtrl>();
         this.PrintLog("KartSetup 진행 완료");
     }
     private void CharacterSetup()
     {
         this.PrintLog("CharacterSetup 진행");
         // Character ID로 Character 속성 및 SO Load
-        characterSO = Resources.Load<UnimoCharacterSO>($"{LoadPath.PLAYER_UNIMO_CHARACTER_SO}_{_characterID}");
+        _characterSO = Resources.Load<UnimoCharacterSO>($"{LoadPath.PLAYER_UNIMO_CHARACTER_SO}_{_characterID}");
 
         // 프리팹 생성
         GameObject sitPoint =(_kartSitPoint != null) ? _kartSitPoint : gameObject;
-        _characterBody = GameObject.Instantiate(characterSO.characterPrefab, sitPoint.transform);
+        _characterBody = GameObject.Instantiate(_characterSO.characterPrefab, sitPoint.transform);
 
         // 시너지 여부 판단
-        _isSynergy = (characterSO.SynergyKartID == kartSO.KartID);
+        _isSynergy = (_characterSO.SynergyKartID == _kartSO.KartID);
 
         // 서버에서 필요 데이터 불러오기
+
+        _characterBody.GetOrAddComponent<UnimoCharacterAniCtrl>();
         this.PrintLog("CharacterSetup 진행 완료");
     }
     private void ControllerSetup()
@@ -168,9 +180,9 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private void CamSetup()
     {
         this.PrintLog("CamSetup 진행");
-        if (_useFollowCam && View.IsMine)
+        if (_useLoadFollowCam && View.IsMine)
         {
-            GameObject vcPrefab = Resources.Load<GameObject>("Virtual Camera");
+            GameObject vcPrefab = Resources.Load<GameObject>(_followCam);
             GameObject vcGo = GameObject.Instantiate(vcPrefab);
             CinemachineVirtualCamera vccmp = vcGo.GetComponent<CinemachineVirtualCamera>();
             if(vccmp  != null)
@@ -180,7 +192,24 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         }
         this.PrintLog("CamSetup 진행 완료");
     }
+    private void AniCtrlSetup()
+    {
+        this.PrintLog("AniCtrlSetup 진행");
+        UnimoRaceAnimationController ani = this.gameObject.GetOrAddComponent<UnimoRaceAnimationController>();
+        _unimoRaceAniCtrl = ani;
+        _unimoRaceAniCtrl.Setup();
 
+        _unimoRaceAniCtrl.PlayMoveAni();
+        this.PrintLog("AniCtrlSetup 진행 완료");
+    }
+    private void SynergySetup()
+    {
+        this.PrintLog("AniCtrlSetup 진행");
+
+
+
+        this.PrintLog("AniCtrlSetup 진행 완료");
+    }
     #endregion
 
     #region On Actions
@@ -247,21 +276,30 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         $"생성한 플레이어: {player.NickName}\n" +
         $"서버에 도착한 시간(초): {time}\n" +
         $"서버에 도착한 시간(밀리초): {timestamp}\n" +
-        $"PhotonView ID: {view.ViewID}\n" +
-        $"Need Sync: {_isSync}\n" +
-        $"CharacterID: {_characterID}\n" +
-        $"KartID: {_kartID}\n");
 
-        // Setup(순서: Kart > Character > Controller > Movement > Sync)
+        $"PhotonView ID: {view.ViewID}\n" +
+
+        $"CharacterID: {_characterID}\n" +
+        $"KartID: {_kartID}\n" +
+        
+        $"Sync: {_isSync}\n" +
+        $"Synergy: {_isSynergy}\n" +
+        $"");
+
+        // Setup(순서: (Kart > Character) > (Controller > Movement) > Sync > (Cam > AniCtrl > Synergy))
+        // Visual
         KartSetup();
         CharacterSetup();
 
+        // 카트
         ControllerSetup();
         MovementSetup();
 
         SyncSetup();
 
         CamSetup();
+        AniCtrlSetup();
+        SynergySetup();
 
         _isSetups = (_cartController.IsSetup && _cartMovement.IsSetup && _sync.IsSetup);
 
