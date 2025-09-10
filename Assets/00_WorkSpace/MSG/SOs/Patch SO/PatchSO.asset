@@ -21,11 +21,11 @@ MonoBehaviour:
       MultiplierStep: 0
       Table: []
     KartCostRule:
-      GrowthType: 0
+      GrowthType: 1
       MoneyType: 0
-      BaseCost: 0
-      MaxLevel: 0
-      GrowthRate: 0
+      BaseCost: 100
+      MaxLevel: 5
+      GrowthRate: 2
       Step: 0
       Table: 
     UnimoCostRule:
