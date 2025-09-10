@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,9 @@ namespace YTW
 {
     public class Launcher : MonoBehaviour
     {
+        [Header("Top UI")]
+        [SerializeField] private GameObject topPanel;
+
         [Header("UI")]
         [SerializeField] TextMeshProUGUI statusText;
         [SerializeField] Slider progressBar;
@@ -35,9 +38,9 @@ namespace YTW
 
         [Header("Debug/Options")]
         [SerializeField] bool enableVerboseLogs = true;
-        [SerializeField] bool autoClearCacheForTest = false; // Å×½ºÆ® ¶§¸¸ true
-        //[SerializeField] bool reloadSceneAfterPatch = false; // ÇÊ¿ä½Ã ¼ÒÇÁÆ® Àç½ÃÀÛ
-        //[SerializeField] bool restartAppAfterPatch = false;  // °ÅÀÇ ±ÇÀå X
+        [SerializeField] bool autoClearCacheForTest = false; // í…ŒìŠ¤íŠ¸ ë•Œë§Œ true
+        //[SerializeField] bool reloadSceneAfterPatch = false; // í•„ìš”ì‹œ ì†Œí”„íŠ¸ ì¬ì‹œì‘
+        //[SerializeField] bool restartAppAfterPatch = false;  // ê±°ì˜ ê¶Œì¥ X
 
 
         [Header("Progress Weights (pre-patch)")]
@@ -55,22 +58,22 @@ namespace YTW
 
             try
             {
-                Log("Launcher Start - Addressables ÃÊ±âÈ­ ½ÃÀÛ");
+                Log("Launcher Start - Addressables ì´ˆê¸°í™” ì‹œì‘");
 
-                // 0) ¸®¼Ò½º ½Ã½ºÅÛ ÁØºñ (¿Àµğ¿À ÃÊ±âÈ­´Â ³ªÁß ´Ü°è)
-                await RunTask("¸®¼Ò½º ½Ã½ºÅÛ ÁØºñ Áß...", _cumProgress + weightInit, Manager.Resource.EnsureInitializedAsync());
+                // 0) ë¦¬ì†ŒìŠ¤ ì‹œìŠ¤í…œ ì¤€ë¹„ (ì˜¤ë””ì˜¤ ì´ˆê¸°í™”ëŠ” ë‚˜ì¤‘ ë‹¨ê³„)
+                await RunTask("ë¦¬ì†ŒìŠ¤ ì‹œìŠ¤í…œ ì¤€ë¹„ ì¤‘...", _cumProgress + weightInit, Manager.Resource.EnsureInitializedAsync());
                 _cumProgress += weightInit;
 
-                // 1) Ä«Å»·Î±× ÃÖ½ÅÈ­
-                if (statusText) statusText.text = "ÃÖ½Å ¹öÀü È®ÀÎ Áß...";
+                // 1) ì¹´íƒˆë¡œê·¸ ìµœì‹ í™”
+                if (statusText) statusText.text = "ìµœì‹  ë²„ì „ í™•ì¸ ì¤‘...";
                 bool catalogsUpdated = await TryUpdateCatalogsAsync();
                 StartSmoothProgress(_cumProgress + weightCatalog);
                 _cumProgress += weightCatalog;
 
-                // 2) ¶óº§ ±âÁØÀ¸·Î ´Ù¿î·Îµå ´ë»ó locations ±¸¼º
+                // 2) ë¼ë²¨ ê¸°ì¤€ìœ¼ë¡œ ë‹¤ìš´ë¡œë“œ ëŒ€ìƒ locations êµ¬ì„±
                 var locations = await BuildLocationsFromLabelsAsync(patchLabels);
 
-                // 3) Å×½ºÆ® Àü¿ë Ä³½Ã ºñ¿ì±â (¿¡¼Â ÂüÁ¶ ÀâÈ÷±â Àü ½ÃÁ¡)
+                // 3) í…ŒìŠ¤íŠ¸ ì „ìš© ìºì‹œ ë¹„ìš°ê¸° (ì—ì…‹ ì°¸ì¡° ì¡íˆê¸° ì „ ì‹œì )
                 if (autoClearCacheForTest && locations.Count > 0)
                 {
                     Log("autoClearCacheForTest: ClearDependencyCacheAsync(locations)");
@@ -79,16 +82,16 @@ namespace YTW
                     SafeRelease(clearH);
                 }
 
-                // 4) ´Ù¿î·Îµå ÇÊ¿ä ¿ë·® °è»ê
+                // 4) ë‹¤ìš´ë¡œë“œ í•„ìš” ìš©ëŸ‰ ê³„ì‚°
                 var sizeH = Addressables.GetDownloadSizeAsync(locations);
                 await sizeH.Task;
-                StartSmoothProgress(Mathf.Min(_cumProgress + weightSizing, 0.99f)); // »çÀü ´Ü°è´Â 100% ÂïÁö ¾ÊÀ½
+                StartSmoothProgress(Mathf.Min(_cumProgress + weightSizing, 0.99f)); // ì‚¬ì „ ë‹¨ê³„ëŠ” 100% ì°ì§€ ì•ŠìŒ
                 _cumProgress = Mathf.Min(_cumProgress + weightSizing, 0.99f);
 
                 if (sizeH.IsValid() && sizeH.Status == AsyncOperationStatus.Succeeded)
                 {
                     long needBytes = sizeH.Result;
-                    Log($"ÇÊ¿ä ¿ë·®: {needBytes} bytes, catalogsUpdated={catalogsUpdated}");
+                    Log($"í•„ìš” ìš©ëŸ‰: {needBytes} bytes, catalogsUpdated={catalogsUpdated}");
 
                     if (needBytes > 0 || catalogsUpdated)
                     {
@@ -96,13 +99,13 @@ namespace YTW
                     }
                     else
                     {
-                        // ´Ù¿î·Îµå ºÒÇÊ¿ä ¡æ ¹Ù·Î ½ÃÀÛ ÁØºñ
+                        // ë‹¤ìš´ë¡œë“œ ë¶ˆí•„ìš” â†’ ë°”ë¡œ ì‹œì‘ ì¤€ë¹„
                         await AfterPatchInitAndStartAsync();
                     }
                 }
                 else
                 {
-                    LogWarning($"GetDownloadSizeAsync ½ÇÆĞ ¶Ç´Â Invalid. Status={sizeH.Status}");
+                    LogWarning($"GetDownloadSizeAsync ì‹¤íŒ¨ ë˜ëŠ” Invalid. Status={sizeH.Status}");
                     await AfterPatchInitAndStartAsync();
                 }
 
@@ -110,13 +113,13 @@ namespace YTW
             }
             catch (Exception ex)
             {
-                LogError($"Launcher Start ¿¹¿Ü: {ex}");
-                if (statusText) statusText.text = "¿ÀÇÁ¶óÀÎÀ¸·Î ½ÃÀÛÇÕ´Ï´Ù";
+                LogError($"Launcher Start ì˜ˆì™¸: {ex}");
+                if (statusText) statusText.text = "ì˜¤í”„ë¼ì¸ìœ¼ë¡œ ì‹œì‘í•©ë‹ˆë‹¤";
                 await AfterPatchInitAndStartAsync();
             }
         }
 
-        // ½ÃÀÛ ½Ã UI ±âº» »óÅÂ ¼³Á¤
+        // ì‹œì‘ ì‹œ UI ê¸°ë³¸ ìƒíƒœ ì„¤ì •
         private void InitializeUIOnStart()
         {
             if (startButton) startButton.gameObject.SetActive(false);
@@ -128,10 +131,10 @@ namespace YTW
                 progressBar.gameObject.SetActive(true);
                 progressBar.value = 0f;
             }
-            if (statusText) statusText.text = "ÃÊ±âÈ­ Áß...";
+            if (statusText) statusText.text = "ì´ˆê¸°í™” ì¤‘...";
         }
 
-        // »óÅÂ ÅØ½ºÆ® + ºñµ¿±â ÀÛ¾÷ + ¸ñÇ¥ ÁøÇàÄ¡(0~1)·Î ½º¹«½º ÀÌµ¿
+        // ìƒíƒœ í…ìŠ¤íŠ¸ + ë¹„ë™ê¸° ì‘ì—… + ëª©í‘œ ì§„í–‰ì¹˜(0~1)ë¡œ ìŠ¤ë¬´ìŠ¤ ì´ë™
         private async Task RunTask(string status, float targetProgress, Task task)
         {
             if (statusText != null) statusText.text = status;
@@ -141,7 +144,7 @@ namespace YTW
             }
             catch (Exception e)
             {
-                LogWarning($"RunTask ¿¹¿Ü: {e}");
+                LogWarning($"RunTask ì˜ˆì™¸: {e}");
             }
             StartSmoothProgress(targetProgress);
             await Task.Yield();
@@ -150,7 +153,7 @@ namespace YTW
         // --- Catalog update ---
         private async Task<bool> TryUpdateCatalogsAsync()
         {
-            Log("CheckForCatalogUpdates È£Ãâ");
+            Log("CheckForCatalogUpdates í˜¸ì¶œ");
             var checkH = Addressables.CheckForCatalogUpdates(false);
             await checkH.Task;
 
@@ -162,7 +165,7 @@ namespace YTW
 
             if (needUpdate)
             {
-                Log($"Ä«Å»·Î±× ¾÷µ¥ÀÌÆ® ÇÊ¿ä: {checkH.Result.Count}");
+                Log($"ì¹´íƒˆë¡œê·¸ ì—…ë°ì´íŠ¸ í•„ìš”: {checkH.Result.Count}");
                 var updH = Addressables.UpdateCatalogs(checkH.Result, false);
                 await updH.Task;
                 updated = updH.IsValid() && updH.Status == AsyncOperationStatus.Succeeded;
@@ -170,7 +173,7 @@ namespace YTW
             }
             else
             {
-                Log("Ä«Å»·Î±× º¯°æ ¾øÀ½");
+                Log("ì¹´íƒˆë¡œê·¸ ë³€ê²½ ì—†ìŒ");
             }
 
 
@@ -178,7 +181,7 @@ namespace YTW
             return updated;
         }
 
-        // ¶óº§ ¡æ ·ÎÄÉÀÌ¼Ç
+        // ë¼ë²¨ â†’ ë¡œì¼€ì´ì…˜
         private async Task<IList<IResourceLocation>> BuildLocationsFromLabelsAsync(IEnumerable<string> labels)
         {
             if (labels == null || !labels.Any())
@@ -193,12 +196,12 @@ namespace YTW
                 return Array.Empty<IResourceLocation>();
             }
 
-            var result = locH.Result; // °á°ú º¹»ç ÈÄ ÇÚµé¸¸ ÇØÁ¦
+            var result = locH.Result; // ê²°ê³¼ ë³µì‚¬ í›„ í•¸ë“¤ë§Œ í•´ì œ
             Addressables.Release(locH);
             return result;
         }
 
-        // ¿Àµğ¿À ÃÊ±âÈ­ ¿Ï·á ´ë±â (Å¸ÀÓ¾Æ¿ô¸¸ ·Î±×).
+        // ì˜¤ë””ì˜¤ ì´ˆê¸°í™” ì™„ë£Œ ëŒ€ê¸° (íƒ€ì„ì•„ì›ƒë§Œ ë¡œê·¸).
         private async Task WaitForAudioInit()
         {
             int tick = 0;
@@ -207,16 +210,16 @@ namespace YTW
             else Log("Audio ready");
         }
 
-        // UI ¹× ´Ù¿î·Îµå Ã³¸®
+        // UI ë° ë‹¤ìš´ë¡œë“œ ì²˜ë¦¬
         private void ShowUpdateConfirmPanel(long sizeBytes, IList<IResourceLocation> locations, bool catalogsUpdated)
         {
             float mb = sizeBytes / (1024f * 1024f);
-            string note = (sizeBytes == 0 && catalogsUpdated) ? "\n(¸ŞÅ¸¸¸ º¯°æµÇ¾î ´Ù¿î·Îµå°¡ ¾øÀ» ¼ö ÀÖ½À´Ï´Ù)" : string.Empty;
+            string note = (sizeBytes == 0 && catalogsUpdated) ? "\n(ë©”íƒ€ë§Œ ë³€ê²½ë˜ì–´ ë‹¤ìš´ë¡œë“œê°€ ì—†ì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤)" : string.Empty;
 
             Log($"[UI] UpdatePanel ON (size={mb:F2}MB, catalogsUpdated={catalogsUpdated}, panel={(updateConfirmPanel ? "OK" : "NULL")})");
 
             if (updateInfoText)
-                updateInfoText.text = $"¾÷µ¥ÀÌÆ®°¡ ¹ß°ßµÇ¾ú½À´Ï´Ù\n¿ë·®: {mb:F2} MB{note}";
+                updateInfoText.text = $"ì—…ë°ì´íŠ¸ê°€ ë°œê²¬ë˜ì—ˆìŠµë‹ˆë‹¤\nìš©ëŸ‰: {mb:F2} MB{note}";
             if (updateConfirmPanel)
                 updateConfirmPanel.SetActive(true);
 
@@ -224,16 +227,16 @@ namespace YTW
             patchButton.onClick.RemoveAllListeners();
             patchButton.onClick.AddListener(() =>
             {
-                // »ç¿ëÀÚ°¡ È®ÀÎÀ» ´©¸£¸é ÁøÇà¹Ù 0À¸·Î ÃÊ±âÈ­ÇÏ°í ÆĞÄ¡ ½ÃÀÛ
+                // ì‚¬ìš©ìê°€ í™•ì¸ì„ ëˆ„ë¥´ë©´ ì§„í–‰ë°” 0ìœ¼ë¡œ ì´ˆê¸°í™”í•˜ê³  íŒ¨ì¹˜ ì‹œì‘
                 _cumProgress = 0f;
-                SetProgress(0f, "¾÷µ¥ÀÌÆ® ÁØºñ Áß...");
+                SetProgress(0f, "ì—…ë°ì´íŠ¸ ì¤€ë¹„ ì¤‘...");
 
                 if (updateConfirmPanel) updateConfirmPanel.SetActive(false);
-                _ = StartDownloadAsync(locations, "¾÷µ¥ÀÌÆ®");
+                _ = StartDownloadAsync(locations, "ì—…ë°ì´íŠ¸");
             });
         }
 
-        // ´Ù¿î·Îµå ½ÃÀÛ
+        // ë‹¤ìš´ë¡œë“œ ì‹œì‘
         private async Task StartDownloadAsync(IList<IResourceLocation> locations, string taskName)
         {
             try
@@ -243,13 +246,13 @@ namespace YTW
                 {
                     var st = dlH.GetDownloadStatus();
                     float percent = Mathf.Clamp01(st.Percent);     // 0.0 ~ 1.0
-                    SetProgress(percent, $"{taskName} ´Ù¿î·Îµå Áß... ({percent * 100f:F0}%)");
+                    SetProgress(percent, $"{taskName} ë‹¤ìš´ë¡œë“œ ì¤‘... ({percent * 100f:F0}%)");
                     await Task.Yield();
                 }
 
-                // ¸¶Áö¸· º¸Á¤
-                SetProgress(1f, $"{taskName} ´Ù¿î·Îµå ¿Ï·á (100%)");
-                Log($"DownloadDependenciesAsync ¿Ï·á: {dlH.Status}");
+                // ë§ˆì§€ë§‰ ë³´ì •
+                SetProgress(1f, $"{taskName} ë‹¤ìš´ë¡œë“œ ì™„ë£Œ (100%)");
+                Log($"DownloadDependenciesAsync ì™„ë£Œ: {dlH.Status}");
                 SafeRelease(dlH);
             }
             catch (Exception ex)
@@ -257,11 +260,11 @@ namespace YTW
                 LogError($"StartDownloadAsync exception: {ex}");
             }
 
-            // ÆĞÄ¡ Àû¿ë ÈÄ ¡æ Àç½ÃÀÛ ¾È³»
+            // íŒ¨ì¹˜ ì ìš© í›„ â†’ ì¬ì‹œì‘ ì•ˆë‚´
             await ApplyPatchedContentAsync();
         }
 
-        // ÆĞÄ¡ Àû¿ë ÈÄ ÇÊ¿äÇÑ Àç·ÎµùÀ» ¼öÇàÇÑ µÚ ½ÃÀÛ ÁØºñ »óÅÂ·Î ÀüÈ¯
+        // íŒ¨ì¹˜ ì ìš© í›„ í•„ìš”í•œ ì¬ë¡œë”©ì„ ìˆ˜í–‰í•œ ë’¤ ì‹œì‘ ì¤€ë¹„ ìƒíƒœë¡œ ì „í™˜
         private async Task ApplyPatchedContentAsync()
         {
             try
@@ -271,10 +274,10 @@ namespace YTW
             }
             catch (Exception ex)
             {
-                LogWarning($"¿Àµğ¿À Àç·Îµù Áß ¿¹¿Ü: {ex}");
+                LogWarning($"ì˜¤ë””ì˜¤ ì¬ë¡œë”© ì¤‘ ì˜ˆì™¸: {ex}");
             }
 
-            // 100% ÀÌÈÄ ÆĞ³Î ³ëÃâ
+            // 100% ì´í›„ íŒ¨ë„ ë…¸ì¶œ
             ShowRestartConfirmPanel();
         }
 
@@ -286,7 +289,7 @@ namespace YTW
                 return;
             }
 
-            if (restartInfoText) restartInfoText.text = "ÆĞÄ¡°¡ ¿Ï·áµÇ¾ú½À´Ï´Ù.\nÀç½ÃÀÛÇÏ½Ã°Ú½À´Ï±î?";
+            if (restartInfoText) restartInfoText.text = "íŒ¨ì¹˜ê°€ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.\nì¬ì‹œì‘í•˜ì‹œê² ìŠµë‹ˆê¹Œ?";
             restartConfirmPanel.SetActive(true);
 
             if (restartYesButton)
@@ -305,12 +308,12 @@ namespace YTW
                 restartNoButton.onClick.AddListener(() =>
                 {
                     restartConfirmPanel.SetActive(false);
-                    AllReady(); // Àç½ÃÀÛ ¾øÀÌ °è¼Ó
+                    AllReady(); // ì¬ì‹œì‘ ì—†ì´ ê³„ì†
                 });
             }
         }
 
-        // ÆĞÄ¡ ÀÌÈÄ ¿Àµğ¿À ÃÊ±âÈ­°¡ ¾ÆÁ÷ÀÌ¶ó¸é ¼öÇàÇÏ°í, ÃÖÁ¾ÀûÀ¸·Î ½ÃÀÛ °¡´É »óÅÂ·Î ÀüÈ¯
+        // íŒ¨ì¹˜ ì´í›„ ì˜¤ë””ì˜¤ ì´ˆê¸°í™”ê°€ ì•„ì§ì´ë¼ë©´ ìˆ˜í–‰í•˜ê³ , ìµœì¢…ì ìœ¼ë¡œ ì‹œì‘ ê°€ëŠ¥ ìƒíƒœë¡œ ì „í™˜
         private async Task AfterPatchInitAndStartAsync()
         {
             if (Manager.Audio != null && !Manager.Audio.IsInitialized)
@@ -325,29 +328,31 @@ namespace YTW
         private void AllReady()
         {
             StartSmoothProgress(1f);
-            if (statusText) statusText.text = "Tap to Start";
+            //if (statusText) statusText.text = "Tap to Start";
 
-            if (startButton == null) return;
-            startButton.gameObject.SetActive(true);
-            startButton.onClick.RemoveAllListeners();
-            startButton.onClick.AddListener(() =>
-            {
-                // ½ÇÁ¦ Ã¹ ¾À/´ÙÀ½ ¾ÀÀ¸·Î ±³Ã¼
-                Manager.Scene.LoadScene(SceneType.YTW_TestScene1);
-            });
+            //if (startButton == null) return;
+            //startButton.gameObject.SetActive(true);
+            //startButton.onClick.RemoveAllListeners();
+            //startButton.onClick.AddListener(() =>
+            //{
+            //    // ì‹¤ì œ ì²« ì”¬/ë‹¤ìŒ ì”¬ìœ¼ë¡œ êµì²´
+            //    Manager.Scene.LoadScene(SceneType.YTW_TestScene1);
+            //});
+
+            topPanel.gameObject.SetActive(false);
         }
 
         private async Task RestartGameAsync()
         {
-            SetProgress(0f, "Àç½ÃÀÛ Áß...");
+            SetProgress(0f, "ì¬ì‹œì‘ ì¤‘...");
 
-            // ¸Ş¸ğ¸® Á¤¸®
+            // ë©”ëª¨ë¦¬ ì •ë¦¬
             Resources.UnloadUnusedAssets();
             GC.Collect();
 
-            await Task.Delay(300); // »ìÂ¦ ´ë±â (UI ¹İ¿µ ¿©À¯)
+            await Task.Delay(300); // ì‚´ì§ ëŒ€ê¸° (UI ë°˜ì˜ ì—¬ìœ )
 
-            // ½ÇÁ¦ ÇÁ·ÎÁ§Æ®ÀÇ ÃÖÃÊ ºÎÆ® ¾À/ÃÊ±â ¾ÀÀ¸·Î ±³Ã¼
+            // ì‹¤ì œ í”„ë¡œì íŠ¸ì˜ ìµœì´ˆ ë¶€íŠ¸ ì”¬/ì´ˆê¸° ì”¬ìœ¼ë¡œ êµì²´
             Manager.Scene.LoadScene(SceneType.YTW_TestScene3);
         }
 
@@ -375,14 +380,14 @@ namespace YTW
             progressBar.value = target;
         }
 
-        // ÁøÇàµµ/»óÅÂ ÀÏ°ı ¼³Á¤
+        // ì§„í–‰ë„/ìƒíƒœ ì¼ê´„ ì„¤ì •
         private void SetProgress(float value01, string text = null)
         {
             if (progressBar) progressBar.value = Mathf.Clamp01(value01);
             if (statusText && text != null) statusText.text = text;
         }
 
-        // Addressables ÇÚµé ¾ÈÀü ÇØÁ¦ À¯Æ¿
+        // Addressables í•¸ë“¤ ì•ˆì „ í•´ì œ ìœ í‹¸
         private void SafeRelease<T>(AsyncOperationHandle<T> h)
         {
             try
@@ -391,7 +396,7 @@ namespace YTW
             }
             catch (Exception e)
             {
-                LogError($"Release<T> ¿¹¿Ü: {e}");
+                LogError($"Release<T> ì˜ˆì™¸: {e}");
             }
         }
 
@@ -404,13 +409,13 @@ namespace YTW
             }
             catch (Exception e)
             {
-                LogError($"Release ¿¹¿Ü: {e}");
+                LogError($"Release ì˜ˆì™¸: {e}");
             }
         }
 
 
 
-        // ·Î±× Ãâ·Â À¯Æ¿
+        // ë¡œê·¸ ì¶œë ¥ ìœ í‹¸
         private void Log(string m)
         {
             if (enableVerboseLogs) Debug.Log($"[Launcher] {m}");

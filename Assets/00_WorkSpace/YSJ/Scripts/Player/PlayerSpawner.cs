@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using YSJ.Util;
 
+[DefaultExecutionOrder(400)]
 public class PlayerSpawner : MonoBehaviour
 {
     [Header("Injecter")]
@@ -26,7 +27,7 @@ public class PlayerSpawner : MonoBehaviour
     private IEnumerator CO_PlayerSpanwe()
     {
         this.PrintLog("플레이어, 룸에 들어와 있는지 확인중");
-        while (!IsSpawnable)
+        while (!IsSpawnable || !TrackPathRegistry.Instance.IsInit)
         {
             yield return null;
         }

@@ -1,75 +1,77 @@
-using System;
+ï»¿using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using Cinemachine;         
 
 namespace YTW
 {
-    // ¾îµå·¹¼­ºí ¸Ê ÇÁ¸®ÆÕÀ» ÀÎ½ºÅÏ½ºÇÏ°í, ³»ºÎÀÇ CinemachinePathBase Æ®·¢µéÀ» TrackPathRegistry¿¡ µî·Ï/ÇØÁ¦ÇØÁÖ´Â ·Î´õ.
+    // ì–´ë“œë ˆì„œë¸” ë§µ í”„ë¦¬íŒ¹ì„ ì¸ìŠ¤í„´ìŠ¤í•˜ê³ , ë‚´ë¶€ì˜ CinemachinePathBase íŠ¸ë™ë“¤ì„ TrackPathRegistryì— ë“±ë¡/í•´ì œí•´ì£¼ëŠ” ë¡œë”.
     public class MapAssetLoader : MonoBehaviour
     {
         private string _mapAssetAddress;
         private GameObject _spawnedMapInstance;
 
-        // ÇöÀç ÀÎ½ºÅÏ½ºµÈ ¸Ê ·çÆ®
+        // í˜„ì¬ ì¸ìŠ¤í„´ìŠ¤ëœ ë§µ ë£¨íŠ¸
         public GameObject MapInstance => _spawnedMapInstance;
 
-        // ¸ÊÀÌ ·ÎµåµÇ¾î ÀÖ´ÂÁö
+        // ë§µì´ ë¡œë“œë˜ì–´ ìˆëŠ”ì§€
         public bool IsLoaded => _spawnedMapInstance != null;
 
-        // ¸Ê ·Îµå ¿Ï·á ÀÌº¥Æ®(¿ÜºÎ ±¸µ¶ °¡´É)
+        // ë§µ ë¡œë“œ ì™„ë£Œ ì´ë²¤íŠ¸(ì™¸ë¶€ êµ¬ë… ê°€ëŠ¥)
         public event Action<GameObject> OnMapLoaded;
 
-        //  ¸Ê ¾ğ·Îµå ¿Ï·á ÀÌº¥Æ®(¿ÜºÎ ±¸µ¶ °¡´É)
+        //  ë§µ ì–¸ë¡œë“œ ì™„ë£Œ ì´ë²¤íŠ¸(ì™¸ë¶€ êµ¬ë… ê°€ëŠ¥)
         public event Action OnMapUnloaded;
 
         private string _currentBgmAddress;
         private AudioSource _bgmSource;
 
 
-        // ¸Ê ¾îµå·¹½º¸¦ ¹Ş¾Æ ·Îµå or ÀÎ½ºÅÏ½ºÇÏ°í, TrackPathRegistry¿¡ Æ®·¢À» µî·Ï
+        // ë§µ ì–´ë“œë ˆìŠ¤ë¥¼ ë°›ì•„ ë¡œë“œ or ì¸ìŠ¤í„´ìŠ¤í•˜ê³ , TrackPathRegistryì— íŠ¸ë™ì„ ë“±ë¡
         public async Task InitializeAndLoad(string address, Transform parent = null, bool replaceTracks = true)
         {
-            // ÀÌ¹Ì ·ÎµåµÅ ÀÖÀ¸¸é Á¤¸®
+            // ì´ë¯¸ ë¡œë“œë¼ ìˆìœ¼ë©´ ì •ë¦¬
             if (IsLoaded)
-                await UnloadAsync(clearTracks: false); // °ğ »õ ¸ÊÀ¸·Î °¥ °Å¸é Áßº¹ Å¬¸®¾î´Â »ı·«
+                await UnloadAsync(clearTracks: false); // ê³§ ìƒˆ ë§µìœ¼ë¡œ ê°ˆ ê±°ë©´ ì¤‘ë³µ í´ë¦¬ì–´ëŠ” ìƒëµ
 
             _mapAssetAddress = address;
 
             if (string.IsNullOrWhiteSpace(_mapAssetAddress))
             {
-                Debug.LogError("[MapAssetLoader] ·ÎµåÇÒ ¸Ê ¿¡¼ÂÀÇ ÁÖ¼Ò°¡ ÁöÁ¤µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+                Debug.LogError("[MapAssetLoader] ë¡œë“œí•  ë§µ ì—ì…‹ì˜ ì£¼ì†Œê°€ ì§€ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
                 return;
             }
 
             try
             {
-                // ¸Ê ÀÎ½ºÅÏ½º
+                // ë§µ ì¸ìŠ¤í„´ìŠ¤
                 _spawnedMapInstance = await ResourceManager.Instance.InstantiateAsync(
                     _mapAssetAddress, Vector3.zero, Quaternion.identity);
 
                 if (_spawnedMapInstance == null)
                 {
-                    Debug.LogError($"[MapAssetLoader] '{_mapAssetAddress}' ÁÖ¼ÒÀÇ ¿¡¼ÂÀ» »ı¼ºÇÏ´Â µ¥ ½ÇÆĞÇß½À´Ï´Ù.");
+                    Debug.LogError($"[MapAssetLoader] '{_mapAssetAddress}' ì£¼ì†Œì˜ ì—ì…‹ì„ ìƒì„±í•˜ëŠ” ë° ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.");
                     return;
                 }
 
-                // ºÎ¸ğ ¼³Á¤
+                // ë¶€ëª¨ ì„¤ì •
                 var targetParent = parent != null ? parent : this.transform;
                 _spawnedMapInstance.transform.SetParent(targetParent, worldPositionStays: false);
 
-                // Æ®·¢ ·¹Áö½ºÆ®¸® µî·Ï
+                // íŠ¸ë™ ë ˆì§€ìŠ¤íŠ¸ë¦¬ ë“±ë¡
                 var tpr = TrackPathRegistry.Instance;
                 if (tpr != null)
                 {
-                    // ¸Ê ·çÆ® ±âÁØÀ¸·Î CinemechinePathBase ÀüºÎ Ã£¾Æ µî·Ï
-                    tpr.RegisterFromRoot(_spawnedMapInstance.transform, replace: replaceTracks);
-                    Debug.Log($"[MapAssetLoader] TrackPathRegistry µî·Ï ¿Ï·á: {tpr.GetPathLength()}°³ Æ®·¢");
+                    // ë§µ ë£¨íŠ¸ ê¸°ì¤€ìœ¼ë¡œ CinemechinePathBase ì „ë¶€ ì°¾ì•„ ë“±ë¡
+                    //tpr.RegisterFromRoot(_spawnedMapInstance.transform, replace: replaceTracks);
+                    tpr.RePathLoad();
+                    Debug.Log($"[MapAssetLoader] TrackPathRegistry ë“±ë¡ ì™„ë£Œ: {tpr.GetPathLength()}ê°œ íŠ¸ë™");
                 }
                 else
                 {
-                    Debug.LogWarning("[MapAssetLoader] TrackPathRegistry.Instance °¡ null ÀÔ´Ï´Ù. (µî·Ï »ı·«)");
+                    Debug.LogWarning("[MapAssetLoader] TrackPathRegistry.Instance ê°€ null ì…ë‹ˆë‹¤. (ë“±ë¡ ìƒëµ)");
                 }
+
 
                 OnMapLoaded?.Invoke(_spawnedMapInstance);
 
@@ -80,79 +82,79 @@ namespace YTW
                     {
                         try
                         {
-                            // AudioManager°¡ ¾ÆÁ÷ ÃÊ±âÈ­ ÀüÀÌ¸é º¸Àå
+                            // AudioManagerê°€ ì•„ì§ ì´ˆê¸°í™” ì „ì´ë©´ ë³´ì¥
                             if (!Manager.Audio.IsInitialized)
                             {
                                 await Manager.Audio.InitializeAsync();
                             }
-                            Manager.Audio.StopBGM(); // ÀÓ½Ã
-                            // ÇÙ½É: ÁÖ¼Ò ¹®ÀÚ¿­À» ±×´ë·Î PlayBGM¿¡ Àü´Ş (ClipName°ú µ¿ÀÏÇØ¾ß ÇÔ)
+                            Manager.Audio.StopBGM(); // ì„ì‹œ
+                            // í•µì‹¬: ì£¼ì†Œ ë¬¸ìì—´ì„ ê·¸ëŒ€ë¡œ PlayBGMì— ì „ë‹¬ (ClipNameê³¼ ë™ì¼í•´ì•¼ í•¨)
                             Manager.Audio.PlayBGM(meta.BgmAddress, fadeTime: 0.5f, forceRestart: false);
-                            Debug.Log($"[MapAssetLoader] BGM Àç»ı: {meta.BgmAddress}");
+                            Debug.Log($"[MapAssetLoader] BGM ì¬ìƒ: {meta.BgmAddress}");
                         }
                         catch (Exception bgmEx)
                         {
-                            Debug.LogWarning($"[MapAssetLoader] BGM Àç»ı Áß ¿¹¿Ü: {bgmEx}");
+                            Debug.LogWarning($"[MapAssetLoader] BGM ì¬ìƒ ì¤‘ ì˜ˆì™¸: {bgmEx}");
                         }
                     }
                     else
                     {
-                        Debug.LogWarning("[MapAssetLoader] Manager.Audio °¡ ÁØºñµÇÁö ¾Ê¾Æ BGM Àç»ıÀ» °Ç³Ê¶İ´Ï´Ù.");
+                        Debug.LogWarning("[MapAssetLoader] Manager.Audio ê°€ ì¤€ë¹„ë˜ì§€ ì•Šì•„ BGM ì¬ìƒì„ ê±´ë„ˆëœë‹ˆë‹¤.");
                     }
                 }
                 else
                 {
-                    Debug.Log("[MapAssetLoader] MapMeta°¡ ¾ø°Å³ª BGM ÁÖ¼Ò°¡ ºñ¾î ÀÖ¾î Àç»ıÀ» »ı·«ÇÕ´Ï´Ù.");
+                    Debug.Log("[MapAssetLoader] MapMetaê°€ ì—†ê±°ë‚˜ BGM ì£¼ì†Œê°€ ë¹„ì–´ ìˆì–´ ì¬ìƒì„ ìƒëµí•©ë‹ˆë‹¤.");
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[MapAssetLoader] InitializeAndLoad ¿¹¿Ü: {ex}");
+                Debug.LogError($"[MapAssetLoader] InitializeAndLoad ì˜ˆì™¸: {ex}");
             }
         }
 
-        // ¸Ê ¾ğ·Îµå + Æ®·¢ ·¹Áö½ºÆ®¸® ÃÊ±âÈ­
+        // ë§µ ì–¸ë¡œë“œ + íŠ¸ë™ ë ˆì§€ìŠ¤íŠ¸ë¦¬ ì´ˆê¸°í™”
         public async Task UnloadAsync(bool clearTracks = true)
         {
             try
             {
-                if (clearTracks && TrackPathRegistry.Instance != null)
-                {
-                    TrackPathRegistry.Instance.ClearTracks();
-                    Debug.Log("[MapAssetLoader] TrackPathRegistry Æ®·¢ Á¤º¸ ÃÊ±âÈ­");
-                }
+                //if (clearTracks && TrackPathRegistry.Instance != null)
+                //{
+                //    TrackPathRegistry.Instance.ClearTracks();
+                //    Debug.Log("[MapAssetLoader] TrackPathRegistry íŠ¸ë™ ì •ë³´ ì´ˆê¸°í™”");
+                //}
 
                 if (_spawnedMapInstance != null)
                 {
                     ResourceManager.Instance?.ReleaseInstance(_spawnedMapInstance);
-                    Debug.Log($"[MapAssetLoader] '{_mapAssetAddress}' ¸Ê ÀÎ½ºÅÏ½º ÇØÁ¦");
+                    Debug.Log($"[MapAssetLoader] '{_mapAssetAddress}' ë§µ ì¸ìŠ¤í„´ìŠ¤ í•´ì œ");
                     _spawnedMapInstance = null;
                 }
 
                 OnMapUnloaded?.Invoke();
 
-                // Addressables/¸®¼Ò½º GC Æ½ ¾çº¸
+                // Addressables/ë¦¬ì†ŒìŠ¤ GC í‹± ì–‘ë³´
                 await Task.Yield();
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[MapAssetLoader] UnloadAsync ¿¹¿Ü: {ex}");
+                Debug.LogError($"[MapAssetLoader] UnloadAsync ì˜ˆì™¸: {ex}");
             }
         }
 
         private void OnDestroy()
         {
-            // OnDestroy´Â await ºÒ°¡: ÃÖ¼±ÀÇ Á¤¸®¸¸ ¼öÇà
-            if (TrackPathRegistry.Instance != null)
-            {
-                TrackPathRegistry.Instance.ClearTracks();
-                Debug.Log("[MapAssetLoader] (OnDestroy) TrackPathRegistry ÃÊ±âÈ­");
-            }
+            // OnDestroyëŠ” await ë¶ˆê°€: ìµœì„ ì˜ ì •ë¦¬ë§Œ ìˆ˜í–‰
+            //if (TrackPathRegistry.Instance != null)
+            //{
+            //    TrackPathRegistry.Instance.ClearTracks();
+            //    Debug.Log("[MapAssetLoader] (OnDestroy) TrackPathRegistry ì´ˆê¸°í™”");
+            //}
 
             if (_spawnedMapInstance != null)
             {
                 ResourceManager.Instance?.ReleaseInstance(_spawnedMapInstance);
-                Debug.Log($"[MapAssetLoader] (OnDestroy) '{_mapAssetAddress}' ¸Ê ÀÎ½ºÅÏ½º ÇØÁ¦");
+                Debug.Log($"[MapAssetLoader] (OnDestroy) '{_mapAssetAddress}' ë§µ ì¸ìŠ¤í„´ìŠ¤ í•´ì œ");
                 _spawnedMapInstance = null;
             }
         }
