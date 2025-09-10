@@ -68,21 +68,21 @@ namespace MSG
                 );
         private void OnClickGetCostOf0() =>
             PatchService.Instance.GetCostOfKart(
-                0,
-                (cost, moneyType) => Debug.Log($"[DBUpdateTester] 0번 카트 업그레이드 비용: {cost}, 화폐 타입 = {moneyType}"),
-                err => Debug.LogError($"[Test] 0번 카트 비용 조회 실패: {err}")
+                10001,
+                (cost, moneyType) => Debug.Log($"[DBUpdateTester] 10001번 카트 업그레이드 비용: {cost}, 화폐 타입 = {moneyType}"),
+                err => Debug.LogError($"[Test] 10001번 카트 비용 조회 실패: {err}")
                 );
         private void OnClickGetCostOf1() =>
             PatchService.Instance.GetCostOfKart(
-                1,
-                (cost, moneyType) => Debug.Log($"[DBUpdateTester] 1번 카트 업그레이드 비용: {cost}, 화폐 타입 = {moneyType}"),
-                err => Debug.LogError($"[Test] 1번 카트 비용 조회 실패: {err}")
+                10002,
+                (cost, moneyType) => Debug.Log($"[DBUpdateTester] 10002번 카트 업그레이드 비용: {cost}, 화폐 타입 = {moneyType}"),
+                err => Debug.LogError($"[Test] 10002번 카트 비용 조회 실패: {err}")
                 );
         private void OnClickGetCostOf2() => 
             PatchService.Instance.GetCostOfKart(
-                2,
-                (cost, moneyType) => Debug.Log($"[DBUpdateTester] 2번 카트 업그레이드 비용: {cost}, 화폐 타입 = {moneyType}"),
-                err => Debug.LogError($"[Test] 2번 카트 비용 조회 실패: {err}")
+                10003,
+                (cost, moneyType) => Debug.Log($"[DBUpdateTester] 10003번 카트 업그레이드 비용: {cost}, 화폐 타입 = {moneyType}"),
+                err => Debug.LogError($"[Test] 10003번 카트 비용 조회 실패: {err}")
                 );
         private void OnClickGetCostOfUnimo3() =>
             PatchService.Instance.GetCostOfUnimo(
