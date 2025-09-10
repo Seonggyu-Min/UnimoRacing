@@ -13,6 +13,8 @@ public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>
     [SerializeField]
     private List<CinemachinePathBase> _paths = new();
 
+    public bool IsInit => _isInit;
+
     // 돌리 트랙 레일 찾고
     // 다 찾았다면, 
     protected override void Init()
@@ -21,10 +23,26 @@ public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>
 
         var findTrack = FindObjectsOfType<CinemachinePathBase>(true);
         SetTrack(findTrack);
+
+        if (_paths.Count == 0)
+            return;
+
         _isInit = true;
     }
 
-    private void SetTrack(params CinemachinePathBase[] paths)
+    public void RePathLoad()
+    {
+        _paths?.Clear();
+        var findTrack = FindObjectsOfType<CinemachinePathBase>(true);
+        SetTrack(findTrack);
+
+        if (_paths.Count == 0)
+            return;
+
+        _isInit = true;
+    }
+
+    public void SetTrack(params CinemachinePathBase[] paths)
     {
         if (_paths == null)
             return;
