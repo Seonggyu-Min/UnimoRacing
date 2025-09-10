@@ -230,6 +230,7 @@ GameObject:
   - component: {fileID: 7978271638079185026}
   - component: {fileID: 4597734339329165852}
   - component: {fileID: 7014212326858916259}
+  - component: {fileID: 7289342749649180121}
   - component: {fileID: 8211016670444567718}
   - component: {fileID: 1959652890368414403}
   - component: {fileID: 1815014094688383359}
@@ -387,6 +388,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46c0f6e72ec42d94e9de806820fa579d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7289342749649180121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8330706411905914188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0399bf5f4b30714396f512c0a020771, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _blinkLoopTime: 3
+  _shake1LoopTime: 3
+  _shake2LoopTime: 3
 --- !u!114 &8211016670444567718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,9 +416,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _sitPointName: pivot_Character
-  _useFollowCam: 0
+  _followCam: VirtualCam
+  _useLoadFollowCam: 1
   _kartBaseSpeed: 20
   _kartCurrentSpeed: 0
+  _isControlable: 1
+  _isMovable: 1
+  _isItemUsable: 1
 --- !u!114 &1959652890368414403
 MonoBehaviour:
   m_ObjectHideFlags: 0
