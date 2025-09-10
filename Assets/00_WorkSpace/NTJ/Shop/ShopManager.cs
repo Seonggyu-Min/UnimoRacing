@@ -1,6 +1,7 @@
 using Firebase.Database;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,16 +12,15 @@ namespace MSG
     public class ShopManager : PopupBase
     {
         #region Fields and Properties
-
         [Header("Register SO")]
-        [SerializeField] private UnimoSO[] _unimoSOs;
-        [SerializeField] private KartSO[] _kartSOs;
+        [SerializeField] private UnimoCharacterSO[] _unimoSOs;
+        [SerializeField] private UnimoKartSO[] _kartSOs;
 
-        [Header("Shop UI")]
+        [Header("Shop Panel")]
         [SerializeField] private GameObject _unimoShopPanel;
         [SerializeField] private GameObject _kartShopPanel;
 
-        [Header("Shop Toggle Buttons")]
+        [Header("Shop Panel Change Buttons")]
         [SerializeField] private Toggle _unimoShopToggleButton;
         [SerializeField] private Toggle _kartShopToggleButton;
 
@@ -31,112 +31,84 @@ namespace MSG
 
         [Header("Info Text")]
         [SerializeField] private TMP_Text _infoText;
-        [SerializeField] private Button _closeButton;
 
-        // 버튼 인덱스로 조회용
-        private Dictionary<int, BuyButtonBehaviour> _unimoDict = new();
-        private Dictionary<int, BuyButtonBehaviour> _kartDict = new();
-
-        // 패널 및 버튼 UI 상태
+        private readonly Dictionary<int, BuyButtonBehaviour> _unimoDict = new();
+        private readonly Dictionary<int, BuyButtonBehaviour> _kartDict = new();
         private bool _isGenerated = false;
-        private bool _showUnimoPanel = true;
 
-        // 구독 해제 캐싱용 Action
         private Action _unsubUnimoInv;
         private Action _unsubKartInv;
 
-        // 헬퍼 프로퍼티
-        private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
-
+        private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
         #endregion
 
         #region Unity Methods
-
-        private void Awake()
-        {
-            _unimoShopToggleButton.onValueChanged.AddListener(OnUnimoToggleValueChanged);
-            _kartShopToggleButton.onValueChanged.AddListener(OnKartToggleValueChanged);
-            // 닫기 버튼 리스너 연결
-            if (_closeButton != null)
-            {
-                // TODO: PopupBase를 사용하지 않는다면, 이 오브젝트를 비활성화하는 로직으로 변경
-                _closeButton.onClick.AddListener(() => this.gameObject.SetActive(false));
-            }
-        }
-
         private void OnEnable()
         {
-            // 패널이 활성화될 때
+            _unimoShopPanel.SetActive(_unimoShopToggleButton.isOn);
+            _kartShopPanel.SetActive(_kartShopToggleButton.isOn);
+
             if (!_isGenerated)
             {
                 GenerateButtons();
                 _isGenerated = true;
             }
-
-            // UI 상태 초기화
-            SetShopPanel(_showUnimoPanel);
-
-            // Firebase 구독 시작
             SubscribeInventory();
         }
 
         private void OnDisable()
         {
-            // 패널이 비활성화될 때 Firebase 구독 해제
             UnsubscribeInventory();
         }
 
-        #endregion
-
-        #region Public UI Methods
-
-        /// <summary>
-        /// 상점 패널을 전환하고, 토글 버튼의 색상을 변경합니다.
-        /// </summary>
-        /// <param name="isUnimoPanel">유니모 패널을 보여줄지 여부</param>
-        public void SetShopPanel(bool isUnimoPanel)
+        private void Start()
         {
-            _showUnimoPanel = isUnimoPanel;
+            _unimoShopToggleButton.onValueChanged.AddListener(isOn => TogglePanel(isOn, _unimoShopPanel));
+            _kartShopToggleButton.onValueChanged.AddListener(isOn => TogglePanel(isOn, _kartShopPanel));
 
-            _unimoShopPanel.SetActive(isUnimoPanel);
-            _kartShopPanel.SetActive(!isUnimoPanel);
-
-            // 토글 버튼의 상호작용 가능 여부와 색상 변경 (버튼의 색상 변경 로직은 UI 측에서 처리 권장)
-            _unimoShopToggleButton.interactable = !isUnimoPanel;
-            _kartShopToggleButton.interactable = isUnimoPanel;
+            _unimoShopToggleButton.isOn = true;
+            _kartShopToggleButton.isOn = false;
         }
-
         #endregion
 
-        #region Private Data/Core Logic
+        #region Private Methods
+        private void TogglePanel(bool isOn, GameObject panel)
+        {
+            if (panel == null) return;
+            panel.SetActive(isOn);
+        }
 
         private void GenerateButtons()
         {
             // 유니모 버튼 생성
-            foreach (UnimoSO so in _unimoSOs)
+            for (int i = 0; i < _unimoSOs.Length; i++)
             {
+                UnimoCharacterSO so = _unimoSOs[i];
                 if (so == null) continue;
                 BuyButtonBehaviour button = Instantiate(_buyButtonPrefab, _unimoParent);
-                button.name = $"UnimoButton_{so.name}";
-                button.SetupUnimo(so, _infoText);
-                _unimoDict.Add(so.Index, button);
+                button.name = $"UnimoButton_{so.characterName}";
+                button.SetupButton(so.characterName, so.characterSprite, string.Empty);
+                button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Unimo, so.characterId);
+               // _unimoDict.Add(so.characterId, button);
+                button.RefreshItemState(0); // 모든 버튼을 "미보유" 상태로 초기화
             }
 
             // 카트 버튼 생성
-            foreach (KartSO so in _kartSOs)
+            for (int i = 0; i < _kartSOs.Length; i++)
             {
+                UnimoKartSO so = _kartSOs[i];
                 if (so == null) continue;
                 BuyButtonBehaviour button = Instantiate(_buyButtonPrefab, _kartParent);
-                button.name = $"KartButton_{so.name}";
-                button.SetupKart(so, _infoText);
-                _kartDict.Add(so.Index, button);
+                button.name = $"KartButton_{so.carName}";
+                button.SetupButton(so.carName, so.kartSprite, string.Empty);
+                button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Kart, so.KartID);
+                _kartDict.Add(so.KartID, button);
+                button.RefreshItemState(0); // 모든 버튼을 "미보유" 상태로 초기화
             }
         }
 
         private void SubscribeInventory()
         {
-            if (string.IsNullOrEmpty(CurrentUid)) return;
-
             _unsubUnimoInv = DatabaseManager.Instance.SubscribeValueChanged(
                 DBRoutes.UnimosInventory(CurrentUid),
                 onChanged: OnUnimoInventorySnapshot,
@@ -158,69 +130,55 @@ namespace MSG
             _unsubKartInv = null;
         }
 
-        // 유니모 변화 콜백
         private void OnUnimoInventorySnapshot(DataSnapshot snap)
         {
-            Dictionary<int, int> levels = new();
-            if (snap != null && snap.Exists)
+            var inventoryData = snap.Value as Dictionary<string, object> ?? new Dictionary<string, object>();
+
+            // 로컬 사전에 있는 모든 버튼을 반복합니다.
+            foreach (var kv in _unimoDict)
             {
-                foreach (var child in snap.Children)
+                int unimoId = kv.Key;
+                BuyButtonBehaviour button = kv.Value;
+
+                // 현재 Unimo ID가 Firebase 데이터에 있는지 확인하세요.
+                if (inventoryData.ContainsKey(unimoId.ToString()))
                 {
-                    if (!int.TryParse(child.Key, out int index) || child.Value == null) continue;
-                    int.TryParse(child.Value.ToString(), out int level);
-                    levels[index] = level;
+                    // 만약 있다면, 사용자가 소유합니다. 레벨을 0보다 큰 값으로 설정하세요.
+                    button.RefreshItemState(1); // 소유권을 나타내려면 1 이상으로 설정하세요.
                 }
-            }
-
-            foreach (KeyValuePair<int, BuyButtonBehaviour> kv in _unimoDict)
-            {
-                // 0, 1, 2번 인덱스는 기본 아이템으로 간주
-                bool isDefaultItem = kv.Key <= 2;
-
-                // 데이터베이스에 존재하거나 기본 아이템이면 '소유'로 처리
-                bool owned = levels.TryGetValue(kv.Key, out int level) && level > 0;
-                owned = owned || isDefaultItem; // 기본 아이템이라면 항상 true
-
-                kv.Value.SetOwnedVisual(owned);
+                else
+                {
+                    // 해당 항목이 없으면 사용자가 소유하지 않은 것입니다. 값을 0으로 설정하세요.
+                    button.RefreshItemState(0);
+                }
             }
         }
 
-        // 카트 변화 콜백
         private void OnKartInventorySnapshot(DataSnapshot snap)
         {
-            Dictionary<int, int> levels = new();
-            if (snap != null && snap.Exists)
+            var inventoryData = snap.Value as Dictionary<string, object> ?? new Dictionary<string, object>();
+
+            foreach (var kv in _kartDict)
             {
-                foreach (var child in snap.Children)
+                int kartId = kv.Key;
+                BuyButtonBehaviour button = kv.Value;
+
+                if (inventoryData.ContainsKey(kartId.ToString()))
                 {
-                    if (!int.TryParse(child.Key, out int index) || child.Value == null) continue;
-                    int.TryParse(child.Value.ToString(), out int level);
-                    levels[index] = level;
+                    // 카트의 경우 Firebase에서 실제 레벨을 가져옵니다.
+                    int currentLevel = 0;
+                    if (int.TryParse(inventoryData[kartId.ToString()].ToString(), out int level))
+                    {
+                        currentLevel = level;
+                    }
+                    button.RefreshItemState(currentLevel);
+                }
+                else
+                {
+                    button.RefreshItemState(0);
                 }
             }
-
-            foreach (KeyValuePair<int, BuyButtonBehaviour> kv in _kartDict)
-            {
-                // 0, 1, 2번 인덱스는 기본 카트로 간주
-                bool isDefaultItem = kv.Key <= 2;
-
-                bool owned = levels.TryGetValue(kv.Key, out int level) && level > 0;
-                owned = owned || isDefaultItem; // 기본 아이템이라면 항상 true
-
-                kv.Value.SetOwnedVisual(owned);
-            }
         }
-
         #endregion
-        private void OnUnimoToggleValueChanged(bool isOn)
-        {
-            _unimoShopPanel.SetActive(isOn);
-        }
-
-        private void OnKartToggleValueChanged(bool isOn)
-        {
-            _kartShopPanel.SetActive(isOn);
-        }
     }
-
 }

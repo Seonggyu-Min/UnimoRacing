@@ -1,7 +1,5 @@
 ﻿using Firebase.Database;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,162 +10,251 @@ namespace MSG
     // SO에 Price가 사라짐으로써 사용되지 않습니다
     public class BuyButtonBehaviour : MonoBehaviour
     {
-        [SerializeField] private Image _icon;
-        [SerializeField] private Button _button;
+
+        public enum ItemType { Kart, Unimo }
+        [SerializeField] private ItemType itemType;
+        private int _itemId; // private 필드로 선언
+
         [SerializeField] private TMP_Text _itemName;
-        [SerializeField] private TMP_Text _itemPrice;
+        [SerializeField] private Image _itemIcon;
+        [SerializeField] private TMP_Text _priceText;
+        [SerializeField] private TMP_Text _buyButtonText;
+        [SerializeField] private Button _buyButton;
 
-        private bool _amUnimoButton = false; // 버튼 자기 자신이 유니모를 파는지, 카트를 파는지 캐싱
-        private UnimoSO _unimoSO; // 가격 확인을 위해 캐싱
-        private KartSO _kartSO;
-        private TMP_Text _infoText;
+        private int _itemCost;
+        private MoneyType _moneyType;
 
-        private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
+        public Button Button => _buyButton;
+        private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
 
-
-        public void SetupUnimo(UnimoSO unimoSO, TMP_Text infoText)
+        public void SetupButton(string name, Sprite sprite, string priceString)
         {
-            _unimoSO = unimoSO;
-            _infoText = infoText;
-            _amUnimoButton = true;
-            _icon.sprite = unimoSO.Thumbnail;
-            _itemName.text = unimoSO.Name;
-            _itemPrice.text = $"{unimoSO.Price}";
+            _itemName.text = name;
+            _itemIcon.sprite = sprite;
+            _priceText.text = priceString;
         }
 
-        public void SetupKart(KartSO kartSO, TMP_Text infoText)
+        private void Start()
         {
-            _kartSO = kartSO;
-            _infoText = infoText;
-            _amUnimoButton = false;
-            _icon.sprite = kartSO.Thumbnail;
-            _itemName.text = kartSO.Name;
-            _itemPrice.text = $"{kartSO.Price}";
-        }
-
-        public void SetOwnedVisual(bool owned)
-        {
-            _icon.color = owned ? Color.white : Color.gray; // 가지지 않은 것은 회색 처리
-            _button.interactable = !owned; // 가진 것은 클릭 금지
-        }
-        private void Awake()
-        {
-            _button.onClick.AddListener(OnItemClicked);
-        }
-
-        // 아이템 상세 정보를 표시하는 메서드
-        private void OnItemClicked()
-        {
-            if (_amUnimoButton)
+            if (_buyButton != null)
             {
-                _infoText.text = $"<color=yellow>{_unimoSO.Name}</color>\n\n{_unimoSO.Description}\n<color=yellow>가격: {_unimoSO.Price}</color>";
+                _buyButton.onClick.AddListener(OnClickBuyButton);
+            }
+        }
+
+        private int _currentLevel = 0;
+        private bool _amUnimoButton;
+
+        public void SetupTypeAndId(ItemType type, int id)
+        {
+            this.itemType = type;
+            this._itemId = id; // _itemId에 할당
+        }
+
+        public void RefreshItemState(int currentLevel)
+        {
+            if (itemType == ItemType.Kart)
+            {
+                PatchService.Instance.GetCostOfKart(
+                    _itemId,
+                    (cost, moneyType) =>
+                    {
+                        _itemCost = cost;
+                        _moneyType = moneyType;
+                        UpdateUI();
+                    },
+                    err => Debug.LogError($"가격 불러오기 실패: {err}")
+                );
+            }
+            else // ItemType.Unimo
+            {
+                PatchService.Instance.GetCostOfUnimo(
+                    _itemId,
+                    (cost, moneyType) =>
+                    {
+                        _itemCost = cost;
+                        _moneyType = moneyType;
+                        UpdateUI();
+                    },
+                    err => Debug.LogError($"가격 불러오기 실패: {err}")
+                );
+            }
+        }
+
+        private void UpdateUI()
+        {
+            if (itemType == ItemType.Kart)
+            {
+                _buyButtonText.text = _currentLevel > 0 ? "강화" : "획득";
             }
             else
             {
-                _infoText.text = $"<color=yellow>{_kartSO.Name}</color>\n\n{_kartSO.Description}\n<color=yellow>가격: {_kartSO.Price}</color>";
+                _buyButtonText.text = _currentLevel > 0 ? "보유 중" : "획득";
             }
+
+            if (_itemCost <= 0)
+            {
+                _buyButton.interactable = false;
+                _priceText.text = (itemType == ItemType.Kart) ? "최대 레벨" : "보유 중";
+            }
+            else
+            {
+                _buyButton.interactable = true;
+                string moneySuffix = _moneyType == MoneyType.BlueHoneyGem ? "C" : "G";
+                _priceText.text = $"{_itemCost} {moneySuffix}";
+            }
+        }
+
+        public void ProcessPurchase(int itemId, BuyButtonBehaviour.ItemType itemType, int cost, MoneyType moneyType)
+        {
+
         }
 
         public void OnClickBuyButton()
         {
-            _button.interactable = false; // 중복 구매 방지
+            string uid = FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
 
-            MoneyType type;
-            int price;
-
-            if (_amUnimoButton)
+            if (string.IsNullOrEmpty(uid))
             {
-                type = _unimoSO.MoneyType;
-                price = _unimoSO.Price;
-            }
-            else
-            {
-                type = _kartSO.MoneyType;
-                price = _kartSO.Price;
-            }
-
-            TrySpendTransaction(type, price, ok =>
-            {
-                if (!ok)
-                {
-                    _infoText.text = "잔액이 부족하여 구매하지 못했습니다";
-                    _button.interactable = true;
-                    return;
-                }
-
-                _button.interactable = true;
-
-
-                // TODO: 만약 여기서 실패하면 예외 처리 필요
-                // 돈을 다시 돌려 놓아야 되나? -> 돈을 돌려 놓는 것도 실패할 수 있지 않나?
-
-                if (_amUnimoButton)
-                {
-                    DatabaseManager.Instance.SetOnMain(DBRoutes.UnimoInventory(CurrentUid, _unimoSO.Index),
-                        1,
-                        () => _infoText.text = "구매 완료",
-                        err => Debug.LogWarning($"인벤토리에 구매 갱신 중 오류: {err}")
-                        );
-                }
-                else
-                {
-                    DatabaseManager.Instance.SetOnMain(DBRoutes.KartInventory(CurrentUid, _kartSO.Index),
-                        1,
-                        () => _infoText.text = "구매 완료",
-                        err => Debug.LogWarning($"인벤토리에 구매 갱신 중 오류: {err}")
-                        );
-                }
-            });
-        }
-
-        // 분기가 여러개라서 메서드 분리
-        private void TrySpendTransaction(MoneyType moneyType, int price, Action<bool> onDone)
-        {
-            string path = moneyType switch
-            {
-                MoneyType.Gold => DBRoutes.Gold(CurrentUid),
-                MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(CurrentUid),
-                //MoneyType.Money3 => DBRoutes.Money3(CurrentUid),
-                _ => null
-            };
-
-            if (path == null)
-            {
-                onDone?.Invoke(false);
+                Debug.LogError("[ProcessPurchase] 사용자 UID가 유효하지 않습니다.");
                 return;
             }
 
-            DatabaseManager.Instance.RunTransactionOnMain(
-                path,
-                mutable =>
+            string moneyPath = GetMoneyPath(_moneyType, uid);
+
+            TrySpendTransaction(_moneyType,
+                _itemCost,
+                onDone =>
                 {
-                    long current = 0;
-                    try
+                    if (!onDone)
                     {
-                        if (mutable.Value != null)
-                        {
-                            current = Convert.ToInt64(mutable.Value);
-                        }
+                        Debug.LogError("잔액이 부족하거나, 불러오기에 실패 했습니다.");
+                        return;
                     }
-                    catch
+                    if (itemType == ItemType.Unimo)
                     {
-                        // 파싱 실패는 0으로 간주
+                        DatabaseManager.Instance.SetOnMain(DBRoutes.UnimoInventory(uid, _itemId),
+                            1,
+                            () => Debug.Log("구매 완료"),
+                        err => Debug.LogWarning($"{err} 구매 갱신 오류"));
                     }
-
-                    // 부족하면 Abort
-                    if (current < price)
+                    else
                     {
-                        // 구매할 수 없다
-                        return TransactionResult.Abort();
+                        DatabaseManager.Instance.SetOnMain(DBRoutes.KartInventory(uid, _itemId),
+                                        1,
+                                        () => Debug.Log("구매 완료"),
+                            err => Debug.LogWarning($"{err} 구매 갱신 오류"));
                     }
-
-                    // 충분하면 차감하고 Success
-                    mutable.Value = current - price;
-                    return TransactionResult.Success(mutable);
-                },
-                _ => onDone?.Invoke(true),
-                _ => onDone?.Invoke(false)
-            );
+                });
         }
+
+    // DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(
+    //     moneyPath,
+    //     -_itemCost,
+    //     (long newBalance) =>
+    //     {
+    //         // 트랜잭션이 성공했습니다! 아이템을 지급합니다.
+    //         // 성공 콜백이 호출되었다는 것은 잔액이 충분했다는 의미입니다.
+    //         SetItemInventory(_itemId, itemType, uid);
+    //         Debug.Log($"구매 성공! 새로운 잔액: {newBalance}");
+    //     },
+    //     (error) =>
+    //     {
+    //         // 트랜잭션이 실패했습니다. 여기서 잔액 부족을 처리합니다.
+    //         // Firebase의 권한 거부(permission_denied) 에러가 잔액 부족을 의미할 수 있습니다.
+    //         if (error.Contains("permission_denied"))
+    //         {
+    //             Debug.LogWarning("[ProcessPurchase] 잔액이 부족하여 구매에 실패했습니다.");
+    //         }
+    //         else
+    //         {
+    //             Debug.LogError($"[ProcessPurchase] 코인 거래 실패: {error}");
+    //         }
+    //     }
+    // );
+
+
+// 아이템 인벤토리를 업데이트하는 헬퍼 메서드
+private void SetItemInventory(int itemId, BuyButtonBehaviour.ItemType itemType, string uid)
+{
+    string inventoryPath;
+    int level = 1; // 기본적으로 아이템을 획득하면 레벨 1로 설정
+
+    if (itemType == BuyButtonBehaviour.ItemType.Kart)
+    {
+        inventoryPath = DBRoutes.KartInventory(uid, itemId);
+    }
+    else // Unimo
+    {
+        inventoryPath = DBRoutes.UnimoInventory(uid, itemId);
+    }
+
+    DatabaseManager.Instance.SetOnMain(inventoryPath, level,
+        () => Debug.Log($"아이템 {itemId} 획득/강화 성공!"),
+        err => Debug.LogError($"아이템 {itemId} 획득 실패: {err}")
+    );
+}
+
+
+private string GetMoneyPath(MoneyType moneyType, string uid)
+{
+    return moneyType switch
+    {
+        MoneyType.Gold => DBRoutes.Gold(uid),
+        MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(uid),
+        _ => throw new ArgumentException("유효하지 않은 코인 타입입니다.")
+    };
+}
+
+
+// 분기가 여러개라서 메서드 분리
+private void TrySpendTransaction(MoneyType moneyType, int price, Action<bool> onDone)
+{
+    string path = moneyType switch
+    {
+        MoneyType.Gold => DBRoutes.Gold(CurrentUid),
+        MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(CurrentUid),
+        //MoneyType.Money3 => DBRoutes.Money3(CurrentUid),
+        _ => null
+    };
+
+    if (path == null)
+    {
+        onDone?.Invoke(false);
+        return;
+    }
+
+    DatabaseManager.Instance.RunTransactionOnMain(
+        path,
+        mutable =>
+        {
+            long current = 0;
+            try
+            {
+                if (mutable.Value != null)
+                {
+                    current = Convert.ToInt64(mutable.Value);
+                }
+            }
+            catch
+            {
+                // 파싱 실패는 0으로 간주
+            }
+
+            // 부족하면 Abort
+            if (current < price)
+            {
+                // 구매할 수 없다
+                return TransactionResult.Abort();
+            }
+
+            // 충분하면 차감하고 Success
+            mutable.Value = current - price;
+            return TransactionResult.Success(mutable);
+        },
+        _ => onDone?.Invoke(true),
+        _ => onDone?.Invoke(false)
+    );
+}
     }
 }

@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3254358374012698090
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6301856675385465153}
+  - component: {fileID: 1360472563833181773}
+  m_Layer: 5
+  m_Name: PlayerDataExample
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6301856675385465153
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3254358374012698090}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1360472563833181773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3254358374012698090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77c39bb8aa627ea418539940f749d889, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _testText: {fileID: 0}
+  _nicknameInputField: {fileID: 0}
+  _showUidButton: {fileID: 0}
+  _showSignedDateButton: {fileID: 0}
+  _setNicknameButton: {fileID: 0}
+  _showNicknameButton: {fileID: 0}
+  _showLevelButton: {fileID: 0}
+  _showExpButton: {fileID: 0}
+  _getExpButton: {fileID: 0}
+  _getUnimoButton: {fileID: 0}
+  _getKartButton: {fileID: 0}
+  _showOwnedUnimosButton: {fileID: 0}
+  _showOwnedKartsButton: {fileID: 0}
+  _showOwnedSkinsButton: {fileID: 0}
+  _equipUnimoButton: {fileID: 0}
+  _equipKartButton: {fileID: 0}
+  _equippedUnimoButton: {fileID: 0}
+  _showEquippedKartButton: {fileID: 0}
+  _showKartUpgradesButton: {fileID: 0}
+  _addFriendButton: {fileID: 0}
+  _showFriendListButton: {fileID: 0}
+  _getFriendRequestListButton: {fileID: 0}
+  _acceptFriendRequestButton: {fileID: 0}
+  _rejectFriendRequestButton: {fileID: 0}
+  _cancelFriendRequestButton: {fileID: 0}
+  _removeFriendButton: {fileID: 0}
+  _friendLogics: {fileID: 0}

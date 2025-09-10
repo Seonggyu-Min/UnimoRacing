@@ -15,8 +15,8 @@ namespace MSG.Deprecated
         #region Fields and Properties
 
         [Header("Register SO")]
-        [SerializeField] private UnimoSO[] _unimoSOs;
-        [SerializeField] private KartSO[] _kartSOs;
+        [SerializeField] private UnimoCharacterSO[] _unimoSOs;
+        [SerializeField] private UnimoKartSO[] _kartSOs;
 
         [Header("Shop Panel")]
         [SerializeField] private GameObject _unimoShopPanel;
@@ -51,7 +51,6 @@ namespace MSG.Deprecated
 
         #endregion
 
-
         #region Unity Methods
 
         private void OnEnable()
@@ -73,7 +72,6 @@ namespace MSG.Deprecated
 
         #endregion
 
-
         #region Button Methods
 
         public void OnClickUnimoShopButton() => ShowUnimoShop(true);
@@ -81,23 +79,13 @@ namespace MSG.Deprecated
 
         #endregion
 
-
         #region Private Methods
 
         private void ShowUnimoShop(bool showUnimoPanel)
         {
             _showUnimoPanel = showUnimoPanel;
-
-            if (_showUnimoPanel)
-            {
-                _unimoShopPanel.SetActive(true);
-                _kartShopPanel.SetActive(false);
-            }
-            else
-            {
-                _unimoShopPanel.SetActive(false);
-                _kartShopPanel.SetActive(true);
-            }
+            _unimoShopPanel.SetActive(_showUnimoPanel);
+            _kartShopPanel.SetActive(!_showUnimoPanel);
         }
 
         private void GenerateButtons()
@@ -105,27 +93,33 @@ namespace MSG.Deprecated
             // 유니모 버튼 생성
             for (int i = 0; i < _unimoSOs.Length; i++)
             {
-                UnimoSO so = _unimoSOs[i];
+                UnimoCharacterSO so = _unimoSOs[i];
                 if (so == null) continue;
 
                 BuyButtonBehaviour button = Instantiate(_buyButtonPrefab, _unimoParent);
-                button.name = $"UnimoButton_{so.name}";
-                button.SetupUnimo(so, _infoText);
+                button.name = $"UnimoButton_{so.characterName}";
 
-                _unimoDict.Add(so.Index, button);
+                button.SetupButton(so.characterName, so.characterSprite, string.Empty);
+                button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Unimo, so.characterId);
+
+                _unimoDict.Add(so.characterId, button);
+                button.RefreshItemState(0); // 초기 상태는 0으로 설정
             }
 
             // 카트 버튼 생성
             for (int i = 0; i < _kartSOs.Length; i++)
             {
-                KartSO so = _kartSOs[i];
+                UnimoKartSO so = _kartSOs[i];
                 if (so == null) continue;
 
                 BuyButtonBehaviour button = Instantiate(_buyButtonPrefab, _kartParent);
-                button.name = $"KartButton_{so.name}";
-                button.SetupKart(so, _infoText);
+                button.name = $"KartButton_{so.carName}";
 
-                _kartDict.Add(so.Index, button);
+                button.SetupButton(so.carName, so.kartSprite, string.Empty);
+                button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Kart, so.KartID);
+
+                _kartDict.Add(so.KartID, button);
+                button.RefreshItemState(0); // 초기 상태는 0으로 설정
             }
         }
 
@@ -155,62 +149,50 @@ namespace MSG.Deprecated
         // 유니모 변화 콜백
         private void OnUnimoInventorySnapshot(DataSnapshot snap)
         {
-            // key: int index, value: int level, 0 혹은 null이면 미획득, 1 이상은 획득 및 강화 상태
-            Dictionary<int, int> levels = new();
-
-            if (snap != null && snap.Exists)
+            if (!snap.Exists || snap.Value == null)
             {
-                foreach (var child in snap.Children)
-                {
-                    int index;
-                    if (!int.TryParse(child.Key, out index)) continue;
-
-                    int level = 0;
-                    if (child.Value != null)
-                    {
-                        int.TryParse(child.Value.ToString(), out level);
-                    }
-
-                    levels[index] = level;
-                }
+                foreach (var kv in _unimoDict) { kv.Value.RefreshItemState(0); }
+                return;
             }
 
+            Dictionary<string, object> inventoryData = snap.Value as Dictionary<string, object>;
             foreach (KeyValuePair<int, BuyButtonBehaviour> kv in _unimoDict)
             {
-                int level;
-                bool owned = levels.TryGetValue(kv.Key, out level) && level > 0;
-                kv.Value.SetOwnedVisual(owned);
+                int unimoId = kv.Key;
+                int currentLevel = 0;
+                if (inventoryData != null && inventoryData.ContainsKey(unimoId.ToString()))
+                {
+                    if (int.TryParse(inventoryData[unimoId.ToString()].ToString(), out int level))
+                    {
+                        currentLevel = level;
+                    }
+                }
+                kv.Value.RefreshItemState(currentLevel);
             }
         }
 
         // 카트 변화 콜백
         private void OnKartInventorySnapshot(DataSnapshot snap)
         {
-            // key: int index, value: int level, 0 혹은 null이면 미획득, 1 이상은 획득 및 강화 상태
-            Dictionary<int, int> levels = new();
-
-            if (snap != null && snap.Exists)
+            if (!snap.Exists || snap.Value == null)
             {
-                foreach (var child in snap.Children)
-                {
-                    int index;
-                    if (!int.TryParse(child.Key, out index)) continue;
-
-                    int level = 0;
-                    if (child.Value != null)
-                    {
-                        int.TryParse(child.Value.ToString(), out level);
-                    }
-
-                    levels[index] = level;
-                }
+                foreach (var kv in _kartDict) { kv.Value.RefreshItemState(0); }
+                return;
             }
 
+            Dictionary<string, object> inventoryData = snap.Value as Dictionary<string, object>;
             foreach (KeyValuePair<int, BuyButtonBehaviour> kv in _kartDict)
             {
-                int level;
-                bool owned = levels.TryGetValue(kv.Key, out level) && level > 0;
-                kv.Value.SetOwnedVisual(owned);
+                int kartId = kv.Key;
+                int currentLevel = 0;
+                if (inventoryData != null && inventoryData.ContainsKey(kartId.ToString()))
+                {
+                    if (int.TryParse(inventoryData[kartId.ToString()].ToString(), out int level))
+                    {
+                        currentLevel = level;
+                    }
+                }
+                kv.Value.RefreshItemState(currentLevel);
             }
         }
 

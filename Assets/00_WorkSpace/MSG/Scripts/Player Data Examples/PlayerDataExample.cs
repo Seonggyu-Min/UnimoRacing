@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -56,8 +54,8 @@ namespace MSG
             _showLevelButton.onClick.AddListener(OnClickShowLevel);
             _showExpButton.onClick.AddListener(OnClickShowExp);
             _getExpButton.onClick.AddListener(OnClickGetExp);
-            _getUnimoButton.onClick.AddListener(OnClickGetUnimo);
-            _getKartButton.onClick.AddListener(OnClickGetKart);
+            _getUnimoButton.onClick.AddListener(() => OnClickGetUnimo(0, true));
+            _getKartButton.onClick.AddListener(() => OnClickGetKart(0, true));
             _showOwnedUnimosButton.onClick.AddListener(OnClickShowOwnedUnimos);
             _showOwnedKartsButton.onClick.AddListener(OnClickShowOwnedKarts);
             _showOwnedSkinsButton.onClick.AddListener(OnClickShowOwnedSkins);
@@ -84,8 +82,8 @@ namespace MSG
             _showLevelButton.onClick.RemoveListener(OnClickShowLevel);
             _showExpButton.onClick.RemoveListener(OnClickShowExp);
             _getExpButton.onClick.RemoveListener(OnClickGetExp);
-            _getUnimoButton.onClick.RemoveListener(OnClickGetUnimo);
-            _getKartButton.onClick.RemoveListener(OnClickGetKart);
+            _showOwnedUnimosButton.onClick.AddListener(OnClickShowOwnedUnimos);
+            _showOwnedKartsButton.onClick.AddListener(OnClickShowOwnedKarts);
             _showOwnedUnimosButton.onClick.RemoveListener(OnClickShowOwnedUnimos);
             _showOwnedKartsButton.onClick.RemoveListener(OnClickShowOwnedKarts);
             _showOwnedSkinsButton.onClick.RemoveListener(OnClickShowOwnedSkins);
@@ -105,6 +103,27 @@ namespace MSG
 
 
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
+
+        // 전역 접근을 위한 public static 속성입니다.
+        public static PlayerDataExample Instance { get; private set; }
+
+        // 싱글톤 인스턴스를 저장하는 private 필드입니다.
+        private static PlayerDataExample _instance;
+
+        // Awake 메서드를 사용하여 싱글톤 인스턴스를 설정합니다.
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject); // 선택 사항: 씬이 전환되어도 파괴되지 않게 합니다.
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+
 
         private void OnClickShowUid()
         {
@@ -198,24 +217,32 @@ namespace MSG
                 onError: err => _testText.text = $"경험치 쓰기 오류: {err}");
         }
 
-        private void OnClickGetUnimo()
+        public void OnClickGetUnimo(int unimoId, bool showMessage)
         {
-            int unimoId = 0; // 예시로 0번 Unimo를 얻는다고 가정
-
+            // OnClickBuyButton()에서 넘겨준 unimoId 값을 사용해 Firebase 경로를 설정합니다.
             DatabaseManager.Instance.SetOnMain(DBRoutes.UnimoInventory(CurrentUid, unimoId),
                 1,  // 1은 Unimo의 강화 레벨을 의미, 0이면 미보유
                 onSuccess: () => _testText.text = $"유니모 id({unimoId}) 획득",
                 onError: err => _testText.text = $"유니모 획득 오류: {err}");
+
+            if (showMessage)
+            {
+                Debug.Log($"유니모 {unimoId} 획득/강화 성공!");
+            }
         }
 
-        private void OnClickGetKart()
+        public void OnClickGetKart(int kartId, bool showMessage)
         {
-            int kartId = 0; // 예시로 0번 Kart를 얻는다고 가정
-
+            // OnClickBuyButton()에서 넘겨준 kartId 값을 사용해 Firebase 경로를 설정합니다.
             DatabaseManager.Instance.SetOnMain(DBRoutes.KartInventory(CurrentUid, kartId),
                 1,  // 1은 Kart의 강화 레벨을 의미, 0이면 미보유
                 onSuccess: () => _testText.text = $"카트 id({kartId}) 획득",
                 onError: err => _testText.text = $"카트 획득 오류: {err}");
+
+            if (showMessage)
+            {
+                Debug.Log($"카트 {kartId} 획득/강화 성공!");
+            }
         }
 
         private void OnClickShowOwnedUnimos()

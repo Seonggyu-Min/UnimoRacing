@@ -13,8 +13,8 @@ using UnityEngine.UI;
 
 public class MyRoomManager : MonoBehaviour
 {
-    [SerializeField] private List<UnimoKartSO> allKartData;
     [SerializeField] private List<UnimoCharacterSO> allCharacterData;
+    [SerializeField] private List<UnimoKartSO> allKartData;
 
     // UI 관리 스크립트 참조
     [SerializeField] private MyRoomUIManager uiManager;
@@ -151,7 +151,7 @@ public class MyRoomManager : MonoBehaviour
 
     public void EquipCharacter(UnimoCharacterSO character)
     {
-        // Check ownership before equipping
+        // ���� ���� �� ������ Ȯ��
         if (!IsDefaultOwned(character) && !(_ownedCharacters != null && _ownedCharacters.ContainsKey(character.characterId.ToString())))
         {
             Debug.Log("You do not own this character.");
@@ -238,7 +238,7 @@ public class MyRoomManager : MonoBehaviour
 
             bool isOwned = (_ownedKarts != null && _ownedKarts.ContainsKey(kartData.KartID.ToString())); // || IsDefaultOwned(kartData);
 
-            // Pass ownership status to your UI component
+            // UI ���� ���ҿ� ������ ���� ����
             ui.Init(kartData, this, isOwned);
         }
     }
@@ -254,7 +254,7 @@ public class MyRoomManager : MonoBehaviour
 
             bool isOwned = (_ownedCharacters != null && _ownedCharacters.ContainsKey(charData.characterId.ToString()));// || IsDefaultOwned(charData);
 
-            // Pass ownership status to your UI component
+            // UI ���� ���ҿ� ������ ���� ����
             ui.Init(charData, this, isOwned);
         }
     }
@@ -262,13 +262,13 @@ public class MyRoomManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // Subscribe to inventory changes when the MyRoom panel is active
+        // MyRoom �г��� Ȱ��ȭ�Ǹ� �κ��丮 ���� ������ �����մϴ�
         SubscribeToInventoryChanges();
     }
 
     private void OnDisable()
     {
-        // Unsubscribe to prevent memory leaks
+        // �޸��� ������ ������ ������ ����
         UnsubscribeFromInventoryChanges();
     }
 
