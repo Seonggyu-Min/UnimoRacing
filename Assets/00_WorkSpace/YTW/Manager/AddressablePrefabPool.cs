@@ -54,5 +54,11 @@ namespace YTW
         {
             Object.Destroy(gameObject);
         }
+
+        public void Clear()
+        {
+            // 미리 로드된 프리팹 원본 레지스트리를 비웁니다.
+            _preloadedPrefabs.Clear();
+        }
     }
 }

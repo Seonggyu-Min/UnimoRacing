@@ -3,6 +3,7 @@ using Firebase.Database;
 using MSG;
 using Photon.Pun;
 using Photon.Realtime;
+using PJW;
 using System.Collections;
 using UnityEngine;
 using YSJ.Util;
@@ -31,9 +32,72 @@ public class KartSpawner : MonoBehaviour
 
     private static string PK(PlayerKey k) => PhotonNetworkCustomProperties.ToKeyString(k);
 
+    private void Awake()
+    {
+        AutoBindTracks();
+        SubscribeRegistryIfNeeded();
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeRegistry();
+    }
+
     private void Start()
     {
         TrySpawnLocal();
+    }
+
+    private void AutoBindTracks()
+    {
+        if (tracks != null && tracks.Length > 0) return;
+
+        var reg = TrackRegistry.Instance;
+        if (reg != null && reg.IsReady && reg.tracks != null && reg.tracks.Length > 0)
+        {
+            tracks = reg.tracks;
+            this.PrintLog($"[KartSpawner] tracks: 레지스트리에서 {tracks.Length}개 자동 바인딩");
+            return;
+        }
+
+        var foundInScene = FindObjectsOfType<CinemachinePathBase>(true);
+        if (foundInScene != null && foundInScene.Length > 0)
+        {
+            tracks = foundInScene;
+            this.PrintLog($"[KartSpawner] tracks: 씬에서 {tracks.Length}개 자동 바인딩(임시)");
+        }
+    }
+
+    // 안전장치
+    private void SubscribeRegistryIfNeeded()
+    {
+        var reg = TrackRegistry.Instance;
+        if (reg == null) return;
+
+        reg.OnTracksReady -= OnTracksReady;
+        reg.OnTracksReady += OnTracksReady;
+    }
+
+    private void UnsubscribeRegistry()
+    {
+        var reg = TrackRegistry.Instance;
+        if (reg != null) reg.OnTracksReady -= OnTracksReady;
+    }
+
+    private void OnTracksReady()
+    {
+        var reg = TrackRegistry.Instance;
+        if (reg == null) return;
+
+        // tracks 참조만 자동 갱신
+        if (reg.tracks != null && reg.tracks.Length > 0)
+        {
+            tracks = reg.tracks;
+            this.PrintLog($"[KartSpawner] tracks: 레지스트리 준비 완료로 {tracks.Length}개 바인딩");
+
+            // Start에서 tracks가 비어 반환된 경우를 대비해 한 번만 재시도
+            if (!_spawned) TrySpawnLocal();
+        }
     }
 
     private void TrySpawnLocal()

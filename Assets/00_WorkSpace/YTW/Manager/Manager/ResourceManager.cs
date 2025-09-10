@@ -347,5 +347,58 @@ namespace YTW
                 return null;
             }
         }
+
+        public sealed class PreloadTicket
+        {
+            internal readonly List<AsyncOperationHandle> Handles = new();
+            public IReadOnlyList<string> Labels { get; }
+            internal PreloadTicket(IEnumerable<string> labels)
+            {
+                Labels = new List<string>(labels ?? Array.Empty<string>());
+            }
+        }
+
+        public async Task<PreloadTicket> PreloadLabelsAsync(IEnumerable<string> labels, bool toMemory = false)
+        {
+            await EnsureInitializedAsync();
+            if (labels == null) labels = Array.Empty<string>();
+
+            var ticket = new PreloadTicket(labels);
+
+            // 1) 라벨 → locations
+            var locH = Addressables.LoadResourceLocationsAsync(labels, Addressables.MergeMode.Union);
+            await locH.Task;
+            if (!locH.IsValid() || locH.Result == null)
+            {
+                try { Addressables.Release(locH); } catch { }
+                return ticket; // 빈 티켓 반환
+            }
+
+            // 2) 다운로드(디스크 캐시까지)
+            var dlH = Addressables.DownloadDependenciesAsync(locH.Result, false);
+            await dlH.Task;
+            ticket.Handles.Add(dlH);
+
+            // 3) 선택: 메모리 프리로드
+            if (toMemory)
+            {
+                var loadH = Addressables.LoadAssetsAsync<UnityEngine.Object>(locH.Result, null);
+                await loadH.Task;
+                ticket.Handles.Add(loadH);
+            }
+
+            Addressables.Release(locH);
+            return ticket;
+        }
+
+        public void ReleasePreload(PreloadTicket ticket)
+        {
+            if (ticket == null) return;
+            foreach (var h in ticket.Handles)
+            {
+                try { if (h.IsValid()) Addressables.Release(h); } catch { }
+            }
+            ticket.Handles.Clear();
+        }
     }
 }
