@@ -1,4 +1,4 @@
-using DA_Assets.FCU.Model;
+ï»¿using DA_Assets.FCU.Model;
 using Firebase.Database;
 using MSG;
 using System;
@@ -16,10 +16,10 @@ public class MyRoomManager : MonoBehaviour
     [SerializeField] private List<UnimoKartSO> allKartData;
     [SerializeField] private List<UnimoCharacterSO> allCharacterData;
 
-    // UI °ü¸® ½ºÅ©¸³Æ® ÂüÁ¶
+    // UI ê´€ë¦¬ ìŠ¤í¬ë¦½íŠ¸ ì°¸ì¡°
     [SerializeField] private MyRoomUIManager uiManager;
 
-    // ÀÎº¥Åä¸® UI¸¦ »ı¼ºÇÒ ºÎ¸ğ¿Í ÇÁ¸®ÆÕ
+    // ì¸ë²¤í† ë¦¬ UIë¥¼ ìƒì„±í•  ë¶€ëª¨ì™€ í”„ë¦¬íŒ¹
     [SerializeField] private Transform kartInventoryParent;
     [SerializeField] private GameObject kartInventoryPrefab;
     [SerializeField] private Transform characterInventoryParent;
@@ -28,7 +28,7 @@ public class MyRoomManager : MonoBehaviour
     private UnimoKartSO currentEquippedKart;
     private UnimoCharacterSO currentEquippedCharacter;
 
-    // »ó´Ü¿¡ Ç¥½ÃµÉ 2D ÀÌ¹ÌÁö¿ë Image ÄÄÆ÷³ÍÆ®
+    // ìƒë‹¨ì— í‘œì‹œë  2D ì´ë¯¸ì§€ìš© Image ì»´í¬ë„ŒíŠ¸
     [Header("Display Images")]
     [SerializeField] private Image characterDisplayImage;
     [SerializeField] private Image kartDisplayImage;
@@ -53,29 +53,29 @@ public class MyRoomManager : MonoBehaviour
 
     private void Start()
     {
-        // UI °ü¸® ½ºÅ©¸³Æ® ÂüÁ¶ °¡Á®¿À±â
+        // UI ê´€ë¦¬ ìŠ¤í¬ë¦½íŠ¸ ì°¸ì¡° ê°€ì ¸ì˜¤ê¸°
         uiManager = GetComponent<MyRoomUIManager>();
 
-        // ÀÎº¥Åä¸® Ã¤¿ì±â
+        // ì¸ë²¤í† ë¦¬ ì±„ìš°ê¸°
         PopulateKartInventory();
         PopulateCharacterInventory();
 
-        // °ÔÀÓ ½ÃÀÛ ½Ã, ÀúÀåµÈ ¾ÆÀÌÅÛ ºÒ·¯¿À±â
+        // ê²Œì„ ì‹œì‘ ì‹œ, ì €ì¥ëœ ì•„ì´í…œ ë¶ˆëŸ¬ì˜¤ê¸°
         LoadEquippedItems();
     }
 
-    // ¾ÆÀÌÅÛÀ» Firebase¿¡¼­ ºÒ·¯¿Í ÀåÂøÇÏ´Â ÇÔ¼ö
+    // ì•„ì´í…œì„ Firebaseì—ì„œ ë¶ˆëŸ¬ì™€ ì¥ì°©í•˜ëŠ” í•¨ìˆ˜
     private void LoadEquippedItems()
     {
         if (string.IsNullOrEmpty(CurrentUid))
         {
-            // À¯Àú Á¤º¸°¡ ¾øÀ¸¸é ±âº» ¾ÆÀÌÅÛ ÀåÂø ÈÄ Á¾·á
+            // ìœ ì € ì •ë³´ê°€ ì—†ìœ¼ë©´ ê¸°ë³¸ ì•„ì´í…œ ì¥ì°© í›„ ì¢…ë£Œ
             if (allKartData.Count > 0) EquipKartInternal(allKartData[0]);
             if (allCharacterData.Count > 0) EquipCharacterInternal(allCharacterData[0]);
             return;
         }
 
-        // ÀåÂøµÈ Ä«Æ® ºÒ·¯¿À±â
+        // ì¥ì°©ëœ ì¹´íŠ¸ ë¶ˆëŸ¬ì˜¤ê¸°
         DatabaseManager.Instance.GetOnMain(
             DBRoutes.EquippedKart(CurrentUid),
             onSuccess: (snapshot) =>
@@ -84,7 +84,7 @@ public class MyRoomManager : MonoBehaviour
                 {
                     if (int.TryParse(snapshot.Value.ToString(), out int kartId))
                     {
-                        UnimoKartSO savedKart = allKartData.FirstOrDefault(k => k.carId == kartId);
+                        UnimoKartSO savedKart = allKartData.FirstOrDefault(k => k.KartID == kartId);
                         if (savedKart != null)
                         {
                             EquipKartInternal(savedKart);
@@ -93,19 +93,19 @@ public class MyRoomManager : MonoBehaviour
                 }
                 else
                 {
-                    // ÀúÀåµÈ µ¥ÀÌÅÍ°¡ ¾øÀ¸¸é ±âº» ¾ÆÀÌÅÛ ÀåÂø
+                    // ì €ì¥ëœ ë°ì´í„°ê°€ ì—†ìœ¼ë©´ ê¸°ë³¸ ì•„ì´í…œ ì¥ì°©
                     if (allKartData.Count > 0) EquipKartInternal(allKartData[0]);
                 }
             },
             onError: (error) =>
             {
-                Debug.LogError($"Ä«Æ® µ¥ÀÌÅÍ ºÒ·¯¿À±â ½ÇÆĞ: {error}");
-                // ½ÇÆĞ ½Ã ±âº» ¾ÆÀÌÅÛ ÀåÂø
+                Debug.LogError($"ì¹´íŠ¸ ë°ì´í„° ë¶ˆëŸ¬ì˜¤ê¸° ì‹¤íŒ¨: {error}");
+                // ì‹¤íŒ¨ ì‹œ ê¸°ë³¸ ì•„ì´í…œ ì¥ì°©
                 if (allKartData.Count > 0) EquipKartInternal(allKartData[0]);
             }
         );
 
-        // ÀåÂøµÈ Ä³¸¯ÅÍ ºÒ·¯¿À±â
+        // ì¥ì°©ëœ ìºë¦­í„° ë¶ˆëŸ¬ì˜¤ê¸°
         DatabaseManager.Instance.GetOnMain(
             DBRoutes.EquippedUnimo(CurrentUid),
             onSuccess: (snapshot) =>
@@ -123,24 +123,24 @@ public class MyRoomManager : MonoBehaviour
                 }
                 else
                 {
-                    // ÀúÀåµÈ µ¥ÀÌÅÍ°¡ ¾øÀ¸¸é ±âº» ¾ÆÀÌÅÛ ÀåÂø
+                    // ì €ì¥ëœ ë°ì´í„°ê°€ ì—†ìœ¼ë©´ ê¸°ë³¸ ì•„ì´í…œ ì¥ì°©
                     if (allCharacterData.Count > 0) EquipCharacterInternal(allCharacterData[0]);
                 }
             },
             onError: (error) =>
             {
-                Debug.LogError($"Ä³¸¯ÅÍ µ¥ÀÌÅÍ ºÒ·¯¿À±â ½ÇÆĞ: {error}");
-                // ½ÇÆĞ ½Ã ±âº» ¾ÆÀÌÅÛ ÀåÂø
+                Debug.LogError($"ìºë¦­í„° ë°ì´í„° ë¶ˆëŸ¬ì˜¤ê¸° ì‹¤íŒ¨: {error}");
+                // ì‹¤íŒ¨ ì‹œ ê¸°ë³¸ ì•„ì´í…œ ì¥ì°©
                 if (allCharacterData.Count > 0) EquipCharacterInternal(allCharacterData[0]);
             }
         );
     }
 
-    // UI¿¡¼­ ¾ÆÀÌÅÛÀ» Å¬¸¯ÇÒ ¶§ È£ÃâµÇ´Â °ø°³ ¸Ş¼­µå
+    // UIì—ì„œ ì•„ì´í…œì„ í´ë¦­í•  ë•Œ í˜¸ì¶œë˜ëŠ” ê³µê°œ ë©”ì„œë“œ
     public void EquipKart(UnimoKartSO kart)
     {
         // Check ownership before equipping
-        if (!IsDefaultOwned(kart) && !(_ownedKarts != null && _ownedKarts.ContainsKey(kart.carId.ToString())))
+        if (!IsDefaultOwned(kart) && !(_ownedKarts != null && _ownedKarts.ContainsKey(kart.KartID.ToString())))
         {
             Debug.Log("You do not own this kart.");
             return;
@@ -161,7 +161,7 @@ public class MyRoomManager : MonoBehaviour
         SaveAndReloadItems();
     }
 
-    // ³»ºÎ¿¡¼­¸¸ È£ÃâµÇ´Â ÀåÂø ·ÎÁ÷
+    // ë‚´ë¶€ì—ì„œë§Œ í˜¸ì¶œë˜ëŠ” ì¥ì°© ë¡œì§
     private void EquipKartInternal(UnimoKartSO kart)
     {
         currentEquippedKart = kart;
@@ -192,7 +192,7 @@ public class MyRoomManager : MonoBehaviour
         UpdateEquippedUI();
     }
 
-    // Firebase¿¡ ÀåÂø ¾ÆÀÌÅÛÀ» ÀúÀåÇÏ´Â ÇÔ¼ö
+    // Firebaseì— ì¥ì°© ì•„ì´í…œì„ ì €ì¥í•˜ëŠ” í•¨ìˆ˜
 
     private void SaveAndReloadItems()
     {
@@ -201,18 +201,18 @@ public class MyRoomManager : MonoBehaviour
 
         var updates = new Dictionary<string, object>
         {
-            { DBRoutes.EquippedKart(CurrentUid), currentEquippedKart.carId },
+            { DBRoutes.EquippedKart(CurrentUid), currentEquippedKart.KartID },
             { DBRoutes.EquippedUnimo(CurrentUid), currentEquippedCharacter.characterId }
         };
 
         DatabaseManager.Instance.UpdateOnMain(updates,
             onSuccess: () =>
             {
-                Debug.Log("ÀåÂø ¾ÆÀÌÅÛ ÀúÀå ¿Ï·á. È¨ È­¸é UI ¾÷µ¥ÀÌÆ® ¿äÃ».");
+                Debug.Log("ì¥ì°© ì•„ì´í…œ ì €ì¥ ì™„ë£Œ. í™ˆ í™”ë©´ UI ì—…ë°ì´íŠ¸ ìš”ì²­.");
                 // Direct call to HomeManager's public method
                 HomeManager.Instance.LoadAndEquipItems();
             },
-            onError: err => Debug.LogError($"ÀåÂø ¾ÆÀÌÅÛ ÀúÀå ½ÇÆĞ: {err}")
+            onError: err => Debug.LogError($"ì¥ì°© ì•„ì´í…œ ì €ì¥ ì‹¤íŒ¨: {err}")
         );
     }
 
@@ -236,7 +236,7 @@ public class MyRoomManager : MonoBehaviour
             GameObject item = Instantiate(kartInventoryPrefab, kartInventoryParent);
             var ui = item.GetComponent<KartInventoryUI>();
 
-            bool isOwned = (_ownedKarts != null && _ownedKarts.ContainsKey(kartData.carId.ToString())); // || IsDefaultOwned(kartData);
+            bool isOwned = (_ownedKarts != null && _ownedKarts.ContainsKey(kartData.KartID.ToString())); // || IsDefaultOwned(kartData);
 
             // Pass ownership status to your UI component
             ui.Init(kartData, this, isOwned);
@@ -316,6 +316,6 @@ public class MyRoomManager : MonoBehaviour
 
     private bool IsDefaultOwned(UnimoKartSO kart)
     {
-        return kart.carId >= 10001 && kart.carId <= 10003;
+        return kart.KartID >= 10001 && kart.KartID <= 10003;
     }
 }
