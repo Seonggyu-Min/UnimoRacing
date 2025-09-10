@@ -216,8 +216,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af697d6bfd90684438f5dfe4b213d39e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _icon: {fileID: 2203050503196217654}
-  _button: {fileID: 7557394594258526301}
+  playerDataExample: {fileID: 0}
+  itemType: 0
+  itemId: 0
+  _itemName: {fileID: 0}
+  _itemIcon: {fileID: 0}
+  _priceText: {fileID: 0}
+  _buyButtonText: {fileID: 0}
+  _buyButton: {fileID: 0}
 --- !u!1 &7830299384838867453
 GameObject:
   m_ObjectHideFlags: 0
