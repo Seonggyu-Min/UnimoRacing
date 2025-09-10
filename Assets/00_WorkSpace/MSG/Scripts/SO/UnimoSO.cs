@@ -7,8 +7,7 @@ namespace MSG
 {
     public enum MoneyType
     {
-        // 이름을 몰라서 임의로 타입 정의
-        Money1, Money2, Money3
+        Gold, BlueHoneyGem, //Money3
     }
 
     [CreateAssetMenu(fileName = "UnimoSO", menuName = "ScriptableObjects/UnimoSO")]

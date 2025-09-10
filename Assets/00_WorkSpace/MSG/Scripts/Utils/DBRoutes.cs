@@ -47,9 +47,9 @@ namespace MSG
 
         // ----- Game Data -----
         public static string GameData(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.gameData);
-        public static string Money1(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.gameData, DatabaseKeys.money1);
-        public static string Money2(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.gameData, DatabaseKeys.money2);
-        public static string Money3(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.gameData, DatabaseKeys.money3);
+        public static string Gold(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.gameData, DatabaseKeys.gold); // 무료 재화
+        public static string BlueHoneyGem(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.gameData, DatabaseKeys.blueHoneyGem); // 유료 재화
+        //public static string Money3(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.gameData, DatabaseKeys.money3);
         //public static string Level(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.gameData, DatabaseKeys.level);
         public static string Experience(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.gameData, DatabaseKeys.experience);
 

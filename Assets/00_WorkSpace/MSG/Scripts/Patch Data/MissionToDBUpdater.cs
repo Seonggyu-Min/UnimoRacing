@@ -49,7 +49,13 @@ namespace MSG
                     [DatabaseKeys.moneyType] = e.MoneyType.ToString(),
                     [DatabaseKeys.rewardQuantity] = e.RewardQuantity,
                     [DatabaseKeys.targetCount] = e.TargetCount,
+                    [DatabaseKeys.missionVerb] = e.MissionVerb.ToString(),
+                    [DatabaseKeys.missionObject] = e.MissionObject.ToString(),
+                    [DatabaseKeys.partyCondition] = e.PartyCondition.ToString(),
                 };
+
+                //if (!string.IsNullOrEmpty(e.SubKey)) row[DatabaseKeys.subtype] = e.SubKey;
+                dailies[e.Index.ToString()] = e;
             }
             root[DatabaseKeys.daily] = dailies;
 
@@ -64,7 +70,13 @@ namespace MSG
                     [DatabaseKeys.moneyType] = e.MoneyType.ToString(),
                     [DatabaseKeys.rewardQuantity] = e.RewardQuantity,
                     [DatabaseKeys.targetCount] = e.TargetCount,
+                    [DatabaseKeys.missionVerb] = e.MissionVerb.ToString(),
+                    [DatabaseKeys.missionObject] = e.MissionObject.ToString(),
+                    [DatabaseKeys.partyCondition] = e.PartyCondition.ToString(),
                 };
+
+                // if (!string.IsNullOrEmpty(e.SubKey)) row[DatabaseKeys.subtype] = e.SubKey;
+                achievements[e.Index.ToString()] = e;
             }
             root[DatabaseKeys.achievement] = achievements;
 

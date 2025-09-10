@@ -22,11 +22,11 @@ namespace MSG
         {
             switch (moneyType)
             {
-                case MoneyType.Money1:
-                    DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(DBRoutes.Money1(CurrentUid),
+                case MoneyType.Gold:
+                    DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(DBRoutes.Gold(CurrentUid),
                         quantity,
-                        suc => Debug.Log($"돈1 {quantity}을 얻음. 현재 돈1: {suc}"),
-                        err => Debug.LogWarning($"돈1 쓰기 오류: {err}"));
+                        suc => Debug.Log($"골드 {quantity}을 얻음. 현재 골드: {suc}"),
+                        err => Debug.LogWarning($"골드 쓰기 오류: {err}"));
 
                     // TODO: 미션의 92013 ~ 92016 골드 누적 증가 처리 필요한데, Gold가 Money1이 아닐 수 있음. 추후 처리 필요
                     // 또한 현재 구조는 index에 강하게 묶여 있어서 index가 변경되면 현재 진행 상황이 뒤죽박죽 될 듯
@@ -35,25 +35,27 @@ namespace MSG
                     // 그 후 MissionService에서 다시 재조립 후 해당 타입이 변경이 되었다는 메서드를 만들고 호출받을 필요가 있을 듯
                     // ex) NotifyProgress(Type type(타입은 골드 획득, 완주, 아이템 획득 등), int delta) 이렇게 해서 패치로 업적이 바뀌더라도 호출부의 코드 변경이 없도록 해야 좋긴 할 듯
                     // 근데 여기서 미션이 삭제된다면 그냥 DB에서 삭제 하는 것이 아닌, 모든 플레이어를 순회하면서 해당 데이터를 아예 삭제하거나 Disabled = true 등으로 바꿔둬야 될 듯
-                    MissionService.Instance.IncrementAchievementProgress(92013, quantity);
-                    MissionService.Instance.IncrementAchievementProgress(92014, quantity);
-                    MissionService.Instance.IncrementAchievementProgress(92015, quantity);
-                    MissionService.Instance.IncrementAchievementProgress(92016, quantity);
+                    //MissionService.Instance.IncrementAchievementProgress(92013, quantity);
+                    //MissionService.Instance.IncrementAchievementProgress(92014, quantity);
+                    //MissionService.Instance.IncrementAchievementProgress(92015, quantity);
+                    //MissionService.Instance.IncrementAchievementProgress(92016, quantity);
+
+                    MissionService.Instance.Report(MissionVerb.Obtain, MissionObject.Gold, null, quantity);
                     break;
 
-                case MoneyType.Money2:
-                    DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(DBRoutes.Money2(CurrentUid),
+                case MoneyType.BlueHoneyGem:
+                    DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(DBRoutes.BlueHoneyGem(CurrentUid),
                         quantity,
-                        suc => Debug.Log($"돈2 {quantity}을 얻음. 현재 돈2: {suc}"),
-                        err => Debug.LogWarning($"돈2 쓰기 오류: {err}"));
+                        suc => Debug.Log($"블루허니잼 {quantity}을 얻음. 현재 블루허니잼: {suc}"),
+                        err => Debug.LogWarning($"블루허니잼 쓰기 오류: {err}"));
                     break;
 
-                case MoneyType.Money3:
-                    DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(DBRoutes.Money3(CurrentUid),
-                        quantity,
-                        suc => Debug.Log($"돈3 {quantity}을 얻음. 현재 돈3: {suc}"),
-                        err => Debug.LogWarning($"돈3 쓰기 오류: {err}"));
-                    break;
+                //case MoneyType.Money3:
+                //    DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(DBRoutes.Money3(CurrentUid),
+                //        quantity,
+                //        suc => Debug.Log($"돈3 {quantity}을 얻음. 현재 돈3: {suc}"),
+                //        err => Debug.LogWarning($"돈3 쓰기 오류: {err}"));
+                //    break;
             }
         }
     }

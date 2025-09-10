@@ -15,7 +15,7 @@ namespace MSG
         [SerializeField] private Image _unimoIcon;
         [SerializeField] private float _refreshSeconds = 10f;       // 몇 초 마다 온라인 상태를 주기적으로 체크할 것인지
         [SerializeField] private Color _onlineColor = Color.green;  // 온라인   상태일 때의 닉네임 색깔
-        [SerializeField] private Color _offlineColor = Color.white; // 오프라인 상태일 때의 닉네임 색깔
+        [SerializeField] private Color _offlineColor = Color.black; // 오프라인 상태일 때의 닉네임 색깔
 
         private ChatDM _chat;
         private string _targetUid;
@@ -38,10 +38,10 @@ namespace MSG
 
         private void OnDisable()
         {
-            if (_watchCO != null) 
+            if (_watchCO != null)
             {
-                StopCoroutine(_watchCO); 
-                _watchCO = null; 
+                StopCoroutine(_watchCO);
+                _watchCO = null;
             }
         }
 
@@ -71,7 +71,7 @@ namespace MSG
                     {
                         long exp = 0;
                         long.TryParse(expSnap.Value.ToString(), out exp);
-                        level = ExpToLevel.Convert((int)exp);
+                        level = ExpToLevel.LevelFromTotalExp((int)exp);
                     }
                     _levelText.text = $"lv {level}";
                     Debug.Log($"{nickname}의 레벨: {level}");
@@ -91,8 +91,8 @@ namespace MSG
                     Debug.Log($"equippedIndex: {equippedIndex}");
 
                     if (UnimoKartDatabase.Instance.TryGetByUnimoIndex(
-                        equippedIndex, out UnimoCharacterSO unimo) && 
-                        unimo != null && 
+                        equippedIndex, out UnimoCharacterSO unimo) &&
+                        unimo != null &&
                         unimo.characterSprite != null)
                     {
                         _unimoIcon.sprite = unimo.characterSprite;

@@ -130,7 +130,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _characterBody = GameObject.Instantiate(characterSO.characterPrefab, sitPoint.transform);
 
         // 시너지 여부 판단
-        _isSynergy = (characterSO.synergyKartID == kartSO.kartID);
+        _isSynergy = (characterSO.SynergyKartID == kartSO.KartID);
 
         // 서버에서 필요 데이터 불러오기
         this.PrintLog("CharacterSetup 진행 완료");

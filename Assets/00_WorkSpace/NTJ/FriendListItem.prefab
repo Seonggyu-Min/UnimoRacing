@@ -813,6 +813,9 @@ MonoBehaviour:
   _nicknameText: {fileID: 2358137112415740549}
   _levelText: {fileID: 7900846400006608355}
   _unimoIcon: {fileID: 3798109835202198391}
+  _refreshSeconds: 10
+  _onlineColor: {r: 0, g: 1, b: 0, a: 1}
+  _offlineColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!1 &7078592949838038961
 GameObject:
   m_ObjectHideFlags: 0

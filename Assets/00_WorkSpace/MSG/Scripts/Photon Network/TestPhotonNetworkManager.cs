@@ -12,7 +12,8 @@ namespace MSG
     public class TestPhotonNetworkManager : MonoBehaviour
     {
         [SerializeField] private AuthFlowController _authFlowController;
-        [SerializeField] private Button _nextSceneButton;
+        [SerializeField] private GameObject _nextSceneButtonForAndroid;
+        [SerializeField] private GameObject _nextSceneButtonForPC;
 
         private bool _isLoggedIn = false;
         private bool _isFirebaseReady = false;
@@ -77,7 +78,8 @@ namespace MSG
             Debug.Log($"파이어베이스 uid : {FirebaseManager.Instance.Auth.CurrentUser.UserId}");
             Debug.Log($"포톤uid : {PhotonNetwork.AuthValues}");
 
-            _nextSceneButton.gameObject.SetActive(true);
+            _nextSceneButtonForPC?.gameObject.SetActive(true);
+            _nextSceneButtonForPC?.gameObject.SetActive(true);
         }
 
         public void OnClickNextSceneButton()
