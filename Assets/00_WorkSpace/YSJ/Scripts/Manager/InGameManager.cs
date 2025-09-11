@@ -8,7 +8,7 @@ using YSJ.Util;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 // 인게임 매니저
-public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
+public class InGameManager : SimpleSingletonPun<InGameManager>
 {
     [SerializeField]private InGameRaceRulesConfig _raceRulesConfig;
 
@@ -116,46 +116,25 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
         }
     }
 
-    public override void OnPlayerPropertiesUpdate(Player target, Hashtable changedProps)
+    private void SetupRaceRule()
     {
-        base.OnPlayerPropertiesUpdate(target, changedProps);
-
-        if (IsMasterClient)
+        if (_raceRulesConfig == null)
         {
-            RaceState nowRaceState = GetRaceState();
-            switch (nowRaceState)
-            {
-                case RaceState.WaitPlayer:
-                    IsInRacePlayers();
-                    break;
-
-                case RaceState.LoadPlayers:
-                    IsRaceLoadeds();
-                    break;
-
-                case RaceState.Countdown:
-                    break;
-
-                case RaceState.Racing:
-                    IsRaceFinished();
-                    break;
-
-                case RaceState.Finish:
-                    break;
-
-                case RaceState.PostGame:
-                    break;
-
-                case RaceState.FailedGame:
-                    break;
-            }
+            this.PrintLog($"Race Rules Config is Null!!!!!", LogType.Warning);
+            return;
         }
-        else
-        {
 
-        }
+        var config = _raceRulesConfig;
+
+        _laps = config.laps;                  // 렙
+        _countdownSeconds = config.countdownSeconds;      // 카운트 다운
+        _finishSeconds = config.finishSeconds;         // 피니쉬 첫 통과 시, 카운트
+        _postGameSeconds = config.postGameSeconds;       // 결과, 보여주는     
+        _itemsEnabled = config.itemsEnabled;          // 아이템 사용 가능 여부
     }
 
+
+    #region On CP : Room Player 
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
     {
         base.OnRoomPropertiesUpdate(propertiesThatChanged);
@@ -177,24 +156,44 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
         var state = GetRaceState();
         EnterState(state);
     }
-
-    private void SetupRaceRule()
+    public override void OnPlayerPropertiesUpdate(Player target, Hashtable changedProps)
     {
-        if (_raceRulesConfig == null)
+        base.OnPlayerPropertiesUpdate(target, changedProps);
+
+        if (IsMasterClient)
         {
-            this.PrintLog($"Race Rules Config is Null!!!!!", LogType.Warning);
-            return;
+            RaceState nowRaceState = GetRaceState();
+            switch (nowRaceState)
+            {
+                case RaceState.WaitPlayer:
+                    Check_Players_CurrentScene();
+                    break;
+
+                case RaceState.LoadPlayers:
+                    Check_Players_RaceKartLoaded();
+                    break;
+
+                case RaceState.Countdown:
+                    break;
+
+                case RaceState.Racing:
+                    Check_Players_IsRaceFinished();
+                    break;
+
+                case RaceState.Finish:
+                    break;
+
+                case RaceState.PostGame:
+                    break;
+
+                case RaceState.FailedGame:
+                    break;
+            }
         }
-
-        var config = _raceRulesConfig;
-
-        _laps                   = config.laps;                  // 렙
-        _countdownSeconds       = config.countdownSeconds;      // 카운트 다운
-        _finishSeconds          = config.finishSeconds;         // 피니쉬 첫 통과 시, 카운트
-        _postGameSeconds        = config.postGameSeconds;       // 결과, 보여주는     
-        _itemsEnabled           = config.itemsEnabled;          // 아이템 사용 가능 여부
     }
+    #endregion
 
+    #region  Send / Receive(적용) : Race Data
     // 데이터 보내기
     private void SendRaceState(RaceState next)
     {
@@ -219,7 +218,7 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
             // 어떤 데이터를 받았을 때 해당 상태로 변하냐
             // 1. 캐릭터 생성이 다 되었고, 카트가 다 생성 되었을 때
             case RaceState.Countdown:
-                PhotonNetworkCustomProperties.RaceCountdownSetting(_countdownSeconds);
+                PhotonNetworkCustomProperties.RaceCountdownSetting(PhotonNetwork.Time, _countdownSeconds);
                 break;
 
             // 어떤 데이터를 받았을 때 해당 상태로 변하냐
@@ -244,7 +243,6 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
                 break;
         }
     }
-
     // 상태머신(초기/변경 시 진입)
     private void EnterState(RaceState state)
     {
@@ -257,35 +255,41 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
         // 상태 변경 시, 즉시 실행
         OnStateChanged?.Invoke(state);
         this.PrintLog($"Enter Race State: {state} (crr: {_currentRaceState} / enter: {state})");
-
+        double setServerTime;
         switch (state)
         {
             case RaceState.WaitPlayer:
-                LocalPlayerSetting();
-
+                InGameSetupLocalPlayer();
+                Check_Players_CurrentScene();
                 // 후 처리
                 OnRaceState_WaitPlayer?.Invoke();
                 break;
 
             case RaceState.LoadPlayers:
-                IsRaceLoadeds();
+                Check_Players_RaceKartLoaded();
 
                 // 후 처리
                 OnRaceState_LoadPlayers?.Invoke();
                 break;
 
             case RaceState.Countdown:
-                double setServerTime = PhotonNetwork.Time;
+                setServerTime = PhotonNetwork.Time;
+                
+
                 _countDownStartTime = PhotonNetworkCustomProperties.GetRoomProp<double>(RoomKey.CountdownStartTime, setServerTime,
-                    () => { this.PrintLog($"카운트 다운 서버 시간 > Get Success {setServerTime}"); },
+                    () => { this.PrintLog($"카운트 다운 서버 시간 > Get Success"); },
                     () => { this.PrintLog("카운트 다운 서버 시간 Get Failed"); }
                 );
+                this.PrintLog($"카운트 다운 서버 시간 > {_countDownStartTime}");
+
 
                 _raceStartTime = PhotonNetworkCustomProperties.GetRoomProp<double>(RoomKey.RaceStartTime, setServerTime,
-                    () => { this.PrintLog($"레이싱 시작 서버 시간 > Get Success {setServerTime}"); },
+                    () => { this.PrintLog($"레이싱 시작 서버 시간 > Get Success"); },
                     () => { this.PrintLog("레이싱 시작 서버 시간 Get Failed"); }
                 );
+                this.PrintLog($"레이싱 시작 서버 시간 > {_raceStartTime}");
 
+                
                 StartCoroutine(CO_EnterCountDown());
 
                 // 후 처리
@@ -293,6 +297,7 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
                 break;
 
             case RaceState.Racing:
+                
                 // 후 처리
                 OnRaceState_Racing?.Invoke();
                 break;
@@ -305,9 +310,9 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
 
             case RaceState.PostGame:
                 _postGameEndTime += _postGameSeconds;
-                StartCoroutine(CO_PostGameCountDown());
                 // 후 처리
                 OnRaceState_PostGame?.Invoke();
+                StartCoroutine(CO_PostGameCountDown());
                 break;
 
             case RaceState.FailedGame:
@@ -319,6 +324,7 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
 
         _currentRaceState = state;
     }
+    #endregion
 
 
     // 룸 상태 조회
@@ -330,23 +336,20 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
         return RaceState.WaitPlayer;
     }
 
-    private void SetLocalPlayerScene(SceneID sceneId)
-    {
-        PlayerManager.Instance.SetSceneIDSelection(sceneId);
-    }
-    private void LocalPlayerSetting()
+    // Enter
+    private void InGameSetupLocalPlayer()
     {
         this.PrintLog("플레이어 데이터 세팅");
-        SetLocalPlayerScene(SceneID.InGameScene);
-        PhotonNetworkCustomProperties.LocalPlayerRaceWaitPlayerSetting();
+        PlayerManager.Instance.SetPlayerCPCurrentScene(SceneID.InGameScene);
     }
 
-    private void IsInRacePlayers()
+    // CP Update
+    private void Check_Players_CurrentScene()
     {
-        this.PrintLog("Checked >>>>>>>>>>>>> IsInRacePlayers");
+        this.PrintLog("Checked >>>>>>>>>>>>> Check_Players_CurrentScene");
         if (!IsMasterClient || CurrentRoom == null) return;
 
-        this.PrintLog($"Action >>>>>>>>>>>>> IsInRacePlayers {CurrentRoom.Players.Values.Count}");
+        this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_CurrentScene {CurrentRoom.Players.Values.Count}");
         foreach (var p in CurrentRoom.Players.Values)
         {
             PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
@@ -356,14 +359,15 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
             PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
         }
 
+        this.PrintLog($"Complete Action >>>>>>>>>>>>> Check_Players_CurrentScene {CurrentRoom.Players.Values.Count}");
         SendRaceState(RaceState.LoadPlayers);
     }
-    private void IsRaceLoadeds()
+    private void Check_Players_RaceKartLoaded()
     {
-        this.PrintLog("Checked >>>>>>>>>>>>> IsRaceLoadeds");
+        this.PrintLog("Checked >>>>>>>>>>>>> Check_Players_RaceKartLoaded");
         if (!IsMasterClient || CurrentRoom == null) return;
 
-        this.PrintLog($"Action >>>>>>>>>>>>> IsRaceLoadeds {CurrentRoom.Players.Values.Count}");
+        this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_RaceKartLoaded {CurrentRoom.Players.Values.Count}");
         foreach (var p in CurrentRoom.Players.Values)
         {
             PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
@@ -373,15 +377,15 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
             PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
         }
 
+        this.PrintLog($"Complete Action >>>>>>>>>>>>> Check_Players_RaceKartLoaded {CurrentRoom.Players.Values.Count}");
         SendRaceState(RaceState.Countdown);
     }
-
-    private void IsRaceFinished()
+    private void Check_Players_IsRaceFinished()
     {
-        this.PrintLog("Checked >>>>>>>>>>>>> IsRaceFinished");
+        this.PrintLog("Checked >>>>>>>>>>>>> Check_Players_IsRaceFinished");
         if (!IsMasterClient || CurrentRoom == null) return;
 
-        this.PrintLog($"Action >>>>>>>>>>>>> IsRaceFinished {CurrentRoom.Players.Values.Count}");
+        this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_IsRaceFinished {CurrentRoom.Players.Values.Count}");
 
         float finishTime = float.MaxValue;
         foreach (var p in CurrentRoom.Players.Values)
@@ -399,9 +403,12 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
 
         PhotonNetworkCustomProperties.RaceFinishSetting(finishTime, _finishSeconds);
         _finishedEndTime = finishTime + _finishSeconds;
+
+        this.PrintLog($"Complete Action >>>>>>>>>>>>> Check_Players_IsRaceFinished {CurrentRoom.Players.Values.Count}");
         SendRaceState(RaceState.Finish);
     }
 
+    // Coru
     private IEnumerator CO_EnterCountDown()
     {
         double delay = PhotonNetwork.Time - _countDownStartTime;
@@ -410,16 +417,8 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
         this.PrintLog(
             $"카운트 다운[Count Down]                                    \n" +
             $"< _Client_ > {_countDownStartTime}                        \n" +
-            $"< _Server Get Time 1_ > {PhotonNetwork.Time}              \n" +
-            $"< _Server Get Time 2_ > {PhotonNetwork.Time}              \n" +
-            $"< **Delay** > {delay}                                     \n" +
-
-            $"레이싱 시작[Race Start Time]                               \n" +
-            $"< _Client_ > {_raceStartTime}                             \n" +
-            $"< _Server Get Time 1_ > {PhotonNetwork.Time}              \n" +
-            $"< _Server Get Time 2_ > {PhotonNetwork.Time}              \n" +
-            $"< **Race Start Delay Time** > {_raceStartDelayTime}       \n" +
-            $"< **Race Start Delay Time** > {PhotonNetwork.Time - _countDownStartTime}\n");
+            $"< _Server Get Time_ > {PhotonNetwork.Time}              \n" +
+            $"< **Delay** > {delay}                                     \n");
 
         // 받은 시작 시간으로 시간을 확인하다가, 시작 시간이 된다면 Racing으로 전환한다.
         while (true)
@@ -431,10 +430,7 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
 
         this.PrintLog($"레이싱 시작[Race Start Time]                     \n" +
             $"< _Client_ > {_raceStartTime}                             \n" +
-            $"< _Server Get Time 1_ > {PhotonNetwork.Time}              \n" +
-            $"< _Server Get Time 2_ > {PhotonNetwork.Time}              \n" +
-            $"< **Race Start Delay Time** > {_raceStartDelayTime}       \n" +
-            $"< **Race Start Delay Time** > {PhotonNetwork.Time - _countDownStartTime}\n");
+            $"< _Server Get Time_ > {PhotonNetwork.Time}              \n");
 
         SendRaceState(RaceState.Racing);
     }
@@ -449,7 +445,6 @@ public class ReInGameManager : SimpleSingletonPun<ReInGameManager>
 
         SendRaceState(RaceState.PostGame);
     }
-
     private IEnumerator CO_PostGameCountDown()
     {
         while (true)

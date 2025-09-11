@@ -7,11 +7,12 @@ using YSJ.Util;
 // 시스템
 [RequireComponent(typeof(PhotonView))] // 네트워크
 [RequireComponent(typeof(CinemachineDollyCart))] // 이동
+
 // 필수 기능 추가
 [RequireComponent(typeof(DollyCartController))] // 경로 컨트롤
 [RequireComponent(typeof(DollyCartMovement))] // 이동 제어
-// 인벤
-// 시너지
+[RequireComponent(typeof(PlayerInventory))] // 인벤
+[RequireComponent(typeof(UnimoSynergySystem))] // 시너지
 [RequireComponent(typeof(UnimoRaceAnimationController))] // 유니모 애니메이션 컨트롤러
 [RequireComponent(typeof(DollyCartSync))] // 싱크(=동기화)
 public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
@@ -24,8 +25,9 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     [SerializeField] private string _sitPointName = "pivot_Character";
     [SerializeField] private string _followCam = "VirtualCam";
     [SerializeField] private bool _useLoadFollowCam = true;
+    [SerializeField] private bool _useGM = false;
 
-    [Header("Data")]
+    [Header("Data Being Applied")]
     [SerializeField] private float _kartBaseSpeed = 0.0f;
     [SerializeField] private float _kartCurrentSpeed = 0.0f;
 
@@ -46,7 +48,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private DollyCartController _cartController;
     private DollyCartMovement _cartMovement;
 
-    private UnimoRaceAnimationController _unimoRaceAniCtrl;
+    private UnimoRaceAnimationController _raceAniCtrl;
+    private UnimoSynergySystem _synergySystem;
     private DollyCartSync _sync;
 
 
@@ -64,13 +67,13 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private bool _isSync = false;
     private bool _isSynergy = false;
 
-    
+
     public PhotonView View => _view;
     public CinemachineDollyCart Cart => _cart;
     public DollyCartController Controller => _cartController;
     public DollyCartMovement Movement => _cartMovement;
 
-    
+
 
     #region Unity
     private void Awake()
@@ -123,6 +126,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _characterBody.GetOrAddComponent<UnimoCharacterAniCtrl>();
         this.PrintLog("CharacterSetup 진행 완료");
     }
+
     private void ControllerSetup()
     {
         this.PrintLog("ControllerSetup 진행");
@@ -138,7 +142,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private void MovementSetup()
     {
         this.PrintLog("MovementSetup 진행");
-        _kartCurrentSpeed = _kartBaseSpeed;
 
         _cartMovement.Setup(this);
         _cartMovement.OnMovementProgress -= OnNetworkSendMovementProgress;
@@ -146,13 +149,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         this.PrintLog("MovementSetup 진행 완료");
     }
-    private void SyncSetup()
-    {
-        this.PrintLog("SyncSetup 진행");
-        _sync.Setup(this);
 
-        this.PrintLog("SyncSetup 진행 완료");
-    }
     private void CamSetup()
     {
         this.PrintLog("CamSetup 진행");
@@ -161,7 +158,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             GameObject vcPrefab = Resources.Load<GameObject>(_followCam);
             GameObject vcGo = GameObject.Instantiate(vcPrefab);
             CinemachineVirtualCamera vccmp = vcGo.GetComponent<CinemachineVirtualCamera>();
-            if(vccmp  != null)
+            if (vccmp != null)
             {
                 vccmp.Follow = this.transform;
             }
@@ -172,23 +169,66 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     {
         this.PrintLog("AniCtrlSetup 진행");
         UnimoRaceAnimationController ani = this.gameObject.GetOrAddComponent<UnimoRaceAnimationController>();
-        _unimoRaceAniCtrl = ani;
-        _unimoRaceAniCtrl.Setup();
+        _raceAniCtrl = ani;
+        if (_raceAniCtrl != null)
+        {
+            _raceAniCtrl.Setup();
 
-        _unimoRaceAniCtrl.PlayMoveAni();
+            // TODO: 필요시, 플레이 애니메이션 액션으로 이관 예정
+            _raceAniCtrl.PlayMoveAni();
+        }
+
         this.PrintLog("AniCtrlSetup 진행 완료");
     }
     private void SynergySetup()
     {
         this.PrintLog("AniCtrlSetup 진행");
+        UnimoSynergySystem synergy = this.gameObject.GetOrAddComponent<UnimoSynergySystem>();
+        _synergySystem = synergy;
+        if (_synergySystem != null)
+        {
+            _synergySystem.Setup(this);
 
 
+        }
 
         this.PrintLog("AniCtrlSetup 진행 완료");
     }
+
+    private void SyncSetup()
+    {
+        this.PrintLog("SyncSetup 진행");
+        _sync.Setup(this);
+
+        this.PrintLog("SyncSetup 진행 완료");
+    }
+
+    private void GameManagerSetup()
+    {
+        this.PrintLog("GameManagerSetup 진행");
+        var InGM = InGameManager.Instance;
+        if (InGM != null && _useGM)
+        {
+            // 로드
+            InGM.OnRaceState_LoadPlayers -= OnPlayReady;
+            InGM.OnRaceState_LoadPlayers += OnPlayReady;
+
+            // 레이싱
+            InGM.OnRaceState_Racing -= OnPlayRaceEnter;
+            InGM.OnRaceState_Racing += OnPlayRaceEnter;
+
+            // 레이싱 끝
+            InGM.OnRaceState_PostGame -= OnPlayRaceExit;
+            InGM.OnRaceState_PostGame += OnPlayRaceExit;
+        }
+
+        this.PrintLog("GameManagerSetup 진행 완료");
+    }
+
     #endregion
 
     #region On Actions
+    // 동기화
     private void OnNetworkSendTrack(int chanagedTrackIndex)
     {
         _currentTrackIndex = chanagedTrackIndex;
@@ -205,10 +245,29 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _norm = norm;
     }
 
+    // 인게임 흐름
+    private void OnPlayReady()
+    {
+        // TODO: 플레이 준비(로드 되고 셋업 되었을 때, 실행)
+        // 
+        _kartCurrentSpeed = 0;
+    }
+    private void OnPlayRaceEnter()
+    {
+        // TODO: 플레이 들어갈 때
+        // 
+        _kartCurrentSpeed = _kartBaseSpeed;
+    }
+    private void OnPlayRaceExit()
+    {
+        // TODO: 플레이 
+        // 
+        _kartCurrentSpeed = 0;
+    }
+
     #endregion
 
     #region Get / Set > Other Out Input Datas
-
     /// <summary>
     /// 초기화 여부를 판단합니다. 기본적으로 로드가 되어 초기화가 되었는지 확인하는 용도입니다.
     /// </summary>
@@ -217,12 +276,10 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     public bool IsSynergy => _isSynergy;
 
 
-
     /// <summary>
     /// 현재의 트랙의 인텍스 정보입니다. '_currentTrackIndex' 값은 Controller에서 변경을 담당하고 변경 시, 값이 수정됩니다.
     /// </summary>
     public int CurrentTrackIndex => _currentTrackIndex;
-
     /// <summary>
     /// 렙은 현재 몇 바퀴를 돌았는지를 체크하는 용도입니다.
     /// </summary>
@@ -238,11 +295,11 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     public void SetKartSpeed(float applySpeed)
     {
+        this.PrintLog($"속도 변화: {applySpeed} > {_kartCurrentSpeed}");
         _kartCurrentSpeed = applySpeed;
-
     }
-
     #endregion
+
 
     public void OnPhotonInstantiate(PhotonMessageInfo info)
     {
@@ -282,8 +339,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             }
         }
 
-
-
         // 로그
         this.PrintLog(
         $"\n플레이어 오브젝트 이름: {playerGoName}\n" +
@@ -295,7 +350,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         $"CharacterID: {_characterID}\n" +
         $"KartID: {_kartID}\n" +
-        
+
         $"Sync: {_isSync}\n" +
         $"Synergy: {_isSynergy}\n" +
         $"");
@@ -309,18 +364,24 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         ControllerSetup();
         MovementSetup();
 
-        SyncSetup();
-
+        // 동기화
         CamSetup();
         AniCtrlSetup();
         SynergySetup();
 
-        _isSetups = (_cartController.IsSetup && _cartMovement.IsSetup && _sync.IsSetup);
+        // 동기화
+        SyncSetup();
+
+        _isSetups = (_cartController.IsSetup && _cartMovement.IsSetup && _raceAniCtrl.IsSetup && _synergySystem.IsSetup && _sync.IsSetup);
+
+        // 게임 매니저
+        GameManagerSetup();
 
         // 플레이어의 커스텀 프롬퍼티 생성 시점 > 매칭이 되었을 때
         // 룸데이터는 그 이전에 되어 있어야된다.
-        // 커스텀 프롬퍼티 적용
-        // Player CPT > KEY: Ready / VALUE: true
+        var pm = PlayerManager.Instance;
+        pm.SetPlayerCPCurrentScene(SceneID.InGameScene);
+        pm.SetPlayerCPRaceLoaded(true);
     }
 
     // 네트워크

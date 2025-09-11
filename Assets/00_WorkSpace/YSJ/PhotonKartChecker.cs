@@ -7,11 +7,6 @@ public class PhotonKartChecker : MonoBehaviour
 {
     private void OnEnable()
     {
-        PlayerManager.Instance.SetRaceLoadedSelection();
-    }
-
-    private void OnDisable()
-    {
-        
+        PlayerManager.Instance.SetPlayerCPRaceLoaded(true);
     }
 }
