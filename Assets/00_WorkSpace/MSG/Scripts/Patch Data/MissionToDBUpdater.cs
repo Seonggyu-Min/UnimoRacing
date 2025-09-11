@@ -41,7 +41,7 @@ namespace MSG
             var dailies = new Dictionary<string, object>();
             foreach (var e in so.Dailies)
             {
-                dailies[e.Index.ToString()] = new Dictionary<string, object>
+                Dictionary<string, object> row = new()
                 {
                     [DatabaseKeys.title] = e.Title,
                     [DatabaseKeys.missionType] = e.MissionType.ToString(),
@@ -55,14 +55,14 @@ namespace MSG
                 };
 
                 //if (!string.IsNullOrEmpty(e.SubKey)) row[DatabaseKeys.subtype] = e.SubKey;
-                dailies[e.Index.ToString()] = e;
+                dailies[e.Index.ToString()] = row;
             }
             root[DatabaseKeys.daily] = dailies;
 
             var achievements = new Dictionary<string, object>();
             foreach (var e in so.Achievements)
             {
-                achievements[e.Index.ToString()] = new Dictionary<string, object>
+                Dictionary<string, object> row = new()
                 {
                     [DatabaseKeys.title] = e.Title,
                     [DatabaseKeys.missionType] = e.MissionType.ToString(),
@@ -76,7 +76,7 @@ namespace MSG
                 };
 
                 // if (!string.IsNullOrEmpty(e.SubKey)) row[DatabaseKeys.subtype] = e.SubKey;
-                achievements[e.Index.ToString()] = e;
+                achievements[e.Index.ToString()] = row;
             }
             root[DatabaseKeys.achievement] = achievements;
 

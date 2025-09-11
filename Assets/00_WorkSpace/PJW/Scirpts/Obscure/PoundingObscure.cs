@@ -6,7 +6,7 @@ namespace PJW
     [DisallowMultipleComponent]
     public class PoundingObscure : MonoBehaviour
     {
-        [Header("왕복 위치(로컬 기준)")]
+        [Header("왕복 위치)")]
         [SerializeField] private float topLocalY = 3f;
         [SerializeField] private float bottomLocalY = 0f;
 
@@ -25,6 +25,8 @@ namespace PJW
         [SerializeField] private Transform visual;
 
         private CinemachineImpulseSource impulse;
+
+        private float baseLocalY;
 
         private void Reset()
         {
@@ -49,7 +51,8 @@ namespace PJW
         private void OnEnable()
         {
             Vector3 lp = visual.localPosition;
-            lp.y = topLocalY;
+            baseLocalY = lp.y;
+            lp.y = baseLocalY + topLocalY;
             visual.localPosition = lp;
 
             StopAllCoroutines();
@@ -78,11 +81,14 @@ namespace PJW
             float t = 0f;
             Vector3 lp = visual.localPosition;
 
+            float fromY = baseLocalY + from;
+            float toY = baseLocalY + to;
+
             while (t < time)
             {
                 t += Time.deltaTime;
                 float k = time > 0f ? Mathf.Clamp01(t / time) : 1f;
-                float y = Mathf.LerpUnclamped(from, to, curve.Evaluate(k));
+                float y = Mathf.LerpUnclamped(fromY, toY, curve.Evaluate(k));
                 lp.x = visual.localPosition.x;
                 lp.z = visual.localPosition.z;
                 lp.y = y;
@@ -91,7 +97,7 @@ namespace PJW
             }
 
             lp = visual.localPosition;
-            lp.y = to;
+            lp.y = toY;
             visual.localPosition = lp;
         }
 
@@ -99,7 +105,6 @@ namespace PJW
         {
             if (impulse != null)
             {
-                // 내부 m_DefaultVelocity 등을 쓰지 않고, 호출 인자로 방향/세기를 전달
                 Vector3 impactVelocity = Vector3.down * slamStrength;
                 impulse.GenerateImpulseAt(visual.position, impactVelocity);
             }

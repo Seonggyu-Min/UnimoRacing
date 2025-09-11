@@ -121,8 +121,9 @@ public sealed class TestTitleHUD : BaseUI
         this.PrintLog($"isRaceCharactorId > {isRaceCharactorId} / isRaceCarId > {isRaceCarId} / isHopeRaceMapId > {isHopeRaceMapId} => isMatchedStartable > {isMatchedStartable}");
 
         // 플레이어 데이터 수정
-        PlayerManager.Instance.SetRaceInfoSelection(raceCharacterIdInt, raceCarIdInt);
-        PlayerManager.Instance.SetRaceHopeRaceMapIdSelection(hopeRaceMapIdInt);
+        PlayerManager.Instance.SetPlayerCPCharacterId(raceCharacterIdInt);
+        PlayerManager.Instance.SetPlayerCPKartId(raceCarIdInt);
+        PlayerManager.Instance.SetPlayerCPHopeRaceMapId(hopeRaceMapIdInt);
 
         // 매칭 준비 완료.
         _matchType = MatchType.Matched;

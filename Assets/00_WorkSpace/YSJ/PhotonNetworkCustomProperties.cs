@@ -43,6 +43,9 @@ public static class PhotonNetworkCustomProperties
     public const int VALUE_ROOM_DEFAULT_RACE_MAP_ID             = 0;
     public const int VALUE_ROOM_NOT_CHOSEN_RACE_MAP_ID          = -1;
 
+    // VOTE
+    public const string KEY_VOTE_WINNER_INDEX =                 "vote_winner_index";                // 방에서 투표로 선정된 맵의 인덱스를 저장할 키
+
     #endregion
 
     #region PLAYER
@@ -70,6 +73,9 @@ public static class PhotonNetworkCustomProperties
     public const int VALUE_PLAYER_DEFAULT_CHARACTER_ID          = 0;
     public const int VALUE_PLAYER_DEFAULT_HOPERACEMAP_ID        = 0;
 
+    // VOTE
+    public const string KEY_VOTE_MAP                            = "vote_map";                       // 플레이어 개인이 투표한 맵의 인덱스를 저장할 키
+
     #endregion
 
     #region Mapping
@@ -92,6 +98,9 @@ public static class PhotonNetworkCustomProperties
         RoomKey.FinishEndTime => KEY_RACE_FINISH_END_TIME,
         RoomKey.FinishCount => KEY_RACE_FINISH_COUNT,
 
+        // Vote
+        RoomKey.WinnerMapIndex => KEY_VOTE_WINNER_INDEX,
+
         _ => key.ToString()
     };
 
@@ -100,7 +109,7 @@ public static class PhotonNetworkCustomProperties
         PlayerKey.Level => KEY_PLAYER_LEVEL,
         PlayerKey.Exp => KEY_PLAYER_EXP,
 
-        PlayerKey.CarId => KEY_PLAYER_CAR_ID,
+        PlayerKey.KartId => KEY_PLAYER_CAR_ID,
         PlayerKey.CharacterId => KEY_PLAYER_CHARACTER_ID,
         PlayerKey.HopeRaceMapId => KEY_PLAYER_HOPERACEMAP_ID,
 
@@ -111,6 +120,9 @@ public static class PhotonNetworkCustomProperties
         PlayerKey.RaceFinishedTime => KEY_PLAYER_RACE_FINISHED_TIME,
 
         PlayerKey.CurrentScene => KEY_PLAYER_CURRENT_SCENE,
+
+        // VOTE
+        PlayerKey.VotedMap => KEY_VOTE_MAP,
 
         _ => key.ToString()
     };
@@ -515,11 +527,12 @@ public static class PhotonNetworkCustomProperties
         });
     }
 
-    public static void RaceCountdownSetting(int countDownTime = 3)
+    public static void RaceCountdownSetting(double countdownStartTime = 0, int countDownTime = 3)
     {
         if (!PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
 
-        double serverTime = PhotonNetwork.Time;
+        if (countdownStartTime <= 0)
+            countdownStartTime = PhotonNetwork.Time;
 
         // 다른 플레이어들 다 들어오고 소환 중
         PhotonNetworkCustomProperties.SetRoomProps(new Dictionary<RoomKey, object>()
@@ -534,8 +547,8 @@ public static class PhotonNetworkCustomProperties
 
             // Race
             { RoomKey.RaceState,                    RaceState.Countdown                         }, 
-            { RoomKey.CountdownStartTime,           serverTime                                  },
-            { RoomKey.RaceStartTime,                serverTime + countDownTime                  },
+            { RoomKey.CountdownStartTime,           countdownStartTime                          },
+            { RoomKey.RaceStartTime,                countdownStartTime + countDownTime          },
             { RoomKey.FinishStartTime,              -1                                          },            
             { RoomKey.FinishEndTime,                -1                                          },
             // { RoomKey.FinishCount,                  -1                                          },
@@ -653,6 +666,11 @@ public static class PhotonNetworkCustomProperties
     // ==============================
 
     #region Player Setting
+    public static void LocalPlayerSetup()
+    {
+        LocalPlayerRoomWaitPlayerSetting();
+    }
+
     public static void LocalPlayerRoomWaitPlayerSetting()
     {
         if (!PhotonNetwork.InRoom) return;

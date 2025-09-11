@@ -95,7 +95,7 @@ public class MatchedReadyPopup : PopupBaseUI
         {
             _raceReadyButton.interactable = false; // 버튼 비활성화
         }
-        PlayerManager.Instance.SetRaceReadySelection(true);
+        PlayerManager.Instance.SetPlayerCPMatchReady(true);
     }
 
     private void RacePlayerCount()

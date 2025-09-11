@@ -239,7 +239,7 @@ namespace PJW
                 // endLapCount
                 if (data.Length >= 1 && data[0] is int endlap)
                 {
-                    if (ReInGameManager.Instance.RaceEndLapCount == endlap)
+                    if (InGameManager.Instance.RaceEndLapCount == endlap)
                     {
                         _endLap = endlap;
                     }
@@ -266,14 +266,14 @@ namespace PJW
         // Link
         private void UnLinkAction()
         {
-            var mgr = ReInGameManager.Instance;
+            var mgr = InGameManager.Instance;
             mgr.OnRaceState_LoadPlayers -= ActionDontMove;
             mgr.OnRaceState_Racing -= ActionRaceStart;
             mgr.OnRaceState_Finish -= ActionDontMove;
         }
         private void LinkAction()
         {
-            var mgr = ReInGameManager.Instance;
+            var mgr = InGameManager.Instance;
 
             mgr.OnRaceState_LoadPlayers += ActionDontMove;
             mgr.OnRaceState_Racing += ActionRaceStart;

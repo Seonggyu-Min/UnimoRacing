@@ -43,6 +43,9 @@ public enum RoomKey
     FinishStartTime,            // KEY_RACE_FINISH_START_TIME
     FinishEndTime,              // KEY_RACE_FINISH_END_TIME
     FinishCount,                // KEY_RACE_FINISH_COUNT
+
+    // Vote
+    WinnerMapIndex,             // KEY_VOTE_WINNER_INDEX
 }
 
 public enum PlayerKey
@@ -50,7 +53,7 @@ public enum PlayerKey
     Level,              // KEY_PLAYER_LEVEL
     Exp,                // KEY_PLAYER_EXP
 
-    CarId,              // KEY_PLAYER_CAR_ID
+    KartId,             // KEY_PLAYER_CAR_ID
     CharacterId,        // KEY_PLAYER_CHARACTER_ID
     HopeRaceMapId,      // KEY_PLAYER_HOPERACEMAP_ID
 
@@ -61,4 +64,6 @@ public enum PlayerKey
     RaceFinishedTime,   // KEY_PLAYER_RACE_FINISHED_TIME
 
     CurrentScene,       // KEY_PLAYER_CURRENT_SCENE
+
+    VotedMap,           // KEY_VOTE_MAP
 }

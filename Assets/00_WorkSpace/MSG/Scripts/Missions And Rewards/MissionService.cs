@@ -28,6 +28,8 @@ namespace MSG
     {
         #region Fields and Properties
 
+        [SerializeField] private GameObject _rewardPanel; // 이거 띄우기 위해서, TODO: 이거 전체가 버튼으로써 OnClick에 SetActive false 지정되면 될 듯
+
         private readonly Dictionary<int, MissionEntry> _dailyDefs = new();
         private readonly Dictionary<int, MissionEntry> _achievementDefs = new();
         private readonly Dictionary<MatchKey, List<int>> _dailyIndex = new();
@@ -204,6 +206,7 @@ namespace MSG
 
                     // 지급
                     RewardManager.Instance.AddMoney(def.MoneyType, def.RewardQuantity);
+                    // TODO: 수령 UI 표기
 
                     // 수령 마크
                     mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value = true;
@@ -238,6 +241,7 @@ namespace MSG
 
                     // 지급
                     RewardManager.Instance.AddMoney(def.MoneyType, def.RewardQuantity);
+                    // TODO: 수령 UI 표기
 
                     // 수령 마크
                     mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value = true;

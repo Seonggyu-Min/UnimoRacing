@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewUnimoCharacterSO", menuName = "Unimo/Character")]
 public class UnimoCharacterSO : ScriptableObject

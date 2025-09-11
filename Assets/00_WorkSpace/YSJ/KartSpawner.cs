@@ -125,7 +125,7 @@ public class KartSpawner : MonoBehaviour
         DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedKart(me.UserId), GetSuccessCharacterID, GetErrorCharacterID);
         DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedUnimo(me.UserId), GetSuccessKartID, GetErrorKartID);
 
-        var endLapCount = ReInGameManager.Instance.RaceEndLapCount;
+        var endLapCount = InGameManager.Instance.RaceEndLapCount;
 
         // 인스턴스 데이터(늦게 들어온 플레이어도 동일 데이터로 재생성됨)
         object[] instData = { me.ActorNumber, startIndex, characterID, kartID, me.UserId, endLapCount };
