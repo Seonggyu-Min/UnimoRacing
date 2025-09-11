@@ -107,6 +107,11 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         if (!IsSetup) return;
         PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.CurrentScene, sceneId);
     }
+    public void SetPlayerCPVote(int index)
+    {
+        if (!IsSetup) return;
+        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.VotedMap, index);
+    }
     #endregion
 
     #region Get CP 
@@ -160,7 +165,11 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         if (!IsSetup) return;
         PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.CurrentScene, SceneID.None);
     }
-
+    public int GetPlayerCPVoteIndex()
+    {
+        if (!IsSetup) return 1;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.VotedMap, 1);
+    }
     #endregion
 
     #region Race CP
