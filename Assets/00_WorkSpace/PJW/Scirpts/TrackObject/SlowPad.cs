@@ -1,85 +1,46 @@
 using System.Collections;
-using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
-using Cinemachine;
 
 namespace PJW
 {
-    [DisallowMultipleComponent]
+    [RequireComponent(typeof(Collider))]
     public class SlowPad : MonoBehaviour
     {
-        [Header("슬로우 설정")]
-        [SerializeField] private float slowMultiplier = 0.5f;     
-        [SerializeField] private float slowDuration = 2f;         
-        [SerializeField] private bool canRetrigger = true;        
-        [SerializeField] private float retriggerCooldown = 0.1f;  
-
-        private class SlowState
-        {
-            public float originalSpeed;
-            public float endTime;
-            public Coroutine routine;
-        }
-
-        private readonly Dictionary<CinemachineDollyCart, SlowState> states = new();
-        private float lastTriggerTime;
+        [Header("감속 설정")]
+        [Range(0f, 1f)]
+        [SerializeField] private float slowMultiplier = 0.5f; // 0~1, 예: 0.5 = 절반 속도
+        [SerializeField] private float duration = 2f;
+        [SerializeField] private string requiredTag = "Player";
 
         private void Reset()
         {
-            var col = GetComponent<Collider>();
-            if (col == null) col = gameObject.AddComponent<BoxCollider>();
-            col.isTrigger = true;
+            var c = GetComponent<Collider>();
+            if (c) c.isTrigger = true;
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!canRetrigger && Time.time - lastTriggerTime < retriggerCooldown) return;
+            if (!string.IsNullOrEmpty(requiredTag) && !other.CompareTag(requiredTag))
+                return;
 
-            var cart = other.GetComponentInParent<CinemachineDollyCart>();
-            if (cart == null || slowMultiplier <= 0f || slowDuration <= 0f) return;
+            var pv = other.GetComponentInParent<PhotonView>();
+            if (pv != null && !pv.IsMine) return;
 
-            if (!states.TryGetValue(cart, out var state))
-            {
-                state = new SlowState
-                {
-                    originalSpeed = cart.m_Speed,
-                    endTime = Time.time + slowDuration
-                };
+            var data = other.GetComponentInParent<PlayerRaceData>();
+            if (data == null) return;
 
-                cart.m_Speed = state.originalSpeed * slowMultiplier;
-                state.routine = StartCoroutine(RunSlow(cart, state));
-                states[cart] = state;
-            }
-            else
-            {
-                state.endTime = Mathf.Max(state.endTime, Time.time + slowDuration);
-            }
-
-            lastTriggerTime = Time.time;
+            StartCoroutine(SlowRoutine(data));
         }
 
-        private IEnumerator RunSlow(CinemachineDollyCart cart, SlowState state)
+        private IEnumerator SlowRoutine(PlayerRaceData data)
         {
-            while (Time.time < state.endTime)
-                yield return null;
+            float baseSpeed = data.KartSpeed;
+            float slowed = baseSpeed * slowMultiplier;
 
-            cart.m_Speed = state.originalSpeed;
-            states.Remove(cart);
-        }
-
-        private void OnDisable() => RestoreAll();
-        private void OnDestroy() => RestoreAll();
-
-        private void RestoreAll()
-        {
-            foreach (var kv in states)
-            {
-                var cart = kv.Key;
-                var state = kv.Value;
-                if (state.routine != null) StopCoroutine(state.routine);
-                if (cart != null) cart.m_Speed = state.originalSpeed;
-            }
-            states.Clear();
+            data.SetKartSpeed(slowed);
+            yield return new WaitForSeconds(duration);
+            data.SetKartSpeed(baseSpeed);
         }
     }
 }
