@@ -43,6 +43,9 @@ public static class PhotonNetworkCustomProperties
     public const int VALUE_ROOM_DEFAULT_RACE_MAP_ID             = 0;
     public const int VALUE_ROOM_NOT_CHOSEN_RACE_MAP_ID          = -1;
 
+    // VOTE
+    public const string KEY_VOTE_WINNER_INDEX =                 "vote_winner_index";                // 방에서 투표로 선정된 맵의 인덱스를 저장할 키
+
     #endregion
 
     #region PLAYER
@@ -70,6 +73,9 @@ public static class PhotonNetworkCustomProperties
     public const int VALUE_PLAYER_DEFAULT_CHARACTER_ID          = 0;
     public const int VALUE_PLAYER_DEFAULT_HOPERACEMAP_ID        = 0;
 
+    // VOTE
+    public const string KEY_VOTE_MAP                            = "vote_map";                       // 플레이어 개인이 투표한 맵의 인덱스를 저장할 키
+
     #endregion
 
     #region Mapping
@@ -92,6 +98,9 @@ public static class PhotonNetworkCustomProperties
         RoomKey.FinishEndTime => KEY_RACE_FINISH_END_TIME,
         RoomKey.FinishCount => KEY_RACE_FINISH_COUNT,
 
+        // Vote
+        RoomKey.WinnerMapIndex => KEY_VOTE_WINNER_INDEX,
+
         _ => key.ToString()
     };
 
@@ -111,6 +120,9 @@ public static class PhotonNetworkCustomProperties
         PlayerKey.RaceFinishedTime => KEY_PLAYER_RACE_FINISHED_TIME,
 
         PlayerKey.CurrentScene => KEY_PLAYER_CURRENT_SCENE,
+
+        // VOTE
+        PlayerKey.VotedMap => KEY_VOTE_MAP,
 
         _ => key.ToString()
     };
