@@ -21,7 +21,6 @@ namespace PJW
         private void Awake()
         {
             zoneCol = GetComponent<Collider>();
-            var rb = GetComponent<Rigidbody>();
             renderers = GetComponentsInChildren<Renderer>(true);
         }
 
@@ -29,8 +28,8 @@ namespace PJW
         {
             if (triggered) return;
 
-            var cart = other.GetComponentInParent<CinemachineDollyCart>();
-            if (cart == null) return;
+            var racer = other.GetComponentInParent<PlayerRaceData>();
+            if (racer == null) return;
 
             triggered = true;
 
@@ -38,7 +37,7 @@ namespace PJW
 
             HideVisuals();
 
-            StartCoroutine(BoostThenPinStop(cart));
+            StartCoroutine(BoostThenPinStop(racer));
         }
 
         private void HideVisuals()
@@ -50,25 +49,26 @@ namespace PJW
             }
         }
 
-        private IEnumerator BoostThenPinStop(CinemachineDollyCart cart)
+        private IEnumerator BoostThenPinStop(PlayerRaceData racer)
         {
-            float originalSpeed = cart.m_Speed;
+            float originalSpeed = racer.KartSpeed;
 
             // 가속
-            cart.m_Speed = Mathf.Max(0.1f, originalSpeed * boostMultiplier);
+            racer.SetKartSpeed(Mathf.Max(0.1f, originalSpeed * boostMultiplier));
             yield return new WaitForSeconds(boostTime);
 
             // 평속
-            cart.m_Speed = originalSpeed;
+            racer.SetKartSpeed(originalSpeed);
             yield return new WaitForSeconds(waitAfterBoost);
 
-            //  정지
-            Vector3 pinPos = cart.transform.position;
-            Quaternion pinRot = cart.transform.rotation;
+            // 정지
+            Vector3 pinPos = racer.transform.position;
+            Quaternion pinRot = racer.transform.rotation;
 
-            cart.enabled = false;
+            var cart = racer.GetComponent<Cinemachine.CinemachineDollyCart>();
+            if (cart != null) cart.enabled = false;
 
-            var rb = cart.GetComponent<Rigidbody>();
+            var rb = racer.GetComponent<Rigidbody>();
             if (rb)
             {
                 rb.velocity = Vector3.zero;
@@ -79,14 +79,14 @@ namespace PJW
             float t = 0f;
             while (t < stopDuration)
             {
-                cart.transform.SetPositionAndRotation(pinPos, pinRot);
+                racer.transform.SetPositionAndRotation(pinPos, pinRot);
                 yield return null;
                 t += Time.unscaledDeltaTime;
             }
 
             // 복구
-            cart.enabled = true;
-            cart.m_Speed = originalSpeed;
+            if (cart != null) cart.enabled = true;
+            racer.SetKartSpeed(originalSpeed);
 
             Destroy(gameObject);
         }
