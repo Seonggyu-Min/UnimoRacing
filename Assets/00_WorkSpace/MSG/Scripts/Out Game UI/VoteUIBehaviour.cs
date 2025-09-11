@@ -25,8 +25,6 @@ namespace MSG
         [SerializeField] private Color _myLoseVoteColor = Color.green;   // 내가 선택한 맵이 당선 실패 후 보여줄 색 (채도가 낮은 초록색이었음)
 
 
-        private const string VOTE_MAP = "vote_map"; // 플레이어 프로퍼티 
-        private const string VOTE_WINNER_INDEX = "vote_winner_index"; // 룸 프로퍼티
         private const int _defaultedVote = 1;
 
 
@@ -41,7 +39,7 @@ namespace MSG
 
         public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
         {
-            if (changedProps.ContainsKey(VOTE_MAP))
+            if (changedProps.ContainsKey(PhotonNetworkCustomProperties.KEY_VOTE_MAP))
             {
                 UpdateVoteUI();
                 UpdateButtonColor();
@@ -50,7 +48,7 @@ namespace MSG
 
         public override void OnRoomPropertiesUpdate(Hashtable changedProps)
         {
-            if (changedProps.ContainsKey(VOTE_WINNER_INDEX))
+            if (changedProps.ContainsKey(PhotonNetworkCustomProperties.KEY_VOTE_WINNER_INDEX))
             {
                 UpdateButtonColor();
             }
@@ -60,11 +58,16 @@ namespace MSG
         // 투표 버튼 클릭 연결용 메서드
         public void OnClickSubmitVote()
         {
-            var prop = PhotonNetwork.LocalPlayer.CustomProperties;
-            if ((prop.TryGetValue(VOTE_MAP, out var v) ? (int)v : _defaultedVote) == _votingIndex) return; // 이미 투표했으면 return
+            //var prop = PhotonNetwork.LocalPlayer.CustomProperties;
+            //if ((prop.TryGetValue(VOTE_MAP, out var v) ? (int)v : _defaultedVote) == _votingIndex) return; // 이미 투표했으면 return
 
-            var p = new Hashtable { [VOTE_MAP] = _votingIndex };
-            PhotonNetwork.LocalPlayer.SetCustomProperties(p);
+            //var p = new Hashtable { [VOTE_MAP] = _votingIndex };
+            //PhotonNetwork.LocalPlayer.SetCustomProperties(p);
+
+            int voted = PlayerManager.Instance.GetPlayerCPVoteIndex();
+            if (voted == _votingIndex) return; // 이미 내가 투표한거랑 같으면 return
+
+            PlayerManager.Instance.SetPlayerCPVote(_votingIndex); // 다르면 Set
         }
 
         #region Private Methods
@@ -76,10 +79,7 @@ namespace MSG
             foreach (var p in PhotonNetwork.CurrentRoom.Players.Values)
             {
                 // 내 _votingIndex가 맞으면 count++
-                if (p.CustomProperties != null &&
-                    p.CustomProperties.TryGetValue(VOTE_MAP, out var v) &&
-                    v is int idx &&
-                    idx == _votingIndex)
+                if (PhotonNetworkCustomProperties.GetPlayerProp(p, PlayerKey.VotedMap, 0) == _votingIndex)
                 {
                     count++;
                 }
@@ -101,8 +101,12 @@ namespace MSG
 
         private void UpdateButtonColor()
         {
-            int myVote = GetMyVoteIndex();
-            int winnerIdx = GetWinnerIndex(); // -1이면 아직 미정
+            int myVote = PlayerManager.Instance.GetPlayerCPVoteIndex();
+            int winnerIdx = PhotonNetworkCustomProperties.GetRoomProp<int>(
+                RoomKey.WinnerMapIndex
+                - 1, // -1이면 아직 미정
+                onError: () => Debug.LogWarning("[VoteUIBehaviour] GetRoomProp 실패"
+                ));
 
             if (winnerIdx > 0)
             {
@@ -122,29 +126,29 @@ namespace MSG
             }
         }
 
-        private int GetMyVoteIndex()
-        {
-            var prop = PhotonNetwork.LocalPlayer?.CustomProperties;
-            if (prop != null && prop.TryGetValue(VOTE_MAP, out var v) && v is int idx && idx > 0)
-            {
-                return idx;
-            }
-            Debug.Log("[VoteUIBehaviour] 내 투표가 없습니다.");
-            return _defaultedVote;
-        }
+        //private int GetMyVoteIndex()
+        //{
+        //    var prop = PhotonNetwork.LocalPlayer?.CustomProperties;
+        //    if (prop != null && prop.TryGetValue(PhotonNetworkCustomProperties.KEY_VOTE_MAP, out var v) && v is int idx && idx > 0)
+        //    {
+        //        return idx;
+        //    }
+        //    Debug.Log("[VoteUIBehaviour] 내 투표가 없습니다.");
+        //    return _defaultedVote;
+        //}
 
-        private int GetWinnerIndex()
-        {
-            var room = PhotonNetwork.CurrentRoom;
-            if (room != null &&
-                room.CustomProperties != null &&
-                room.CustomProperties.TryGetValue(VOTE_WINNER_INDEX, out var w) &&
-                w is int idx)
-            {
-                return idx;
-            }
-            return -1; // 아직 투표된 것이 없음
-        }
+        //private int GetWinnerIndex()
+        //{
+        //    var room = PhotonNetwork.CurrentRoom;
+        //    if (room != null &&
+        //        room.CustomProperties != null &&
+        //        room.CustomProperties.TryGetValue(PhotonNetworkCustomProperties.KEY_VOTE_WINNER_INDEX, out var w) &&
+        //        w is int idx)
+        //    {
+        //        return idx;
+        //    }
+        //    return -1; // 아직 투표된 것이 없음
+        //}
 
         #endregion
     }
