@@ -40,7 +40,9 @@ namespace MSG
                     //MissionService.Instance.IncrementAchievementProgress(92015, quantity);
                     //MissionService.Instance.IncrementAchievementProgress(92016, quantity);
 
-                    MissionService.Instance.Report(MissionVerb.Obtain, MissionObject.Gold, null, quantity);
+
+                    // 미션이 생기면 주석 해제될 듯
+                    //MissionService.Instance.Report(MissionVerb.Obtain, MissionObject.Gold, null, quantity);
                     break;
 
                 case MoneyType.BlueHoneyGem:
