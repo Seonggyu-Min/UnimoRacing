@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace MSG
 {
-    public class TestPhotonNetworkManager : MonoBehaviour
+    public class PhotonNetworkInitiator : MonoBehaviour
     {
         [SerializeField] private AuthFlowController _authFlowController;
         [SerializeField] private GameObject _nextSceneButtonForAndroid;
@@ -17,7 +17,7 @@ namespace MSG
 
         private bool _isLoggedIn = false;
         private bool _isFirebaseReady = false;
-
+        private bool _hasPressedNextSceneButton = false;
 
         private void Start()
         {
@@ -84,6 +84,9 @@ namespace MSG
 
         public void OnClickNextSceneButton()
         {
+            if (_hasPressedNextSceneButton) return; // 중복 방지
+
+            _hasPressedNextSceneButton = true;
             SceneManager.LoadScene(1); // 임시
         }
     }
