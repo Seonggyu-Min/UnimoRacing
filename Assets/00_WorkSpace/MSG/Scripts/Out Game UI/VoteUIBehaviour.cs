@@ -32,6 +32,8 @@ namespace MSG
 
         public override void OnEnable()
         {
+            base.OnEnable();
+
             UpdateVoteUI();
             UpdateButtonColor();
         }
