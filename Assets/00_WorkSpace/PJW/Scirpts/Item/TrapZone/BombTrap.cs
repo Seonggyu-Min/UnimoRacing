@@ -13,25 +13,25 @@ namespace PJW
 
         private void OnTriggerEnter(Collider other)
         {
-            var cart = other.GetComponentInParent<CinemachineDollyCart>();
-            if (cart == null) return;
+            var racer = other.GetComponentInParent<PlayerRaceData>();
+            if (racer == null) return;
 
-            cart.StartCoroutine(StopCartTemporarily(cart, stopDuration));
+            racer.StartCoroutine(StopRacerTemporarily(racer, stopDuration));
 
             Destroy(gameObject);
         }
 
-        private IEnumerator StopCartTemporarily(CinemachineDollyCart cart, float duration)
+        private IEnumerator StopRacerTemporarily(PlayerRaceData racer, float duration)
         {
-            if (cart == null) yield break;
+            if (racer == null) yield break;
 
-            float originalSpeed = cart.m_Speed;
-            cart.m_Speed = 0f;
+            float originalSpeed = racer.KartSpeed;
+            racer.SetKartSpeed(0f);
 
             yield return new WaitForSeconds(duration);
 
-            if (cart != null)
-                cart.m_Speed = originalSpeed;
+            if (racer != null)
+                racer.SetKartSpeed(originalSpeed);
         }
     }
 }
