@@ -236,6 +236,7 @@ GameObject:
   - component: {fileID: 1692671074618061218}
   - component: {fileID: 4425197222591919907}
   - component: {fileID: 831430784033025982}
+  - component: {fileID: 6786647454081869713}
   m_Layer: 0
   m_Name: PlayerRacer
   m_TagString: Untagged
@@ -296,7 +297,7 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 3
+  Synchronization: 2
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
@@ -389,7 +390,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _sitPointName: pivot_Character
   _followCam: VirtualCam
-  _useLoadFollowCam: 1
+  _useLoadFollowCam: 0
+  _useGM: 1
   _kartBaseSpeed: 20
   _kartCurrentSpeed: 0
   _isControlable: 1
@@ -501,3 +503,15 @@ MonoBehaviour:
   followOffset: {x: 0, y: 3, z: -6}
   trackPathOffset: {x: 0, y: 0, z: 0}
   applyPositionOnStart: 1
+--- !u!114 &6786647454081869713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8330706411905914188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 089d51d7db189c3458ef537c48f44020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
