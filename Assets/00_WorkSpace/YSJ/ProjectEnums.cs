@@ -50,7 +50,7 @@ public enum PlayerKey
     Level,              // KEY_PLAYER_LEVEL
     Exp,                // KEY_PLAYER_EXP
 
-    CarId,              // KEY_PLAYER_CAR_ID
+    KartId,             // KEY_PLAYER_CAR_ID
     CharacterId,        // KEY_PLAYER_CHARACTER_ID
     HopeRaceMapId,      // KEY_PLAYER_HOPERACEMAP_ID
 
