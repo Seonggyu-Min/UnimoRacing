@@ -238,7 +238,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     public void SetKartSpeed(float applySpeed)
     {
-        double applyTime;
+        _kartCurrentSpeed = applySpeed;
 
     }
 
@@ -281,6 +281,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
                 return;
             }
         }
+
+
 
         // 로그
         this.PrintLog(
