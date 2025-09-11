@@ -295,10 +295,10 @@ namespace YTW
             if (restartYesButton)
             {
                 restartYesButton.onClick.RemoveAllListeners();
-                restartYesButton.onClick.AddListener(() =>
+                restartYesButton.onClick.AddListener(async () =>
                 {
                     restartConfirmPanel.SetActive(false);
-                    _ = RestartGameAsync();
+                    await RestartGameAsync();
                 });
             }
 
@@ -339,6 +339,7 @@ namespace YTW
             //    Manager.Scene.LoadScene(SceneType.YTW_TestScene1);
             //});
 
+            Debug.Log("topPanel 비활성화");
             topPanel.gameObject.SetActive(false);
         }
 
@@ -353,8 +354,16 @@ namespace YTW
             await Task.Delay(300); // 살짝 대기 (UI 반영 여유)
 
             // 실제 프로젝트의 최초 부트 씬/초기 씬으로 교체
-            Manager.Scene.LoadScene(SceneType.YTW_TestScene3);
+            // Manager.Scene.LoadScene(SceneType.YTW_TestScene3);
+
+            topPanel.gameObject.SetActive(false);
         }
+
+        //private void DisableTopPanel()
+        //{
+        //    Debug.Log("topPanel 비활성화");
+        //    topPanel.gameObject.SetActive(false);
+        //}
 
         private void StartSmoothProgress(float target)
         {
