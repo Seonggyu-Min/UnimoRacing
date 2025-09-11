@@ -112,6 +112,16 @@ namespace PJW
 
         private void OnItemAssigned(string prefabName)
         {
+            if (string.IsNullOrEmpty(prefabName))
+            {
+                // 아이템 없을 때 아이콘 숨김
+                if (itemIcon != null)
+                {
+                    itemIcon.sprite = null;
+                    SetIconVisible(false);
+                }
+                return;
+            }
 
             var sprite = ItemSpriteRegistry.Instance.GetIcon(prefabName);
             if (itemIcon != null)
@@ -125,6 +135,13 @@ namespace PJW
         {
             bool canUse = hasItem && boundInv != null && boundInv.CanUseItem;
             SetUsable(canUse);
+
+            // 아이템 없으면 아이콘도 숨기기 (이 부분 추가!)
+            if (!hasItem && itemIcon != null)
+            {
+                itemIcon.sprite = null;
+                SetIconVisible(false);
+            }
         }
 
         private void SetUsable(bool canUse)
