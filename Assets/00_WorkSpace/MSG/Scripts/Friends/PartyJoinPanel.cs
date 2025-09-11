@@ -29,7 +29,8 @@ namespace MSG
                 err => Debug.LogWarning($"현재 닉네임 읽기 오류: {err}")
                 );
 
-            _messageText.text = $"{nickname}님이 파티 초대를 하였습니다. 수락하시겠습니까?";
+            _messageText.text = $"{nickname}님이 " +
+                $"파티 초대를 하였습니다. 수락하시겠습니까?";
         }
 
         public void OnClickAccept()
