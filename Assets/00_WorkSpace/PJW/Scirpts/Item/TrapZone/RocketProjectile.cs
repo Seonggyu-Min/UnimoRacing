@@ -1,22 +1,22 @@
+using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
-using Photon.Pun;
-using ExitGames.Client.Photon;
-using Photon.Realtime;
+using System.Linq;
 using UnityEngine;
-using Cinemachine;
 
 namespace PJW
 {
-    public class RocketProjectile : MonoBehaviourPun, IPunInstantiateMagicCallback, IOnEventCallback
+    public class RocketProjectile : MonoBehaviourPun, IPunInstantiateMagicCallback, IOnEventCallback, IPunObservable
     {
         [Header("유도 설정")]
-        [SerializeField] private float speed;
-        [SerializeField] private float turnRate;
-        [SerializeField] private float maxLifeTime;
+        [SerializeField] private float speed = 20f;
+        [SerializeField] private float turnRate = 360f;
+        [SerializeField] private float maxLifeTime = 8f;
 
         [Header("충돌 반경")]
-        [SerializeField] private float hitRadius;
+        [SerializeField] private float hitRadius = 2f;
 
         private int targetViewId;
         private int targetActor;
@@ -25,7 +25,16 @@ namespace PJW
         private float lifeTimer;
         private bool hasHit;
 
+        // 네트워크 보간용
+        private Vector3 networkPos;
+        private Quaternion networkRot;
+        private bool hasNetSnapshot;
+        [SerializeField] private float netLerp = 20f;
+
         private const byte RocketStunEvent = 41;
+
+        // 로컬 구동 권한: 소유자 or 마스터 (소유권 꼬여도 마스터가 백업으로 구동)
+        private bool CanDrive => photonView != null && (photonView.IsMine || PhotonNetwork.IsMasterClient);
 
         private sealed class StunRunner : MonoBehaviour
         {
@@ -39,33 +48,33 @@ namespace PJW
                     if (_instance == null)
                     {
                         var go = new GameObject("[RocketStunRunner]");
-                        DontDestroyOnLoad(go);
+                        Object.DontDestroyOnLoad(go);
                         _instance = go.AddComponent<StunRunner>();
                     }
                     return _instance;
                 }
             }
 
-            public void ApplyStun(int actorNumber, CinemachineDollyCart cart, float duration)
+            public void ApplyStun(int actorNumber, PlayerRaceData racer, float duration)
             {
-                if (cart == null || duration <= 0f) return;
+                if (racer == null || duration <= 0f) return;
 
                 if (running.TryGetValue(actorNumber, out var co) && co != null)
-                {
                     StopCoroutine(co);
-                }
-                running[actorNumber] = StartCoroutine(StunRoutine(actorNumber, cart, duration));
+
+                running[actorNumber] = StartCoroutine(StunRoutine(actorNumber, racer, duration));
             }
 
-            private IEnumerator StunRoutine(int actorNumber, CinemachineDollyCart cart, float duration)
+            private IEnumerator StunRoutine(int actorNumber, PlayerRaceData racer, float duration)
             {
-                float originalSpeed = cart.m_Speed;
-                cart.m_Speed = 0f;            
+                float original = racer.KartSpeed;
+                racer.SetKartSpeed(0f);
+
                 yield return new WaitForSecondsRealtime(duration);
-                if (cart != null)
-                {
-                    cart.m_Speed = originalSpeed;
-                }
+
+                if (racer != null)
+                    racer.SetKartSpeed(original);
+
                 running.Remove(actorNumber);
             }
         }
@@ -81,15 +90,27 @@ namespace PJW
                 if (targetPv != null && targetPv.Owner != null)
                     targetActor = targetPv.OwnerActorNr;
             }
+
+            networkPos = transform.position;
+            networkRot = transform.rotation;
+            hasNetSnapshot = true;
         }
 
         private void Awake()
         {
-            var col = GetComponent<Collider>();
-            col.isTrigger = true;
+            var col = GetComponent<Collider>(); if (col) col.isTrigger = true;
+            var rb = GetComponent<Rigidbody>(); if (rb) rb.isKinematic = true;
 
-            var rb = GetComponent<Rigidbody>();
-            rb.isKinematic = true;
+            // 자신을 ObservedComponents에 강제 등록
+            if (photonView != null)
+            {
+                if (photonView.ObservedComponents == null)
+                    photonView.ObservedComponents = new List<Component>();
+                if (!photonView.ObservedComponents.Contains(this))
+                    photonView.ObservedComponents.Add(this);
+
+                photonView.Synchronization = ViewSynchronization.UnreliableOnChange;
+            }
         }
 
         private void OnEnable() { PhotonNetwork.AddCallbackTarget(this); }
@@ -97,43 +118,62 @@ namespace PJW
 
         private void Update()
         {
+            // 수명
             lifeTimer += Time.deltaTime;
             if (lifeTimer > maxLifeTime)
             {
-                if (photonView.IsMine) PhotonNetwork.Destroy(gameObject);
+                if (photonView != null && photonView.IsMine)
+                    PhotonNetwork.Destroy(gameObject);
                 return;
             }
 
-            if (!photonView.IsMine) return;
-            if (targetPv == null || targetPv.transform == null)
+            // 구동(이동/유도): 소유자 or 마스터
+            if (CanDrive)
             {
-                PhotonNetwork.Destroy(gameObject);
-                return;
+                if (targetPv == null || targetPv.transform == null)
+                {
+                    if (photonView != null && photonView.IsMine)
+                        PhotonNetwork.Destroy(gameObject);
+                    return;
+                }
+
+                Vector3 targetPos = targetPv.transform.position;
+                Vector3 dir = (targetPos - transform.position).normalized;
+
+                if (dir.sqrMagnitude > 1e-6f)
+                {
+                    Quaternion look = Quaternion.LookRotation(dir, Vector3.up);
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, look, turnRate * Time.deltaTime);
+                }
+
+                transform.position += transform.forward * speed * Time.deltaTime;
+
+                // 명중 판정은 한쪽만 수행 (마스터가 우선, 아니면 소유자)
+                bool hasAuthorityForHit = PhotonNetwork.IsMasterClient || (photonView != null && photonView.IsMine);
+                if (hasAuthorityForHit && !hasHit &&
+                    (transform.position - targetPos).sqrMagnitude <= hitRadius * hitRadius)
+                {
+                    HandleHit(targetPv);
+                }
             }
-
-            Vector3 targetPos = targetPv.transform.position;
-            Vector3 dir = (targetPos - transform.position).normalized;
-
-            if (dir.sqrMagnitude > 0.0001f)
+            else
             {
-                Quaternion look = Quaternion.LookRotation(dir, Vector3.up);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, look, turnRate * Time.deltaTime);
-            }
-            transform.position += transform.forward * speed * Time.deltaTime;
-
-            if (!hasHit && Vector3.SqrMagnitude(transform.position - targetPos) <= hitRadius * hitRadius)
-            {
-                HandleHit(targetPv);
+                // 비구동 클라: 네트워크 스냅샷 보간
+                if (hasNetSnapshot)
+                {
+                    transform.position = Vector3.Lerp(transform.position, networkPos, netLerp * Time.deltaTime);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, networkRot, netLerp * Time.deltaTime);
+                }
             }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!photonView.IsMine || hasHit) return;
+            // 트리거 충돌도 권한 측만 처리
+            if (!CanDrive || hasHit) return;
 
             var hitPv = other.GetComponentInParent<PhotonView>();
-            if (hitPv == null) return;
-            if (hitPv.ViewID != targetViewId) return;
+            if (hitPv == null || hitPv.ViewID != targetViewId) return;
 
             HandleHit(hitPv);
         }
@@ -147,40 +187,64 @@ namespace PJW
             SendOptions so = new SendOptions { Reliability = true };
             PhotonNetwork.RaiseEvent(RocketStunEvent, content, reo, so);
 
-            PhotonNetwork.Destroy(gameObject);
+            if (photonView != null && photonView.IsMine)
+                PhotonNetwork.Destroy(gameObject);
         }
 
         public void OnEvent(EventData photonEvent)
         {
             if (photonEvent.Code != RocketStunEvent) return;
 
-            var data = photonEvent.CustomData as object[];
-            if (data == null || data.Length < 2) return;
+            if (photonEvent.CustomData is object[] data && data.Length >= 2)
+            {
+                int targetActorNumber = (int)data[0];
+                float duration = (float)data[1];
 
-            int targetActorNumber = (int)data[0];
-            float duration = (float)data[1];
+                var me = PhotonNetwork.LocalPlayer;
+                if (me == null || me.ActorNumber != targetActorNumber) return;
 
-            var me = PhotonNetwork.LocalPlayer;
-            if (me == null || me.ActorNumber != targetActorNumber) return;
+                // 내 로컬 플레이어의 PlayerRaceData 찾기
+                var racer = FindObjectsOfType<PlayerRaceData>(true)
+                    .FirstOrDefault(r =>
+                    {
+                        var pv = r.GetComponentInParent<PhotonView>() ?? r.GetComponent<PhotonView>();
+                        return pv != null && pv.IsMine;
+                    });
 
-            var cart = FindMyDollyCart();
-            if (cart == null) return;
+                if (racer == null) return;
 
-            StunRunner.Instance.ApplyStun(targetActorNumber, cart, duration);
+                // PlayerRaceData 기반으로 스턴 적용
+                StunRunner.Instance.ApplyStun(targetActorNumber, racer, duration);
+            }
         }
 
-        private CinemachineDollyCart FindMyDollyCart()
+        private Cinemachine.CinemachineDollyCart FindMyDollyCart()
         {
-            var pvs = FindObjectsOfType<PhotonView>();
-            foreach (var pv in pvs)
+            foreach (var pv in FindObjectsOfType<PhotonView>())
             {
                 if (pv != null && pv.IsMine)
                 {
-                    var cart = pv.GetComponentInChildren<CinemachineDollyCart>(true);
+                    var cart = pv.GetComponentInChildren<Cinemachine.CinemachineDollyCart>(true);
                     if (cart != null) return cart;
                 }
             }
             return null;
+        }
+
+        // 위치/회전 직렬화
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            if (stream.IsWriting)
+            {
+                stream.SendNext(transform.position);
+                stream.SendNext(transform.rotation);
+            }
+            else
+            {
+                networkPos = (Vector3)stream.ReceiveNext();
+                networkRot = (Quaternion)stream.ReceiveNext();
+                hasNetSnapshot = true;
+            }
         }
     }
 }
