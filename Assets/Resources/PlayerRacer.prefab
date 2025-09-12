@@ -237,6 +237,7 @@ GameObject:
   - component: {fileID: 4425197222591919907}
   - component: {fileID: 831430784033025982}
   - component: {fileID: 6786647454081869713}
+  - component: {fileID: 7946033971345635877}
   m_Layer: 0
   m_Name: PlayerRacer
   m_TagString: Untagged
@@ -513,5 +514,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 089d51d7db189c3458ef537c48f44020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7946033971345635877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8330706411905914188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7fe0e923f33a68409a6768ccc1128ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
