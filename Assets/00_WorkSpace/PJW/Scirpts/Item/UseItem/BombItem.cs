@@ -1,25 +1,35 @@
+// Assets/00_WorkSpace/PJW/Scirpts/Item/UseItem/BombItem.cs
 using Cinemachine;
-using System.Collections;
-using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 namespace PJW
 {
     public class BombItem : MonoBehaviour, IUsableItem
     {
-        [SerializeField] private GameObject bombPrefab;
-        [SerializeField] private float distanceAhead;
+        [Header("Resources")]
+        [SerializeField] private string bombResourceKey = "BombTrap";
+
+        [Header("앞쪽 배치 거리")]
+        [SerializeField] private float distanceAhead = 0.02f;
 
         public void Use(GameObject owner)
         {
-            if (bombPrefab == null || owner == null)
+            if (owner == null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            var ownerPv = owner.GetComponentInParent<PhotonView>();
+            if (ownerPv == null || !ownerPv.IsMine)
             {
                 Destroy(gameObject);
                 return;
             }
 
             var cart = owner.GetComponentInParent<CinemachineDollyCart>();
-            var path = cart != null ? cart.m_Path : null;
+            var path = cart ? cart.m_Path : null;
             if (cart == null || path == null)
             {
                 Destroy(gameObject);
@@ -30,28 +40,22 @@ namespace PJW
             float currentT = cart.m_Position;
             float targetT = currentT + distanceAhead;
 
-            if(units == CinemachinePathBase.PositionUnits.Normalized)
+            if (units == CinemachinePathBase.PositionUnits.Normalized)
+                targetT = path.Looped ? Mathf.Repeat(targetT, 1f) : Mathf.Clamp01(targetT);
+            else
             {
-                if (path.Looped)
-                    targetT = Mathf.Repeat(targetT, 1f);
-                else
-                    targetT = Mathf.Clamp01(targetT);
-            }
-            else 
-            {
-                float pathLen = path.PathLength;
-                if (path.Looped)
-                    targetT = Mathf.Repeat(targetT, pathLen);
-                else
-                    targetT = Mathf.Clamp(targetT, 0f, pathLen);
+                float len = path.PathLength;
+                targetT = path.Looped ? Mathf.Repeat(targetT, len) : Mathf.Clamp(targetT, 0f, len);
             }
 
-            // 트랙 위 위치와 회전
             Vector3 spawnPos = path.EvaluatePositionAtUnit(targetT, units);
             Quaternion spawnRot = path.EvaluateOrientationAtUnit(targetT, units);
 
-            Instantiate(bombPrefab, spawnPos, spawnRot);
+            var probe = Resources.Load<GameObject>(bombResourceKey);
+            if (probe == null || !PhotonNetwork.InRoom)
+                return;
 
+            PhotonNetwork.Instantiate(bombResourceKey, spawnPos, spawnRot);
             Destroy(gameObject);
         }
     }
