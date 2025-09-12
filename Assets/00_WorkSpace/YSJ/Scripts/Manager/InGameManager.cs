@@ -97,7 +97,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         this.PrintLog($"Master Client: {IsMasterClient}!");
 
         _currentRaceState = RaceState.None;
-
+        SetupRaceRule();
         // 초기 상태 동기화
         if (CurrentRoom != null)
         {
