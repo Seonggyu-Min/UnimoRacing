@@ -1,20 +1,34 @@
 using Cinemachine;
-using System.Collections;
-using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 namespace PJW
 {
     public class EggTrap : MonoBehaviour, IUsableItem
     {
-        [SerializeField] private GameObject trapPrefab;
-        [SerializeField] private float distanceBehind;
+        [Header("Resources")]
+        [SerializeField] private string trapResourceKey = "EggTrapZone";
+
+        [SerializeField] private float distanceBehind = 0.02f;
+
         public void Use(GameObject owner)
         {
-            if (trapPrefab == null || owner == null) return;
+            if (string.IsNullOrEmpty(trapResourceKey) || owner == null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            var ownerPv = owner.GetComponentInParent<PhotonView>();
+            if (ownerPv == null || !ownerPv.IsMine)
+            {
+                Destroy(gameObject);
+                return;
+            }
 
             var cart = owner.GetComponentInParent<CinemachineDollyCart>();
-            if (cart == null || cart.m_Path == null)
+            var path = cart ? cart.m_Path : null;
+            if (cart == null || path == null)
             {
                 Destroy(gameObject);
                 return;
@@ -31,8 +45,13 @@ namespace PJW
             Vector3 spawnPos = cart.m_Path.EvaluatePositionAtUnit(
                 behindT, CinemachinePathBase.PositionUnits.Normalized);
 
-            Instantiate(trapPrefab, spawnPos, Quaternion.identity);
+            if (Resources.Load<GameObject>(trapResourceKey) == null || !PhotonNetwork.InRoom)
+            {
+                Destroy(gameObject);
+                return;
+            }
 
+            PhotonNetwork.Instantiate(trapResourceKey, spawnPos, Quaternion.identity);
             Destroy(gameObject);
         }
     }

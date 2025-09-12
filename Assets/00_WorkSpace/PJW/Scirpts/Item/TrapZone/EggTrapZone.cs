@@ -1,12 +1,12 @@
-using Cinemachine;
 using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
+using Photon.Pun;
 using UnityEngine;
-
 
 namespace PJW
 {
-    public class EggTrapZone : MonoBehaviour
+    [RequireComponent(typeof(PhotonView))]
+    public class EggTrapZone : MonoBehaviourPun
     {
         [Header("동작 파라미터")]
         [SerializeField] private float boostMultiplier = 2f;
@@ -26,40 +26,53 @@ namespace PJW
 
         private void OnTriggerEnter(Collider other)
         {
-            if (triggered) return;
+            if (!PhotonNetwork.IsMasterClient || triggered) return;
 
-            var racer = other.GetComponentInParent<PlayerRaceData>();
-            if (racer == null) return;
+            var targetPv = other.GetComponentInParent<PhotonView>();
+            if (targetPv == null) return;
 
             triggered = true;
-
             if (zoneCol) zoneCol.enabled = false;
-
             HideVisuals();
 
-            StartCoroutine(BoostThenPinStop(racer));
+            photonView.RPC(nameof(RpcApplyEggTrapEffect), targetPv.Owner,
+                boostMultiplier, boostTime, waitAfterBoost, stopDuration);
+
+            PhotonNetwork.Destroy(gameObject);
         }
 
         private void HideVisuals()
         {
             if (renderers == null) return;
             foreach (var r in renderers)
-            {
                 if (r) r.enabled = false;
-            }
         }
 
-        private IEnumerator BoostThenPinStop(PlayerRaceData racer)
+        [PunRPC]
+        private void RpcApplyEggTrapEffect(float boostMult, float boostT, float waitT, float stopT)
+        {
+            var myRacer = FindObjectsOfType<PlayerRaceData>(true)
+                .FirstOrDefault(r =>
+                {
+                    var pv = r.GetComponentInParent<PhotonView>() ?? r.GetComponent<PhotonView>();
+                    return pv != null && pv.IsMine;
+                });
+
+            if (myRacer != null)
+                StartCoroutine(BoostThenPinStop(myRacer, boostMult, boostT, waitT, stopT));
+        }
+
+        private IEnumerator BoostThenPinStop(PlayerRaceData racer, float boostMult, float boostT, float waitT, float stopT)
         {
             float originalSpeed = racer.KartSpeed;
 
             // 가속
-            racer.SetKartSpeed(Mathf.Max(0.1f, originalSpeed * boostMultiplier));
-            yield return new WaitForSeconds(boostTime);
+            racer.SetKartSpeed(Mathf.Max(0.1f, originalSpeed * boostMult));
+            yield return new WaitForSeconds(boostT);
 
             // 평속
             racer.SetKartSpeed(originalSpeed);
-            yield return new WaitForSeconds(waitAfterBoost);
+            yield return new WaitForSeconds(waitT);
 
             // 정지
             Vector3 pinPos = racer.transform.position;
@@ -77,18 +90,16 @@ namespace PJW
             }
 
             float t = 0f;
-            while (t < stopDuration)
+            while (t < stopT)
             {
-                racer.transform.SetPositionAndRotation(pinPos, pinRot);
+                if (racer != null)
+                    racer.transform.SetPositionAndRotation(pinPos, pinRot);
                 yield return null;
                 t += Time.unscaledDeltaTime;
             }
 
-            // 복구
             if (cart != null) cart.enabled = true;
-            racer.SetKartSpeed(originalSpeed);
-
-            Destroy(gameObject);
+            if (racer != null) racer.SetKartSpeed(originalSpeed);
         }
     }
 }
