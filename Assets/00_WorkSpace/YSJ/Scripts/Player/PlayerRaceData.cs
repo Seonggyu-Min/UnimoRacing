@@ -3,18 +3,19 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using YSJ.Util;
+using static UnityEditor.Progress;
 
 // 시스템
 [RequireComponent(typeof(PhotonView))] // 네트워크
 [RequireComponent(typeof(CinemachineDollyCart))] // 이동
 
 // 필수 기능 추가
-[RequireComponent(typeof(DollyCartController))] // 경로 컨트롤
-[RequireComponent(typeof(DollyCartMovement))] // 이동 제어
-[RequireComponent(typeof(PlayerInventory))] // 인벤
-[RequireComponent(typeof(UnimoSynergySystem))] // 시너지
-[RequireComponent(typeof(UnimoRaceAnimationController))] // 유니모 애니메이션 컨트롤러
-[RequireComponent(typeof(DollyCartSync))] // 싱크(=동기화)
+[RequireComponent(typeof(DollyCartController            ))] // 경로 컨트롤
+[RequireComponent(typeof(DollyCartMovement              ))] // 이동 제어
+[RequireComponent(typeof(PlayerInventory                ))] // 인벤
+[RequireComponent(typeof(UnimoSynergySystem             ))] // 시너지
+[RequireComponent(typeof(UnimoRaceAnimationController   ))] // 유니모 애니메이션 컨트롤러
+[RequireComponent(typeof(DollyCartSync                  ))] // 싱크(=동기화)
 public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 {
     private const float EPS = 0.0001f; // 미세 흔들림 방지
@@ -52,6 +53,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private UnimoSynergySystem _synergySystem;
     private DollyCartSync _sync;
 
+    private InGameManager _inGM;
+
 
     private int _characterID = -1;
     private int _kartID = -1;
@@ -84,6 +87,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _cartController = gameObject.GetOrAddComponent<DollyCartController>();
         _cartMovement = gameObject.GetOrAddComponent<DollyCartMovement>();
         _sync = gameObject.GetOrAddComponent<DollyCartSync>();
+
+        _inGM = InGameManager.Instance;
     }
 
     #endregion
@@ -146,7 +151,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _cartMovement.Setup(this);
         _cartMovement.OnMovementProgress -= OnNetworkSendMovementProgress;
         _cartMovement.OnMovementProgress += OnNetworkSendMovementProgress;
-
+        _cartMovement.OnMovementProgress -= OnEndCheck;
+        _cartMovement.OnMovementProgress += OnEndCheck;
         this.PrintLog("MovementSetup 진행 완료");
     }
 
@@ -188,8 +194,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         if (_synergySystem != null)
         {
             _synergySystem.Setup(this);
-
-
         }
 
         this.PrintLog("AniCtrlSetup 진행 완료");
@@ -206,20 +210,19 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private void GameManagerSetup()
     {
         this.PrintLog("GameManagerSetup 진행");
-        var InGM = InGameManager.Instance;
-        if (InGM != null && _useGM)
+        if (_inGM != null && _useGM)
         {
             // 로드
-            InGM.OnRaceState_LoadPlayers -= OnPlayReady;
-            InGM.OnRaceState_LoadPlayers += OnPlayReady;
+            _inGM.OnRaceState_LoadPlayers -= OnPlayReady;
+            _inGM.OnRaceState_LoadPlayers += OnPlayReady;
 
             // 레이싱
-            InGM.OnRaceState_Racing -= OnPlayRaceEnter;
-            InGM.OnRaceState_Racing += OnPlayRaceEnter;
+            _inGM.OnRaceState_Racing -= OnPlayRaceEnter;
+            _inGM.OnRaceState_Racing += OnPlayRaceEnter;
 
             // 레이싱 끝
-            InGM.OnRaceState_PostGame -= OnPlayRaceExit;
-            InGM.OnRaceState_PostGame += OnPlayRaceExit;
+            _inGM.OnRaceState_Finish -= OnPlayRaceExit;
+            _inGM.OnRaceState_Finish += OnPlayRaceExit;
         }
 
         this.PrintLog("GameManagerSetup 진행 완료");
@@ -233,16 +236,21 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     {
         _currentTrackIndex = chanagedTrackIndex;
     }
-    private void OnNetworkSendMovementProgress(float norm)
+    private void OnNetworkSendMovementProgress(int lap, float norm)
     {
-        float deltaRaw = norm - _oldNorm;
-        if (_cart.m_Speed > EPS && deltaRaw < -0.5f)
-            _lap++;
-        else if (_cart.m_Speed < -EPS && deltaRaw > +0.5f)
-            _lap--;
-
+        _lap = lap;
         _oldNorm = _norm;
         _norm = norm;
+    }
+    private void OnEndCheck(int lap, float norm)
+    {
+        if (_useGM)
+        {
+            if (_inGM != null && _lap >= _inGM.RaceEndLapCount)
+            {
+                PhotonNetworkCustomProperties.LocalPlayerRaceFinishedSetting(PhotonNetwork.Time);
+            }
+        }
     }
 
     // 인게임 흐름

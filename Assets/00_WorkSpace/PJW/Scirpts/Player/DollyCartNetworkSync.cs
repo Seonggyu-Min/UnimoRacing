@@ -20,6 +20,8 @@ namespace PJW
 
         private CinemachinePathBase[] tracks;   // 이동할 수 있는 트랙
 
+        private InGameManager _inGM;
+
         private float _netSpeed;
         private double _gapTime;
         private int _netTrackIndex;
@@ -52,6 +54,7 @@ namespace PJW
             tracks = FindObjectsOfType<CinemachinePathBase>(true);
 
             _isRacable = false;
+            _inGM = InGameManager.Instance;
 
             // 필요 이벤트 연결
             UnLinkAction();
@@ -239,7 +242,7 @@ namespace PJW
                 // endLapCount
                 if (data.Length >= 1 && data[0] is int endlap)
                 {
-                    if (InGameManager.Instance.RaceEndLapCount == endlap)
+                    if (_inGM.RaceEndLapCount == endlap)
                     {
                         _endLap = endlap;
                     }
@@ -266,14 +269,14 @@ namespace PJW
         // Link
         private void UnLinkAction()
         {
-            var mgr = InGameManager.Instance;
+            var mgr = _inGM;
             mgr.OnRaceState_LoadPlayers -= ActionDontMove;
             mgr.OnRaceState_Racing -= ActionRaceStart;
             mgr.OnRaceState_Finish -= ActionDontMove;
         }
         private void LinkAction()
         {
-            var mgr = InGameManager.Instance;
+            var mgr = _inGM;
 
             mgr.OnRaceState_LoadPlayers += ActionDontMove;
             mgr.OnRaceState_Racing += ActionRaceStart;
