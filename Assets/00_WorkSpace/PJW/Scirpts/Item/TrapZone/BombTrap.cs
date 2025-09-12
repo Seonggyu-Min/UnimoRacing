@@ -1,37 +1,51 @@
-using Cinemachine;
-using Photon.Pun;
 using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
+using Photon.Pun;
 using UnityEngine;
 
 namespace PJW
 {
-    public class BombTrap : MonoBehaviour
+    [RequireComponent(typeof(PhotonView))]
+    public class BombTrap : MonoBehaviourPun
     {
-        [SerializeField] private float stopDuration;
-
+        [SerializeField] private float stopDuration = 1.5f;
+        private bool hasTriggered;
 
         private void OnTriggerEnter(Collider other)
         {
-            var racer = other.GetComponentInParent<PlayerRaceData>();
-            if (racer == null) return;
+            if (!PhotonNetwork.IsMasterClient || hasTriggered)
+                return;
 
-            racer.StartCoroutine(StopRacerTemporarily(racer, stopDuration));
+            var targetPv = other.GetComponentInParent<PhotonView>();
+            if (targetPv == null)
+                return;
 
-            Destroy(gameObject);
+            hasTriggered = true;
+
+            photonView.RPC(nameof(RpcApplyBombStopOnOwner), targetPv.Owner, stopDuration);
+            PhotonNetwork.Destroy(gameObject);
         }
 
-        private IEnumerator StopRacerTemporarily(PlayerRaceData racer, float duration)
+        [PunRPC]
+        private void RpcApplyBombStopOnOwner(float duration)
         {
-            if (racer == null) yield break;
+            var myRacer = FindObjectsOfType<PlayerRaceData>(true)
+                .FirstOrDefault(r =>
+                {
+                    var pv = r.GetComponentInParent<PhotonView>() ?? r.GetComponent<PhotonView>();
+                    return pv != null && pv.IsMine;
+                });
 
-            float originalSpeed = racer.KartSpeed;
+            if (myRacer != null)
+                StartCoroutine(CoStop(myRacer, duration));
+        }
+
+        private IEnumerator CoStop(PlayerRaceData racer, float duration)
+        {
+            float original = racer.KartSpeed;
             racer.SetKartSpeed(0f);
-
             yield return new WaitForSeconds(duration);
-
-            if (racer != null)
-                racer.SetKartSpeed(originalSpeed);
+            if (racer != null) racer.SetKartSpeed(original);
         }
     }
 }
