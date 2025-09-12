@@ -1,16 +1,16 @@
-using Cinemachine;
 using System.Collections;
-using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 namespace PJW
 {
-    public class HoneyTrapZone : MonoBehaviour
+    public class HoneyTrapZone : MonoBehaviourPun, IPunInstantiateMagicCallback
     {
-        [SerializeField] private float slowMultiplier; 
-        [SerializeField] private float duration;
+        [Header("기본값")]
+        [SerializeField] private float slowMultiplier = 0.5f;  
+        [SerializeField] private float duration = 2.0f;
 
-        private bool triggered;
+        private bool isTriggered;
         private Collider col;
         private Renderer[] rends;
 
@@ -20,44 +20,107 @@ namespace PJW
             rends = GetComponentsInChildren<Renderer>(true);
         }
 
+        public void OnPhotonInstantiate(PhotonMessageInfo info)
+        {
+            var data = photonView.InstantiationData;
+            if (data != null && data.Length >= 2)
+            {
+                if (data[0] is float sm) slowMultiplier = sm;
+                if (data[1] is float du) duration = du;
+            }
+        }
+
         private void OnTriggerEnter(Collider other)
         {
-            if (triggered) return;
+            if (isTriggered) return;
 
+            // 실드면 무효화
             var shield = other.GetComponentInParent<PlayerShield>();
             if (shield != null && shield.SuccessShield())
             {
-                triggered = true;
-                if (col) col.enabled = false;
-                if (rends != null) foreach (var r in rends) if (r) r.enabled = false;
-                Destroy(gameObject);
+                isTriggered = true;
+                photonView.RPC(nameof(RpcHideOnly), RpcTarget.All);
+                if (photonView.IsMine || PhotonNetwork.IsMasterClient)
+                    StartCoroutine(DestroyAfter(0.05f));
                 return;
             }
 
-            var cart = other.GetComponentInParent<CinemachineDollyCart>();
-            if (cart == null) return;
+            var victimPv = other.GetComponentInParent<PhotonView>();
+            if (victimPv == null) return;
 
-            triggered = true;
+            isTriggered = true;
 
-            // 비주얼만 끄고 오브젝트는 남겨 코루틴 유지
-            if (col) col.enabled = false;
-            if (rends != null) foreach (var r in rends) if (r) r.enabled = false;
+            photonView.RPC(nameof(RpcHideOnly), RpcTarget.All);
 
-            StartCoroutine(ApplySlowThenDestroy(cart));
+            photonView.RPC(nameof(RpcApplySlowLocal), RpcTarget.All, victimPv.OwnerActorNr, slowMultiplier, duration);
+
+            if (PhotonNetwork.IsMasterClient)
+                StartCoroutine(DestroyAfter(duration + 0.2f)); 
         }
 
-        private IEnumerator ApplySlowThenDestroy(CinemachineDollyCart cart)
+        [PunRPC]
+        private void RpcHideOnly()
         {
-            if (cart == null || slowMultiplier <= 0f) { Destroy(gameObject); yield break; }
+            if (col) col.enabled = false;
+            if (rends != null)
+            {
+                foreach (var r in rends)
+                    if (r) r.enabled = false;
+            }
+        }
 
-            cart.m_Speed *= slowMultiplier;
+        [PunRPC]
+        private void RpcApplySlowLocal(int targetActor, float mul, float dur)
+        {
+            if (PhotonNetwork.LocalPlayer == null ||
+                PhotonNetwork.LocalPlayer.ActorNumber != targetActor) return;
 
-            yield return new WaitForSeconds(duration);
+            if (mul <= 0f) return;
 
-            if (slowMultiplier != 0f)
-                cart.m_Speed /= slowMultiplier;
+            PlayerRaceData myRace = null;
+            var all = FindObjectsOfType<PlayerRaceData>(true);
+            foreach (var r in all)
+            {
+                var pv = r.GetComponentInParent<PhotonView>() ?? r.GetComponent<PhotonView>();
+                if (pv != null && pv.IsMine) { myRace = r; break; }
+            }
 
-            Destroy(gameObject); 
+            if (myRace == null)
+            {
+                return;
+            }
+
+            StartCoroutine(SlowRoutineRacer(myRace, mul, dur));
+        }
+
+        private IEnumerator SlowRoutineRacer(PlayerRaceData data, float mul, float dur)
+        {
+            float original = data.KartSpeed;
+            float slowed = original * mul;
+
+            data.SetKartSpeed(slowed);
+
+            float t = 0f;
+            while (t < dur)
+            {
+                t += Time.deltaTime;
+                if (!Mathf.Approximately(data.KartSpeed, slowed))
+                    data.SetKartSpeed(slowed);
+                yield return null;
+            }
+
+            if (Mathf.Approximately(data.KartSpeed, slowed))
+                data.SetKartSpeed(original);
+        }
+
+        private IEnumerator DestroyAfter(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            if (this != null && photonView != null && photonView.ViewID != 0)
+            {
+                if (PhotonNetwork.IsMasterClient || photonView.IsMine)
+                    PhotonNetwork.Destroy(gameObject);
+            }
         }
     }
 }
