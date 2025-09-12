@@ -131,6 +131,9 @@ namespace YTW
         // 주소(address)에 해당하는 에셋을 비동기 로드합니다. 중복 요청 시 동일 핸들을 재사용하며, 참조 카운트를 증가
         public async Task<T> LoadAsync<T>(string address) where T : UnityEngine.Object
         {
+            if (!Launcher.PatchGate.Task.IsCompleted)
+                await Launcher.PatchGate.Task;
+
             // 1) Addressables 초기화 보장
             await EnsureInitializedAsync();
 
@@ -203,6 +206,9 @@ namespace YTW
         // 프리팹 주소를 씬에 인스턴스화
         public async Task<GameObject> InstantiateAsync(string address, Vector3 position, Quaternion rotation)
         {
+            if (!Launcher.PatchGate.Task.IsCompleted)
+                await Launcher.PatchGate.Task;
+
             if (string.IsNullOrWhiteSpace(address)) return null; // 잘못된 주소 방어
 
             // 인스턴스 생성 전에도 초기화 보장
@@ -313,6 +319,9 @@ namespace YTW
         // Additive : 현재 열려있는 씬을 그대로 둔 채, 그 위에 새로운 씬을 추가로 불러옴
         public async Task<SceneInstance?> LoadSceneAsync(string sceneAddress, LoadSceneMode mode = LoadSceneMode.Single)
         {
+            if (!Launcher.PatchGate.Task.IsCompleted)
+                await Launcher.PatchGate.Task;
+
             if (string.IsNullOrWhiteSpace(sceneAddress)) return null;
 
             await EnsureInitializedAsync();// 초기화 보장

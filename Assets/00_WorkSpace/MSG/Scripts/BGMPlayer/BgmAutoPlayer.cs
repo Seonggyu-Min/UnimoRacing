@@ -21,24 +21,25 @@ namespace MSG
         public string BGM => _bgm;
     }
 
-    // 인게임 씬은 적용하지 않습니다.
     public class BgmAutoPlayer : MonoBehaviour
     {
         [SerializeField] private List<SceneBGMBinder> _sceneBgmList;
 
         private void Awake()
         {
-            DontDestroyOnLoad(this);
+            DontDestroyOnLoad(gameObject);
         }
 
         private void OnEnable()
         {
+            
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
         }
 
-        private void Start()
+        private async void Start()
         {
-            StartCoroutine(StartAfterAudioReady());
+            await Manager.Audio.InitializeAsync();
+            ApplyBgmFor(SceneManager.GetActiveScene());
         }
 
         private void OnDisable()
@@ -47,34 +48,41 @@ namespace MSG
         }
 
 
+
         private void OnActiveSceneChanged(Scene prev, Scene next)
         {
+            if (!Manager.Audio.IsInitialized)
+            {
+                StartCoroutine(ApplyWhenReady(next));              // 초기화 완료되면 적용
+                return;
+            }
             ApplyBgmFor(next);
         }
 
+        private IEnumerator ApplyWhenReady(Scene scene)
+        {
+            yield return new WaitUntil(() => Manager.Audio.IsInitialized);
+            ApplyBgmFor(scene);
+        }
+
+
         private void ApplyBgmFor(Scene scene)
         {
-            Manager.Audio.StopBGM();
-
             for (int i = 0; i < _sceneBgmList.Count; i++)
             {
                 var bind = _sceneBgmList[i];
-                if (scene.name == bind.Scene)
+                if (scene.name == bind.Scene && !string.IsNullOrEmpty(bind.BGM))
                 {
-                    Manager.Audio.PlayBGM(bind.BGM);
+                    if (!string.Equals(Manager.Audio.CurrentBgmKey, bind.BGM, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // 여기서만 정지+교체
+                        Manager.Audio.PlayBGM(bind.BGM); 
+                    }
                     return;
                 }
             }
 
             Debug.LogWarning($"[BgmAutoPlayer] {scene.name} 씬에 BGM이 등록되지 않았습니다.");
-        }
-
-        private IEnumerator StartAfterAudioReady()
-        {
-            if (!Manager.Audio.IsInitialized)
-                yield return new WaitUntil(() => Manager.Audio.IsInitialized);
-
-            ApplyBgmFor(SceneManager.GetActiveScene());
         }
     }
 }

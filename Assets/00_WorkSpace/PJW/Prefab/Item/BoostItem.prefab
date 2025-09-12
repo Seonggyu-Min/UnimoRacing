@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 834455320044437474}
   - component: {fileID: 4704551165471645396}
   m_Layer: 0
-  m_Name: SpeedBoost
+  m_Name: BoostItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,5 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b866b8c2f179ef7418de3559dbc3ff2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boostSpeed: 1
+  speedMultiplier: 2
   duration: 2
+  rampInTime: 0.2
+  rampOutTime: 0.2

@@ -115,55 +115,55 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     #endregion
 
     #region Get CP 
-    public void GetPlayerCPLevel()
+    public int GetPlayerCPLevel()
     {
-        if (!IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.Level, -1);
+        if (!IsSetup) return -1;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.Level, -1);
     }
-    public void GetPlayerCPExp()
+    public int GetPlayerCPExp()
     {
-        if (IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.Exp, -1);
+        if (IsSetup) return -1;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.Exp, -1);
     }
-    public void GetPlayerCPKarId()
+    public int GetPlayerCPKarId()
     {
-        if (!IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.KartId, -1);
+        if (!IsSetup) return -1;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.KartId, -1);
     }
-    public void GetPlayerCPCharacterId()
+    public int GetPlayerCPCharacterId()
     {
-        if (!IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.CharacterId, -1);
+        if (!IsSetup) return -1;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.CharacterId, -1);
     }
-    public void GetPlayerCPHopeRaceMapId()
+    public int GetPlayerCPHopeRaceMapId()
     {
-        if (!IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.HopeRaceMapId, -1);
+        if (!IsSetup) return -1;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.HopeRaceMapId, -1);
     }
-    public void GetPlayerCPMatchReady()
+    public bool GetPlayerCPMatchReady()
     {
-        if (!IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.MatchReady, false);
+        if (!IsSetup) return false;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.MatchReady, false);
     }
-    public void GetPlayerCPRaceLoaded()
+    public bool GetPlayerCPRaceLoaded()
     {
-        if (!IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.RaceLoaded, false);
+        if (!IsSetup) return false;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.RaceLoaded, false);
     }
-    public void GetPlayerCPRaceIsFinished()
+    public bool GetPlayerCPRaceIsFinished()
     {
-        if (!IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.RaceIsFinished, false);
+        if (!IsSetup) return false;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.RaceIsFinished, false);
     }
-    public void GetPlayerCPRaceFinishedTime()
+    public double GetPlayerCPRaceFinishedTime()
     {
-        if (!IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.RaceFinishedTime, -1.0f);
+        if (!IsSetup) return -1.0f;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.RaceFinishedTime, -1.0f);
     }
-    public void GetPlayerCPCurrentScene()
+    public SceneID GetPlayerCPCurrentScene()
     {
-        if (!IsSetup) return;
-        PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.CurrentScene, SceneID.None);
+        if (!IsSetup) return SceneID.None;
+        return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.CurrentScene, SceneID.None);
     }
     public int GetPlayerCPVoteIndex()
     {
