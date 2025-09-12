@@ -47,7 +47,7 @@ MonoBehaviour:
     m_SerializedLabels:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: cc40445874badd94cafb38c3ac1aa433
+  - m_GUID: dd2c69cd0537ea245ab40ee695a4781a
     m_Address: Audio/BGM/LobbyBGM
     m_ReadOnly: 0
     m_SerializedLabels:

@@ -49,6 +49,7 @@ namespace YTW
         private const string MASTER_VOLUME_KEY = "MasterVolume";
         private const string BGM_VOLUME_KEY = "BGMVolume";
         private const string SFX_VOLUME_KEY = "SFXVolume";
+        public event System.Action Initialized;
 
         #region 초기화
         protected override void Awake()
@@ -103,6 +104,7 @@ namespace YTW
             LoadVolumeSettings();
             _isInitialized = true;
             Debug.Log("[AudioManager] 비동기 초기화 및 오디오 프리로딩 완료.");
+            Initialized?.Invoke();
         }
 
         // AudioDB에 등록된 모든 오디오 데이터를 돌면서 해당 오디오 클립을 Addressables에서 미리 로드
@@ -146,6 +148,7 @@ namespace YTW
         // name: 재생할 BGM의 이름, fadeTime: 전환 시간, forceRestart: 이미 같은 BGM이 나올 때 강제로 다시 재생할지 여부
         public void PlayBGM(string name, float fadeTime = 1.0f, bool forceRestart = false)
         {
+
             if (!IsInitialized) { Debug.LogWarning("AudioManager가 아직 준비되지 않아 BGM을 재생할 수 없습니다."); return; }
 
             if (!_audioDataDict.TryGetValue(name.Trim(), out var data) || data?.Clip == null)
