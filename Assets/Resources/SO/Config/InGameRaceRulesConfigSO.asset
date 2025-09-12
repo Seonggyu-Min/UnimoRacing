@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58439cdc2b858fd4d965c293b7503597, type: 3}
   m_Name: InGameRaceRulesConfigSO
   m_EditorClassIdentifier: 
-  laps: 1
+  laps: 2
   countdownSeconds: 3
   finishSeconds: 10
   postGameSeconds: 10
-  timeLimitSeconds: 0
   playablePlayersCount: 2
   itemsEnabled: 1
