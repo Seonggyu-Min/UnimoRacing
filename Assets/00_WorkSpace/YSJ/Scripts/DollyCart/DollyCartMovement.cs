@@ -26,7 +26,7 @@ public class DollyCartMovement : MonoBehaviour
     [SerializeField] private float smoothingHz = 8f;
     [SerializeField] private float snapIfDiffOver = 0.25f;
 
-    public Action<float> OnMovementProgress;
+    public Action<int, float> OnMovementProgress;
 
     public bool IsSetup => _isSetup;
 
@@ -65,7 +65,7 @@ public class DollyCartMovement : MonoBehaviour
         {
             ChangeSpeed(_data.KartSpeed);
             _cart.m_Position = Wrap(_cart.m_Position + (_cartSpeed * Time.deltaTime));
-            OnMovementProgress?.Invoke(_cart.m_Position);
+            OnMovementProgress?.Invoke(Mathf.FloorToInt(_posUnwrapped), _cart.m_Position);
 
             _posUnwrapped = RewrapToNear(_posUnwrapped, _cart.m_Position);
             _targetUnwrapped = _posUnwrapped;
@@ -100,7 +100,7 @@ public class DollyCartMovement : MonoBehaviour
         }
 
         _cart.m_Position = Wrap(_posUnwrapped);
-        OnMovementProgress?.Invoke(_cart.m_Position);
+        OnMovementProgress?.Invoke(Mathf.FloorToInt(_posUnwrapped), _cart.m_Position);
     }
 
     public void ChangeSpeed(float speed, PhotonMessageInfo info = default)
