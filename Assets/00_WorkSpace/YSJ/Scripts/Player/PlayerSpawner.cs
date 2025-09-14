@@ -23,8 +23,8 @@ public class PlayerSpawner : MonoBehaviour
         }
         else
         {
-            InGameManager.Instance.OnRaceState_WaitPlayer -= OnSpawnAction;
-            InGameManager.Instance.OnRaceState_WaitPlayer += OnSpawnAction;
+            InGameManager.Instance.OnRaceState_LoadPlayers -= OnSpawnAction;
+            InGameManager.Instance.OnRaceState_LoadPlayers += OnSpawnAction;
         }
     }
 
