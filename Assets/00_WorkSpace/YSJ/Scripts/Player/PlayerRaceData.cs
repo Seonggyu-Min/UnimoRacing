@@ -84,7 +84,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     public DollyCartMovement Movement => _cartMovement;
 
 
-
     #region Unity
     private void Awake()
     {
@@ -99,7 +98,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _raceAniCtrl = gameObject.GetOrAddComponent<UnimoRaceAnimationController>();
 
         _sync = gameObject.GetOrAddComponent<DollyCartSync>();
-
 
         _inGM = InGameManager.Instance;
         _isEndRace = false;
@@ -266,9 +264,11 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             if (_inGM != null && _lap >= _inGM.RaceEndLapCount)
             {
                 PhotonNetworkCustomProperties.LocalPlayerRaceFinishedSetting(PhotonNetwork.Time);
+                
                 _isControlable = false;
                 _isMovable = false;
                 _isItemUsable = false;
+
                 _isEndRace = true;
             }
         }
@@ -409,7 +409,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         // 플레이어의 커스텀 프롬퍼티 생성 시점 > 매칭이 되었을 때
         // 룸데이터는 그 이전에 되어 있어야된다.
         var pm = PlayerManager.Instance;
-        pm.SetPlayerCPCurrentScene(SceneID.InGameScene);
         pm.SetPlayerCPRaceLoaded(true);
     }
 
