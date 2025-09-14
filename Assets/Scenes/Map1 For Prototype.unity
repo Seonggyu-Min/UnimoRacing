@@ -2535,7 +2535,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0ccb349b2ecf584285d0e74783c06eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isDontDestroyOnLoad: 1
+  _isDontDestroyOnLoad: 0
   _raceRulesConfig: {fileID: 11400000, guid: 7feeb0493e0cffc4ebc6df9894081c0c, type: 2}
 --- !u!1 &2068057157
 GameObject:
