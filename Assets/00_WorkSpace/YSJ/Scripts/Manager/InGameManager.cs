@@ -259,7 +259,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         switch (state)
         {
             case RaceState.WaitPlayer:
-                InGameSetupLocalPlayer();
                 Check_Players_CurrentScene();
                 // 후 처리
                 OnRaceState_WaitPlayer?.Invoke();

@@ -3,11 +3,13 @@ using System.Collections;
 using UnityEngine;
 using YSJ.Util;
 
-[DefaultExecutionOrder(400)]
 public class PlayerSpawner : MonoBehaviour
 {
     [Header("Injecter")]
     [SerializeField] private bool _isUseInjecter = false;
+    
+    [Header("Config")]
+    [SerializeField] private bool _isStartDirectSpawn = false;
 
     private GameObject _baseGO;
 
@@ -15,17 +17,31 @@ public class PlayerSpawner : MonoBehaviour
 
     private void Start()
     {
-        _baseGO = Resources.Load<GameObject>(LoadPath.PLAYER_BASE_PREFAB_PATH);
-        if (_baseGO == null)
+        if (_isStartDirectSpawn)
         {
-            this.PrintLog("플레이어 베이스 프리팹이 없습니다.");
-            return;
+            StartCoroutine(CO_PlayerSpanwe());
         }
+        else
+        {
+            InGameManager.Instance.OnRaceState_WaitPlayer -= OnSpawnAction;
+            InGameManager.Instance.OnRaceState_WaitPlayer += OnSpawnAction;
+        }
+    }
+
+    private void OnSpawnAction()
+    {
         StartCoroutine(CO_PlayerSpanwe());
     }
 
     private IEnumerator CO_PlayerSpanwe()
     {
+        _baseGO = Resources.Load<GameObject>(LoadPath.PLAYER_BASE_PREFAB_PATH);
+        if (_baseGO == null)
+        {
+            this.PrintLog("플레이어 베이스 프리팹이 없습니다.");
+            yield break;
+        }
+
         this.PrintLog("플레이어, 룸에 들어와 있는지 확인중");
         while (!IsSpawnable || !TrackPathRegistry.Instance.IsInit)
         {
