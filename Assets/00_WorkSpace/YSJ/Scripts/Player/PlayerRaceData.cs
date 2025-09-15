@@ -117,6 +117,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         // 프리팹 생성
         _kartBody = GameObject.Instantiate(_kartSO.kartPrefab, transform);
+        _kartBody.transform.position = Vector3.zero;
+
 
         // 생성한 카트 바디 오브젝트의 sitPoint 찾기
         var findSitPoint = _kartBody.GetChild<Transform>(_sitPointName);
