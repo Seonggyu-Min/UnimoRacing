@@ -33,12 +33,13 @@ namespace MSG
 
             // 방이 여유 있는지 다시 체크 후 초대
             int free = PhotonNetwork.CurrentRoom.MaxPlayers - PhotonNetwork.CurrentRoom.PlayerCount;
-            if (free >= partySize - 1)
+            if (free >= partySize/* - 1*/)
             {
                 foreach (string uid in PartyService.Instance.Members)
                 {
                     if (uid == PartyService.Instance.LeaderUid) continue;
                     _chat.SendInvite(uid, PhotonNetwork.CurrentRoom.Name);
+                    Debug.Log($"CurrentRoom.Name = {PhotonNetwork.CurrentRoom.Name}");
                 }
             }
         }
