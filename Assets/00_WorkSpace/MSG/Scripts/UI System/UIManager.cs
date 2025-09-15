@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EditorAttributes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,13 +9,11 @@ namespace MSG
 {
     public class UIManager : Singleton<UIManager>
     {
+        #region Fields
+
         private Dictionary<string, UIUnit> _units = new();
-
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.F1)) DebugUnits();
-        }
+        
+        #endregion
 
 
         #region Public Methods
@@ -70,9 +69,20 @@ namespace MSG
 
         #endregion
 
+
+        #region Debuggers
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F1)) DebugUnits();
+        }
+
+        [Button("Debug Units")]
         private void DebugUnits()
         {
             foreach (var unit in _units) Debug.Log($"등록된 유닛: {unit.Key}");
         }
+
+        #endregion
     }
 }
