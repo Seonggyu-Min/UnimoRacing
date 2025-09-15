@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
@@ -17,7 +18,7 @@ namespace PJW
             public int weight = 1; // 아이템 등장 확률 조정
         }
 
-        [Header("아이템 목록(전부 드래그)")]
+        [Header("아이템 목록")]
         [SerializeField] private WeightedItem[] items;
 
         [Header("설정")]
@@ -25,6 +26,9 @@ namespace PJW
 
         [Header("회전 설정")]
         [SerializeField] private Vector3 rotationSpeed = new Vector3(0f, 60f, 0f);
+
+        [Header("사운드 키")]
+        [SerializeField] private string sfxGetKey = "ItemGet";      // 아이템 획득 (2D)
 
         private Collider boxCollider;
         private Renderer[] renders;
@@ -58,20 +62,20 @@ namespace PJW
             var pv = other.GetComponentInParent<PhotonView>();
             if (pv == null) return;
 
-            // 마스터만 지급 결정
             if (!PhotonNetwork.IsMasterClient) return;
 
             // 플레이어 인벤토리 확인
             var inventory = other.GetComponentInParent<PlayerItemInventory>();
             if (inventory == null) return;
 
-            // ⬇️ 변경 포인트: 가득 차 있으면 지급하지 않음
+            // 가득 차 있으면 지급하지 않음
             if (inventory.IsFull) return;
 
             // 추첨
             int idx = DrawIndex();
             var prefab = items[idx].itemPrefab;
             if (prefab == null) return;
+
 
             // 소유자 클라이언트의 인벤토리에 아이템 지급
             photonView.RPC(nameof(RpcGiveItem), pv.Owner, prefab.name);
@@ -126,13 +130,18 @@ namespace PJW
             if (myInventory != null && found != null)
             {
                 myInventory.AssignItemPrefab(found);
+
+                if (!string.IsNullOrWhiteSpace(sfxGetKey) && AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySFX(sfxGetKey);
+                }
             }
         }
 
         // 아이템 먹을시 비활성화 처리함
         private IEnumerator ConsumeAndRespawn()
         {
-            if (!PhotonNetwork.IsMasterClient) yield break; // 마스터 클라이언트만 수행
+            if (!PhotonNetwork.IsMasterClient) yield break; 
             photonView.RPC(nameof(RPCSetActiveVisualRandomBox), RpcTarget.All, false); // 박스 비활성화 전파
             yield return new WaitForSeconds(respawnTime);
             photonView.RPC(nameof(RPCSetActiveVisualRandomBox), RpcTarget.All, true);  // 박스 활성화 전파
