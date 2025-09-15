@@ -102,6 +102,10 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         if (CurrentRoom != null)
         {
             this.PrintLog($"초기 상태 동기화 실행");
+
+            this.PrintLog("플레이어 데이터 세팅");
+            PlayerManager.Instance.SetPlayerCPCurrentScene(SceneID.InGameScene);
+
             if (IsMasterClient)
             {
                 this.PrintLog($"Master Client > Send Race State");
@@ -259,7 +263,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         switch (state)
         {
             case RaceState.WaitPlayer:
-                InGameSetupLocalPlayer();
                 Check_Players_CurrentScene();
                 // 후 처리
                 OnRaceState_WaitPlayer?.Invoke();
@@ -336,16 +339,11 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         return RaceState.WaitPlayer;
     }
 
-    // Enter
-    private void InGameSetupLocalPlayer()
-    {
-        this.PrintLog("플레이어 데이터 세팅");
-        PlayerManager.Instance.SetPlayerCPCurrentScene(SceneID.InGameScene);
-    }
-
     // CP Update
     private void Check_Players_CurrentScene()
     {
+       
+
         this.PrintLog("Checked >>>>>>>>>>>>> Check_Players_CurrentScene");
         if (!IsMasterClient || CurrentRoom == null) return;
 

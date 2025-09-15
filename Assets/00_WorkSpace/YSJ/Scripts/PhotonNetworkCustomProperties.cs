@@ -775,7 +775,7 @@ public static class PhotonNetworkCustomProperties
         );
     }
 
-    public static void LocalPlayerRaceFinishedSetting(float finishTime)
+    public static void LocalPlayerRaceFinishedSetting(double finishTime)
     {
         if (!PhotonNetwork.InRoom) return;
 
