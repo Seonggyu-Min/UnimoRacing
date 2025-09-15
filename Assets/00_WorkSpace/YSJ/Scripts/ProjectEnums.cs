@@ -23,6 +23,7 @@ public enum SceneID
 {
     None = 0,
     TitleScene,
+    LobbyScene,
     InGameScene,
 }
 

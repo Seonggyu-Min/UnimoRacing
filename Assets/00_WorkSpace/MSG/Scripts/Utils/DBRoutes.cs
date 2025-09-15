@@ -55,8 +55,8 @@ namespace MSG
 
 
         // ----- Daily Missions -----
-        public static string DailyMissions(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.dailyMissions); // 전체 일일 미션, value는 missionId
-        public static string DailyMission(string uid, int missionId) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.dailyMissions, missionId.ToString()); // 특정 일일 미션, value는 bool (완료 여부)
+        //public static string DailyMissions(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.dailyMissions); // 전체 일일 미션, value는 missionId
+        //public static string DailyMission(string uid, int missionId) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.dailyMissions, missionId.ToString()); // 특정 일일 미션, value는 bool (완료 여부)
 
 
         // ----- Friend Links -----
@@ -91,6 +91,7 @@ namespace MSG
 
         // ----- Missions -----
         public static string MissionsRoot => DBPathMaker.Join(DatabaseKeys.missions);
+        public static string UserMissionsRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions);
         public static string UserDailyMissionRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.daily);
         public static string UserAchievementMissionRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.achievement);
 
