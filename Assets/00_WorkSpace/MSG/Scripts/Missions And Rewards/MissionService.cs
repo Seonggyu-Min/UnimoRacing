@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -23,6 +22,18 @@ namespace MSG
             HashCode.Combine(Verb, Obj, Party, Subtype ?? "");
     }
 
+    /// <summary>
+    /// MissionEntry에 포함되지 않는 개인별 진행도, 미션 달성 여부, 미션 보상 수령 여부 등을 포함하기 위한 클래스입니다.
+    /// </summary>
+    public class MissionWrapper
+    {
+        public MissionGroup MissionGroup;       // 데일리인지, 도전과제인지
+        public MissionEntry MissionEntry;
+        public int Progress;                    // 진행도
+        public bool Cleared;                    // 미션 달성 여부
+        public bool Claimed;                    // 미션 보상 수령 여부
+    }
+
 
     public class MissionService : Singleton<MissionService>
     {
@@ -30,8 +41,8 @@ namespace MSG
 
         [SerializeField] private GameObject _rewardPanel; // 이거 띄우기 위해서, TODO: 이거 전체가 버튼으로써 OnClick에 SetActive false 지정되면 될 듯
 
-        private readonly Dictionary<int, MissionEntry> _dailyDefs = new();
-        private readonly Dictionary<int, MissionEntry> _achievementDefs = new();
+        private readonly Dictionary<int, MissionEntry> _dailyEntries = new();
+        private readonly Dictionary<int, MissionEntry> _achievementEntries = new();
         private readonly Dictionary<MatchKey, List<int>> _dailyIndex = new();
         private readonly Dictionary<MatchKey, List<int>> _achvIndex = new();
 
@@ -64,18 +75,20 @@ namespace MSG
                 DBRoutes.MissionsRoot,
                 snap =>
                 {
-                    ParseMissionDefs(snap);
+                    ParseMissionEntries(snap);
                     Debug.Log("[MissionService] 미션 로딩 성공");
+
+                    EnsureDailyOfToday(); // 일단 여기서 호출함
                 },
                 err => Debug.LogWarning($"[MissionService] 미션 로딩 실패: {err}")
             );
         }
 
         // 미션 파싱 및 캐싱
-        private void ParseMissionDefs(DataSnapshot root)
+        private void ParseMissionEntries(DataSnapshot root)
         {
-            _dailyDefs.Clear();
-            _achievementDefs.Clear();
+            _dailyEntries.Clear();
+            _achievementEntries.Clear();
 
             // 데일리 미션
             var dailyNode = root.Child(DatabaseKeys.daily);
@@ -99,7 +112,7 @@ namespace MSG
                         PartyCondition = ToEnum(child.Child(DatabaseKeys.partyCondition).Value?.ToString(), PartyCondition.Any),
                         // SubKey 추가 필요 시 삽입
                     };
-                    _dailyDefs[index] = entry;
+                    _dailyEntries[index] = entry;
                 }
             }
 
@@ -125,7 +138,7 @@ namespace MSG
                         PartyCondition = ToEnum(child.Child(DatabaseKeys.partyCondition).Value?.ToString(), PartyCondition.Any),
                         // SubKey 추가 필요 시 삽입
                     };
-                    _achievementDefs[index] = entry;
+                    _achievementEntries[index] = entry;
                 }
             }
 
@@ -186,9 +199,9 @@ namespace MSG
         /// <param name="index">보상을 수령할 미션의 index</param>
         public void ClaimDaily(int index)
         {
-            if (!_dailyDefs.TryGetValue(index, out MissionEntry def))
+            if (!_dailyEntries.TryGetValue(index, out MissionEntry entry))
             {
-                Debug.LogWarning($"데일리 미션이 _dailyDefs에 없습니다: {index}");
+                Debug.LogWarning($"데일리 미션이 _dailyEntries에 없습니다: {index}");
                 return;
             }
 
@@ -205,7 +218,7 @@ namespace MSG
                     }
 
                     // 지급
-                    RewardManager.Instance.AddMoney(def.MoneyType, def.RewardQuantity);
+                    RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
                     // TODO: 수령 UI 표기
 
                     // 수령 마크
@@ -223,9 +236,9 @@ namespace MSG
         /// <param name="index">보상을 수령할 미션의 index</param>
         public void ClaimAchievement(int index)
         {
-            if (!_achievementDefs.TryGetValue(index, out MissionEntry def))
+            if (!_achievementEntries.TryGetValue(index, out MissionEntry entry))
             {
-                Debug.LogWarning($"achievement 미션이 _achievementDefs 없습니다: {index}");
+                Debug.LogWarning($"achievement 미션이 _achievementEntries 없습니다: {index}");
                 return;
             }
 
@@ -240,7 +253,7 @@ namespace MSG
                         return TransactionResult.Abort();
 
                     // 지급
-                    RewardManager.Instance.AddMoney(def.MoneyType, def.RewardQuantity);
+                    RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
                     // TODO: 수령 UI 표기
 
                     // 수령 마크
@@ -249,6 +262,25 @@ namespace MSG
                 },
                 _ => Debug.Log("[MissionService] achievement 미션 보상 수령 완료"),
                 err => Debug.Log($"[MissionService] achievement 미션 보상 수령 실패: {err}")
+            );
+        }
+
+        /// <summary>
+        /// 유저의 미션 현황을 확인합니다.
+        /// </summary>
+        public void LoadUserMissions(Action<List<MissionWrapper>> onSuccess, Action<string> onError = null)
+        {
+            DatabaseManager.Instance.GetOnMain(
+                DBRoutes.UserMissionsRoot(CurrentUid),
+                snap =>
+                {
+                    var dailySnap = snap?.Child(DatabaseKeys.daily);
+                    var achvSnap = snap?.Child(DatabaseKeys.achievement);
+
+                    var wrapper = BuildMissionWrapper(dailySnap, achvSnap);
+                    onSuccess?.Invoke(wrapper);
+                },
+                err => onError?.Invoke(err)
             );
         }
 
@@ -269,6 +301,13 @@ namespace MSG
             return Enum.TryParse<TEnum>(s, out var e) ? e : fallback;
         }
 
+        private bool ToBool(object v)
+        {
+            if (v == null) return false;
+            bool.TryParse(v.ToString(), out bool b);
+            return b;
+        }
+
         private string GetServerDateKey()
         {
             return DateTime.UtcNow.ToString("yyyy-MM-dd");
@@ -280,7 +319,7 @@ namespace MSG
             _dailyIndex.Clear();
             _achvIndex.Clear();
 
-            foreach (var e in _dailyDefs.Values)
+            foreach (var e in _dailyEntries.Values)
             {
                 if (e.PartyCondition == PartyCondition.Any)
                 {
@@ -294,7 +333,7 @@ namespace MSG
                 }
             }
 
-            foreach (var e in _achievementDefs.Values)
+            foreach (var e in _achievementEntries.Values)
             {
                 if (e.PartyCondition == PartyCondition.Any)
                 {
@@ -306,6 +345,8 @@ namespace MSG
                     Add(_achvIndex, e, e.PartyCondition);
                 }
             }
+
+            Debug.Log("BuildIndexes 호출 완료");
         }
 
         private void Add(Dictionary<MatchKey, List<int>> dict, MissionEntry e, PartyCondition partyKey)
@@ -351,7 +392,7 @@ namespace MSG
                         mutable.Child(DatabaseKeys.progress).Child(id.ToString()).Value = next;
 
                         // 목표에 도달했으면 완료 처리
-                        if (_dailyDefs.TryGetValue(id, out var def) && next >= def.TargetCount)
+                        if (_dailyEntries.TryGetValue(id, out var entry) && next >= entry.TargetCount)
                         {
                             mutable.Child(DatabaseKeys.cleared).Child(id.ToString()).Value = true;
                         }
@@ -385,7 +426,7 @@ namespace MSG
                         mutable.Child(DatabaseKeys.progress).Child(id.ToString()).Value = next;
 
                         // 목표에 도달했으면 완료 처리
-                        if (_achievementDefs.TryGetValue(id, out var def) && next >= def.TargetCount)
+                        if (_achievementEntries.TryGetValue(id, out var entry) && next >= entry.TargetCount)
                         {
                             mutable.Child(DatabaseKeys.cleared).Child(id.ToString()).Value = true;
                         }
@@ -395,6 +436,40 @@ namespace MSG
                 _ => { Debug.Log("[MissionService] Achievement 미션 업데이트 완료"); },
                 err => Debug.LogWarning(err)
             );
+        }
+
+        private List<MissionWrapper> BuildMissionWrapper(DataSnapshot dailySnap, DataSnapshot achvSnap)
+        {
+            var list = new List<MissionWrapper>();
+            list.AddRange(BuildMissionWrapperForGroup(MissionGroup.Daily, _dailyEntries, dailySnap));
+            list.AddRange(BuildMissionWrapperForGroup(MissionGroup.Achievement, _achievementEntries, achvSnap));
+            return list;
+        }
+
+        private List<MissionWrapper> BuildMissionWrapperForGroup(MissionGroup group, Dictionary<int, MissionEntry> entries, DataSnapshot snap)
+        {
+            List<MissionWrapper> wrapper = new();
+            if (entries == null) return wrapper;
+
+            foreach (var kv in entries)
+            {
+                int index = kv.Key;
+                var entry = kv.Value;
+
+                int progress = ToInt(snap?.Child(DatabaseKeys.progress)?.Child(index.ToString())?.Value);
+                bool cleared = ToBool(snap?.Child(DatabaseKeys.cleared)?.Child(index.ToString())?.Value);
+                bool claimed = ToBool(snap?.Child(DatabaseKeys.claimed)?.Child(index.ToString())?.Value);
+
+                wrapper.Add(new MissionWrapper
+                {
+                    MissionGroup = group,
+                    MissionEntry = entry,
+                    Progress = progress,
+                    Cleared = cleared,
+                    Claimed = claimed
+                });
+            }
+            return wrapper;
         }
 
         #endregion
