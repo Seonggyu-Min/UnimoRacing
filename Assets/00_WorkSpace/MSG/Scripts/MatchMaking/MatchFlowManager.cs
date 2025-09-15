@@ -18,6 +18,7 @@ namespace MSG
         [SerializeField] private PartyJoinPanel _partyJoinPanel;
 
         private bool _initialized = false;
+        private bool _isJoiningInvite = false;
 
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
 
@@ -45,6 +46,12 @@ namespace MSG
                 Debug.LogWarning("[OnPartyChanged] 게임 중에 파티가 변경되어 return");
                 return;
             }
+            if (_isJoiningInvite && PartyService.Instance.IsInParty)
+            {
+                Debug.LogWarning("[OnPartyChanged] 초대에 의한 참여 중에 파티가 변경되어 return");
+                return;
+            }
+
             string home = GetCurrentHome();
 
             Debug.Log($"[OnPartyChanged] IsInParty: {PartyService.Instance.IsInParty}, Leader: {PartyService.Instance.LeaderUid}, home: {home}");
@@ -136,7 +143,9 @@ namespace MSG
             {
                 case DMType.Invite:
                     if (PartyService.Instance.IsInParty && PartyService.Instance.IsLeader) return;
-                    await _followerMatch.JoinInviteAsync(payload);
+                    _isJoiningInvite = true;
+                    try { await _followerMatch.JoinInviteAsync(payload); }
+                    finally { _isJoiningInvite = false; }
                     break;
 
                 case DMType.Out:
