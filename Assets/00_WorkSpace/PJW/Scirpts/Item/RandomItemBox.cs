@@ -36,6 +36,7 @@ namespace PJW
             boxCollider = GetComponent<Collider>();
             renders = GetComponentsInChildren<Renderer>(true);
 
+            // 아이콘 레지스트리 등록
             foreach (var it in items)
             {
                 if (it != null && it.itemPrefab != null && it.icon != null)
@@ -57,21 +58,25 @@ namespace PJW
             var pv = other.GetComponentInParent<PhotonView>();
             if (pv == null) return;
 
+            // 마스터만 지급 결정
             if (!PhotonNetwork.IsMasterClient) return;
 
             // 플레이어 인벤토리 확인
             var inventory = other.GetComponentInParent<PlayerItemInventory>();
             if (inventory == null) return;
 
-            if (inventory.HasItem) return;
+            // ⬇️ 변경 포인트: 가득 차 있으면 지급하지 않음
+            if (inventory.IsFull) return;
 
             // 추첨
             int idx = DrawIndex();
             var prefab = items[idx].itemPrefab;
             if (prefab == null) return;
 
+            // 소유자 클라이언트의 인벤토리에 아이템 지급
             photonView.RPC(nameof(RpcGiveItem), pv.Owner, prefab.name);
 
+            // 상자 소비 & 리스폰
             if (respawnCO != null)
             {
                 StopCoroutine(respawnCO);
@@ -102,7 +107,7 @@ namespace PJW
 
             if (found == null)
             {
-                found = Resources.Load<GameObject>(prefabName); 
+                found = Resources.Load<GameObject>(prefabName);
             }
 
             var allInventories = FindObjectsOfType<PlayerItemInventory>();
@@ -125,12 +130,12 @@ namespace PJW
         }
 
         // 아이템 먹을시 비활성화 처리함
-        private IEnumerator ConsumeAndRespawn() 
+        private IEnumerator ConsumeAndRespawn()
         {
             if (!PhotonNetwork.IsMasterClient) yield break; // 마스터 클라이언트만 수행
             photonView.RPC(nameof(RPCSetActiveVisualRandomBox), RpcTarget.All, false); // 박스 비활성화 전파
             yield return new WaitForSeconds(respawnTime);
-            photonView.RPC(nameof(RPCSetActiveVisualRandomBox), RpcTarget.All, true); // 박스 활성화 전파
+            photonView.RPC(nameof(RPCSetActiveVisualRandomBox), RpcTarget.All, true);  // 박스 활성화 전파
         }
 
         [PunRPC]
