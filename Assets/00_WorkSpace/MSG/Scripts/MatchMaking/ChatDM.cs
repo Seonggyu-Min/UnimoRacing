@@ -62,7 +62,7 @@ namespace MSG
             TryConnect();
         }
 
-        public void SendInvite(string uid, string roomName) { Send(uid, Build("INVITE", roomName)); }
+        public void SendInvite(string uid, string roomName) { Send(uid, Build("INVITE", roomName)); Debug.Log($"파티 초대 보냄, 방 이름 {roomName}"); }
         public void SendOut(string uid) { Send(uid, Build("OUT", string.Empty)); }
         public void SendRecall(string uid, string homeRoom) { Send(uid, Build("RECALL", homeRoom)); }
         public void SendCancel(string uid) { Send(uid, Build("CANCEL", string.Empty)); }
