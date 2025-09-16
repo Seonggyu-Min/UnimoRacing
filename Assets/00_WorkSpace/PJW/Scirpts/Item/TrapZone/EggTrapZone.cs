@@ -11,7 +11,7 @@ namespace PJW
     [RequireComponent(typeof(PhotonView))]
     public class EggTrapZone : MonoBehaviourPun
     {
-        [Header("동작 파라미터 (Banana와 동일 동작)")]
+        [Header("동작 파라미터")]
         [SerializeField] private float boostMultiplier = 2f;
         [SerializeField] private float boostTime = 1f;
         [SerializeField] private float waitAfterBoost = 1f;
@@ -31,14 +31,14 @@ namespace PJW
             public CinemachineDollyCart cart;
             public Rigidbody rb;
 
-            public float originalRacerSpeed;   // racer 있을 때만 유효
-            public float originalCartSpeed;    // cart 있을 때만 유효
+            public float originalRacerSpeed;  
+            public float originalCartSpeed;   
             public bool cartWasEnabled;
 
             public bool rbHad;
             public bool rbWasKinematic;
 
-            public bool canceled;              // 교체 시 true
+            public bool canceled;        
         }
 
         private class EffectRunner : MonoBehaviour
