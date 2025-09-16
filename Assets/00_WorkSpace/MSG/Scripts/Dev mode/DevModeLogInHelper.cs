@@ -1,7 +1,6 @@
-﻿#if UNITY_EDITOR
+﻿#if UNITY_EDITOR || UNITY_STANDALONE_WIN
 #define UNITY_DEV_MODE
 #endif
-
 
 using Firebase.Auth;
 using Photon.Pun;
