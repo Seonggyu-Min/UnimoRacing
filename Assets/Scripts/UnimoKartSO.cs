@@ -18,6 +18,10 @@ public class UnimoKartSO : ScriptableObject
     [Tooltip("차량 스프라이트")]
     public Sprite kartSprite;
 
+    [Header("Shop")]
+    [Tooltip("재화 타입에 해당하는 아이콘")]
+    public Sprite currencyType;
+
 
     [TextArea]
     [Tooltip("차량 설명")]

@@ -99,7 +99,7 @@ namespace MSG.Deprecated
                 BuyButtonBehaviour button = Instantiate(_buyButtonPrefab, _unimoParent);
                 button.name = $"UnimoButton_{so.characterName}";
 
-                button.SetupButton(so.characterName, so.characterSprite, string.Empty);
+                button.SetupButton(so.characterName, so.characterSprite, string.Empty, so.currencyType);
                 button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Unimo, so.characterId);
 
                 _unimoDict.Add(so.characterId, button);
@@ -115,7 +115,7 @@ namespace MSG.Deprecated
                 BuyButtonBehaviour button = Instantiate(_buyButtonPrefab, _kartParent);
                 button.name = $"KartButton_{so.carName}";
 
-                button.SetupButton(so.carName, so.kartSprite, string.Empty);
+                button.SetupButton(so.carName, so.kartSprite, string.Empty, so.currencyType);
                 button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Kart, so.KartID);
 
                 _kartDict.Add(so.KartID, button);
