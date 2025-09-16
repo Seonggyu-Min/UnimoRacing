@@ -36,11 +36,8 @@ public class ShopListManager : PopupBase
     #region Unity Methods
     private void OnEnable()
     {
-        if (!_isGenerated)
-        {
-            GenerateButtons();
-            _isGenerated = true;
-        }
+        // OnEnable()은 구독만 시작합니다.
+        // 버튼 생성은 데이터가 도착하면 스냅샷 콜백에서 처리합니다.
         SubscribeInventory();
     }
 
@@ -67,7 +64,6 @@ public class ShopListManager : PopupBase
             button.SetupButton(so.characterName, so.characterSprite, string.Empty, so.currencyType);
             button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Unimo, so.characterId);
             _unimoDict.Add(so.characterId, button);
-            button.RefreshItemState(0);
         }
 
         // 카트 버튼 생성
@@ -81,7 +77,6 @@ public class ShopListManager : PopupBase
             button.SetupButton(so.carName, so.kartSprite, string.Empty, so.currencyType);
             button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Kart, so.KartID);
             _kartDict.Add(so.KartID, button);
-            button.RefreshItemState(0);
         }
     }
 
@@ -110,32 +105,41 @@ public class ShopListManager : PopupBase
 
     private void OnUnimoInventorySnapshot(DataSnapshot snap)
     {
+        // 버튼이 아직 생성되지 않았다면, 지금 생성합니다.
+        // 이렇게 하면 인벤토리 데이터를 가지고 있는 상태에서 UI를 만들 수 있습니다.
+        if (!_isGenerated)
+        {
+            GenerateButtons();
+            _isGenerated = true;
+        }
+
         var inventoryData = snap.Value as Dictionary<string, object> ?? new Dictionary<string, object>();
 
-        // 로컬 사전에 있는 모든 버튼을 반복합니다.
         foreach (var kv in _unimoDict)
         {
             int unimoId = kv.Key;
             BuyButtonBehaviour button = kv.Value;
-
-            // 현재 Unimo ID가 Firebase 데이터에 있는지 확인하세요.
             if (inventoryData.ContainsKey(unimoId.ToString()))
             {
-                // 만약 있다면, 사용자가 소유합니다. 레벨을 0보다 큰 값으로 설정하세요.
-                button.RefreshItemState(1); // 소유권을 나타내려면 1 이상으로 설정하세요.
+                button.RefreshItemState(1); // 1: 소유 중
             }
             else
             {
-                // 해당 항목이 없으면 사용자가 소유하지 않은 것입니다. 값을 0으로 설정하세요.
-                button.RefreshItemState(0);
+                button.RefreshItemState(0); // 0: 소유하지 않음
             }
         }
     }
 
     private void OnKartInventorySnapshot(DataSnapshot snap)
     {
-        var inventoryData = snap.Value as Dictionary<string, object> ?? new Dictionary<string, object>();
+        // 버튼이 아직 생성되지 않았다면, 지금 생성합니다.
+        if (!_isGenerated)
+        {
+            GenerateButtons();
+            _isGenerated = true;
+        }
 
+        var inventoryData = snap.Value as Dictionary<string, object> ?? new Dictionary<string, object>();
         foreach (var kv in _kartDict)
         {
             int kartId = kv.Key;
