@@ -3,19 +3,20 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using YSJ.Util;
-using static UnityEditor.Progress;
 
 // 시스템
 [RequireComponent(typeof(PhotonView))] // 네트워크
 [RequireComponent(typeof(CinemachineDollyCart))] // 이동
 
 // 필수 기능 추가
-[RequireComponent(typeof(DollyCartController            ))] // 경로 컨트롤
-[RequireComponent(typeof(DollyCartMovement              ))] // 이동 제어
-[RequireComponent(typeof(PlayerInventory                ))] // 인벤
-[RequireComponent(typeof(UnimoSynergySystem             ))] // 시너지
-[RequireComponent(typeof(UnimoRaceAnimationController   ))] // 유니모 애니메이션 컨트롤러
-[RequireComponent(typeof(DollyCartSync                  ))] // 싱크(=동기화)
+[RequireComponent(typeof(DollyCartController))] // 경로 컨트롤
+[RequireComponent(typeof(DollyCartMovement))] // 이동 제어
+
+[RequireComponent(typeof(PlayerInventory))] // 인벤
+[RequireComponent(typeof(UnimoSynergySystem))] // 시너지
+[RequireComponent(typeof(UnimoRaceAnimationController))] // 유니모 애니메이션 컨트롤러
+
+[RequireComponent(typeof(DollyCartSync))] // 싱크(=동기화)
 public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 {
     private const float EPS = 0.0001f; // 미세 흔들림 방지
@@ -36,6 +37,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     [SerializeField] private bool _isMovable = true;        // 이동 가능 여부
     [SerializeField] private bool _isItemUsable = true;     // 아이템 사용가능 여부
 
+    private bool _isEndRace = false;
     private int _currentTrackIndex = -1;
     private int _lap = 0;
     private float _norm = 0.0f;
@@ -48,12 +50,17 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     private DollyCartController _cartController;
     private DollyCartMovement _cartMovement;
+    private PlayerInventory _playerInventory;
 
-    private UnimoRaceAnimationController _raceAniCtrl;
     private UnimoSynergySystem _synergySystem;
+    private UnimoRaceAnimationController _raceAniCtrl;
+
     private DollyCartSync _sync;
 
+
+
     private InGameManager _inGM;
+
 
 
     private int _characterID = -1;
@@ -77,7 +84,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     public DollyCartMovement Movement => _cartMovement;
 
 
-
     #region Unity
     private void Awake()
     {
@@ -86,9 +92,15 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         _cartController = gameObject.GetOrAddComponent<DollyCartController>();
         _cartMovement = gameObject.GetOrAddComponent<DollyCartMovement>();
+
+        _playerInventory = gameObject.GetOrAddComponent<PlayerInventory>();
+        _synergySystem = gameObject.GetOrAddComponent<UnimoSynergySystem>();
+        _raceAniCtrl = gameObject.GetOrAddComponent<UnimoRaceAnimationController>();
+
         _sync = gameObject.GetOrAddComponent<DollyCartSync>();
 
         _inGM = InGameManager.Instance;
+        _isEndRace = false;
     }
 
     #endregion
@@ -105,6 +117,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         // 프리팹 생성
         _kartBody = GameObject.Instantiate(_kartSO.kartPrefab, transform);
+        _kartBody.transform.position = Vector3.zero;
+
 
         // 생성한 카트 바디 오브젝트의 sitPoint 찾기
         var findSitPoint = _kartBody.GetChild<Transform>(_sitPointName);
@@ -171,11 +185,19 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         }
         this.PrintLog("CamSetup 진행 완료");
     }
+
+    private void PlayerInventroySetup()
+    {
+        this.PrintLog("PlayerInventroySetup 진행");
+        if (_playerInventory != null)
+        {
+            _playerInventory.Setup();
+        }
+        this.PrintLog("PlayerInventroySetup 진행 완료");
+    }
     private void AniCtrlSetup()
     {
         this.PrintLog("AniCtrlSetup 진행");
-        UnimoRaceAnimationController ani = this.gameObject.GetOrAddComponent<UnimoRaceAnimationController>();
-        _raceAniCtrl = ani;
         if (_raceAniCtrl != null)
         {
             _raceAniCtrl.Setup();
@@ -189,12 +211,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private void SynergySetup()
     {
         this.PrintLog("AniCtrlSetup 진행");
-        UnimoSynergySystem synergy = this.gameObject.GetOrAddComponent<UnimoSynergySystem>();
-        _synergySystem = synergy;
-        if (_synergySystem != null)
-        {
-            _synergySystem.Setup(this);
-        }
+        _synergySystem?.Setup(this);
 
         this.PrintLog("AniCtrlSetup 진행 완료");
     }
@@ -202,7 +219,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private void SyncSetup()
     {
         this.PrintLog("SyncSetup 진행");
-        _sync.Setup(this);
+        _sync?.Setup(this);
 
         this.PrintLog("SyncSetup 진행 완료");
     }
@@ -238,17 +255,23 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     }
     private void OnNetworkSendMovementProgress(int lap, float norm)
     {
+        _oldNorm = _lap + _norm;
         _lap = lap;
-        _oldNorm = _norm;
         _norm = norm;
     }
     private void OnEndCheck(int lap, float norm)
     {
-        if (_useGM)
+        if (_useGM && !_isEndRace)
         {
             if (_inGM != null && _lap >= _inGM.RaceEndLapCount)
             {
                 PhotonNetworkCustomProperties.LocalPlayerRaceFinishedSetting(PhotonNetwork.Time);
+                
+                _isControlable = false;
+                _isMovable = false;
+                _isItemUsable = false;
+
+                _isEndRace = true;
             }
         }
     }
@@ -372,8 +395,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         ControllerSetup();
         MovementSetup();
 
-        // 동기화
         CamSetup();
+        PlayerInventroySetup();
         AniCtrlSetup();
         SynergySetup();
 
@@ -388,7 +411,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         // 플레이어의 커스텀 프롬퍼티 생성 시점 > 매칭이 되었을 때
         // 룸데이터는 그 이전에 되어 있어야된다.
         var pm = PlayerManager.Instance;
-        pm.SetPlayerCPCurrentScene(SceneID.InGameScene);
         pm.SetPlayerCPRaceLoaded(true);
     }
 

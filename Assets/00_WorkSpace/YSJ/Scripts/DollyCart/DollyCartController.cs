@@ -26,6 +26,7 @@ public class DollyCartController : MonoBehaviourPun
     private TrackPathRegistry _trackRegistry;
     private int _movableTrackCount = -1;
     private int _currentTrackIndex = -1;
+    private RuntimePlatform _platform;
 
     public Action<int> OnChangeTrack = null;
 
@@ -85,6 +86,7 @@ public class DollyCartController : MonoBehaviourPun
             return;
         }
 
+        _platform = Application.platform;
         _isSetup = true;
     }
 
@@ -95,8 +97,20 @@ public class DollyCartController : MonoBehaviourPun
         // 해당 포톤 뷰가, 해당 클라이언트 것이 맞고 조종이 가능한 상태인지
         if (!photonView.IsMine) return;
 
-        MobileController();
-        PcCountroller();
+        if (_platform == RuntimePlatform.WindowsPlayer)
+        {
+            // Windows 관련 코드 실행
+            PcCountroller();
+        }
+        else if (_platform == RuntimePlatform.Android)
+        {
+            // Android 관련 코드 실행
+            MobileController();
+        }
+        else
+        {
+            MobileController();
+        }
     }
 
     private void MobileController()
