@@ -1,25 +1,15 @@
-﻿using ExitGames.Client.Photon;
-using Photon.Pun;
+﻿using Photon.Pun;
 using Photon.Realtime;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Unity.VisualScripting;
 using UnityEngine;
+using YSJ.Util;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public static class PhotonNetworkCustomProperties
 {
-    // 서버
-
-    // 카트 정보 ID
-    // 캐릭터 정보 ID
-
-    // Player Level
-    // Player Exp
-
-    // 맵 투표 정보 
-    //
-
     #region ROOM
     // ROOM
     public const string KEY_ROOM_STATE_TYPE                     = "room_roomStateType";             // 룸 상태 타입                       포톤
@@ -493,7 +483,7 @@ public static class PhotonNetworkCustomProperties
             // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
 
             // Race
-            { RoomKey.RaceState,                    RaceState.WaitPlayer                        },  
+            { RoomKey.RaceState,                    RaceState.WaitPlayer                        },
             { RoomKey.CountdownStartTime,           -1                                          },
             { RoomKey.RaceStartTime,                -1                                          },
             { RoomKey.FinishStartTime,              -1                                          },
@@ -518,7 +508,7 @@ public static class PhotonNetworkCustomProperties
             // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
 
             // Race
-            { RoomKey.RaceState,                    RaceState.LoadPlayers                       }, 
+            { RoomKey.RaceState,                    RaceState.LoadPlayers                       },
             { RoomKey.CountdownStartTime,           -1                                          },
             { RoomKey.RaceStartTime,                -1                                          },
             { RoomKey.FinishStartTime,              -1                                          },
@@ -546,10 +536,10 @@ public static class PhotonNetworkCustomProperties
             // { RoomKey.MatchRaceMapId,               MatchRaceMapId                              },  // 무조건 -1이 아니어야됨.(Test 때는 상관 없음)
 
             // Race
-            { RoomKey.RaceState,                    RaceState.Countdown                         }, 
+            { RoomKey.RaceState,                    RaceState.Countdown                         },
             { RoomKey.CountdownStartTime,           countdownStartTime                          },
             { RoomKey.RaceStartTime,                countdownStartTime + countDownTime          },
-            { RoomKey.FinishStartTime,              -1                                          },            
+            { RoomKey.FinishStartTime,              -1                                          },
             { RoomKey.FinishEndTime,                -1                                          },
             // { RoomKey.FinishCount,                  -1                                          },
         });
@@ -874,5 +864,146 @@ public static class PhotonNetworkCustomProperties
             PrintPlayerCustomProperties(p);
         }
     }
+
+
+    #region Safe Set Wrappers
+
+    private static bool IsSafeToSetProps(out ClientState state)
+    {
+        state = PhotonNetwork.NetworkClientState;
+        return PhotonNetwork.IsConnectedAndReady
+            && PhotonNetwork.InRoom
+            && state == ClientState.Joined;
+    }
+
+    // ===== PLAYER SAFE =====
+    public static bool TrySetLocalPlayerPropSafe(PlayerKey key, object value, Hashtable expected = null, WebFlags webFlags = null, string debugTag = null)
+    {
+        if (!IsSafeToSetProps(out var st))
+        {
+            typeof(PhotonNetworkCustomProperties).PrintLog(
+                $"[CP][{debugTag}] Skip SetLocalPlayerProp: state={st}, inRoom={PhotonNetwork.InRoom}, ready={PhotonNetwork.IsConnectedAndReady}",
+                LogType.Warning
+            );
+            return false;
+        }
+        return SetLocalPlayerProp(key, value, expected, webFlags);
+    }
+
+    public static bool TrySetLocalPlayerPropsSafe(IDictionary<PlayerKey, object> values, IDictionary<PlayerKey, object> expected = null, WebFlags webFlags = null, string debugTag = null)
+    {
+        if (!IsSafeToSetProps(out var st))
+        {
+            typeof(PhotonNetworkCustomProperties).PrintLog(
+                $"[CP][{debugTag}] Skip SetLocalPlayerProps: state={st}, inRoom={PhotonNetwork.InRoom}, ready={PhotonNetwork.IsConnectedAndReady}",
+                LogType.Warning
+            );
+            return false;
+        }
+        return SetPlayerProps(PhotonNetwork.LocalPlayer, values, expected, webFlags);
+    }
+
+    public static bool TryCompareExchangeLocalPlayerPropSafe(PlayerKey key, object newValue, object expectedValue, WebFlags webFlags = null, string debugTag = null)
+    {
+        if (!IsSafeToSetProps(out var st))
+        {
+            typeof(PhotonNetworkCustomProperties).PrintLog(
+                $"[CP][{debugTag}] Skip CAS LocalPlayerProp: state={st}",
+                LogType.Warning
+            );
+            return false;
+        }
+        return CompareExchangePlayerProp(PhotonNetwork.LocalPlayer, key, newValue, expectedValue, webFlags);
+    }
+
+    public static IEnumerator CoWaitAndSetLocalPlayerProps(IDictionary<PlayerKey, object> values, float timeoutSec = 3f, string debugTag = null, IDictionary<PlayerKey, object> expected = null, WebFlags webFlags = null)
+    {
+        float t = 0f;
+        while (!IsSafeToSetProps(out _) && t < timeoutSec)
+        {
+            t += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (!IsSafeToSetProps(out var st2))
+        {
+            typeof(PhotonNetworkCustomProperties).PrintLog(
+                $"[CP][{debugTag}] Timeout CoWaitAndSetLocalPlayerProps: state={st2}",
+                LogType.Warning
+            );
+            yield break;
+        }
+
+        SetPlayerProps(PhotonNetwork.LocalPlayer, values, expected, webFlags);
+    }
+
+    // ===== ROOM SAFE (마스터 전용 권장) =====
+    private static bool IsMasterAndSafe(out ClientState state)
+    {
+        var ok = IsSafeToSetProps(out state) && PhotonNetwork.IsMasterClient;
+        return ok;
+    }
+
+    public static bool TrySetRoomPropSafe(RoomKey key, object value, Hashtable expected = null, WebFlags webFlags = null, string debugTag = null)
+    {
+        if (!IsMasterAndSafe(out var st))
+        {
+            typeof(PhotonNetworkCustomProperties).PrintLog(
+                $"[RP][{debugTag}] Skip SetRoomProp: state={st}, isMaster={PhotonNetwork.IsMasterClient}, inRoom={PhotonNetwork.InRoom}",
+                LogType.Warning
+            );
+            return false;
+        }
+        return SetRoomProp(key, value, expected, webFlags);
+    }
+
+    public static bool TrySetRoomPropsSafe(IDictionary<RoomKey, object> values, IDictionary<RoomKey, object> expected = null, WebFlags webFlags = null, string debugTag = null)
+    {
+        if (!IsMasterAndSafe(out var st))
+        {
+            typeof(PhotonNetworkCustomProperties).PrintLog(
+                $"[RP][{debugTag}] Skip SetRoomProps: state={st}, isMaster={PhotonNetwork.IsMasterClient}, inRoom={PhotonNetwork.InRoom}",
+                LogType.Warning
+            );
+            return false;
+        }
+        return SetRoomProps(values, expected, webFlags);
+    }
+
+    public static bool TryCompareExchangeRoomPropSafe(RoomKey key, object newValue, object expectedValue, WebFlags webFlags = null, string debugTag = null)
+    {
+        if (!IsMasterAndSafe(out var st))
+        {
+            typeof(PhotonNetworkCustomProperties).PrintLog(
+                $"[RP][{debugTag}] Skip CAS RoomProp: state={st}, isMaster={PhotonNetwork.IsMasterClient}",
+                LogType.Warning
+            );
+            return false;
+        }
+        return CompareExchangeRoomProp(key, newValue, expectedValue, webFlags);
+    }
+
+    public static IEnumerator CoWaitAndSetRoomProps(IDictionary<RoomKey, object> values, float timeoutSec = 3f, string debugTag = null, IDictionary<RoomKey, object> expected = null, WebFlags webFlags = null)
+    {
+        float t = 0f;
+        while (!IsMasterAndSafe(out _) && t < timeoutSec)
+        {
+            t += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (!IsMasterAndSafe(out var st2))
+        {
+            typeof(PhotonNetworkCustomProperties).PrintLog(
+                $"[RP][{debugTag}] Timeout CoWaitAndSetRoomProps: state={st2}, isMaster={PhotonNetwork.IsMasterClient}",
+                LogType.Warning
+            );
+            yield break;
+        }
+
+        SetRoomProps(values, expected, webFlags);
+    }
+
+    #endregion
 
 }

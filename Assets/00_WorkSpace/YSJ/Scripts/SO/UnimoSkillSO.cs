@@ -18,8 +18,6 @@ public enum TriggerType
     PickUp,                 // 획득
 }
 
-
-
 [CreateAssetMenu(fileName = "NewUnimoSkillSO", menuName = "Unimo/Skill")]
 public class UnimoSkillSO : ScriptableObject
 {
@@ -39,6 +37,7 @@ public class UnimoSkillSO : ScriptableObject
     [Tooltip("테이블의 '스킬 타입'")]
     public SkillType skillType = SkillType.None;
 
+    [Space(10), Header("Trigger")]
     [Tooltip("테이블의 '발동 조건'")]
     public TriggerType triggerType = TriggerType.None;
 
@@ -49,7 +48,5 @@ public class UnimoSkillSO : ScriptableObject
     [Tooltip("테이블의 '수집형 아이템'")]
     public int collectCount = -1;
 
-    [Header("Options")]
-    [Tooltip("테이블의 '사용시 적용 옵션'")]
-    public List<SkillOption> options;
+    public List<SkillOption> optoins;
 }

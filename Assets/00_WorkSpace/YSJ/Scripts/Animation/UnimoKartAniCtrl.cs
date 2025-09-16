@@ -112,7 +112,7 @@ public class UnimoKartAniCtrl : MonoBehaviour
     {
         if (!ContainsParam(nameHash, AnimatorControllerParameterType.Bool))
         {
-            Debug.LogWarning($"Bool 파라미터 없음 (hash:{nameHash})");
+            this.PrintLog($"Bool 파라미터 없음 (hash:{nameHash})");
             return false;
         }
         _animator.SetBool(nameHash, value);
