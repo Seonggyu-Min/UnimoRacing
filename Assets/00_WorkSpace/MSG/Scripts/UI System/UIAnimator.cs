@@ -201,27 +201,27 @@ namespace MSG
 
                     if (group.UseSlide)
                     {
-                        //rect.anchoredPosition = OffsetFromBase(rect, group.SlideDirection, group.MoveInOffset);
-                        //var slide = rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.OriginOffset),
-                        //                             group.MoveInDuration)
-                        //                .SetEase(group.MoveInEase)
-                        //                .SetUpdate(true)
-                        //                .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
+                        rect.anchoredPosition = OffsetFromBase(rect, group.SlideDirection, group.MoveInOffset);
+                        var slide = rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.OriginOffset),
+                                                     group.MoveInDuration)
+                                        .SetEase(group.MoveInEase)
+                                        .SetUpdate(true)
+                                        .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
 
-                        //if (group.WillPlayTogether) seq.Join(slide);
-                        //else                        seq.Append(slide);
+                        if (group.WillPlayTogether) seq.Join(slide);
+                        else seq.Append(slide);
                     }
 
                     if (group.UseFade)
                     {
-                        //cg.alpha = 0f;
-                        //var fade = cg.DOFade(1f, group.FadeInDuration)
-                        //            .SetEase(group.FadeInEase)
-                        //            .SetUpdate(true)
-                        //            .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
+                        cg.alpha = 0f;
+                        var fade = cg.DOFade(1f, group.FadeInDuration)
+                                    .SetEase(group.FadeInEase)
+                                    .SetUpdate(true)
+                                    .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
 
-                        //if (group.WillPlayTogether) seq.Join(fade);
-                        //else                        seq.Append(fade);
+                        if (group.WillPlayTogether) seq.Join(fade);
+                        else seq.Append(fade);
                     }
 
                     if (group.WillWaitUntilSeqEnd)
@@ -275,25 +275,25 @@ namespace MSG
 
                     if (group.UseSlide)
                     {
-                        //var slide = rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.MoveOutOffset),
-                        //                             group.MoveOutDuration)
-                        //                .SetEase(group.MoveOutEase)
-                        //                .SetUpdate(true)
-                        //                .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
+                        var slide = rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.MoveOutOffset),
+                                                     group.MoveOutDuration)
+                                        .SetEase(group.MoveOutEase)
+                                        .SetUpdate(true)
+                                        .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
 
-                        //if (group.WillPlayTogether) seq.Join(slide);
-                        //else                        seq.Append(slide);
+                        if (group.WillPlayTogether) seq.Join(slide);
+                        else seq.Append(slide);
                     }
 
                     if (group.UseFade)
                     {
-                        //var fade = cg.DOFade(0f, group.FadeOutDuration)
-                        //            .SetEase(group.FadeOutEase)
-                        //            .SetUpdate(true)
-                        //            .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
+                        var fade = cg.DOFade(0f, group.FadeOutDuration)
+                                    .SetEase(group.FadeOutEase)
+                                    .SetUpdate(true)
+                                    .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
 
-                        //if (group.WillPlayTogether) seq.Join(fade);
-                        //else                        seq.Append(fade);
+                        if (group.WillPlayTogether) seq.Join(fade);
+                        else seq.Append(fade);
                     }
 
                     if (group.WillWaitUntilSeqEnd)
