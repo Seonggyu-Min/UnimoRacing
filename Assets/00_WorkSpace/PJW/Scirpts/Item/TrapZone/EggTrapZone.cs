@@ -2,104 +2,292 @@ using System.Collections;
 using System.Linq;
 using Photon.Pun;
 using UnityEngine;
+using Cinemachine;
 
 namespace PJW
 {
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(Collider))]
     [RequireComponent(typeof(PhotonView))]
     public class EggTrapZone : MonoBehaviourPun
     {
-        [Header("동작 파라미터")]
+        [Header("동작 파라미터 (Banana와 동일 동작)")]
         [SerializeField] private float boostMultiplier = 2f;
         [SerializeField] private float boostTime = 1f;
         [SerializeField] private float waitAfterBoost = 1f;
         [SerializeField] private float stopDuration = 1.5f;
 
-        private bool triggered;
+        [Header("최소 유효 속도")]
+        [SerializeField] private float minSpeed = 0.1f;
+
+        private bool isTriggered;
         private Collider zoneCol;
         private Renderer[] renderers;
+
+        // -------- 런타임 로컬 효과 상태/러너 --------
+        private class ActiveEffect
+        {
+            public PlayerRaceData racer;
+            public CinemachineDollyCart cart;
+            public Rigidbody rb;
+
+            public float originalRacerSpeed;   // racer 있을 때만 유효
+            public float originalCartSpeed;    // cart 있을 때만 유효
+            public bool cartWasEnabled;
+
+            public bool rbHad;
+            public bool rbWasKinematic;
+
+            public bool canceled;              // 교체 시 true
+        }
+
+        private class EffectRunner : MonoBehaviour
+        {
+            private static EffectRunner _instance;
+            public static EffectRunner Instance
+            {
+                get
+                {
+                    if (_instance == null)
+                    {
+                        var go = new GameObject("EggTrapEffectRunner");
+                        DontDestroyOnLoad(go);
+                        _instance = go.AddComponent<EffectRunner>();
+                    }
+                    return _instance;
+                }
+            }
+
+            public ActiveEffect current; // 로컬 클라에서 단 하나만 유지
+
+            public void ReplaceWithNew(PlayerRaceData racer, CinemachineDollyCart cart,
+                                       float mul, float boostSec, float waitSec, float stopSec, float minSpd)
+            {
+                // 1) 이전 효과 있으면 즉시 원복 + 취소 플래그
+                if (current != null)
+                {
+                    current.canceled = true;
+                    Restore(current);
+                    current = null;
+                }
+
+                if (cart == null) return;
+
+                // 2) 새 효과 구성
+                var rb = cart.GetComponent<Rigidbody>();
+                var eff = new ActiveEffect
+                {
+                    racer = racer,
+                    cart = cart,
+                    rb = rb,
+
+                    originalRacerSpeed = racer != null ? racer.KartSpeed : -1f,
+                    originalCartSpeed = cart.m_Speed,
+                    cartWasEnabled = cart.enabled,
+
+                    rbHad = rb != null,
+                    rbWasKinematic = rb != null ? rb.isKinematic : false,
+
+                    canceled = false
+                };
+
+                current = eff;
+                StartCoroutine(Co_RunEffect(eff, mul, boostSec, waitSec, stopSec, minSpd));
+            }
+
+            private IEnumerator Co_RunEffect(ActiveEffect eff,
+                                             float mul, float boostSec, float waitSec, float stopSec, float minSpd)
+            {
+                var racer = eff.racer;
+                var cart = eff.cart;
+                var rb = eff.rb;
+
+                if (cart == null) yield break;
+
+                float baseSpeed = racer != null && eff.originalRacerSpeed >= 0f
+                    ? eff.originalRacerSpeed
+                    : eff.originalCartSpeed;
+
+                // 1) 부스트
+                SetSpeed(racer, cart, Mathf.Max(minSpd, baseSpeed * Mathf.Max(0f, mul)));
+                float t = 0f;
+                while (t < boostSec)
+                {
+                    if (eff.canceled) yield break;
+                    t += Time.deltaTime;
+                    yield return null;
+                }
+
+                // 2) 미끄러짐
+                SetSpeed(racer, cart, baseSpeed);
+                t = 0f;
+                while (t < waitSec)
+                {
+                    if (eff.canceled) yield break;
+                    t += Time.deltaTime;
+                    yield return null;
+                }
+
+                // 3) 핀 고정
+                Vector3 pinPos = cart.transform.position;
+                Quaternion pinRot = cart.transform.rotation;
+
+                SetSpeed(racer, cart, 0f);
+                cart.enabled = false;
+
+                if (rb != null)
+                {
+                    rb.velocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.isKinematic = true;
+                }
+
+                t = 0f;
+                while (t < stopSec)
+                {
+                    if (eff.canceled) { yield break; }
+                    cart.transform.SetPositionAndRotation(pinPos, pinRot);
+                    t += Time.unscaledDeltaTime;
+                    yield return null;
+                }
+
+                // 4) 복구
+                if (!eff.canceled && ReferenceEquals(current, eff))
+                {
+                    cart.enabled = eff.cartWasEnabled;
+                    if (racer != null && eff.originalRacerSpeed >= 0f)
+                        racer.SetKartSpeed(eff.originalRacerSpeed);
+                    else
+                        cart.m_Speed = eff.originalCartSpeed;
+
+                    if (rb != null)
+                        rb.isKinematic = eff.rbWasKinematic;
+
+                    current = null;
+                }
+            }
+
+            private void Restore(ActiveEffect eff)
+            {
+                if (eff == null) return;
+
+                if (eff.cart != null)
+                {
+                    eff.cart.enabled = eff.cartWasEnabled;
+                    if (eff.racer != null && eff.originalRacerSpeed >= 0f)
+                        eff.racer.SetKartSpeed(eff.originalRacerSpeed);
+                    else
+                        eff.cart.m_Speed = eff.originalCartSpeed;
+                }
+
+                if (eff.rbHad && eff.rb != null)
+                {
+                    eff.rb.isKinematic = eff.rbWasKinematic;
+                    eff.rb.velocity = Vector3.zero;
+                    eff.rb.angularVelocity = Vector3.zero;
+                }
+            }
+
+            private void SetSpeed(PlayerRaceData racer, CinemachineDollyCart cart, float speed)
+            {
+                if (racer != null) racer.SetKartSpeed(speed);
+                else cart.m_Speed = speed;
+            }
+        }
 
         private void Awake()
         {
             zoneCol = GetComponent<Collider>();
+            if (zoneCol) zoneCol.isTrigger = true;
             renderers = GetComponentsInChildren<Renderer>(true);
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!PhotonNetwork.IsMasterClient || triggered) return;
+            if (!PhotonNetwork.IsMasterClient || isTriggered) return;
 
             var targetPv = other.GetComponentInParent<PhotonView>();
-            if (targetPv == null) return;
+            if (targetPv == null || targetPv.Owner == null) return;
 
-            triggered = true;
-            if (zoneCol) zoneCol.enabled = false;
-            HideVisuals();
+            var cart = other.GetComponentInParent<CinemachineDollyCart>();
+            if (cart == null) return;
 
-            photonView.RPC(nameof(RpcApplyEggTrapEffect), targetPv.Owner,
-                boostMultiplier, boostTime, waitAfterBoost, stopDuration);
+            isTriggered = true;
 
-            PhotonNetwork.Destroy(gameObject);
-        }
+            photonView.RPC(nameof(RpcHideAndDisable), RpcTarget.All);
 
-        private void HideVisuals()
-        {
-            if (renderers == null) return;
-            foreach (var r in renderers)
-                if (r) r.enabled = false;
+            // 로컬 소유자에게: 이전 효과 즉시 원복 후 새 효과 적용
+            photonView.RPC(nameof(RpcApplyTrapReplaceOld), targetPv.Owner,
+                boostMultiplier, boostTime, waitAfterBoost, stopDuration, minSpeed);
+
+            // 트랩은 네트워크에서 제거 (여유시간 포함)
+            float total = boostTime + waitAfterBoost + stopDuration + 0.2f;
+            photonView.RPC(nameof(RpcDestroySelfDelayed), RpcTarget.AllBuffered, total);
         }
 
         [PunRPC]
-        private void RpcApplyEggTrapEffect(float boostMult, float boostT, float waitT, float stopT)
+        private void RpcHideAndDisable()
         {
-            var myRacer = FindObjectsOfType<PlayerRaceData>(true)
-                .FirstOrDefault(r =>
+            if (zoneCol) zoneCol.enabled = false;
+            if (renderers != null)
+            {
+                foreach (var r in renderers)
                 {
-                    var pv = r.GetComponentInParent<PhotonView>() ?? r.GetComponent<PhotonView>();
-                    return pv != null && pv.IsMine;
-                });
-
-            if (myRacer != null)
-                StartCoroutine(BoostThenPinStop(myRacer, boostMult, boostT, waitT, stopT));
+                    if (r) r.enabled = false;
+                }
+            }
         }
 
-        private IEnumerator BoostThenPinStop(PlayerRaceData racer, float boostMult, float boostT, float waitT, float stopT)
+        [PunRPC]
+        private void RpcDestroySelfDelayed(float delay)
         {
-            float originalSpeed = racer.KartSpeed;
+            if (this == null || gameObject == null) return;
+            StartCoroutine(DestroyAfter(delay));
+        }
 
-            // 가속
-            racer.SetKartSpeed(Mathf.Max(0.1f, originalSpeed * boostMult));
-            yield return new WaitForSeconds(boostT);
-
-            // 평속
-            racer.SetKartSpeed(originalSpeed);
-            yield return new WaitForSeconds(waitT);
-
-            // 정지
-            Vector3 pinPos = racer.transform.position;
-            Quaternion pinRot = racer.transform.rotation;
-
-            var cart = racer.GetComponent<Cinemachine.CinemachineDollyCart>();
-            if (cart != null) cart.enabled = false;
-
-            var rb = racer.GetComponent<Rigidbody>();
-            if (rb)
-            {
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-                rb.isKinematic = true;
-            }
-
+        private IEnumerator DestroyAfter(float delay)
+        {
             float t = 0f;
-            while (t < stopT)
+            while (t < delay)
             {
-                if (racer != null)
-                    racer.transform.SetPositionAndRotation(pinPos, pinRot);
+                t += Time.deltaTime;
                 yield return null;
-                t += Time.unscaledDeltaTime;
             }
+            if (this != null && gameObject != null)
+                Destroy(gameObject);
+        }
 
-            if (cart != null) cart.enabled = true;
-            if (racer != null) racer.SetKartSpeed(originalSpeed);
+        [PunRPC]
+        private void RpcApplyTrapReplaceOld(float mul, float boostSec, float waitSec, float stopSec, float minSpd)
+        {
+            var raceData = FindLocalRaceData();
+            var cart = FindLocalCart();
+            if (cart == null) return;
+
+            EffectRunner.Instance.ReplaceWithNew(raceData, cart, mul, boostSec, waitSec, stopSec, minSpd);
+        }
+
+        // ---- 유틸: 로컬 소유 플레이어의 컴포넌트 찾기 ----
+        private PlayerRaceData FindLocalRaceData()
+        {
+            var all = FindObjectsOfType<PlayerRaceData>(true);
+            foreach (var rd in all)
+            {
+                var pv = rd.GetComponentInParent<PhotonView>() ?? rd.GetComponent<PhotonView>();
+                if (pv != null && pv.IsMine) return rd;
+            }
+            return null;
+        }
+
+        private CinemachineDollyCart FindLocalCart()
+        {
+            var all = FindObjectsOfType<CinemachineDollyCart>(true);
+            foreach (var c in all)
+            {
+                var pv = c.GetComponentInParent<PhotonView>() ?? c.GetComponent<PhotonView>();
+                if (pv != null && pv.IsMine) return c;
+            }
+            return null;
         }
     }
 }
