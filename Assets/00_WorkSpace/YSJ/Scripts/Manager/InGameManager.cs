@@ -342,8 +342,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     // CP Update
     private void Check_Players_CurrentScene()
     {
-       
-
         this.PrintLog("Checked >>>>>>>>>>>>> Check_Players_CurrentScene");
         if (!IsMasterClient || CurrentRoom == null) return;
 

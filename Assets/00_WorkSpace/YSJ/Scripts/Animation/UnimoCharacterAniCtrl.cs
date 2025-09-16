@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using YSJ.Util;
 
 public class UnimoCharacterAniCtrl : MonoBehaviour
 {
@@ -80,7 +81,7 @@ public class UnimoCharacterAniCtrl : MonoBehaviour
     {
         if (!ContainsParam(nameHash, AnimatorControllerParameterType.Trigger))
         {
-            Debug.LogWarning($"[UnimoCharacterAniCtrl] Trigger 파라미터 없음 (hash:{nameHash})");
+            this.PrintLog($"[UnimoCharacterAniCtrl] Trigger 파라미터 없음 (hash:{nameHash})");
             return false;
         }
         _animator.SetTrigger(nameHash);
