@@ -411,7 +411,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         // 플레이어의 커스텀 프롬퍼티 생성 시점 > 매칭이 되었을 때
         // 룸데이터는 그 이전에 되어 있어야된다.
         var pm = PlayerManager.Instance;
-        pm.SetPlayerCPRaceLoaded(true);
+        pm.SetPlayerCPRaceLoaded(_isSetups);
     }
 
     // 네트워크
