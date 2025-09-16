@@ -5,6 +5,7 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using YSJ.Util;
+using YTW;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 // 인게임 매니저
@@ -34,6 +35,8 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
     private double _raceStartDelayTime        = -1.0f;
 
+    private MapCycleManager _mapCycleManager;
+    private MapAssetLoader _mapAssetLoader;
 
     // private Util Value
     private bool IsMasterClient => PhotonNetwork.IsMasterClient;
@@ -97,6 +100,13 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         this.PrintLog($"Master Client: {IsMasterClient}!");
 
         _currentRaceState = RaceState.None;
+        _mapCycleManager = GameObject.FindAnyObjectByType<MapCycleManager>();
+        if (_mapCycleManager != null)
+        {
+            _mapCycleManager.OnLoadRandomMap -= MapSetup;
+            _mapCycleManager.OnLoadRandomMap += MapSetup;
+        }
+
         SetupRaceRule();
         // 초기 상태 동기화
         if (CurrentRoom != null)
@@ -136,7 +146,10 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         _postGameSeconds = config.postGameSeconds;       // 결과, 보여주는     
         _itemsEnabled = config.itemsEnabled;          // 아이템 사용 가능 여부
     }
-
+    private void MapSetup(GameObject go)
+    {
+        _mapAssetLoader = go.GetComponent<MapAssetLoader>();
+    }
 
     #region On CP : Room Player 
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
@@ -277,7 +290,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
             case RaceState.Countdown:
                 setServerTime = PhotonNetwork.Time;
-                
+
 
                 _countDownStartTime = PhotonNetworkCustomProperties.GetRoomProp<double>(RoomKey.CountdownStartTime, setServerTime,
                     () => { this.PrintLog($"카운트 다운 서버 시간 > Get Success"); },
@@ -292,7 +305,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
                 );
                 this.PrintLog($"레이싱 시작 서버 시간 > {_raceStartTime}");
 
-                
+
                 StartCoroutine(CO_EnterCountDown());
 
                 // 후 처리
@@ -300,7 +313,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
                 break;
 
             case RaceState.Racing:
-                
+
                 // 후 처리
                 OnRaceState_Racing?.Invoke();
                 break;
@@ -356,7 +369,10 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         }
 
         this.PrintLog($"Complete Action >>>>>>>>>>>>> Check_Players_CurrentScene {CurrentRoom.Players.Values.Count}");
-        SendRaceState(RaceState.LoadPlayers);
+
+        // 아래 코루틴 내부로 이전 > SendRaceState(RaceState.LoadPlayers);
+        StartCoroutine(CO_MapLoadChangeNextStepDelay());
+
     }
     private void Check_Players_RaceKartLoaded()
     {
@@ -390,7 +406,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
             var finished = GetPlayerRaceFinished(p);
             var playerFinishTime = GetPlayerRaceFinishTime(p);
 
-            if(finishTime > playerFinishTime)
+            if (finishTime > playerFinishTime)
                 finishTime = playerFinishTime;
             if (!finished) return;
 
@@ -405,6 +421,16 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     }
 
     // Coru
+    private IEnumerator CO_MapLoadChangeNextStepDelay()
+    {
+        while (!_mapAssetLoader.IsLoaded)
+        {
+            yield return null;
+        }
+
+        SendRaceState(RaceState.LoadPlayers);
+        yield break;
+    }
     private IEnumerator CO_EnterCountDown()
     {
         double delay = PhotonNetwork.Time - _countDownStartTime;
