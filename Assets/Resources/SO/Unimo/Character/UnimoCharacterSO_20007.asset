@@ -21,3 +21,14 @@ MonoBehaviour:
   SynergyKartID: 10007
   relationCharacterId: -1
   dialogId: -1
+  useAddr: 1
+  characterPrefabRef:
+    m_AssetGUID: 57de376fda9433f4a90d660f8399a687
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 1
+  characterSpriteRef:
+    m_AssetGUID: d63fbd7e2ab1c9b4c9a716db8f129885
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 1

@@ -14,10 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterId: 20009
   characterName: "\uBA38\uD540"
-  characterPrefab: {fileID: 9012688025184599837, guid: 8718455dd8be0c64fb5f13b2f991fa5d,
+  characterPrefab: {fileID: 6534607643317645777, guid: e7e6790557cfbcd4aa505fc214707394,
     type: 3}
   characterSprite: {fileID: 21300000, guid: d0a1c3edbec360143add23da8192a6b4, type: 3}
   characterInfo: 
   SynergyKartID: 10009
   relationCharacterId: -1
   dialogId: -1
+  useAddr: 1
+  characterPrefabRef:
+    m_AssetGUID: e7e6790557cfbcd4aa505fc214707394
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  characterSpriteRef:
+    m_AssetGUID: d0a1c3edbec360143add23da8192a6b4
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 1

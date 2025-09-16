@@ -19,3 +19,14 @@ MonoBehaviour:
   kartSprite: {fileID: 21300000, guid: 531215ba61898634aa9f618bf595c999, type: 3}
   carDesc: 
   passiveSkillId: 11009
+  useAddr: 1
+  kartPrefabRef:
+    m_AssetGUID: 2bc57a6f409c34048aecfd7f2b755677
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  kartSpriteRef:
+    m_AssetGUID: 531215ba61898634aa9f618bf595c999
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

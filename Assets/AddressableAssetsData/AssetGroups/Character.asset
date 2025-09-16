@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Character
+  m_EditorClassIdentifier: 
+  m_GroupName: Character
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 5cb3ae463384e5f4390a9b72d700e26c
+  m_SerializeEntries:
+  - m_GUID: 561fb7f1436b6974b948d1172da9bdea
+    m_Address: Augustus
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57de376fda9433f4a90d660f8399a687
+    m_Address: Doomdoom
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 717274adc3aa0e649a4abff96c56c667
+    m_Address: HighFish
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7298211242ffed7419e94d6fde2c0656
+    m_Address: Matilda
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7add4971919c67b408a29c006276aa63
+    m_Address: Gomgom
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 834c26b85244f0a499ba417d481df5ef
+    m_Address: B-Bit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8718455dd8be0c64fb5f13b2f991fa5d
+    m_Address: Al
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 908c4f8516722c345942832e4a2cfce1
+    m_Address: Primo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 95831fec43d855a4dbd52fb9eca1d045
+    m_Address: Toaster
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c5fd0bfc5df12b74db508069c9608ada
+    m_Address: Ribee
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d169d16d267a65849bec71e24dcc6617
+    m_Address: Sofo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e7e6790557cfbcd4aa505fc214707394
+    m_Address: Muffin
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ecb6c77abc6720042a9f6ccd7d8ca431
+    m_Address: Cu
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 77e2d83c7e8f57943b8b09c4fc47a174, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 3a4d983b12e87ed4a8a434e34074196c, type: 2}
+    - {fileID: 11400000, guid: cd595b9ed98c0914d9f8660f70e53081, type: 2}
