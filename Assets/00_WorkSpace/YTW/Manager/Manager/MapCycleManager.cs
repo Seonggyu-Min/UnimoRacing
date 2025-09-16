@@ -1,3 +1,4 @@
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,11 +11,13 @@ namespace YTW
     {
         public static MapCycleManager Instance { get; private set; }
 
-        [Header("·ÎµåÇÒ ¸Ê ¿¡¼Â ÁÖ¼Ò ¸ñ·Ï")]
+        [Header("ë¡œë“œí•  ë§µ ì—ì…‹ ì£¼ì†Œ ëª©ë¡")]
         [SerializeField] private string[] _mapAddresses;
 
-        // ÇöÀç ¸ÊÀ» ·ÎµåÇÏ°í ÀÖ´Â MapAssetLoaderÀÇ GameObject
+        // í˜„ì¬ ë§µì„ ë¡œë“œí•˜ê³  ìˆëŠ” MapAssetLoaderì˜ GameObject
         private GameObject _currentMapLoaderObject;
+
+        public Action<GameObject> OnLoadRandomMap;
 
         private void Awake()
         {
@@ -30,15 +33,15 @@ namespace YTW
 
         void Start()
         {
-            // ¾ÀÀÌ ½ÃÀÛµÇ¸é ¹Ù·Î Ã¹ ·£´ı ¸Ê ·Îµå
+            // ì”¬ì´ ì‹œì‘ë˜ë©´ ë°”ë¡œ ì²« ëœë¤ ë§µ ë¡œë“œ
             LoadRandomMap();
         }
 
         public void LoadRandomMap()
         {
-            // 1. ±âÁ¸¿¡ ·ÎµåµÈ ¸ÊÀÌ ÀÖ´Ù¸é ÆÄ±«
-            //    _currentMapLoaderObject¸¦ ÆÄ±«ÇÏ¸é, ±× ÀÚ½ÄÀÎ ¸Ê ÀÎ½ºÅÏ½º¿Í
-            //    ÄÄÆ÷³ÍÆ®ÀÎ MapAssetLoaderÀÇ OnDestroy()°¡ ÀÚµ¿À¸·Î È£ÃâµÇ¾î ¸ğµç Á¤¸®¸¦ ¼öÇà
+            // 1. ê¸°ì¡´ì— ë¡œë“œëœ ë§µì´ ìˆë‹¤ë©´ íŒŒê´´
+            //    _currentMapLoaderObjectë¥¼ íŒŒê´´í•˜ë©´, ê·¸ ìì‹ì¸ ë§µ ì¸ìŠ¤í„´ìŠ¤ì™€
+            //    ì»´í¬ë„ŒíŠ¸ì¸ MapAssetLoaderì˜ OnDestroy()ê°€ ìë™ìœ¼ë¡œ í˜¸ì¶œë˜ì–´ ëª¨ë“  ì •ë¦¬ë¥¼ ìˆ˜í–‰
             if (_currentMapLoaderObject != null)
             {
                 Destroy(_currentMapLoaderObject);
@@ -46,21 +49,22 @@ namespace YTW
 
             if (_mapAddresses == null || _mapAddresses.Length == 0)
             {
-                Debug.LogError("[MapCycleManager] ·ÎµåÇÒ ¸Ê ÁÖ¼Ò ¸ñ·ÏÀÌ ºñ¾îÀÖ½À´Ï´Ù.");
+                Debug.LogError("[MapCycleManager] ë¡œë“œí•  ë§µ ì£¼ì†Œ ëª©ë¡ì´ ë¹„ì–´ìˆìŠµë‹ˆë‹¤.");
                 return;
             }
 
-            // 2. ¸Ê ÁÖ¼Ò ¸ñ·Ï¿¡¼­ ·£´ıÀ¸·Î ÇÏ³ª ¼±ÅÃ
-            int randomIndex = Random.Range(0, _mapAddresses.Length);
+            // 2. ë§µ ì£¼ì†Œ ëª©ë¡ì—ì„œ ëœë¤ìœ¼ë¡œ í•˜ë‚˜ ì„ íƒ
+            int randomIndex = UnityEngine.Random.Range(0, _mapAddresses.Length);
             string randomMapAddress = _mapAddresses[randomIndex];
-            Debug.Log($"[MapCycleManager] ´ÙÀ½ ¸Ê ·Îµå ½Ãµµ: {randomMapAddress}");
+            Debug.Log($"[MapCycleManager] ë‹¤ìŒ ë§µ ë¡œë“œ ì‹œë„: {randomMapAddress}");
 
-            // 3. »õ·Î¿î MapAssetLoader¸¦ ´ãÀ» ºó GameObject »ı¼º
+            // 3. ìƒˆë¡œìš´ MapAssetLoaderë¥¼ ë‹´ì„ ë¹ˆ GameObject ìƒì„±
             _currentMapLoaderObject = new GameObject("MapLoader");
 
-            // 4. MapAssetLoader ÄÄÆ÷³ÍÆ® Ãß°¡ ¹× ¼±ÅÃµÈ ÁÖ¼Ò·Î ·Îµå ½ÃÀÛ
+            // 4. MapAssetLoader ì»´í¬ë„ŒíŠ¸ ì¶”ê°€ ë° ì„ íƒëœ ì£¼ì†Œë¡œ ë¡œë“œ ì‹œì‘
             var mapLoader = _currentMapLoaderObject.AddComponent<MapAssetLoader>();
-            _ = mapLoader.InitializeAndLoad(randomMapAddress); // _= : ºñµ¿±â ÇÔ¼ö¸¦ È£ÃâÇÏµÇ, ³¡³¯ ¶§±îÁö ±â´Ù¸®Áö ¾ÊÀ½
+            _ = mapLoader.InitializeAndLoad(randomMapAddress); // _= : ë¹„ë™ê¸° í•¨ìˆ˜ë¥¼ í˜¸ì¶œí•˜ë˜, ëë‚  ë•Œê¹Œì§€ ê¸°ë‹¤ë¦¬ì§€ ì•ŠìŒ
+            OnLoadRandomMap?.Invoke(_currentMapLoaderObject);
         }
     }
 }
