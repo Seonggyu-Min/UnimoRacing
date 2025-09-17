@@ -12,7 +12,8 @@ namespace PJW
     {
         [Header("UI")]
         [SerializeField] private Button useButton;
-        [SerializeField] private Image itemIcon;
+
+        [SerializeField] private Image[] itemIcons = new Image[3];
 
         [Header("Debug")]
         [SerializeField] private bool logVerbose = true;
@@ -27,7 +28,7 @@ namespace PJW
             if (useButton != null) useButton.onClick.AddListener(OnClickUse);
 
             SetUsable(false);
-            SetIconVisible(false);
+            HideAllIcons();
         }
 
         private void OnEnable()
@@ -75,7 +76,7 @@ namespace PJW
 
             DumpUiStatus();
             SetUsable(false);
-            SetIconVisible(false);
+            HideAllIcons();
         }
 
         private void Bind(PlayerItemInventory inv)
@@ -86,13 +87,24 @@ namespace PJW
             boundInv.OnItemAssigned += OnItemAssigned;
             boundInv.OnItemAvailabilityChanged += OnItemAvailabilityChanged;
 
+            // 안전하게 존재 여부 체크
+            try
+            {
+                boundInv.OnItemCountChanged += OnItemCountChanged;
+            }
+            catch { /* 이전 버전일 수 있으니 무시 */ }
 
+            // 초기 상태 반영
             OnItemAvailabilityChanged(boundInv.HasItem);
 
             var currentName = boundInv.CurrentItemName();
             if (!string.IsNullOrEmpty(currentName))
             {
                 OnItemAssigned(currentName);
+            }
+            else
+            {
+                RefreshIcons();
             }
         }
 
@@ -101,46 +113,73 @@ namespace PJW
             if (boundInv == null) return;
             boundInv.OnItemAssigned -= OnItemAssigned;
             boundInv.OnItemAvailabilityChanged -= OnItemAvailabilityChanged;
+            try { boundInv.OnItemCountChanged -= OnItemCountChanged; } catch { }
             if (logVerbose) Debug.Log($"{LogTag} Unbound from inventory");
             boundInv = null;
         }
 
         private void OnClickUse()
         {
+            if (boundInv == null) return;
             boundInv.UseItem();
+            // 사용하면 맨 앞이 빠지므로 즉시 갱신
+            RefreshIcons();
         }
 
-        private void OnItemAssigned(string prefabName)
+        private void OnItemAssigned(string _)
         {
-            if (string.IsNullOrEmpty(prefabName))
+            // 맨 앞 아이템이 바뀔 수 있으니 전체 갱신
+            RefreshIcons();
+        }
+
+        private void OnItemAvailabilityChanged(bool _)
+        {
+            RefreshIcons();
+        }
+
+        private void OnItemCountChanged(int _)
+        {
+            RefreshIcons();
+        }
+
+        private void RefreshIcons()
+        {
+            if (boundInv == null)
             {
-                // 아이템 없을 때 아이콘 숨김
-                if (itemIcon != null)
-                {
-                    itemIcon.sprite = null;
-                    SetIconVisible(false);
-                }
+                SetUsable(false);
+                HideAllIcons();
                 return;
             }
 
-            var sprite = ItemSpriteRegistry.Instance.GetIcon(prefabName);
-            if (itemIcon != null)
-            {
-                itemIcon.sprite = sprite;
-                SetIconVisible(sprite != null);
-            }
-        }
-
-        private void OnItemAvailabilityChanged(bool hasItem)
-        {
-            bool canUse = hasItem && boundInv != null && boundInv.CanUseItem;
+            // 버튼 활성화: 아이템 있고, 사용 가능할 때
+            bool canUse = boundInv.HasItem && boundInv.CanUseItem;
             SetUsable(canUse);
 
-            // 아이템 없으면 아이콘도 숨기기 (이 부분 추가!)
-            if (!hasItem && itemIcon != null)
+            if (itemIcons == null || itemIcons.Length == 0)
             {
-                itemIcon.sprite = null;
-                SetIconVisible(false);
+                return;
+            }
+
+            string[] names = boundInv.SnapshotItemNames(itemIcons.Length);
+
+            for (int i = 0; i < itemIcons.Length; i++)
+            {
+                var img = itemIcons[i];
+                if (img == null) continue;
+
+                if (names != null && i < names.Length && !string.IsNullOrEmpty(names[i]))
+                {
+                    var sprite = ItemSpriteRegistry.Instance.GetIcon(names[i]);
+                    img.sprite = sprite;
+                    img.enabled = sprite != null;
+                    img.raycastTarget = false;
+                }
+                else
+                {
+                    img.sprite = null;
+                    img.enabled = false;
+                    img.raycastTarget = false;
+                }
             }
         }
 
@@ -153,12 +192,15 @@ namespace PJW
             }
         }
 
-        private void SetIconVisible(bool visible)
+        private void HideAllIcons()
         {
-            if (itemIcon != null)
+            if (itemIcons == null) return;
+            foreach (var img in itemIcons)
             {
-                itemIcon.enabled = visible;
-                itemIcon.raycastTarget = false; 
+                if (img == null) continue;
+                img.sprite = null;
+                img.enabled = false;
+                img.raycastTarget = false;
             }
         }
 
