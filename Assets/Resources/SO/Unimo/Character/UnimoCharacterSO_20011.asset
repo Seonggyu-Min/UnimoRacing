@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56ced7404462cb1429f509e00dd27fd8, type: 3}
+  m_Name: UnimoCharacterSO_20011
+  m_EditorClassIdentifier: 
+  characterId: 20011
+  characterName: "\uD1A0\uC2A4\uD130"
+  characterPrefab: {fileID: 6534607643317645777, guid: e7e6790557cfbcd4aa505fc214707394,
+    type: 3}
+  characterSprite: {fileID: 21300000, guid: ef44c939a53ca04458f792fdd2a46891, type: 3}
+  characterInfo: 
+  SynergyKartID: 10011
+  relationCharacterId: -1
+  dialogId: -1

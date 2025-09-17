@@ -14,34 +14,144 @@ namespace MSG
 
         // -- User Data Keys --
         public const string users = "users";
-        public const string name = "name";
+        public const string nickname = "nickname";
+        public const string nicknames = "nicknames"; // 닉네임 중복 확인용 역인덱스
         public const string email = "email";
 
-        // -- Game Data Keys --
-        public const string gold = "gold";
-        public const string diamond = "diamond";
-        public const string level = "level";
-        public const string experience = "experience";
+        // -- Friend Data Keys --
+        public const string friends = "friends";
+        public const string list = "list"; // 친구 목록
+
+        // -- Equipped Keys --
+        public const string equipped = "equipped";
+        public const string karts = "karts";
+        public const string unimos = "unimos";
 
         // -- Inventory Keys --
         public const string inventory = "inventory";
-        public const string itemId = "itemId";
-
-        // -- Settings Keys --
-        public const string settings = "settings";
-        public const string soundEnabled = "soundEnabled";
-        public const string musicEnabled = "musicEnabled";
 
         // -- Achievements Keys --
-        public const string achievements = "achievements";
-        public const string achievementId = "achievementId";
-        public const string achievementStatus = "achievementStatus";
+        //public const string achievements = "achievements";
+        //public const string achievementId = "achievementId";
+        //public const string achievementStatus = "achievementStatus";
 
-        // -- Leaderboard Keys --
+        // -- Stats Keys --
         public const string stats = "stats";
-        public const string score = "score";
-        public const string rank = "rank";
         public const string wins = "wins";
         public const string losses = "losses";
+
+        // -- Game Data Keys --
+        public const string gameData = "gameData";
+        public const string gold = "gold";
+        public const string blueHoneyGem = "blueHoneyGem";
+        //public const string money3 = "money3";
+        public const string level = "level";
+        public const string experience = "experience";
+
+        // -- Daily Mission Keys --
+        public const string dailyMissions = "dailyMissions";
+
+        // -- Friends Keys --
+        public const string friendLinks = "friendLinks";
+        public const string from = "from"; // 친구 요청을 보낸 사람의 ID
+        public const string to = "to"; // 친구 요청을 받은 사람의 ID
+        public const string requestedAt = "requestedAt"; // 친구 요청을 보낸 시간
+        public const string acceptedAt = "acceptedAt"; // 친구 요청이 수락된 시간
+
+        public const string status = "status"; // 친구 요청 상태 (예: pending, accepted, rejected)
+        public const string pending = "pending"; // 친구 요청 대기 상태
+        public const string accepted = "accepted"; // 친구 요청 수락 상태
+        public const string rejected = "rejected"; // 친구 요청 거절 상태
+        public const string cancelled = "cancelled"; // 친구 요청 취소 상태
+        public const string removed = "removed"; // 친구 삭제 상태
+
+        public const string inbox = "inbox"; // 친구 요청 수신함
+        public const string outbox = "outbox"; // 친구 요청 발신함
+
+
+        // -- Presence Keys --
+        public const string presence = "presence"; // 전체 Presence 데이터 최상위 노드
+        public const string online = "online"; // 온라인 상태
+        public const string inRoom = "inRoom"; // 방에 있는 상태
+        public const string inGame = "inGame"; // 게임 중인 상태
+        public const string inParty = "inParty"; // 파티에 있는 상태
+        public const string lastSeen = "lastSeen"; // 마지막 활동 시간
+        public const string partyId = "partyId"; // 파티 ID
+        public const string roomName = "roomName"; // 방 이름
+        public const string heartbeat = "heartbeat"; // 예외 처리를 위한 하트비트
+
+
+        // -- Party Keys --
+        public const string parties = "parties"; // 파티 목록
+        // public const string partyId = "partyId"; // 파티 ID, 위와 동일
+        // public const string status = "status"; // 파티 상태, 위와 동일
+        public const string idle = "idle";
+        public const string matching = "matching"; // 파티 매칭 중
+        // public const string inGame = "inGame"; // 파티 게임 중, 위와 동일
+        public const string members = "members"; // 파티 멤버 목록
+        public const string leaderUid = "leaderUid"; // 파티 리더의 UID
+        public const string targetRoom = "targetRoom"; // 파티 들어가게 될 방 이름
+
+
+        // -- PartyMembership Keys --
+        public const string partyMemberships = "partyMemberships"; // 파티 멤버십 목록
+        // public const string partyId = "partyId"; // 파티 ID, 위와 동일
+
+
+        // -- Invitation Keys --
+        public const string invitations = "invitations"; // 초대 목록
+        // public const string partyId = "partyId"; // 파티 ID, 위와 동일
+        // public const string from = "from"; // 초대를 보낸 사람의 ID, 위와 동일
+        // public const string to = "to"; // 초대를 받은 사람의 ID, 위와 동일
+        // public const string status = "status"; // 초대장의 상태, 위와 동일
+        // public const string pending = "pending"; // 초대 대기 상태, 위와 동일
+        // public const string accepted = "accepted"; // 초대 수락 상태, 위와 동일
+        // public const string rejected = "rejected"; // 초대 거절 상태, 위와 동일
+        public const string createdAt = "createdAt"; // 초대가 생성된 시간
+
+
+        // -- userInvitations Keys --
+        public const string userInvitations = "userInvitations"; // 유저별 초대장 목록
+
+
+        // -- Patch Keys --
+        public const string patch = "patch";
+        public const string version = "version";
+        public const string globals = "globals";
+        public const string updatedAt = "updatedAt";
+        public const string speed = "speed";
+        public const string cost = "cost";
+        public const string speedOverride = "speedOverride";
+        public const string costOverride = "costOverride";
+        public const string curveType = "curveType";
+        public const string baseValue = "baseValue";
+        public const string linearStep = "linearStep";
+        public const string multiplierStep = "multiplierStep";
+        public const string maxLevel = "maxLevel";
+        public const string table = "table";
+        public const string growthType = "growthType";
+        public const string moneyType = "moneyType";
+        public const string baseCost = "baseCost";
+        public const string growthRate = "growthRate";
+        public const string step = "step";
+        public const string unimoCost = "unimoCost";
+
+        // -- Missions Keys --
+        public const string missions = "missions";
+        public const string daily = "daily";
+        public const string achievement = "achievement";
+        public const string title = "title";
+        public const string missionType = "missionType";
+        public const string description = "description";
+        public const string rewardQuantity = "rewardQuantity";
+        public const string targetCount = "targetCount";
+        public const string progress = "progress";
+        public const string cleared = "cleared";
+        public const string claimed = "claimed";
+        public const string dateKey = "dateKey";
+        public const string missionVerb = "missionVerb";
+        public const string missionObject = "missionObject";
+        public const string partyCondition = "partyCondition";
+        public const string subType = "subType";
     }
 }

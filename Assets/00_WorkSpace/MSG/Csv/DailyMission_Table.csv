@@ -1,0 +1,9 @@
+미션 ID,미션 제목,미션 종류,미션 설명,미션 보상 종류,미션 보상 수량,미션 수행 횟수,미션 동사,미션 목적어,미션 파티 여부
+Mission_ID,Mission_Label,Mission_Type,Mission_Info,Reward_Type,Reward_Amount,Mission_Count,Mission_Verb,Mission_Object,Party_Condition
+int,string,string,string,string,int,int,enum,enum,enum
+91001,레이스 완주,완주 여부,레이스 완주 1회 완주,무료 재화,3000,1,Finish,Race,Any
+91002,친구와 레이스 완주,완주 여부,파티로 레이스 1회 완주,유료 재화,30,1,Finish,Race,TRUE
+91003,유니모 교체,교체,유니모 교체 2회 진행,무료 재화,500,2,Change,Unimo,Any
+91004,붕붕엔진 교체,교체,붕붕엔진 교체 2회 진행,무료 재화,500,2,Change,Engine,Any
+91005,아이템 획득,아이템,아이템 3회 획득,무료 재화,1000,3,Obtain,Item,Any
+91006,아이템 사용,아이템,아이템 3회 사용,유료 재화,15,3,Use,Item,Any

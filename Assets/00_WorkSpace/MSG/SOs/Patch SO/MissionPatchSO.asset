@@ -1,0 +1,356 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bc22e6678f63a64b98f6f686fc2c72d, type: 3}
+  m_Name: MissionPatchSO
+  m_EditorClassIdentifier: 
+  Dailies:
+  - Index: 91001
+    Title: "\uB808\uC774\uC2A4 \uC644\uC8FC"
+    MissionType: 0
+    Description: "\uB808\uC774\uC2A4 \uC644\uC8FC 1\uD68C \uC644\uC8FC"
+    MoneyType: 0
+    RewardQuantity: 3000
+    TargetCount: 1
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 0
+  - Index: 91002
+    Title: "\uCE5C\uAD6C\uC640 \uB808\uC774\uC2A4 \uC644\uC8FC"
+    MissionType: 0
+    Description: "\uD30C\uD2F0\uB85C \uB808\uC774\uC2A4 1\uD68C \uC644\uC8FC"
+    MoneyType: 1
+    RewardQuantity: 30
+    TargetCount: 1
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 1
+  - Index: 91003
+    Title: "\uC720\uB2C8\uBAA8 \uAD50\uCCB4"
+    MissionType: 1
+    Description: "\uC720\uB2C8\uBAA8 \uAD50\uCCB4 2\uD68C \uC9C4\uD589"
+    MoneyType: 0
+    RewardQuantity: 500
+    TargetCount: 2
+    MissionVerb: 4
+    MissionObject: 2
+    PartyCondition: 0
+  - Index: 91004
+    Title: "\uBD95\uBD95\uC5D4\uC9C4 \uAD50\uCCB4"
+    MissionType: 1
+    Description: "\uBD95\uBD95\uC5D4\uC9C4 \uAD50\uCCB4 2\uD68C \uC9C4\uD589"
+    MoneyType: 0
+    RewardQuantity: 500
+    TargetCount: 2
+    MissionVerb: 4
+    MissionObject: 1
+    PartyCondition: 0
+  - Index: 91005
+    Title: "\uC544\uC774\uD15C \uD68D\uB4DD"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 3\uD68C \uD68D\uB4DD"
+    MoneyType: 0
+    RewardQuantity: 1000
+    TargetCount: 3
+    MissionVerb: 0
+    MissionObject: 3
+    PartyCondition: 0
+  - Index: 91006
+    Title: "\uC544\uC774\uD15C \uC0AC\uC6A9"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 3\uD68C \uC0AC\uC6A9"
+    MoneyType: 1
+    RewardQuantity: 15
+    TargetCount: 3
+    MissionVerb: 1
+    MissionObject: 3
+    PartyCondition: 0
+  Achievements:
+  - Index: 92001
+    Title: "\uB204\uC801 \uB808\uC774\uC2A4 1"
+    MissionType: 0
+    Description: "\uB204\uC801 \uB808\uC774\uC2A4 50\uD68C \uC644\uC8FC"
+    MoneyType: 0
+    RewardQuantity: 15000
+    TargetCount: 50
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 2
+  - Index: 92002
+    Title: "\uB204\uC801 \uB808\uC774\uC2A4 2"
+    MissionType: 0
+    Description: "\uB204\uC801 \uB808\uC774\uC2A4 100\uD68C \uC644\uC8FC"
+    MoneyType: 0
+    RewardQuantity: 30000
+    TargetCount: 100
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 2
+  - Index: 92003
+    Title: "\uB204\uC801 \uB808\uC774\uC2A4 3"
+    MissionType: 0
+    Description: "\uB204\uC801 \uB808\uC774\uC2A4 150\uD68C \uC644\uC8FC"
+    MoneyType: 1
+    RewardQuantity: 150
+    TargetCount: 150
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 2
+  - Index: 92004
+    Title: "\uB204\uC801 \uB808\uC774\uC2A4 4"
+    MissionType: 0
+    Description: "\uB204\uC801 \uB808\uC774\uC2A4 300\uD68C \uC644\uC8FC"
+    MoneyType: 1
+    RewardQuantity: 300
+    TargetCount: 200
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 2
+  - Index: 92005
+    Title: "\uCE5C\uAD6C\uC640 \uD568\uAED8 \uB204\uC801 \uB808\uC774\uC2A4 1"
+    MissionType: 0
+    Description: "\uD30C\uD2F0\uB85C \uB204\uC801 \uB808\uC774\uC2A4 50\uD68C \uC644\uC8FC"
+    MoneyType: 0
+    RewardQuantity: 15000
+    TargetCount: 50
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 1
+  - Index: 92006
+    Title: "\uCE5C\uAD6C\uC640 \uD568\uAED8 \uB204\uC801 \uB808\uC774\uC2A4 2"
+    MissionType: 0
+    Description: "\uD30C\uD2F0\uB85C \uB204\uC801 \uB808\uC774\uC2A4 100\uD68C \uC644\uC8FC"
+    MoneyType: 0
+    RewardQuantity: 30000
+    TargetCount: 100
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 1
+  - Index: 92007
+    Title: "\uCE5C\uAD6C\uC640 \uD568\uAED8 \uB204\uC801 \uB808\uC774\uC2A4 3"
+    MissionType: 0
+    Description: "\uD30C\uD2F0\uB85C \uB204\uC801 \uB808\uC774\uC2A4 150\uD68C \uC644\uC8FC"
+    MoneyType: 1
+    RewardQuantity: 150
+    TargetCount: 150
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 1
+  - Index: 92008
+    Title: "\uCE5C\uAD6C\uC640 \uD568\uAED8 \uB204\uC801 \uB808\uC774\uC2A4 4"
+    MissionType: 0
+    Description: "\uD30C\uD2F0\uB85C \uB204\uC801 \uB808\uC774\uC2A4 300\uD68C \uC644\uC8FC"
+    MoneyType: 1
+    RewardQuantity: 300
+    TargetCount: 200
+    MissionVerb: 2
+    MissionObject: 0
+    PartyCondition: 1
+  - Index: 92005
+    Title: "\uC720\uB2C8\uBAA8 \uC218\uC9D1 1"
+    MissionType: 3
+    Description: "\uC720\uB2C8\uBAA8 2\uC885 \uC218\uC9D1"
+    MoneyType: 0
+    RewardQuantity: 15000
+    TargetCount: 2
+    MissionVerb: 3
+    MissionObject: 2
+    PartyCondition: 0
+  - Index: 92006
+    Title: "\uC720\uB2C8\uBAA8 \uC218\uC9D1 2"
+    MissionType: 3
+    Description: "\uC720\uB2C8\uBAA8 5\uC885 \uC218\uC9D1"
+    MoneyType: 0
+    RewardQuantity: 30000
+    TargetCount: 5
+    MissionVerb: 3
+    MissionObject: 2
+    PartyCondition: 0
+  - Index: 92007
+    Title: "\uC720\uB2C8\uBAA8 \uC218\uC9D1 3"
+    MissionType: 3
+    Description: "\uC720\uB2C8\uBAA8 7\uC885 \uC218\uC9D1"
+    MoneyType: 1
+    RewardQuantity: 150
+    TargetCount: 7
+    MissionVerb: 3
+    MissionObject: 2
+    PartyCondition: 0
+  - Index: 92008
+    Title: "\uC720\uB2C8\uBAA8 \uC218\uC9D1 4"
+    MissionType: 3
+    Description: "\uC720\uB2C8\uBAA8 10\uC885 \uC218\uC9D1"
+    MoneyType: 1
+    RewardQuantity: 300
+    TargetCount: 10
+    MissionVerb: 3
+    MissionObject: 2
+    PartyCondition: 0
+  - Index: 92009
+    Title: "\uBD95\uBD95\uC5D4\uC9C4 \uC218\uC9D1 1"
+    MissionType: 3
+    Description: "\uBD95\uBD95\uC5D4\uC9C4 2\uC885 \uC218\uC9D1"
+    MoneyType: 0
+    RewardQuantity: 15000
+    TargetCount: 2
+    MissionVerb: 3
+    MissionObject: 1
+    PartyCondition: 0
+  - Index: 92010
+    Title: "\uBD95\uBD95\uC5D4\uC9C4 \uC218\uC9D1 2"
+    MissionType: 3
+    Description: "\uBD95\uBD95\uC5D4\uC9C4 5\uC885 \uC218\uC9D1"
+    MoneyType: 0
+    RewardQuantity: 30000
+    TargetCount: 5
+    MissionVerb: 3
+    MissionObject: 1
+    PartyCondition: 0
+  - Index: 92011
+    Title: "\uBD95\uBD95\uC5D4\uC9C4 \uC218\uC9D1 3"
+    MissionType: 3
+    Description: "\uBD95\uBD95\uC5D4\uC9C4 7\uC885 \uC218\uC9D1"
+    MoneyType: 1
+    RewardQuantity: 150
+    TargetCount: 7
+    MissionVerb: 3
+    MissionObject: 1
+    PartyCondition: 0
+  - Index: 92012
+    Title: "\uBD95\uBD95\uC5D4\uC9C4 \uC218\uC9D1 4"
+    MissionType: 3
+    Description: "\uBD95\uBD95\uC5D4\uC9C4 10\uC885 \uC218\uC9D1"
+    MoneyType: 1
+    RewardQuantity: 300
+    TargetCount: 10
+    MissionVerb: 3
+    MissionObject: 1
+    PartyCondition: 0
+  - Index: 92013
+    Title: "\uACE8\uB4DC \uB204\uC801 1"
+    MissionType: 4
+    Description: "50000 \uACE8\uB4DC \uD68D\uB4DD"
+    MoneyType: 0
+    RewardQuantity: 15000
+    TargetCount: 50000
+    MissionVerb: 0
+    MissionObject: 4
+    PartyCondition: 0
+  - Index: 92014
+    Title: "\uACE8\uB4DC \uB204\uC801 2"
+    MissionType: 4
+    Description: "100000 \uACE8\uB4DC \uD68D\uB4DD"
+    MoneyType: 0
+    RewardQuantity: 30000
+    TargetCount: 100000
+    MissionVerb: 0
+    MissionObject: 4
+    PartyCondition: 0
+  - Index: 92015
+    Title: "\uACE8\uB4DC \uB204\uC801 3"
+    MissionType: 4
+    Description: "150000 \uACE8\uB4DC \uD68D\uB4DD"
+    MoneyType: 1
+    RewardQuantity: 150
+    TargetCount: 150000
+    MissionVerb: 0
+    MissionObject: 4
+    PartyCondition: 0
+  - Index: 92016
+    Title: "\uACE8\uB4DC \uB204\uC801 4"
+    MissionType: 4
+    Description: "300000 \uACE8\uB4DC \uD68D\uB4DD"
+    MoneyType: 1
+    RewardQuantity: 300
+    TargetCount: 300000
+    MissionVerb: 0
+    MissionObject: 4
+    PartyCondition: 0
+  - Index: 92017
+    Title: "\uC544\uC774\uD15C \uD68D\uB4DD 1"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 100\uD68C \uD68D\uB4DD"
+    MoneyType: 0
+    RewardQuantity: 15000
+    TargetCount: 100
+    MissionVerb: 0
+    MissionObject: 3
+    PartyCondition: 0
+  - Index: 92018
+    Title: "\uC544\uC774\uD15C \uD68D\uB4DD 2"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 150\uD68C \uD68D\uB4DD"
+    MoneyType: 0
+    RewardQuantity: 30000
+    TargetCount: 150
+    MissionVerb: 0
+    MissionObject: 3
+    PartyCondition: 0
+  - Index: 92019
+    Title: "\uC544\uC774\uD15C \uD68D\uB4DD 3"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 300\uD68C \uD68D\uB4DD"
+    MoneyType: 1
+    RewardQuantity: 150
+    TargetCount: 300
+    MissionVerb: 0
+    MissionObject: 3
+    PartyCondition: 0
+  - Index: 92020
+    Title: "\uC544\uC774\uD15C \uD68D\uB4DD 4"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 500\uD68C \uD68D\uB4DD"
+    MoneyType: 1
+    RewardQuantity: 300
+    TargetCount: 500
+    MissionVerb: 0
+    MissionObject: 3
+    PartyCondition: 0
+  - Index: 92021
+    Title: "\uC544\uC774\uD15C \uC0AC\uC6A9 1"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 100\uD68C \uC0AC\uC6A9"
+    MoneyType: 0
+    RewardQuantity: 15000
+    TargetCount: 100
+    MissionVerb: 0
+    MissionObject: 3
+    PartyCondition: 0
+  - Index: 92022
+    Title: "\uC544\uC774\uD15C \uC0AC\uC6A9 2"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 150\uD68C \uC0AC\uC6A9"
+    MoneyType: 0
+    RewardQuantity: 30000
+    TargetCount: 150
+    MissionVerb: 0
+    MissionObject: 3
+    PartyCondition: 0
+  - Index: 92023
+    Title: "\uC544\uC774\uD15C \uC0AC\uC6A9 3"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 300\uD68C \uC0AC\uC6A9"
+    MoneyType: 1
+    RewardQuantity: 150
+    TargetCount: 300
+    MissionVerb: 0
+    MissionObject: 3
+    PartyCondition: 0
+  - Index: 92024
+    Title: "\uC544\uC774\uD15C \uC0AC\uC6A9 4"
+    MissionType: 2
+    Description: "\uC544\uC774\uD15C 500\uD68C \uC0AC\uC6A9"
+    MoneyType: 1
+    RewardQuantity: 300
+    TargetCount: 500
+    MissionVerb: 0
+    MissionObject: 3
+    PartyCondition: 0
