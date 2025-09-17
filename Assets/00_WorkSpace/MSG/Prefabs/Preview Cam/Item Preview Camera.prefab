@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5320256131280193758}
   - component: {fileID: 1624099941254711956}
   - component: {fileID: 5604743825241634703}
-  - component: {fileID: 105238045744527137}
+  - component: {fileID: 1098689404608421087}
   m_Layer: 0
   m_Name: Item Preview Camera
   m_TagString: Untagged
@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5667068359329474344}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.7, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -41,7 +41,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5667068359329474344}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 2
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
@@ -129,7 +129,7 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!114 &105238045744527137
+--- !u!114 &1098689404608421087
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -138,9 +138,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5667068359329474344}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0c9d4b268ac772488c6426772e72d3f, type: 3}
+  m_Script: {fileID: 11500000, guid: a07a926cab9e22640a31ad4396c3f0ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cam: {fileID: 1624099941254711956}
-  _offset: {x: 0, y: 0.7, z: -2}
-  _fov: 60
+  _previewCam: {fileID: 1624099941254711956}
+  _fps: 30
+  _previewLayer:
+    serializedVersion: 2
+    m_Bits: 128

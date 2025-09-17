@@ -12,6 +12,8 @@ namespace MSG
 {
     public class ItemPreviewManager : Singleton<ItemPreviewManager>
     {
+        #region Fields and Properties
+
         [Header("프리뷰 오브젝트 설정")]
         [SerializeField] private string _previewLayer;          // 하나만 선택해야 됨. 이것 보다 좋은 방법이 있을 것 같은데...
                                                                 // LayerMask는 중복 가능성, string은 오타 가능, int는 뭐가 어떤 레이어인지 모르는 상태라서 셋 다 마음에는 안드는 듯
@@ -27,18 +29,19 @@ namespace MSG
         [SerializeField] GraphicsFormat _depthStencilFormat;
 
         [Header("Preview Camera 설정")]
-        [SerializeField] private GameObject _previewCameraPrefab;
-        [SerializeField] private string _cameraPoolName = "CameraPool";
-        [SerializeField] private int _cameraPoolCount = 8;
+        [SerializeField] private PreviewCameraScheduler _scheduler;
 
 
         private Dictionary<int, GameObject> _unimoObjs = new();
         private Dictionary<int, GameObject> _kartObjs = new();
 
-        private readonly Dictionary<int, GameObject> _acquiredCams = new();
         private readonly Dictionary<int, RenderTexture> _rtMap = new();
 
-        public bool Ready { get; private set; }
+
+        public bool Ready { get; private set; }     // 이거 실제로 쓸 때는 필요 없음
+
+        #endregion
+
 
         #region Unity Methods
 
@@ -52,7 +55,6 @@ namespace MSG
         {
             SpawnUnimos();
             SpawnKarts();
-            MakeCameraPool();
             Ready = true;
         }
 
@@ -72,9 +74,7 @@ namespace MSG
             RenderTexture rt = GetOrCreateRenderTexture(unimoId);
             targetRawImage.texture = rt;
 
-            GameObject camGo = AcquireCameraFor(unimoId);
-            PreviewCameraController ctrl = camGo.GetComponent<PreviewCameraController>();
-            ctrl.Bind(targetObj.transform, rt, _layer);
+            _scheduler.Register(unimoId, targetObj.transform, targetRawImage, rt);
         }
 
         public void BindKartPreview(int kartId, RawImage targetRawImage)
@@ -88,22 +88,12 @@ namespace MSG
             RenderTexture rt = GetOrCreateRenderTexture(kartId);
             targetRawImage.texture = rt;
 
-            GameObject camGo = AcquireCameraFor(kartId);
-            PreviewCameraController ctrl = camGo.GetComponent<PreviewCameraController>(); // GetComponent 안하고 싶은데 GameObject 말고도 PoolManager가 T를 받을 수 있도록 하면 좋을 듯?
-            ctrl.Bind(targetObj.transform, rt, _layer);
+            _scheduler.Register(kartId, targetObj.transform, targetRawImage, rt);
         }
 
         public void UnbindPreview(int id, RawImage rawImage = null)
         {
-            // 카메라 반납
-            if (_acquiredCams.TryGetValue(id, out GameObject camGo) && camGo != null)
-            {
-                PreviewCameraController ctrl = camGo.GetComponent<PreviewCameraController>();
-                ctrl.Unbind();
-                PoolManager.Instance.Despawn(camGo);
-                _acquiredCams.Remove(id);
-            }
-
+            _scheduler.Unregister(id);
             if (rawImage != null) rawImage.texture = null;
         }
 
@@ -168,11 +158,6 @@ namespace MSG
             }
         }
 
-        private void MakeCameraPool()
-        {
-            PoolManager.Instance.CreatePool(_cameraPoolName, _previewCameraPrefab, _cameraPoolCount);
-        }
-
         private RenderTexture GetOrCreateRenderTexture(int id)
         {
             if (_rtMap.TryGetValue(id, out RenderTexture rt) && rt != null) return rt;
@@ -186,20 +171,6 @@ namespace MSG
 
             _rtMap[id] = rt;
             return rt;
-        }
-
-        // 지금은 전부 다 생성해서 쓰고 있는 구조인데, UV좌표 보고 UI가 안보인다면 Unbind해서 쓰면 돌려쓰면 될 듯
-        // 내 컴퓨터 기준 카메라 8개만 쓰면 180 프레임, 26개 다 쓰면 80프레임 나옴
-        // 카메라 하나만 쓰고 LateUpdate에서 RenderTarget을 한 프레임 내에 옮겨 다니면서 찍을 수도 있을 것 같은데
-        // 성능은 비슷할 것 같은데 한 번 직접 해보긴 해야될 듯
-        private GameObject AcquireCameraFor(int id)
-        {
-            if (_acquiredCams.TryGetValue(id, out GameObject camGo) && camGo != null)
-                return camGo;
-
-            camGo = PoolManager.Instance.Spawn(_cameraPoolName, Vector3.zero, Quaternion.identity);
-            _acquiredCams[id] = camGo;
-            return camGo;
         }
 
         private void LayerMaskToLayer()
@@ -218,6 +189,9 @@ namespace MSG
         }
 
         #endregion
+
+
+        #region Debug Methods
 
         [Button("Debug Dict")]
         private void DebugDict()
@@ -244,5 +218,7 @@ namespace MSG
 
             Debug.Log(sb);
         }
+
+        #endregion
     }
 }

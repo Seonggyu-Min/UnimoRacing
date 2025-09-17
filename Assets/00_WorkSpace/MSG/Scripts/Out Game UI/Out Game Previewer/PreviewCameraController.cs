@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace MSG
 {
+    // 기존 카메라를 여러 대 두던 방식에서 하나만 쓰는 방식으로 바꿔서 이제 쓰지 않는 클래스입니다.
     public class PreviewCameraController : MonoBehaviour
     {
         [SerializeField] private Camera _cam;
