@@ -16,6 +16,8 @@ namespace MSG
         [SerializeField] private int _unimoId = -1;
         [SerializeField] private int _kartId = -1;
 
+        public bool IsBound { get; private set; }
+
 
         private void OnEnable()
         {
@@ -29,6 +31,26 @@ namespace MSG
             else if (_kartId >= 0)
                 ItemPreviewManager.Instance.UnbindPreview(_kartId, _rawImage);
         }
+
+
+        public void TryBind()
+        {
+            if (IsBound) return;
+
+            if (_unimoId >= 0) ItemPreviewManager.Instance.BindUnimoPreview(_unimoId, _rawImage);
+            else if (_kartId >= 0) ItemPreviewManager.Instance.BindKartPreview(_kartId, _rawImage);
+            IsBound = true;
+        }
+
+        public void TryUnbind()
+        {
+            if (!IsBound) return;
+
+            if (_unimoId >= 0) ItemPreviewManager.Instance.UnbindPreview(_unimoId, _rawImage);
+            else if (_kartId >= 0) ItemPreviewManager.Instance.UnbindPreview(_kartId, _rawImage);
+            IsBound = false;
+        }
+
 
         // 실제로는 시작하자 마자 첫 프레임에 상점을 열 일이 없으니까 코루틴 필요 없을 듯
         private IEnumerator Wait()
