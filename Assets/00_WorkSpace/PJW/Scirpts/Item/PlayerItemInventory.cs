@@ -87,7 +87,6 @@ namespace PJW
 
             usable.Use(ownerView != null ? ownerView.gameObject : gameObject);
 
-            // 사용 완료 → 큐에서 제거
             items.Dequeue();
 
             FireChangedEvents();
@@ -127,9 +126,11 @@ namespace PJW
         private IEnumerator LockRoutine(float duration)
         {
             CanUseItem = false;
-            yield return new WaitForSeconds(duration);
+            OnItemAvailabilityChanged?.Invoke(HasItem);
+            yield return new WaitForSecondsRealtime(duration);
             CanUseItem = true;
             lockRoutine = null;
+            OnItemAvailabilityChanged?.Invoke(HasItem);
         }
 
         [PunRPC]
