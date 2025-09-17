@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterId: 20008
   characterName: "\uC544\uC6B0\uAD6C\uC2A4\uD22C\uC2A4"
-  characterPrefab: {fileID: 805713175675155010, guid: 561fb7f1436b6974b948d1172da9bdea,
-    type: 3}
-  characterSprite: {fileID: 21300000, guid: 906822dda85bcd44182f0742237caa4c, type: 3}
+  characterPrefab: {fileID: 0}
+  characterSprite: {fileID: 0}
   characterInfo: 
   SynergyKartID: 10008
   relationCharacterId: -1

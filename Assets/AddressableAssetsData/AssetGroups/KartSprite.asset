@@ -20,117 +20,140 @@ MonoBehaviour:
   - m_GUID: 00145deaca1149a41a67a7438509ae80
     m_Address: HoneyJar_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0b9186369dcd4e448ba1ae22ea294339
     m_Address: HatchedEgg_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0e7d9081fe1d7c540ac761a155cd13a1
     m_Address: Trashcan_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1c72d4b94ed2d6740a3e0e7bfa9e93ba
     m_Address: Icecream_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 22ead7b9a7b07934da0f4c1d9e29c8d9
     m_Address: DogBowl_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2e5cd44ea3d59974ab58e33d71b3bd43
     m_Address: Scootus_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2ebf4a5eff1cb124f8365b2c6380e025
     m_Address: Box_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 32a165f820e00894aaa4431c6e00bcde
     m_Address: CleanBucket_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 35f7a2e6f9db5cb4e8f929d41dfb6bda
     m_Address: BathTub_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3db93fc29ad9e744c8308e3f01b4142e
     m_Address: MonoPlane_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4066771a27750cd4b9a9641a528b9ab4
     m_Address: Sack_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 531215ba61898634aa9f618bf595c999
     m_Address: Vase_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 74eb02dfd2dd7eb4c8f1770d26a29c78
     m_Address: EmperorPenguin_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7b93000b215e8024198619d99f5dd32b
     m_Address: BeeTail_Spirte
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8444abae7e4bfd14f9a69a0331e6dcfe
     m_Address: ElfCup_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9ee4786cdf73b6641b371868d33b69ee
     m_Address: DogHouse_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a5c974c50fbc3154aa1d38d3d67355ea
     m_Address: SandCastle_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: afe458fb495cf084cb14fbc7d590e5da
     m_Address: Illustration_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c211f8ea5b051f243afadcb33a6759f0
     m_Address: Toaster_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: de6b1c4cc18d1514dacab49b2700bd12
     m_Address: StoneMortor_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e30ebb12162adc740adb3755b43a9c12
     m_Address: WitchSot_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e9e9948515bc1b042b33d1831eb08f45
     m_Address: MagicHat_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: eec46f469883a854d87c943bf701185e
     m_Address: Cloud_Sprite
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 77e2d83c7e8f57943b8b09c4fc47a174, type: 2}

@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   KartID: 10009
   carName: "\uD654\uBD84"
-  kartPrefab: {fileID: 8342296028819981113, guid: 2bc57a6f409c34048aecfd7f2b755677,
-    type: 3}
-  kartSprite: {fileID: 21300000, guid: 531215ba61898634aa9f618bf595c999, type: 3}
+  kartPrefab: {fileID: 0}
+  kartSprite: {fileID: 0}
   carDesc: 
   passiveSkillId: 11009
   useAddr: 1

@@ -20,12 +20,19 @@ MonoBehaviour:
   - m_GUID: 11e60bbd464b4c048bca3c2a6a4334c3
     m_Address: TempMap1
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3f2e10d0590e1b14488dd31e4c5d44db
     m_Address: YTW_TestScene2
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5a5fabb214248234e9c832324ee09207
+    m_Address: Lobby_Remote
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a0ad8752317dd5e4993bf795a5052bff
     m_Address: PlayerTest
@@ -36,7 +43,8 @@ MonoBehaviour:
   - m_GUID: ae4bc337421af0a43b74517a8f307aa0
     m_Address: TempMap2
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ddaf5916e2b237d418f40639d2f4808f
     m_Address: Player1
