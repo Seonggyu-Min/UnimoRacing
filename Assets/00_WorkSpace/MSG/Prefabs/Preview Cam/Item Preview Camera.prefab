@@ -75,7 +75,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 128
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 8400000, guid: 679ec1ad934d4cf4487839e892c92c87, type: 2}
+  m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -146,3 +146,5 @@ MonoBehaviour:
   _previewLayer:
     serializedVersion: 2
     m_Bits: 128
+  _offset: {x: 0, y: 0.7, z: -2}
+  _fov: 60

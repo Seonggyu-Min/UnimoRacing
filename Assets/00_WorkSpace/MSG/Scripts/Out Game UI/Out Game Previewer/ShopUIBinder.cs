@@ -19,18 +19,18 @@ namespace MSG
         public bool IsBound { get; private set; }
 
 
-        private void OnEnable()
-        {
-            StartCoroutine(Wait());
-        }
+        //private void OnEnable()
+        //{
+        //    StartCoroutine(Wait());
+        //}
 
-        private void OnDisable()
-        {
-            if (UnimoId >= 0)
-                ItemPreviewManager.Instance.UnbindPreview(UnimoId, _rawImage);
-            else if (KartId >= 0)
-                ItemPreviewManager.Instance.UnbindPreview(KartId, _rawImage);
-        }
+        //private void OnDisable()
+        //{
+        //    if (UnimoId >= 0)
+        //        ItemPreviewManager.Instance.UnbindPreview(UnimoId, _rawImage);
+        //    else if (KartId >= 0)
+        //        ItemPreviewManager.Instance.UnbindPreview(KartId, _rawImage);
+        //}
 
 
         public void TryBind()
@@ -53,12 +53,12 @@ namespace MSG
 
 
         // 실제로는 시작하자 마자 첫 프레임에 상점을 열 일이 없으니까 코루틴 필요 없을 듯
-        private IEnumerator Wait()
-        {
-            yield return new WaitUntil(() => ItemPreviewManager.Instance != null && ItemPreviewManager.Instance.Ready);
+        //private IEnumerator Wait()
+        //{
+        //    yield return new WaitUntil(() => ItemPreviewManager.Instance != null && ItemPreviewManager.Instance.Ready);
 
-            if (UnimoId >= 0) ItemPreviewManager.Instance.BindUnimoPreview(UnimoId, _rawImage);
-            else if (KartId >= 0) ItemPreviewManager.Instance.BindKartPreview(KartId, _rawImage);
-        }
+        //    if (UnimoId >= 0) ItemPreviewManager.Instance.BindUnimoPreview(UnimoId, _rawImage);
+        //    else if (KartId >= 0) ItemPreviewManager.Instance.BindKartPreview(KartId, _rawImage);
+        //}
     }
 }

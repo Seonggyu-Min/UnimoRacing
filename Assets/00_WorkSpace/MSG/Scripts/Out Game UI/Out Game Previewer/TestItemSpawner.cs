@@ -14,9 +14,17 @@ namespace MSG
         [SerializeField] private List<ShopUIBinder> _unimos = new();
         [SerializeField] private List<ShopUIBinder> _karts = new();
 
-
+        // 실제로는 스크롤 뷰가 켜질 때 등록하고, 꺼질 때 해제해야 함
+        // 근데 Start에서 테스트용으로 호출했고, 초기화가 안됐는데 Register해서 코루틴으로 한 프레임 기다림
         private void Start()
         {
+            StartCoroutine(Wait());
+        }
+
+        private IEnumerator Wait()
+        {
+            yield return null;
+
             Dictionary<int, ShopUIBinder> unimoDict = new();
             foreach (var unimo in _unimos)
                 unimoDict.Add(unimo.UnimoId, unimo);

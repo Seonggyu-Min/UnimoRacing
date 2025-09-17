@@ -246,7 +246,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 916522323}
-  UnimoId: -1
+  UnimoId: 10012
   KartId: -1
 --- !u!114 &15072037
 MonoBehaviour:
@@ -338,7 +338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 518016941}
-  UnimoId: -1
+  UnimoId: 10011
   KartId: -1
 --- !u!114 &60515168
 MonoBehaviour:
@@ -1077,7 +1077,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1034843636}
-  UnimoId: -1
+  UnimoId: 10010
   KartId: -1
 --- !u!114 &306029969
 MonoBehaviour:
@@ -2572,7 +2572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1526055374}
-  UnimoId: -1
+  UnimoId: 10001
   KartId: -1
 --- !u!114 &941615040
 MonoBehaviour:
@@ -2976,7 +2976,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1903041927}
-  UnimoId: -1
+  UnimoId: 10003
   KartId: -1
 --- !u!114 &1101292957
 MonoBehaviour:
@@ -3389,7 +3389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 345055002}
-  UnimoId: -1
+  UnimoId: 10005
   KartId: -1
 --- !u!114 &1260354753
 MonoBehaviour:
@@ -3875,7 +3875,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 238828919}
-  UnimoId: -1
+  UnimoId: 10009
   KartId: -1
 --- !u!114 &1457862247
 MonoBehaviour:
@@ -4039,7 +4039,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1810555426}
-  UnimoId: -1
+  UnimoId: 10002
   KartId: -1
 --- !u!114 &1534487829
 MonoBehaviour:
@@ -4586,7 +4586,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 413849777}
-  UnimoId: -1
+  UnimoId: 10008
   KartId: -1
 --- !u!114 &1740906468
 MonoBehaviour:
@@ -4822,7 +4822,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1417659239}
-  UnimoId: -1
+  UnimoId: 10004
   KartId: -1
 --- !u!114 &1830528740
 MonoBehaviour:
@@ -5162,7 +5162,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 157478700}
-  UnimoId: -1
+  UnimoId: 10013
   KartId: -1
 --- !u!114 &1936572790
 MonoBehaviour:
@@ -5254,7 +5254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 150753787}
-  UnimoId: -1
+  UnimoId: 10007
   KartId: -1
 --- !u!114 &2010448023
 MonoBehaviour:
@@ -5538,7 +5538,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 972345699}
-  UnimoId: -1
+  UnimoId: 10006
   KartId: -1
 --- !u!114 &2122902188
 MonoBehaviour:
@@ -5658,11 +5658,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1624099941254711956, guid: 820ab866c7a7da3409c7d60b1665f41c,
-        type: 3}
-      propertyPath: m_TargetTexture
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 5320256131280193758, guid: 820ab866c7a7da3409c7d60b1665f41c,
         type: 3}
       propertyPath: m_LocalPosition.x

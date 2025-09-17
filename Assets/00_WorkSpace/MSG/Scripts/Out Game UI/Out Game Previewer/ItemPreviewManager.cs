@@ -74,7 +74,7 @@ namespace MSG
             RenderTexture rt = GetOrCreateRenderTexture(unimoId);
             targetRawImage.texture = rt;
 
-            _scheduler.Register(unimoId, targetObj.transform, targetRawImage, rt);
+            _scheduler?.Register(unimoId, targetObj.transform, targetRawImage, rt);
         }
 
         public void BindKartPreview(int kartId, RawImage targetRawImage)
@@ -88,7 +88,7 @@ namespace MSG
             RenderTexture rt = GetOrCreateRenderTexture(kartId);
             targetRawImage.texture = rt;
 
-            _scheduler.Register(kartId, targetObj.transform, targetRawImage, rt);
+            _scheduler?.Register(kartId, targetObj.transform, targetRawImage, rt);
         }
 
         public void UnbindPreview(int id, RawImage rawImage = null)

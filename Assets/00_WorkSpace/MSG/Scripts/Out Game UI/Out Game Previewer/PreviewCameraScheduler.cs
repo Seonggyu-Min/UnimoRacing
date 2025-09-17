@@ -18,13 +18,13 @@ namespace MSG
         }
 
         [SerializeField] private Camera _previewCam;
-        [SerializeField][Range(0, 100)] private int _fps = 15;
+        [SerializeField][Range(1, 100)] private int _fps = 15;
         [SerializeField] private LayerMask _previewLayer;
         [SerializeField] private Vector3 _offset = new Vector3(0f, 0.7f, -2f);
         [SerializeField] private float _fov = 60f;
 
         private float _interval;
-        private List<PreviewJob> _jobs = new();
+        private Dictionary<int, PreviewJob> _jobs = new();
 
 
         private void Awake()
@@ -44,10 +44,10 @@ namespace MSG
 
             foreach (var job in _jobs)
             {
-                if (now >= job.NextTime)
+                if (now >= job.Value.NextTime)
                 {
-                    RenderOne(job);
-                    job.NextTime = now + _interval;
+                    RenderOne(job.Value);
+                    job.Value.NextTime = now + _interval;
                 }
             }
         }
@@ -56,20 +56,20 @@ namespace MSG
         public void Register(int id, Transform target, RawImage raw, RenderTexture rt)
         {
             raw.texture = rt;
-            _jobs.Add(new PreviewJob
+            if (_jobs.TryGetValue(id, out var job))
             {
-                Id = id,
-                Target = target,
-                Raw = raw,
-                RT = rt,
-                NextTime = 0f
-            });
+                job.Target = target;
+                job.RT = rt;
+                job.Raw = raw;
+                job.NextTime = 0f;
+            }
+            else
+            {
+                _jobs[id] = new PreviewJob { Id = id, Target = target, RT = rt, Raw = raw, NextTime = 0f };
+            }
         }
 
-        public void Unregister(int id)
-        {
-            _jobs.RemoveAll(j => j.Id == id);
-        }
+        public void Unregister(int id) => _jobs.Remove(id);
 
 
         private void RenderOne(PreviewJob job)
