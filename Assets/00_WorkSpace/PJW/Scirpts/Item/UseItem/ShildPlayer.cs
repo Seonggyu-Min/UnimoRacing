@@ -18,6 +18,12 @@ namespace PJW
             ActivateShield(duration);
         }
 
+        [PunRPC] 
+        public void RpcConsumeShield()
+        {
+            SuccessShield(consume: true);
+        }
+
         public void ActivateShield(float duration)
         {
             if (shieldRoutine != null)
@@ -47,7 +53,6 @@ namespace PJW
                 }
                 isShieldActive = false;
             }
-
             return true;
         }
     }

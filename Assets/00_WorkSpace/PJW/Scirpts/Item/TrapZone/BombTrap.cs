@@ -8,7 +8,7 @@ namespace PJW
     [RequireComponent(typeof(PhotonView))]
     public class BombTrap : MonoBehaviourPun
     {
-        [SerializeField] private float stopDuration = 1.5f;
+        [SerializeField] private float stopDuration;
         private bool hasTriggered;
 
         private void OnTriggerEnter(Collider other)
@@ -17,8 +17,21 @@ namespace PJW
                 return;
 
             var targetPv = other.GetComponentInParent<PhotonView>();
-            if (targetPv == null)
+            if (targetPv == null || targetPv.Owner == null)
                 return;
+
+            var shield = targetPv.GetComponent<PlayerShield>() ??
+                         targetPv.GetComponentInChildren<PlayerShield>(true);
+
+            if (shield != null && shield.IsShieldActive)
+            {
+                // 소유자에게 실드 소비 RPC
+                targetPv.RPC(nameof(PlayerShield.RpcConsumeShield), targetPv.Owner);
+
+                hasTriggered = true;
+                PhotonNetwork.Destroy(gameObject);
+                return; 
+            }
 
             hasTriggered = true;
 
@@ -37,7 +50,7 @@ namespace PJW
                 });
 
             if (myRacer != null)
-                StartCoroutine(CoStop(myRacer, duration));
+                myRacer.StartCoroutine(CoStop(myRacer, duration));
         }
 
         private IEnumerator CoStop(PlayerRaceData racer, float duration)
