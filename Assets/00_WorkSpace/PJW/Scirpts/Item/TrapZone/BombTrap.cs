@@ -17,8 +17,21 @@ namespace PJW
                 return;
 
             var targetPv = other.GetComponentInParent<PhotonView>();
-            if (targetPv == null)
+            if (targetPv == null || targetPv.Owner == null)
                 return;
+
+            var shield = targetPv.GetComponent<PlayerShield>() ??
+                         targetPv.GetComponentInChildren<PlayerShield>(true);
+
+            if (shield != null && shield.IsShieldActive)
+            {
+                // 소유자에게 실드 소비 RPC
+                targetPv.RPC(nameof(PlayerShield.RpcConsumeShield), targetPv.Owner);
+
+                hasTriggered = true;
+                PhotonNetwork.Destroy(gameObject);
+                return; 
+            }
 
             hasTriggered = true;
 

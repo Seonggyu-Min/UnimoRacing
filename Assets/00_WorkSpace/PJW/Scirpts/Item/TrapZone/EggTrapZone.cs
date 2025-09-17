@@ -209,18 +209,31 @@ namespace PJW
             var targetPv = other.GetComponentInParent<PhotonView>();
             if (targetPv == null || targetPv.Owner == null) return;
 
+            // 실드 우선 체크
+            var shield = targetPv.GetComponent<PlayerShield>()
+                         ?? targetPv.GetComponentInChildren<PlayerShield>(true);
+
+            if (shield != null && shield.IsShieldActive)
+            {
+                // 실드 소비
+                targetPv.RPC(nameof(PlayerShield.RpcConsumeShield), targetPv.Owner);
+
+                isTriggered = true;
+                photonView.RPC(nameof(RpcHideAndDisable), RpcTarget.All);
+                photonView.RPC(nameof(RpcDestroySelfDelayed), RpcTarget.AllBuffered, 0.1f);
+                return; 
+            }
+
+            // ----- 실드가 없거나 꺼져 있으면 기존 로직 수행 -----
             var cart = other.GetComponentInParent<CinemachineDollyCart>();
             if (cart == null) return;
 
             isTriggered = true;
-
             photonView.RPC(nameof(RpcHideAndDisable), RpcTarget.All);
 
-            // 로컬 소유자에게: 이전 효과 즉시 원복 후 새 효과 적용
             photonView.RPC(nameof(RpcApplyTrapReplaceOld), targetPv.Owner,
                 boostMultiplier, boostTime, waitAfterBoost, stopDuration, minSpeed);
 
-            // 트랩은 네트워크에서 제거 (여유시간 포함)
             float total = boostTime + waitAfterBoost + stopDuration + 0.2f;
             photonView.RPC(nameof(RpcDestroySelfDelayed), RpcTarget.AllBuffered, total);
         }
@@ -260,6 +273,15 @@ namespace PJW
         [PunRPC]
         private void RpcApplyTrapReplaceOld(float mul, float boostSec, float waitSec, float stopSec, float minSpd)
         {
+            var localPv = FindObjectOfType<PhotonView>(); 
+            var shield = localPv ? (localPv.GetComponent<PlayerShield>() ?? localPv.GetComponentInChildren<PlayerShield>(true)) : null;
+
+            if (shield != null && shield.IsShieldActive)
+            {
+                shield.SuccessShield(consume: true); // 로컬 즉시 소비
+                return;
+            }
+
             var raceData = FindLocalRaceData();
             var cart = FindLocalCart();
             if (cart == null) return;
