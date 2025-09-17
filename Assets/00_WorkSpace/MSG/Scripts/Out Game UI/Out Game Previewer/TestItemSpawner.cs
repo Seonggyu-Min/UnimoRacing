@@ -17,7 +17,11 @@ namespace MSG
 
         private void Start()
         {
-            ScrollItemChecker.Instance.Register(_scrollRect, _unimos);
+            Dictionary<int, ShopUIBinder> unimoDict = new();
+            foreach (var unimo in _unimos)
+                unimoDict.Add(unimo.UnimoId, unimo);
+
+            ScrollItemChecker.Instance.Register(_scrollRect, unimoDict);
         }
     }
 }

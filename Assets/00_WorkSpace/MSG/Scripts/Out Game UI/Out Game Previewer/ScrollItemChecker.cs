@@ -17,13 +17,19 @@ namespace MSG
         private ScrollRect _scrollRect;
         private Rect _viewRect;
 
-        private List<ShopUIBinder> _items;  // 실제로는 Dictionary만 쓰고 있으니까 타입을 List가 아니라 IEnumerable으로 바꿔도 될 듯
+        private IDictionary<int, ShopUIBinder> _items;  // 실제로는 Dictionary만 쓰고 있으니까 타입을 List가 아니라 IEnumerable으로 바꿔도 될 듯
 
         private UnityAction<Vector2> _onScrollChanged;
 
-
-        public void Register(ScrollRect scrollRect, List<ShopUIBinder> items)
+        private void Awake()
         {
+            SingletonInit();
+        }
+
+        public void Register(ScrollRect scrollRect, IDictionary<int, ShopUIBinder> items)
+        {
+            Unregister();
+
             _scrollRect = scrollRect;
             _items = items;
 
@@ -65,15 +71,15 @@ namespace MSG
             UpdateViewRect();
             foreach (var item in _items)
             {
-                if (item == null || !item.isActiveAndEnabled) continue;
+                if (item.Value == null || !item.Value.isActiveAndEnabled) continue;
 
-                var rt = (RectTransform)item.transform;
+                var rt = (RectTransform)item.Value.transform;
                 if (rt == null) continue;
 
                 bool visible = _viewRect.Overlaps(GetWorldRect(rt), true);
 
-                if (visible) item.TryBind();
-                else if (_unbindWhenInvisible) item.TryUnbind();
+                if (visible) item.Value.TryBind();
+                else if (_unbindWhenInvisible) item.Value.TryUnbind();
             }
         }
 

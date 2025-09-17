@@ -246,8 +246,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 916522323}
-  _unimoId: -1
-  _kartId: 10012
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &15072037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,8 +338,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 518016941}
-  _unimoId: -1
-  _kartId: 10011
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &60515168
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -681,8 +681,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 582350266}
-  _unimoId: 20003
-  _kartId: -1
+  UnimoId: 20003
+  KartId: -1
 --- !u!114 &160680010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -985,8 +985,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 7787805}
-  _unimoId: 20011
-  _kartId: -1
+  UnimoId: 20011
+  KartId: -1
 --- !u!114 &304793147
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1077,8 +1077,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1034843636}
-  _unimoId: -1
-  _kartId: 10010
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &306029969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1313,8 +1313,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1653603281}
-  _unimoId: 20004
-  _kartId: -1
+  UnimoId: 20004
+  KartId: -1
 --- !u!114 &401239477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1405,8 +1405,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1823349258}
-  _unimoId: 20013
-  _kartId: -1
+  UnimoId: 20013
+  KartId: -1
 --- !u!114 &404839923
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1535,8 +1535,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 823928663}
-  _unimoId: 20001
-  _kartId: -1
+  UnimoId: 20001
+  KartId: -1
 --- !u!1 &413849775
 GameObject:
   m_ObjectHideFlags: 0
@@ -1736,8 +1736,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1598317384}
-  _unimoId: 20012
-  _kartId: -1
+  UnimoId: 20012
+  KartId: -1
 --- !u!114 &479519454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2162,8 +2162,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1666823658}
-  _unimoId: 20009
-  _kartId: -1
+  UnimoId: 20009
+  KartId: -1
 --- !u!114 &663139520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2572,8 +2572,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1526055374}
-  _unimoId: -1
-  _kartId: 10001
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &941615040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2976,8 +2976,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1903041927}
-  _unimoId: -1
-  _kartId: 10003
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &1101292957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3068,8 +3068,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1739216921}
-  _unimoId: 20005
-  _kartId: -1
+  UnimoId: 20005
+  KartId: -1
 --- !u!114 &1173212176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3389,8 +3389,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 345055002}
-  _unimoId: -1
-  _kartId: 10005
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &1260354753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3481,8 +3481,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 341777211}
-  _unimoId: 20002
-  _kartId: -1
+  UnimoId: 20002
+  KartId: -1
 --- !u!114 &1344041984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3573,8 +3573,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 267217598}
-  _unimoId: 20008
-  _kartId: -1
+  UnimoId: 20008
+  KartId: -1
 --- !u!114 &1365284024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3783,8 +3783,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1854462314}
-  _unimoId: 20010
-  _kartId: -1
+  UnimoId: 20010
+  KartId: -1
 --- !u!114 &1429302363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3875,8 +3875,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 238828919}
-  _unimoId: -1
-  _kartId: 10009
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &1457862247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4039,8 +4039,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1810555426}
-  _unimoId: -1
-  _kartId: 10002
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &1534487829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4131,8 +4131,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 156615191}
-  _unimoId: 20006
-  _kartId: -1
+  UnimoId: 20006
+  KartId: -1
 --- !u!114 &1548036793
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4586,8 +4586,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 413849777}
-  _unimoId: -1
-  _kartId: 10008
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &1740906468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4822,8 +4822,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 1417659239}
-  _unimoId: -1
-  _kartId: 10004
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &1830528740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4914,8 +4914,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 2142801286}
-  _unimoId: 20007
-  _kartId: -1
+  UnimoId: 20007
+  KartId: -1
 --- !u!114 &1837755797
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5162,8 +5162,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 157478700}
-  _unimoId: -1
-  _kartId: 10013
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &1936572790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5254,8 +5254,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 150753787}
-  _unimoId: -1
-  _kartId: 10007
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &2010448023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5538,8 +5538,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rawImage: {fileID: 972345699}
-  _unimoId: -1
-  _kartId: 10006
+  UnimoId: -1
+  KartId: -1
 --- !u!114 &2122902188
 MonoBehaviour:
   m_ObjectHideFlags: 0

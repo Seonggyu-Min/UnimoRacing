@@ -13,8 +13,8 @@ namespace MSG
         [SerializeField] private RawImage _rawImage;
 
         // 이건 실제 UI에서 들고 있어서 실제로는 해당 값 넘겨주면 됨
-        [SerializeField] private int _unimoId = -1;
-        [SerializeField] private int _kartId = -1;
+        public int UnimoId = -1;
+        public int KartId = -1;
 
         public bool IsBound { get; private set; }
 
@@ -26,10 +26,10 @@ namespace MSG
 
         private void OnDisable()
         {
-            if (_unimoId >= 0)
-                ItemPreviewManager.Instance.UnbindPreview(_unimoId, _rawImage);
-            else if (_kartId >= 0)
-                ItemPreviewManager.Instance.UnbindPreview(_kartId, _rawImage);
+            if (UnimoId >= 0)
+                ItemPreviewManager.Instance.UnbindPreview(UnimoId, _rawImage);
+            else if (KartId >= 0)
+                ItemPreviewManager.Instance.UnbindPreview(KartId, _rawImage);
         }
 
 
@@ -37,8 +37,8 @@ namespace MSG
         {
             if (IsBound) return;
 
-            if (_unimoId >= 0) ItemPreviewManager.Instance.BindUnimoPreview(_unimoId, _rawImage);
-            else if (_kartId >= 0) ItemPreviewManager.Instance.BindKartPreview(_kartId, _rawImage);
+            if (UnimoId >= 0) ItemPreviewManager.Instance.BindUnimoPreview(UnimoId, _rawImage);
+            else if (KartId >= 0) ItemPreviewManager.Instance.BindKartPreview(KartId, _rawImage);
             IsBound = true;
         }
 
@@ -46,8 +46,8 @@ namespace MSG
         {
             if (!IsBound) return;
 
-            if (_unimoId >= 0) ItemPreviewManager.Instance.UnbindPreview(_unimoId, _rawImage);
-            else if (_kartId >= 0) ItemPreviewManager.Instance.UnbindPreview(_kartId, _rawImage);
+            if (UnimoId >= 0) ItemPreviewManager.Instance.UnbindPreview(UnimoId, _rawImage);
+            else if (KartId >= 0) ItemPreviewManager.Instance.UnbindPreview(KartId, _rawImage);
             IsBound = false;
         }
 
@@ -57,8 +57,8 @@ namespace MSG
         {
             yield return new WaitUntil(() => ItemPreviewManager.Instance != null && ItemPreviewManager.Instance.Ready);
 
-            if (_unimoId >= 0) ItemPreviewManager.Instance.BindUnimoPreview(_unimoId, _rawImage);
-            else if (_kartId >= 0) ItemPreviewManager.Instance.BindKartPreview(_kartId, _rawImage);
+            if (UnimoId >= 0) ItemPreviewManager.Instance.BindUnimoPreview(UnimoId, _rawImage);
+            else if (KartId >= 0) ItemPreviewManager.Instance.BindKartPreview(KartId, _rawImage);
         }
     }
 }
