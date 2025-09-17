@@ -91,6 +91,9 @@ namespace MSG
 
         private void UpdateUI()
         {
+            Debug.Log($"Item ID: {_itemId}, Cost: {_itemCost}, Money Type: {_moneyType}");
+            Debug.Log($"_moneyType: {_moneyType}, GameMoneySprite null: {_gameMoneySprite == null}, CashSprite null: {_cashSprite == null}");
+            
             // _currentLevel 값이 이제 올바르게 설정되었으므로,
             // 이 값을 사용하여 UI 상태를 결정합니다.
             if (_currentLevel > 0)
@@ -100,12 +103,17 @@ namespace MSG
                 _buyButtonText.text = "보유 중";
                 _priceText.text = ""; // 가격 텍스트 숨기기
                 _currencyImage.enabled = false; // 화폐 이미지 숨기기
+
+                if (_moneyType != MoneyType.None)
+                {
+                    _currencyImage.sprite = (_moneyType == MoneyType.Gold) ? _gameMoneySprite : _cashSprite;
+                }
             }
             else
             {
                 // 아직 소유하지 않은 아이템
                 _buyButton.interactable = true;
-                _buyButtonText.text = "획득";
+                _buyButtonText.text = "구매하기";
                 _priceText.text = _itemCost.ToString();
                 _currencyImage.enabled = true; // 화폐 이미지 보이기
 

@@ -64,6 +64,7 @@ public class ShopListManager : PopupBase
             button.SetupButton(so.characterName, so.characterSprite, string.Empty, so.currencyType);
             button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Unimo, so.characterId);
             _unimoDict.Add(so.characterId, button);
+            button.RefreshItemState(0);
         }
 
         // 카트 버튼 생성
@@ -77,6 +78,7 @@ public class ShopListManager : PopupBase
             button.SetupButton(so.carName, so.kartSprite, string.Empty, so.currencyType);
             button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Kart, so.KartID);
             _kartDict.Add(so.KartID, button);
+            button.RefreshItemState(0);
         }
     }
 
