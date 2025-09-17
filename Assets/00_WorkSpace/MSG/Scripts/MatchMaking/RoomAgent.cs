@@ -27,6 +27,14 @@ namespace MSG
 
         public async Task JoinOrCreateAsync(string roomName, RoomOptions options)
         {
+            Debug.Log($"JoinOrCreateAsync 호출됨. 들어가고자 하는 방 이름: {roomName}");
+
+            if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom != null && PhotonNetwork.CurrentRoom.Name == roomName)
+            {
+                Debug.Log($"[JoinOrCreateAsync] 이미 목표한 방({PhotonNetwork.CurrentRoom.Name})에 있어 Early Return");
+                return;
+            }
+
             if (PhotonNetwork.InRoom)
             {
                 Debug.Log($"[JoinOrCreateAsync] 이미 방({PhotonNetwork.CurrentRoom.Name})에 있어 LeaveRoom 호출");

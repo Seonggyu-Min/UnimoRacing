@@ -29,6 +29,7 @@ namespace MSG
 
         private const int INIT_LEVEL = 1; // 1이 강화가 안된, 소지 여부만을 검증하는 레벨로 간주
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
+        private Coroutine _textVanishCO;
 
 
         private void Start()
@@ -44,6 +45,8 @@ namespace MSG
             {
                 _authFlowController.OnAuthSucceeded -= CheckNicknameSet;
             }
+
+            StopVanishCO();
         }
 
         private void CheckNicknameSet()
@@ -64,15 +67,26 @@ namespace MSG
 
         public void OnClickSetNickName()
         {
-            // TODO: 추가적으로 닉네임 사용 규칙 할거면 여기서 하면 될 듯
-            
             string newNickname = _nicknameInputField.text;
+
+            // TODO: 추가적으로 닉네임 사용 규칙 할거면 여기서 하면 될 듯
+            if (string.IsNullOrEmpty(newNickname))
+            {
+                StartVanishCO("사용할 닉네임을 입력해주세요.");
+                return;
+            }
+
+            if (newNickname.Length <= 2 || newNickname.Length > 16)
+            {
+                StartVanishCO("닉네임은 3자 이상 16자 이하여야 합니다.");
+                return;
+            }
 
             DatabaseManager.Instance.GetOnMain(DBRoutes.Nicknames(newNickname), snap =>
             {
                 if (snap.Exists)
                 {
-                    TextVanishRoutine($"닉네임: {newNickname}가 이미 존재합니다");
+                    StartVanishCO($"닉네임: {newNickname}가 이미 존재합니다.");
                 }
                 else
                 {
@@ -130,6 +144,25 @@ namespace MSG
             DatabaseManager.Instance.UpdateOnMain(updates,
                 () => Debug.Log("[DBInitializer] DB 초기화 완료"),
                 err => Debug.LogError($"[DBInitializer] DB 초기화 실패: {err}"));
+        }
+
+        private void StartVanishCO(string text)
+        {
+            if (_textVanishCO != null)
+            {
+                StopCoroutine(_textVanishCO);
+                _textVanishCO = null;
+            }
+            _textVanishCO = StartCoroutine(TextVanishRoutine(text));
+        }
+
+        private void StopVanishCO()
+        {
+            if (_textVanishCO != null)
+            {
+                StopCoroutine(_textVanishCO);
+                _textVanishCO = null;
+            }
         }
 
         private IEnumerator TextVanishRoutine(string text)

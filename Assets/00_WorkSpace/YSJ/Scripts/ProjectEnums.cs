@@ -68,3 +68,30 @@ public enum PlayerKey
 
     VotedMap,           // KEY_VOTE_MAP
 }
+
+// ==========================
+// ========== Test ==========
+// ==========================
+
+public enum BuffId
+{
+    None = 0,
+    Nitro = 11001,  // 속도 증가
+    Shield,         // 피격 1회 무효
+    Magnet,         // 아이템 자석
+    TrapImmunity,   // 함정 면역
+    Slipstream,     // 슬립스트림 가속
+}
+
+public enum BuffCategory
+{
+    Speed,
+    Defense,
+    Utility
+}
+
+public enum BuffStackPolicy
+{
+    Replace,        // 같은 카테고리면 교체 + 시간 리프레시
+    Stack,          // 누적(필요 시 레벨/중첩값 반영)
+}

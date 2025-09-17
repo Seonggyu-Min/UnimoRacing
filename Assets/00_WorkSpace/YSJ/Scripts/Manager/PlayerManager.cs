@@ -55,62 +55,61 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
         this.PrintLog("Setup 완료");
     }
 
-
     #region Set CP 
     public void SetPlayerCPLevel(int level)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.Level, level);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.Level, level, debugTag: "SetCP:Level");
     }
     public void SetPlayerCPExp(int exp)
     {
-        if (IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.Exp, exp);
+        if (!IsSetup) return; // bugfix: 원래 반대로 되어 있었음
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.Exp, exp, debugTag: "SetCP:Exp");
     }
     public void SetPlayerCPKartId(int kartId)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.KartId, kartId);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.KartId, kartId, debugTag: "SetCP:KartId");
     }
     public void SetPlayerCPCharacterId(int characterId)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.CharacterId, characterId);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.CharacterId, characterId, debugTag: "SetCP:CharacterId");
     }
     public void SetPlayerCPHopeRaceMapId(int hopeRaceMapId)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.HopeRaceMapId, hopeRaceMapId);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.HopeRaceMapId, hopeRaceMapId, debugTag: "SetCP:HopeRaceMapId");
     }
     public void SetPlayerCPMatchReady(bool isMatchReady)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.MatchReady, isMatchReady);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.MatchReady, isMatchReady, debugTag: "SetCP:MatchReady");
     }
     public void SetPlayerCPRaceLoaded(bool isRaceLoaded)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.RaceLoaded, isRaceLoaded);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.RaceLoaded, isRaceLoaded, debugTag: "SetCP:RaceLoaded");
     }
     public void SetPlayerCPRaceIsFinished(bool isRaceIsFinished)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.RaceIsFinished, isRaceIsFinished);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.RaceIsFinished, isRaceIsFinished, debugTag: "SetCP:RaceIsFinished");
     }
     public void SetPlayerCPRaceFinishedTime(double RaceFinishedTime)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.RaceFinishedTime, RaceFinishedTime);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.RaceFinishedTime, RaceFinishedTime, debugTag: "SetCP:RaceFinishedTime");
     }
     public void SetPlayerCPCurrentScene(SceneID sceneId)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.CurrentScene, sceneId);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.CurrentScene, sceneId, debugTag: "SetCP:CurrentScene");
     }
     public void SetPlayerCPVote(int index)
     {
         if (!IsSetup) return;
-        PhotonNetworkCustomProperties.SetLocalPlayerProp(PlayerKey.VotedMap, index);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.VotedMap, index, debugTag: "SetCP:VotedMap");
     }
     #endregion
 
@@ -122,7 +121,7 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     }
     public int GetPlayerCPExp()
     {
-        if (IsSetup) return -1;
+        if (!IsSetup) return -1; // bugfix: 원래 반대로 되어 있었음
         return PhotonNetworkCustomProperties.GetLocalPlayerProp(PlayerKey.Exp, -1);
     }
     public int GetPlayerCPKarId()
@@ -175,29 +174,31 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     #region Race CP
     private void CreateRaceCP()
     {
-        PhotonNetworkCustomProperties.LocalPlayerRaceWaitPlayerSetting();
+        // OnJoinedRoom 시점: 안전하지만 래퍼로 더 단단하게
+        var dict = new Dictionary<PlayerKey, object>()
+        {
+            { PlayerKey.RaceLoaded, false },
+            { PlayerKey.RaceIsFinished, -1 },
+            { PlayerKey.RaceFinishedTime, -1d },
+        };
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropsSafe(dict, debugTag: "CreateRaceCP");
     }
+
     private void ClearRaceCP()
     {
         // null로 세팅하면 해당 키 제거됨
-        var keysToClear = new[]
+        var dict = new Dictionary<PlayerKey, object>()
         {
-            PlayerKey.RaceLoaded,
-            PlayerKey.RaceIsFinished,
-            PlayerKey.RaceFinishedTime,
+            { PlayerKey.RaceLoaded, null },
+            { PlayerKey.RaceIsFinished, null },
+            { PlayerKey.RaceFinishedTime, null },
         };
-
-        var dict = new Dictionary<PlayerKey, object>();
-        foreach (var k in keysToClear) dict[k] = null;
-
-        PhotonNetworkCustomProperties.SetPlayerProps(PhotonNetwork.LocalPlayer, dict);
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropsSafe(dict, debugTag: "ClearRaceCP");
     }
-
     #endregion
 
     public void OnPrint(Player targetPlayer, Hashtable changedProps)
     {
         PhotonNetworkCustomProperties.PrintPlayerCustomProperties(PhotonNetwork.LocalPlayer);
     }
-
 }

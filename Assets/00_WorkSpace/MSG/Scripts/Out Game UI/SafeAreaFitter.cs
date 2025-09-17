@@ -8,30 +8,36 @@ namespace MSG
     [RequireComponent(typeof(RectTransform))]
     public class SafeAreaFitter : MonoBehaviour
     {
-        private RectTransform _rt;
+        private RectTransform RT => (RectTransform)transform;
         private Rect _lastSafe;
-        private Vector2 _lastSize;
+        private Vector2Int _lastRes;
 
-        void Awake() => _rt = (RectTransform)transform;
+        //void Awake() => Apply();
 
-        void OnEnable() => Apply();
+        void Start() => Apply();
+
+        void OnRectTransformDimensionsChange() => Apply();
 
         void Apply()
         {
-            var sa = Screen.safeArea;
-            var min = sa.position;
-            var max = sa.position + sa.size;
+            Rect safe = Screen.safeArea;
+            if (safe == _lastSafe && _lastRes.x == Screen.width && _lastRes.y == Screen.height)
+                return;
 
-            min.x /= Screen.width; min.y /= Screen.height;
-            max.x /= Screen.width; max.y /= Screen.height;
+            _lastSafe = safe;
+            _lastRes = new Vector2Int(Screen.width, Screen.height);
 
-            _rt.anchorMin = min;
-            _rt.anchorMax = max;
-            _rt.offsetMin = Vector2.zero;
-            _rt.offsetMax = Vector2.zero;
+            Vector2 min = safe.position;
+            Vector2 max = safe.position + safe.size;
+            min.x /= Screen.width;
+            min.y /= Screen.height;
+            max.x /= Screen.width;
+            max.y /= Screen.height;
 
-            _lastSafe = sa;
-            _lastSize = new Vector2(Screen.width, Screen.height);
+            RT.anchorMin = min;
+            RT.anchorMax = max;
+            RT.offsetMin = Vector2.zero;
+            RT.offsetMax = Vector2.zero;
         }
     }
 }
