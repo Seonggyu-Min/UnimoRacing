@@ -1,126 +1,248 @@
 using System.Collections;
+using System.Linq;
 using Photon.Pun;
 using UnityEngine;
+using Cinemachine;
 
 namespace PJW
 {
-    public class HoneyTrapZone : MonoBehaviourPun, IPunInstantiateMagicCallback
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(Collider))]
+    [RequireComponent(typeof(PhotonView))]
+    public class HoneyTrapZone : MonoBehaviourPun
     {
-        [Header("기본값")]
-        [SerializeField] private float slowMultiplier = 0.5f;  
-        [SerializeField] private float duration = 2.0f;
+        [Header("동작 파라미터")]
+        [SerializeField] private float slowMultiplier = 0.5f; 
+        [SerializeField] private float slowDuration = 2.0f;
 
         private bool isTriggered;
-        private Collider col;
-        private Renderer[] rends;
+        private Collider zoneCol;
+        private Renderer[] renderers;
+
+        private class ActiveEffect
+        {
+            public PlayerRaceData racer;
+            public CinemachineDollyCart cart;
+
+            public float originalRacerSpeed; 
+            public float originalCartSpeed;  
+            public bool canceled;
+        }
+
+        private class EffectRunner : MonoBehaviour
+        {
+            private static EffectRunner _instance;
+            public static EffectRunner Instance
+            {
+                get
+                {
+                    if (_instance == null)
+                    {
+                        var go = new GameObject("HoneyTrapEffectRunner");
+                        DontDestroyOnLoad(go);
+                        _instance = go.AddComponent<EffectRunner>();
+                    }
+                    return _instance;
+                }
+            }
+
+            public ActiveEffect current;
+
+            public void ReplaceWithNew(PlayerRaceData racer, CinemachineDollyCart cart,
+                                       float mul, float seconds)
+            {
+                // 1) 이전 효과 있으면 즉시 원복 + 취소
+                if (current != null)
+                {
+                    current.canceled = true;
+                    Restore(current);
+                    current = null;
+                }
+
+                if (cart == null) return;
+
+                // 2) 새 효과 구성
+                var eff = new ActiveEffect
+                {
+                    racer = racer,
+                    cart = cart,
+
+                    originalRacerSpeed = racer != null ? racer.KartSpeed : -1f,
+                    originalCartSpeed = cart.m_Speed,
+                    canceled = false
+                };
+
+                current = eff;
+                StartCoroutine(Co_RunSlow(eff, mul, seconds));
+            }
+
+            private IEnumerator Co_RunSlow(ActiveEffect eff, float mul, float seconds)
+            {
+                var racer = eff.racer;
+                var cart = eff.cart;
+
+                if (cart == null) yield break;
+
+                float baseSpeed = racer != null && eff.originalRacerSpeed >= 0f
+                    ? eff.originalRacerSpeed
+                    : eff.originalCartSpeed;
+
+                // 슬로우 적용 (최소 0 이상)
+                SetSpeed(racer, cart, Mathf.Max(0f, baseSpeed * Mathf.Clamp01(mul)));
+
+                float t = 0f;
+                while (t < seconds)
+                {
+                    if (eff.canceled) yield break;
+                    t += Time.deltaTime;
+                    yield return null;
+                }
+
+                // 복구 (현효과가 유효할 때만)
+                if (!eff.canceled && ReferenceEquals(current, eff))
+                {
+                    Restore(eff);
+                    current = null;
+                }
+            }
+
+            private void Restore(ActiveEffect eff)
+            {
+                if (eff == null) return;
+
+                if (eff.cart != null)
+                {
+                    if (eff.racer != null && eff.originalRacerSpeed >= 0f)
+                        eff.racer.SetKartSpeed(eff.originalRacerSpeed);
+                    else
+                        eff.cart.m_Speed = eff.originalCartSpeed;
+                }
+            }
+
+            private void SetSpeed(PlayerRaceData racer, CinemachineDollyCart cart, float speed)
+            {
+                if (racer != null) racer.SetKartSpeed(speed);
+                else cart.m_Speed = speed;
+            }
+        }
 
         private void Awake()
         {
-            col = GetComponent<Collider>();
-            rends = GetComponentsInChildren<Renderer>(true);
-        }
+            zoneCol = GetComponent<Collider>();
+            if (zoneCol) zoneCol.isTrigger = true;
+            renderers = GetComponentsInChildren<Renderer>(true);
 
-        public void OnPhotonInstantiate(PhotonMessageInfo info)
-        {
-            var data = photonView.InstantiationData;
+            var data = photonView?.InstantiationData;
             if (data != null && data.Length >= 2)
             {
-                if (data[0] is float sm) slowMultiplier = sm;
-                if (data[1] is float du) duration = du;
+                slowMultiplier = (float)data[0];
+                slowDuration = (float)data[1];
             }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (isTriggered) return;
+            if (!PhotonNetwork.IsMasterClient || isTriggered) return;
 
-            // 실드면 무효화
-            var shield = other.GetComponentInParent<PlayerShield>();
-            if (shield != null && shield.SuccessShield())
+            var targetPv = other.GetComponentInParent<PhotonView>();
+            if (targetPv == null || targetPv.Owner == null) return;
+
+            var shield = targetPv.GetComponent<PlayerShield>()
+                        ?? targetPv.GetComponentInChildren<PlayerShield>(true);
+            if (shield != null && shield.IsShieldActive)
             {
+                targetPv.RPC(nameof(PlayerShield.RpcActivateShield), targetPv.Owner, 0f); 
                 isTriggered = true;
-                photonView.RPC(nameof(RpcHideOnly), RpcTarget.All);
-                if (photonView.IsMine || PhotonNetwork.IsMasterClient)
-                    StartCoroutine(DestroyAfter(0.05f));
+                photonView.RPC(nameof(RpcHideAndDisable), RpcTarget.All);
+                photonView.RPC(nameof(RpcDestroySelfDelayed), RpcTarget.AllBuffered, 0.1f);
                 return;
             }
 
-            var victimPv = other.GetComponentInParent<PhotonView>();
-            if (victimPv == null) return;
+            var cart = other.GetComponentInParent<CinemachineDollyCart>();
+            if (cart == null) return;
 
             isTriggered = true;
+            photonView.RPC(nameof(RpcHideAndDisable), RpcTarget.All);
 
-            photonView.RPC(nameof(RpcHideOnly), RpcTarget.All);
+            photonView.RPC(nameof(RpcApplyTrapReplaceOld), targetPv.Owner,
+                Mathf.Clamp01(slowMultiplier), slowDuration);
 
-            photonView.RPC(nameof(RpcApplySlowLocal), RpcTarget.All, victimPv.OwnerActorNr, slowMultiplier, duration);
-
-            if (PhotonNetwork.IsMasterClient)
-                StartCoroutine(DestroyAfter(duration + 0.2f)); 
+            float total = slowDuration + 0.2f;
+            photonView.RPC(nameof(RpcDestroySelfDelayed), RpcTarget.AllBuffered, total);
         }
 
         [PunRPC]
-        private void RpcHideOnly()
+        private void RpcHideAndDisable()
         {
-            if (col) col.enabled = false;
-            if (rends != null)
+            if (zoneCol) zoneCol.enabled = false;
+            if (renderers != null)
             {
-                foreach (var r in rends)
+                foreach (var r in renderers)
+                {
                     if (r) r.enabled = false;
+                }
             }
         }
 
         [PunRPC]
-        private void RpcApplySlowLocal(int targetActor, float mul, float dur)
+        private void RpcDestroySelfDelayed(float delay)
         {
-            if (PhotonNetwork.LocalPlayer == null ||
-                PhotonNetwork.LocalPlayer.ActorNumber != targetActor) return;
-
-            if (mul <= 0f) return;
-
-            PlayerRaceData myRace = null;
-            var all = FindObjectsOfType<PlayerRaceData>(true);
-            foreach (var r in all)
-            {
-                var pv = r.GetComponentInParent<PhotonView>() ?? r.GetComponent<PhotonView>();
-                if (pv != null && pv.IsMine) { myRace = r; break; }
-            }
-
-            if (myRace == null)
-            {
-                return;
-            }
-
-            StartCoroutine(SlowRoutineRacer(myRace, mul, dur));
-        }
-
-        private IEnumerator SlowRoutineRacer(PlayerRaceData data, float mul, float dur)
-        {
-            float original = data.KartSpeed;
-            float slowed = original * mul;
-
-            data.SetKartSpeed(slowed);
-
-            float t = 0f;
-            while (t < dur)
-            {
-                t += Time.deltaTime;
-                if (!Mathf.Approximately(data.KartSpeed, slowed))
-                    data.SetKartSpeed(slowed);
-                yield return null;
-            }
-
-            if (Mathf.Approximately(data.KartSpeed, slowed))
-                data.SetKartSpeed(original);
+            if (this == null || gameObject == null) return;
+            StartCoroutine(DestroyAfter(delay));
         }
 
         private IEnumerator DestroyAfter(float delay)
         {
-            yield return new WaitForSeconds(delay);
-            if (this != null && photonView != null && photonView.ViewID != 0)
+            float t = 0f;
+            while (t < delay)
             {
-                if (PhotonNetwork.IsMasterClient || photonView.IsMine)
-                    PhotonNetwork.Destroy(gameObject);
+                t += Time.deltaTime;
+                yield return null;
             }
+            if (this != null && gameObject != null)
+                Destroy(gameObject);
+        }
+
+        [PunRPC]
+        private void RpcApplyTrapReplaceOld(float mul, float seconds)
+        {
+            // 로컬 소유자 측 실드 재확인
+            var localPv = FindObjectsOfType<PhotonView>(true)
+                .FirstOrDefault(pv => pv.IsMine);
+            var shield = localPv ? (localPv.GetComponent<PlayerShield>() ?? localPv.GetComponentInChildren<PlayerShield>(true)) : null;
+            if (shield != null && shield.IsShieldActive)
+            {
+                shield.SuccessShield(consume: true); // 로컬 즉시 소비
+                return;
+            }
+
+            var raceData = FindLocalRaceData();
+            var cart = FindLocalCart();
+            if (cart == null) return;
+
+            EffectRunner.Instance.ReplaceWithNew(raceData, cart, mul, seconds);
+        }
+
+        private PlayerRaceData FindLocalRaceData()
+        {
+            var all = FindObjectsOfType<PlayerRaceData>(true);
+            foreach (var rd in all)
+            {
+                var pv = rd.GetComponentInParent<PhotonView>() ?? rd.GetComponent<PhotonView>();
+                if (pv != null && pv.IsMine) return rd;
+            }
+            return null;
+        }
+
+        private CinemachineDollyCart FindLocalCart()
+        {
+            var all = FindObjectsOfType<CinemachineDollyCart>(true);
+            foreach (var c in all)
+            {
+                var pv = c.GetComponentInParent<PhotonView>() ?? c.GetComponent<PhotonView>();
+                if (pv != null && pv.IsMine) return c;
+            }
+            return null;
         }
     }
 }
