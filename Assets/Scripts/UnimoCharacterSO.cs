@@ -16,6 +16,10 @@ public class UnimoCharacterSO : ScriptableObject
     [Tooltip("테이블의 '캐릭터 스프라이트'")]
     public Sprite characterSprite;
 
+    [Tooltip("재화 타입 (예: GameMoney, Cash)")]
+
+    public Sprite currencyType;
+
     [TextArea]
     [Tooltip("테이블의 '캐릭터 설명'")]
     public string characterInfo;

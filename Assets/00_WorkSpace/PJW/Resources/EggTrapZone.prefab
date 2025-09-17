@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5744923626082254876}
   - component: {fileID: 6417495234580831236}
   - component: {fileID: 277588042434179485}
+  - component: {fileID: 6071746104607429132}
   - component: {fileID: 3650895682580742122}
   - component: {fileID: -67096458893133832}
   m_Layer: 0
@@ -107,6 +108,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6071746104607429132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294155599933859380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!114 &3650895682580742122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,6 +146,7 @@ MonoBehaviour:
   boostTime: 1
   waitAfterBoost: 1
   stopDuration: 1.5
+  minSpeed: 0.1
 --- !u!54 &-67096458893133832
 Rigidbody:
   m_ObjectHideFlags: 0
