@@ -71,6 +71,14 @@ namespace MSG
         // 투표 버튼 클릭 연결용 메서드
         public void OnClickSubmitVote()
         {
+            if (PhotonNetworkCustomProperties.TryGetRoomProp(RoomKey.VoteEndTime, out double endAt))
+            {
+                if (endAt < PhotonNetwork.Time)
+                {
+                    Debug.Log($"[VoteButtonBehaviour] 투표 종료 시간이 지나 return");
+                }
+            }
+
             int voted = PlayerManager.Instance.GetPlayerCPVoteIndex();
             if (voted == _votingIndex) return; // 이미 내가 투표한거랑 같으면 return
 
