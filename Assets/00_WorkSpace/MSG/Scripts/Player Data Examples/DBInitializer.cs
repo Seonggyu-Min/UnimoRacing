@@ -101,6 +101,7 @@ namespace MSG
                         {
                             Debug.Log($"{newNickname}로 닉네임 설정 완료. 다음으로 넘어갈 수 있다는 안내 문구 띄우기");
                             _tapToStartObj.SetActive(true);
+                            _nicknameObj.SetActive(false);
                         },
                         onError: err => Debug.LogWarning($"닉네임 설정 오류: {err}")
                         );
