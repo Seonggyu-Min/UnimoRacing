@@ -47,6 +47,4 @@ public class UnimoSkillSO : ScriptableObject
     [Header("Trigger Type > Collect")]
     [Tooltip("테이블의 '수집형 아이템'")]
     public int collectCount = -1;
-
-    public List<SkillOption> optoins;
 }
