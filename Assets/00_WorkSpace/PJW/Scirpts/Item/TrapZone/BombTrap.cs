@@ -2,13 +2,19 @@ using System.Collections;
 using System.Linq;
 using Photon.Pun;
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
     [RequireComponent(typeof(PhotonView))]
     public class BombTrap : MonoBehaviourPun
     {
+        [Header("정지 시간")]
         [SerializeField] private float stopDuration;
+
+        [Header("사운드 키")]
+        [SerializeField] private string sfxHitKey = "BombHit";
+        [SerializeField] private string sfxBlockedKey = "ShieldBlock";
         private bool hasTriggered;
 
         private void OnTriggerEnter(Collider other)
@@ -25,6 +31,8 @@ namespace PJW
 
             if (shield != null && shield.IsShieldActive)
             {
+                PlaySfxLocal(sfxBlockedKey, transform.position);
+
                 // 소유자에게 실드 소비 RPC
                 targetPv.RPC(nameof(PlayerShield.RpcConsumeShield), targetPv.Owner);
 
@@ -33,10 +41,20 @@ namespace PJW
                 return; 
             }
 
+            PlaySfxLocal(sfxHitKey, transform.position);
+
             hasTriggered = true;
 
             photonView.RPC(nameof(RpcApplyBombStopOnOwner), targetPv.Owner, stopDuration);
             PhotonNetwork.Destroy(gameObject);
+        }
+
+        private void PlaySfxLocal(string key, Vector3 at)
+        {
+            if (!string.IsNullOrWhiteSpace(key) && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(key);
+            }
         }
 
         [PunRPC]

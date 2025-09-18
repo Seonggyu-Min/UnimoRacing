@@ -1,7 +1,7 @@
-// Assets/00_WorkSpace/PJW/Scirpts/Item/UseItem/BombItem.cs
 using Cinemachine;
 using Photon.Pun;
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
@@ -12,6 +12,9 @@ namespace PJW
 
         [Header("앞쪽 배치 거리")]
         [SerializeField] private float distanceAhead = 0.02f;
+
+        [Header("사운드 키")]
+        [SerializeField] private string sfxUseKey = "Bombitem";
 
         public void Use(GameObject owner)
         {
@@ -54,6 +57,11 @@ namespace PJW
             var probe = Resources.Load<GameObject>(bombResourceKey);
             if (probe == null || !PhotonNetwork.InRoom)
                 return;
+
+            if (!string.IsNullOrWhiteSpace(sfxUseKey) && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(sfxUseKey);
+            }
 
             PhotonNetwork.Instantiate(bombResourceKey, spawnPos, spawnRot);
             Destroy(gameObject);
