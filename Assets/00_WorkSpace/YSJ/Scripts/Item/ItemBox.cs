@@ -1,11 +1,19 @@
-﻿using System;
+﻿using Photon.Pun;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
+using YSJ;
+using YSJ.Util;
 
 [DisallowMultipleComponent]
 public class ItemBox : MonoBehaviour
 {
+    [Header("ItemSO Config")]
+    [SerializeField] private bool _useItemRegistry = false;     // 아이템 레지스터리 사용 여부
+    [SerializeField] private List<UnimoItemSO> _items = new();
+
     [Header("Config")]
+    [SerializeField] private bool _selfSetup = true;
     [SerializeField] private LayerMask _collisionLayers;    // 충돌 가능한 레이어들
     [SerializeField] private bool _isDespawnStart = false;  // 없어진 상태로 시작할지 여부
     [SerializeField] private float _respawnCycleTime = 8f;  // 리스폰 주기 시간
@@ -21,69 +29,35 @@ public class ItemBox : MonoBehaviour
     public Action OnDespawnAction;                          // 디스폰 시 콜백
 
     // 상태
-    private bool _isDespawn;                    // 디스폰 상태
-    private double _despawnTime;                // 디스폰 시각(서버 기준)
-    private double _respawnTime;                // 리스폰 예정 시각(서버 기준)
+    private double _firtSpawnTime;      // 첫 생성 시간
+
+    private bool _isDespawn = false;    // 디스폰 상태
+    private double _despawnTime = -1;   // 디스폰 시각(서버 기준)
+    private double _respawnTime = -1;   // 리스폰 예정 시각(서버 기준)
 
     private GameObject _lastCollisionPlayerGO;
     private string _lastCollisionPlayerID;
 
-    private AudioSource _audioSource;
 
-    public void Setup()
-    {
-        _audioSource = GetComponent<AudioSource>();
-
-        // 시작 상태 반영
-        if (_isDespawnStart)
-            ForceDespawn(0f);
-        else
-            ForceSpawn();
-    }
-
-    public void ForceSpawn()
-    {
-        _isDespawn = false;
-        _despawnTime = -1;
-        _respawnTime = -1;
-
-        SetVisualActive(true);
-        PlayOneShot(_spawnAudioClip);
-        OnSpawnAction?.Invoke();
-    }
-
-    public void ForceDespawn(float extraDelay = 0f)
-    {
-        _isDespawn = true;
-        _despawnTime = 
-        _respawnTime = _despawnTime + Mathf.Max(0f, _respawnCycleTime + extraDelay);
-
-        SetVisualActive(false);
-        PlayOneShot(_despawnAudioClip);
-        OnDespawnAction?.Invoke();
-    }
-
+    #region Unity Func
     private void Awake()
     {
-        // 가능하면 에디터에서도 미리 보여주기 위해 최소한의 세팅
+        _firtSpawnTime = PhotonNetwork.Time;
         if (_boxBody == null)
-            Debug.LogWarning($"{name}: _boxBody가 비어있어. 비주얼 토글이 안 될 수 있어.");
+            this.PrintLog($"{name}: _boxBody가 비어있어. 비주얼이 보이지 않을 수 있습니다.");
+
+        this.PrintLog($"Item ID: {gameObject.GetInstanceID()} / 첫 스폰 시간: {_firtSpawnTime}");
     }
 
     private void Start()
     {
-        if (_audioSource == null)
-            _audioSource = GetComponent<AudioSource>();
-
-        // Start 시점에서 상태 초기화 (중복보호)
-        if (_isDespawnStart) ForceDespawn(0f);
-        else ForceSpawn();
+        if (_selfSetup)
+            Setup();
     }
 
     private void Update()
     {
-        // 디스폰 상태에서 리스폰 타이밍 체크
-        if (_isDespawn && _respawnTime > 0)
+        if (_isDespawn && _respawnTime > PhotonNetwork.Time)
         {
             ForceSpawn();
         }
@@ -95,56 +69,58 @@ public class ItemBox : MonoBehaviour
         if (_isDespawn) return;
 
         // 레이어 필터링
-        if (!IsInLayerMask(other.gameObject.layer, _collisionLayers))
+        if (!UnityUtilEx.IsInLayerMask(other.gameObject.layer, _collisionLayers))
             return;
 
-        // (필요하면 여기서 쿨다운/태그 체크 등 추가)
-        CaptureLastCollisionInfo(other);
+        // 마지막 충돌 정보
+        bool setInfo = LastCollisionInfo(other);
+        if (!setInfo) return;
 
         // 외부 콜백 먼저
         OnCollisionAction?.Invoke(other);
 
-        // 충돌 사운드
-        PlayOneShot(_collisionAudioClip);
-
         // 아이템 지급 로직은 보통 외부 OnCollisionAction에서 처리
         ForceDespawn(0f);
     }
+    #endregion
 
-    private static bool IsInLayerMask(int layer, LayerMask mask)
+    #region Script Func
+    public void Setup()
     {
-        return ((1 << layer) & mask.value) != 0;
+        LoadItemRegistry();
+
+        if (_isDespawnStart)
+            ForceDespawn(0f);
+        else
+            ForceSpawn();
+    }
+
+    public void ForceSpawn()
+    {
+        _isDespawn = false;
+        _respawnTime = PhotonNetwork.Time;
+
+        SetVisualActive(true);
+        OnSpawnAction?.Invoke();
+    }
+    public void ForceDespawn(float extraDelay = 0f)
+    {
+        _isDespawn = true;
+        _despawnTime = PhotonNetwork.Time;
+        _respawnTime = _despawnTime + Mathf.Max(0f, _respawnCycleTime + extraDelay);
+
+        SetVisualActive(false);
+        OnDespawnAction?.Invoke();
     }
 
     private void SetVisualActive(bool active)
     {
         if (_boxBody != null)
             _boxBody.SetActive(active);
-        else
-            gameObject.SetActive(active); // 백업: 본체 토글
     }
-
-    private void PlayOneShot(AudioClip clip)
+    private bool LastCollisionInfo(Collider other)
     {
-        if (clip == null) return;
-
-        if (_audioSource != null && _audioSource.enabled)
-        {
-            _audioSource.PlayOneShot(clip);
-        }
-        else
-        {
-            // 3D 환경에서 간단히 재생
-            AudioSource.PlayClipAtPoint(clip, transform.position);
-        }
-    }
-
-    private void CaptureLastCollisionInfo(Collider other)
-    {
-        _lastCollisionPlayerGO = other.attachedRigidbody != null
-            ? other.attachedRigidbody.gameObject
-            : other.gameObject;
-
+        _lastCollisionPlayerGO = other.gameObject;
         _lastCollisionPlayerID = null;
 
         // PhotonView에서 유저 ID 가져오기
@@ -154,5 +130,36 @@ public class ItemBox : MonoBehaviour
             // UserId가 일반적으로 문자열 ID
             _lastCollisionPlayerID = view.Owner != null ? view.Owner.UserId : null;
         }
+
+        return (_lastCollisionPlayerGO != null && view != null);
     }
+
+    private void LoadItemRegistry()
+    {
+        if (!_useItemRegistry) return;
+
+        this.PrintLog("LoadAllItem 진행");
+
+        UnimoItemSO[] loadItemSOArray = ItemManager.Instance.GetItemSOs();
+        if (loadItemSOArray == null) return;
+
+
+        if (loadItemSOArray.Length > 0)
+        {
+            foreach (var itemSO in loadItemSOArray)
+            {
+                if (_items.Contains(itemSO))
+                {
+                    this.PrintLog($"모든 아이템 자동 로드 시, {itemSO}은 List에 이미 포함 되어 있습니다.", LogType.Warning);
+                    continue;
+                }
+
+                this.PrintLog($"모든 아이템 자동 로드 시, {itemSO}은 List에 추가합니다.");
+                _items.Add(itemSO);
+            }
+        }
+
+        this.PrintLog("LoadAllItem 진행 완료");
+    }
+    #endregion
 }
