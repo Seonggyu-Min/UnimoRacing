@@ -14,7 +14,7 @@ using YSJ.Util;
 [RequireComponent(typeof(DollyCartController))] // 경로 컨트롤
 [RequireComponent(typeof(DollyCartMovement))] // 이동 제어
 
-[RequireComponent(typeof(PlayerInventory))] // 인벤
+[RequireComponent(typeof(ItemInventory))] // 인벤
 [RequireComponent(typeof(UnimoSynergySystem))] // 시너지
 [RequireComponent(typeof(UnimoRaceAnimationController))] // 유니모 애니메이션 컨트롤러
 
@@ -53,7 +53,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     private DollyCartController _cartController;
     private DollyCartMovement _cartMovement;
-    private PlayerInventory _playerInventory;
+    private ItemInventory _playerInventory;
 
     private UnimoSynergySystem _synergySystem;
     private UnimoRaceAnimationController _raceAniCtrl;
@@ -105,7 +105,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _cartController = gameObject.GetOrAddComponent<DollyCartController>();
         _cartMovement = gameObject.GetOrAddComponent<DollyCartMovement>();
 
-        _playerInventory = gameObject.GetOrAddComponent<PlayerInventory>();
+        _playerInventory = gameObject.GetOrAddComponent<ItemInventory>();
         _synergySystem = gameObject.GetOrAddComponent<UnimoSynergySystem>();
         _raceAniCtrl = gameObject.GetOrAddComponent<UnimoRaceAnimationController>();
 
