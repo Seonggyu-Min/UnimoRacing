@@ -1,9 +1,6 @@
 ﻿using System;
 using UnityEngine;
-#if PHOTON_UNITY_NETWORKING
 using Photon.Pun;
-using Photon.Realtime;
-#endif
 
 [DisallowMultipleComponent]
 public class ItemBox : MonoBehaviour
