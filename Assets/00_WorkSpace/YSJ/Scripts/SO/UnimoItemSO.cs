@@ -27,8 +27,8 @@ public class UnimoItemSO : ScriptableObject
     [Tooltip("아이템 아이콘 이미지")]
     public Sprite itemIconSprite;
 
-    [Tooltip("테이블의 '효과 지속 시간'")]
-    public float itemDuration;
+    [Tooltip("아이템 효과 순서데로 적용 여부")]
+    public bool isOptionApplyStep = false;
 
-    public List<StatusEffectOption> optoins;
+    public List<StatusEffectOption> options;
 }
