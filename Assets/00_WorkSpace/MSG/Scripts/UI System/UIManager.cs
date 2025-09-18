@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 namespace MSG
@@ -12,7 +13,14 @@ namespace MSG
         #region Fields
 
         private Dictionary<string, UIUnit> _units = new();
-        
+
+        #endregion
+
+
+        #region Unity Methods
+
+        private void Awake() => SingletonInit();
+
         #endregion
 
 
@@ -54,18 +62,18 @@ namespace MSG
             }
         }
 
-        //public UIUnit GetUnit(string key)
-        //{
-        //    if (_units.TryGetValue(key, out UIUnit unit))
-        //    {
-        //        return unit;
-        //    }
-        //    else
-        //    {
-        //        Debug.LogError($"유닛 키{key}가 등록되어 있지 않습니다.");
-        //        return null;
-        //    }
-        //}
+        public UIUnit GetUnit(string key)
+        {
+            if (_units.TryGetValue(key, out UIUnit unit))
+            {
+                return unit;
+            }
+            else
+            {
+                Debug.LogError($"유닛 키{key}가 등록되어 있지 않습니다.");
+                return null;
+            }
+        }
 
         #endregion
 
@@ -74,7 +82,7 @@ namespace MSG
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F1)) DebugUnits();
+            if (Keyboard.current.f1Key.wasPressedThisFrame) DebugUnits();
         }
 
         [Button("Debug Units")]
