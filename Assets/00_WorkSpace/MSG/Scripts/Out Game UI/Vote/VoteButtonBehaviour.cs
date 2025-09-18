@@ -9,7 +9,7 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 namespace MSG
 {
-    public class VoteUIBehaviour : MonoBehaviourPunCallbacks
+    public class VoteButtonBehaviour : MonoBehaviourPunCallbacks
     {
         [Header("Refs")]
         [SerializeField] private Image _voteButtonImage;        // 버튼 자기 자신 (색을 바꾸기 위해 참조함)
@@ -25,15 +25,15 @@ namespace MSG
         [SerializeField] private Color _myLoseVoteColor = Color.green;   // 내가 선택한 맵이 당선 실패 후 보여줄 색 (채도가 낮은 초록색이었음)
 
 
-        private const int _defaultedVote = 1;
-
-
         public override void OnEnable()
         {
             base.OnEnable();
 
-            UpdateVoteUI();
-            UpdateButtonColor();
+            if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom != null)
+            {
+                UpdateVoteUI();
+                UpdateButtonColor();
+            }
         }
 
 
@@ -48,22 +48,29 @@ namespace MSG
 
         public override void OnRoomPropertiesUpdate(Hashtable changedProps)
         {
-            if (changedProps.ContainsKey(PhotonNetworkCustomProperties.KEY_VOTE_WINNER_INDEX))
+            if (changedProps.ContainsKey(PhotonNetworkCustomProperties.KEY_VOTE_WINNER_INDEX) ||
+                changedProps.ContainsKey(PhotonNetworkCustomProperties.KEY_ROOM_VOTE_STATE))
             {
+                UpdateVoteUI();
                 UpdateButtonColor();
             }
         }
+
+        public override void OnPlayerEnteredRoom(Player newPlayer)
+        {
+            UpdateVoteUI();
+        }
+
+        public override void OnPlayerLeftRoom(Player otherPlayer)
+        {
+            UpdateVoteUI();
+        }
+
 
 
         // 투표 버튼 클릭 연결용 메서드
         public void OnClickSubmitVote()
         {
-            //var prop = PhotonNetwork.LocalPlayer.CustomProperties;
-            //if ((prop.TryGetValue(VOTE_MAP, out var v) ? (int)v : _defaultedVote) == _votingIndex) return; // 이미 투표했으면 return
-
-            //var p = new Hashtable { [VOTE_MAP] = _votingIndex };
-            //PhotonNetwork.LocalPlayer.SetCustomProperties(p);
-
             int voted = PlayerManager.Instance.GetPlayerCPVoteIndex();
             if (voted == _votingIndex) return; // 이미 내가 투표한거랑 같으면 return
 
@@ -102,9 +109,9 @@ namespace MSG
         private void UpdateButtonColor()
         {
             int myVote = PlayerManager.Instance.GetPlayerCPVoteIndex();
-            int winnerIdx = PhotonNetworkCustomProperties.GetRoomProp<int>(
-                RoomKey.WinnerMapIndex
-                - 1, // -1이면 아직 미정
+            int winnerIdx = PhotonNetworkCustomProperties.GetRoomProp(
+                RoomKey.WinnerMapIndex,
+                -1, // -1이면 아직 미정
                 onError: () => Debug.LogWarning("[VoteUIBehaviour] GetRoomProp 실패"
                 ));
 
@@ -125,30 +132,6 @@ namespace MSG
                 _voteButtonImage.color = (_votingIndex == myVote) ? _myVoteColor : _defaultColor;
             }
         }
-
-        //private int GetMyVoteIndex()
-        //{
-        //    var prop = PhotonNetwork.LocalPlayer?.CustomProperties;
-        //    if (prop != null && prop.TryGetValue(PhotonNetworkCustomProperties.KEY_VOTE_MAP, out var v) && v is int idx && idx > 0)
-        //    {
-        //        return idx;
-        //    }
-        //    Debug.Log("[VoteUIBehaviour] 내 투표가 없습니다.");
-        //    return _defaultedVote;
-        //}
-
-        //private int GetWinnerIndex()
-        //{
-        //    var room = PhotonNetwork.CurrentRoom;
-        //    if (room != null &&
-        //        room.CustomProperties != null &&
-        //        room.CustomProperties.TryGetValue(PhotonNetworkCustomProperties.KEY_VOTE_WINNER_INDEX, out var w) &&
-        //        w is int idx)
-        //    {
-        //        return idx;
-        //    }
-        //    return -1; // 아직 투표된 것이 없음
-        //}
 
         #endregion
     }
