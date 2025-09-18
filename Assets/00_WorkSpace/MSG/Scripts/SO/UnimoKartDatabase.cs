@@ -50,5 +50,8 @@ namespace MSG
             kart = null;
             return _kartIndexDict != null && _kartIndexDict.TryGetValue(index, out kart);
         }
+
+        public List<UnimoCharacterSO> GetAllUnimos() => _unimoCharacterSOs;
+        public List<UnimoKartSO> GetAllKarts() => _unimoKartSOs;
     }
 }
