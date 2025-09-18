@@ -18,9 +18,6 @@ public class StatusEffectOption
     // 적용 시킬 효과
     public StatusEffect optionStatusEffect;
 
-    // 적용 지연 시간
-    public float optionApplyDelayTime;
-
     // 값, 퍼센트, 지속 시간
     public float optionValue;
     public float optionPercent;
