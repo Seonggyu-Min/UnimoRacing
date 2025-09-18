@@ -1,14 +1,19 @@
+ï»¿using Photon.Pun; 
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun; 
+using YTW;
 
 namespace PJW
 {
     public class BoostItem : MonoBehaviour, IUsableItem
     {
+        [Header("ë¶€ìŠ¤í„° ì„¤ì •")]
         [SerializeField] private float speedMultiplier;
         [SerializeField] private float duration;
+
+        [Header("ì‚¬ìš´ë“œ í‚¤")]
+        [SerializeField] private string sfxUseKey = "ItemBoostUse";
 
         private static readonly Dictionary<int, Running> running = new Dictionary<int, Running>();
 
@@ -25,14 +30,19 @@ namespace PJW
             var data = owner.GetComponentInParent<PlayerRaceData>();
             if (!data) { Destroy(gameObject); return; }
 
-            // ´ë»ó ½Äº° Å°
+            if (!string.IsNullOrWhiteSpace(sfxUseKey) && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(sfxUseKey);
+            }
+
+            // ëŒ€ìƒ ì‹ë³„ í‚¤
             int key = GetOwnerKey(owner, data);
 
-            // 1) ÀÌÀü È¿°ú°¡ µ¹°í ÀÖÀ¸¸é "Áï½Ã Ãë¼Ò + ¿ø»óº¹±Í"
+            // 1) ì´ì „ íš¨ê³¼ê°€ ëŒê³  ìˆìœ¼ë©´ "ì¦‰ì‹œ ì·¨ì†Œ + ì›ìƒë³µê·€"
             if (running.TryGetValue(key, out var cur) && cur?.routine != null)
             {
-                data.StopCoroutine(cur.routine);                 // ÀÌÀü ÄÚ·çÆ¾ Áß´Ü
-                data.SetKartSpeed(cur.baseSpeed);                // ¿ø·¡ ¼Óµµ·Î º¹±¸
+                data.StopCoroutine(cur.routine);                 // ì´ì „ ì½”ë£¨í‹´ ì¤‘ë‹¨
+                data.SetKartSpeed(cur.baseSpeed);                // ì›ë˜ ì†ë„ë¡œ ë³µêµ¬
                 running.Remove(key);
             }
 
