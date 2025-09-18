@@ -1,8 +1,9 @@
+using Cinemachine;
+using Photon.Pun;
 using System.Collections;
 using System.Linq;
-using Photon.Pun;
 using UnityEngine;
-using Cinemachine;
+using YTW;
 
 namespace PJW
 {
@@ -19,6 +20,9 @@ namespace PJW
 
         [Header("최소 유효 속도")]
         [SerializeField] private float minSpeed = 0.1f;
+
+        [Header("효과음")]
+        [SerializeField] private string sfxUseKey = "EggTrapZone";
 
         private bool isTriggered;
         private Collider zoneCol;
@@ -285,6 +289,8 @@ namespace PJW
             var raceData = FindLocalRaceData();
             var cart = FindLocalCart();
             if (cart == null) return;
+
+            AudioManager.Instance.PlaySFX(sfxUseKey);
 
             EffectRunner.Instance.ReplaceWithNew(raceData, cart, mul, boostSec, waitSec, stopSec, minSpd);
         }

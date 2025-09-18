@@ -1,6 +1,7 @@
 using Cinemachine;
 using Photon.Pun;
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
@@ -8,6 +9,9 @@ namespace PJW
     {
         [Header("Resources")]
         [SerializeField] private string trapResourceKey = "EggTrapZone";
+
+        [Header("È¿°úÀ½")]
+        [SerializeField] private string sfxUseKey = "EggTrap";
 
         [SerializeField] private float distanceBehind = 0.02f;
 
@@ -52,7 +56,15 @@ namespace PJW
             }
 
             PhotonNetwork.Instantiate(trapResourceKey, spawnPos, Quaternion.identity);
+
+            PlaySfxLocal(sfxUseKey);
+
             Destroy(gameObject);
+        }
+
+        private void PlaySfxLocal(string key)
+        {
+                AudioManager.Instance.PlaySFX(key); 
         }
     }
 }

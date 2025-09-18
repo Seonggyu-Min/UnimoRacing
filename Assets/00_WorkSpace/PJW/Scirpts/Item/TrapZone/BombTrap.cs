@@ -51,10 +51,7 @@ namespace PJW
 
         private void PlaySfxLocal(string key, Vector3 at)
         {
-            if (!string.IsNullOrWhiteSpace(key) && AudioManager.Instance != null)
-            {
                 AudioManager.Instance.PlaySFX(key);
-            }
         }
 
         [PunRPC]

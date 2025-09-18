@@ -44,6 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50cac47a2e033fc47badc80c2ec003ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trapPrefab: {fileID: 294155599933859380, guid: 9a219c5f557f3cb4d87b01e909a1170a,
-    type: 3}
+  trapResourceKey: EggTrapZone
+  sfxUseKey: EggTrap
   distanceBehind: 0.05
