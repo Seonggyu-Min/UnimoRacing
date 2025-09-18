@@ -113,6 +113,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         _inGM = InGameManager.Instance;
 
+        _kartCurrentSpeed = 0.0f;
+
         _isControlable = false;    // 컨트롤 가능 여부
         _isMovable = false;        // 이동 가능 여부
         _isItemUsable = false;     // 아이템 사용가능 여부
@@ -270,6 +272,10 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             _inGM.OnRaceState_LoadPlayers -= OnPlayReady;
             _inGM.OnRaceState_LoadPlayers += OnPlayReady;
 
+            // 쿨다운
+            _inGM.OnRaceState_Countdown -= OnPlayCountdown;
+            _inGM.OnRaceState_Countdown += OnPlayCountdown;
+
             // 레이싱
             _inGM.OnRaceState_Racing -= OnPlayRaceEnter;
             _inGM.OnRaceState_Racing += OnPlayRaceEnter;
@@ -329,10 +335,17 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _isMovable      = false;    // 이동 가능 여부
         _isItemUsable   = false;    // 아이템 사용가능 여부
     }
+    private void OnPlayCountdown()
+    {
+        // TODO: 플레이 준비(로드 되고 셋업 되었을 때, 실행)
+        _kartCurrentSpeed = 0;
+        _isControlable  = true;    // 컨트롤 가능 여부
+        _isMovable      = false;    // 이동 가능 여부
+        _isItemUsable   = false;    // 아이템 사용가능 여부
+    }
     private void OnPlayRaceEnter()
     {
         // TODO: 플레이 들어갈 때
-        // 
         _kartCurrentSpeed = _kartBaseSpeed;
         _isControlable  = true;    // 컨트롤 가능 여부
         _isMovable      = true;    // 이동 가능 여부
