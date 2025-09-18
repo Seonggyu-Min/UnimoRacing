@@ -17,8 +17,25 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 0129a701a6fda96428f78e497e437a36
   m_SerializeEntries:
+  - m_GUID: 1d7478c81d0df8f4a96033b354454b5f
+    m_Address: Sound/Bomb_Use_SFX
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 22ede9d2fb2b0874bb006b34fa24f73c
     m_Address: Audio/BGM/GameBGM01
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2305c767349155844b47f9d0fee106e8
+    m_Address: Sound/ItemGet
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 502ba81c4bcfcbf4b8bce86a7c1b64ee
+    m_Address: Sound/Egg_Use_SFX
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
@@ -37,6 +54,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 83e89c63ddc06ec4aac9d7e9ca0cbedb
     m_Address: Audio/SFX/Collision
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aeec18e0604214e23a3b1c28a84cf680
+    m_Address: Sound/Egg_Crash_SFX
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
