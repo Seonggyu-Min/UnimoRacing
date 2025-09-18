@@ -1,9 +1,9 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using YSJ.Util;
 
-[DefaultExecutionOrder(-1000)]
-public class PhotonNetworkDirectRoomConnector : MonoBehaviourPunCallbacks
+public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetworkDirectRoomConnector>
 {
     [Header("Connect")]
     [Tooltip("PhotonServerSettings 값 대신 여기서 고정 리전을 강제하고 싶다면 설정 (예: \"asia\", \"usw\", \"eu\")")]

@@ -11,14 +11,18 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 // 인게임 매니저
 public class InGameManager : SimpleSingletonPun<InGameManager>
 {
-    [SerializeField]private InGameRaceRulesConfig _raceRulesConfig;
-
+    [Header("Config")]
+    [SerializeField] private InGameRaceRulesConfig _raceRulesConfig;
+    [SerializeField] private bool _useSelfConnecter;
+    [SerializeField] private bool _useMapCycleManager;
     #region Config Setup Data
     private int     _laps = 1;                  // 렙
 
-    private int     _countdownSeconds = 3;     // 카운트 다운
+    private int     _countdownSeconds = 3;      // 카운트 다운
     private float   _finishSeconds = 10f;       // 피니쉬 첫 통과 시, 카운트
     private float   _postGameSeconds = 10f;     // 결과, 보여주는 시간
+
+    private int   _playablePlayersCount = 2;     // 결과, 보여주는 시간
 
     private bool    _itemsEnabled = true;       // 아이템 사용 가능 여부
 
@@ -33,7 +37,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     private double _countDownStartTime   = -1.0f;
     private double _raceStartTime        = -1.0f;
 
-    private double _raceStartDelayTime        = -1.0f;
+    private double _raceStartDelayTime   = -1.0f;
 
     private MapCycleManager _mapCycleManager;
     private MapAssetLoader _mapAssetLoader;
@@ -97,22 +101,29 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     protected override void Init()
     {
         base.Init();
+        StartCoroutine(CO_Connecter());
+    }
+    private IEnumerator CO_Connecter()
+    {
+        if (_useSelfConnecter)
+        {
+            var connecter = PhotonNetworkDirectRoomConnector.Instance;
+        }
+
+        while (!PhotonNetwork.InRoom)
+        { yield return null; }
+
         this.PrintLog($"Master Client: {IsMasterClient}!");
 
         _currentRaceState = RaceState.None;
-        _mapCycleManager = GameObject.FindAnyObjectByType<MapCycleManager>();
-        if (_mapCycleManager != null)
-        {
-            _mapCycleManager.OnLoadRandomMap -= MapSetup;
-            _mapCycleManager.OnLoadRandomMap += MapSetup;
-        }
 
+        SetupRaceMapLoader();
         SetupRaceRule();
+
+        this.PrintLog($"초기 상태 동기화 실행");
         // 초기 상태 동기화
         if (CurrentRoom != null)
         {
-            this.PrintLog($"초기 상태 동기화 실행");
-
             this.PrintLog("플레이어 데이터 세팅");
             PlayerManager.Instance.SetPlayerCPCurrentScene(SceneID.InGameScene);
 
@@ -128,10 +139,13 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
                 EnterState(state);
             }
         }
+        this.PrintLog($"초기 상태 동기화 완료");
+        yield break;
     }
 
     private void SetupRaceRule()
     {
+        this.PrintLog("SetupRaceRule 진행");
         if (_raceRulesConfig == null)
         {
             this.PrintLog($"Race Rules Config is Null!!!!!", LogType.Warning);
@@ -140,11 +154,41 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
         var config = _raceRulesConfig;
 
-        _laps = config.laps;                  // 렙
-        _countdownSeconds = config.countdownSeconds;      // 카운트 다운
-        _finishSeconds = config.finishSeconds;         // 피니쉬 첫 통과 시, 카운트
-        _postGameSeconds = config.postGameSeconds;       // 결과, 보여주는     
-        _itemsEnabled = config.itemsEnabled;          // 아이템 사용 가능 여부
+        _laps = config.laps;                            // 렙
+        _countdownSeconds = config.countdownSeconds;    // 카운트 다운
+        _finishSeconds = config.finishSeconds;          // 피니쉬 첫 통과 시, 카운트
+        _postGameSeconds = config.postGameSeconds;      // 결과, 보여주는     
+
+        _playablePlayersCount = config.playablePlayersCount;    // 플레이 가능한 플레이어 수
+
+        _itemsEnabled = config.itemsEnabled;            // 아이템 사용 가능 여부
+        this.PrintLog("SetupRaceRule 진행 완료");
+    }
+    private void SetupRaceMapLoader()
+    {
+        if (!_useMapCycleManager)
+        {
+            this.PrintLog($"MapCycleManager 사용하지 않는 상태입니다.");
+            return;
+        }
+
+        this.PrintLog("SetupRaceRule 진행");
+
+        _mapCycleManager = GameObject.FindObjectOfType<MapCycleManager>();
+        if (_mapCycleManager == null)
+            _mapCycleManager = MapCycleManager.Instance;
+
+        if (_mapCycleManager == null)
+        {
+            this.PrintLog($"MapCycleManager 가 존재 하지 않습니다.");
+            return;
+        }
+
+        _mapCycleManager.OnLoadRandomMap -= MapSetup;
+        _mapCycleManager.OnLoadRandomMap += MapSetup;
+        _mapCycleManager.LoadRandomMap();
+
+        this.PrintLog("SetupRaceRule 진행 완료");
     }
     private void MapSetup(GameObject go)
     {
@@ -358,7 +402,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         this.PrintLog("Checked >>>>>>>>>>>>> Check_Players_CurrentScene");
         if (!IsMasterClient || CurrentRoom == null) return;
 
-        this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_CurrentScene {CurrentRoom.Players.Values.Count}");
+        this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_CurrentScene {CurrentRoom.Players.Values.Count} / ");
         foreach (var p in CurrentRoom.Players.Values)
         {
             PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
@@ -423,9 +467,12 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     // Coru
     private IEnumerator CO_MapLoadChangeNextStepDelay()
     {
-        while (!_mapAssetLoader.IsLoaded)
+        if (_useMapCycleManager)
         {
-            yield return null;
+            while (!_mapAssetLoader.IsLoaded)
+            {
+                yield return null;
+            }
         }
 
         SendRaceState(RaceState.LoadPlayers);

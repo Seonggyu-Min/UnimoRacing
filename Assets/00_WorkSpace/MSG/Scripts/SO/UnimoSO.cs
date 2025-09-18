@@ -7,7 +7,7 @@ namespace MSG
 {
     public enum MoneyType
     {
-        Gold, BlueHoneyGem, //Money3
+        None, Gold, BlueHoneyGem, //Money3
     }
 
     [CreateAssetMenu(fileName = "UnimoSO", menuName = "ScriptableObjects/UnimoSO")]

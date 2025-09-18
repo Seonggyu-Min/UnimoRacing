@@ -122,6 +122,12 @@ namespace MSG
                 return;
             }
 
+            if (PartyService.Instance.Members.Count >= RoomMakeHelper.MAX_PLAYERS)
+            {
+                Debug.Log("파티원이 전부 차서 초대 return");
+                return;
+            }
+            
             if (!PartyService.Instance.IsInParty) PartyService.Instance.SetParty(CurrentUid, new List<string>()); // 파티에 없는 솔로 상태면 상태 전환
 
             PartyService.Instance.EnsurePartyIdForLeader(CurrentUid); // 파티 아이디 없을까봐 생성
