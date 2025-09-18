@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slowMultiplier: 0.01
-  duration: 2
+  slowDuration: 2
 --- !u!114 &8794733356989019158
 MonoBehaviour:
   m_ObjectHideFlags: 0
