@@ -45,5 +45,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trapResourceKey: EggTrapZone
-  sfxUseKey: EggTrap
+  sfxUseKey: Egg_Use_SFX
   distanceBehind: 0.05

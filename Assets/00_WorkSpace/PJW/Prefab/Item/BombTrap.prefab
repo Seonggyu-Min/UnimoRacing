@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bombResourceKey: BombTrap
   distanceAhead: 0.5
-  sfxUseKey: Bombitem
+  sfxUseKey: Bomb_Use_SFX
 --- !u!114 &650975786435230216
 MonoBehaviour:
   m_ObjectHideFlags: 0

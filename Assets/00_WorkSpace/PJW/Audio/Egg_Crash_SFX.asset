@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 589bf9a5c8c9a604194d31b76b6e1e27, type: 3}
-  m_Name: Bombitem
+  m_Name: Egg_Crash_SFX
   m_EditorClassIdentifier: 
-  ClipName: Bombitem
-  ClipAddress: Sound/Bombitem
+  ClipName: Egg_Crash_SFX
+  ClipAddress: Sound/Egg_Crash_SFX
   Volume: 1
   Pitch: 1
   Loop: 0

@@ -22,7 +22,7 @@ namespace PJW
         [SerializeField] private float minSpeed = 0.1f;
 
         [Header("È¿°úÀ½")]
-        [SerializeField] private string sfxUseKey = "EggTrapZone";
+        [SerializeField] private string sfxUseKey = "Egg_Crash_SFX";
 
         private bool isTriggered;
         private Collider zoneCol;

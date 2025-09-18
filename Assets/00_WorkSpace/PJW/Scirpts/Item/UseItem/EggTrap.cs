@@ -11,7 +11,7 @@ namespace PJW
         [SerializeField] private string trapResourceKey = "EggTrapZone";
 
         [Header("È¿°úÀ½")]
-        [SerializeField] private string sfxUseKey = "EggTrap";
+        [SerializeField] private string sfxUseKey = "Egg_Use_SFX";
 
         [SerializeField] private float distanceBehind = 0.02f;
 

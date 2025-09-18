@@ -147,6 +147,7 @@ MonoBehaviour:
   waitAfterBoost: 1
   stopDuration: 1.5
   minSpeed: 0.1
+  sfxUseKey: Egg_Crash_SFX
 --- !u!54 &-67096458893133832
 Rigidbody:
   m_ObjectHideFlags: 0
