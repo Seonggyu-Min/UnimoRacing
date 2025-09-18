@@ -59,6 +59,7 @@ public class DollyCartMovement : MonoBehaviour
     private void Update()
     {
         if (!(_isSetup && _data.IsSetups)) return;
+        if (!_data.IsControlable) return;
 
         // 오너 ===============================================================
         if (_data.View.IsMine)
