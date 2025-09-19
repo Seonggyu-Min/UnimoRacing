@@ -39,7 +39,7 @@ namespace MSG
     {
         #region Fields and Properties
 
-        [SerializeField] private GameObject _rewardPanel; // 이거 띄우기 위해서, TODO: 이거 전체가 버튼으로써 OnClick에 SetActive false 지정되면 될 듯
+        [SerializeField] private RewardPanelBehaviour _rewardPanel; // 이거 띄우기 위해서, TODO: 이거 전체가 버튼으로써 OnClick에 SetActive false 지정되면 될 듯
 
         private readonly Dictionary<int, MissionEntry> _dailyEntries = new();
         private readonly Dictionary<int, MissionEntry> _achievementEntries = new();
@@ -197,7 +197,7 @@ namespace MSG
         /// 데일리 보상을 수령합니다
         /// </summary>
         /// <param name="index">보상을 수령할 미션의 index</param>
-        public void ClaimDaily(int index)
+        public void ClaimDaily(int index, Action OnSucces = null, Action<string> OnError = null)
         {
             if (!_dailyEntries.TryGetValue(index, out MissionEntry entry))
             {
@@ -210,23 +210,33 @@ namespace MSG
                 mutable =>
                 {
                     // cleared == true && claimed == false일 때만 수령
-                    bool cleared = Convert.ToBoolean(mutable.Child(DatabaseKeys.cleared).Child(index.ToString()).Value ?? false);
-                    bool claimed = Convert.ToBoolean(mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value ?? false);
+                    bool cleared = ToBool(mutable.Child(DatabaseKeys.cleared).Child(index.ToString()).Value ?? false);
+                    bool claimed = ToBool(mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value ?? false);
                     if (!cleared || claimed)
                     {
                         return TransactionResult.Abort();
                     }
 
-                    // 지급
-                    RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
-                    // TODO: 수령 UI 표기
-
                     // 수령 마크
                     mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value = true;
                     return TransactionResult.Success(mutable);
                 },
-                _ => Debug.Log("[MissionService] 데일리 미션 보상 수령 완료"),
-                err => Debug.Log($"[MissionService] 데일리 미션 보상 수령 실패: {err}")
+                _ =>
+                {
+                    // 지급
+                    RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
+                    // 수령 UI 표기
+                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
+                    UIManager.Instance.Show("Reward Panel");
+
+                    OnSucces?.Invoke();
+                    Debug.Log("[MissionService] 데일리 미션 보상 수령 완료");
+                },
+                err =>
+                {
+                    OnError?.Invoke(err);
+                    Debug.Log($"[MissionService] 데일리 미션 보상 수령 실패: {err}");
+                }
             );
         }
 
@@ -234,34 +244,71 @@ namespace MSG
         /// Achievement을 보상 수령합니다
         /// </summary>
         /// <param name="index">보상을 수령할 미션의 index</param>
-        public void ClaimAchievement(int index)
+        public void ClaimAchievement(int index, Action OnSucces = null, Action<string> OnError = null)
         {
             if (!_achievementEntries.TryGetValue(index, out MissionEntry entry))
             {
-                Debug.LogWarning($"achievement 미션이 _achievementEntries 없습니다: {index}");
+                OnError?.Invoke($"achievement 미션이 _achievementEntries 없습니다: {index}");
                 return;
             }
+
+            Dictionary<string, object> updates = new()
+            {
+                { DBRoutes.UserAchievementMissionClaimed(CurrentUid, index), true },
+            };
+
+
+            DatabaseManager.Instance.UpdateOnMain(
+                updates,
+                () =>
+                {
+                    // 지급
+                    RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
+                    // 수령 UI 표기
+                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
+                    UIManager.Instance.Show("Reward Panel");
+
+                    OnSucces?.Invoke();
+                    Debug.Log("[MissionService] achievement 미션 보상 수령 완료");
+                },
+                err =>
+                {
+                    OnError?.Invoke(err);
+                    Debug.Log($"[MissionService] achievement 미션 보상 수령 실패: {err}");
+                });
+
+
 
             DatabaseManager.Instance.RunTransactionOnMain(
                 DBRoutes.UserAchievementMissionRoot(CurrentUid),
                 mutable =>
                 {
                     // cleared == true && claimed == false일 때만 수령
-                    bool cleared = Convert.ToBoolean(mutable.Child(DatabaseKeys.cleared).Child(index.ToString()).Value ?? false);
-                    bool claimed = Convert.ToBoolean(mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value ?? false);
+                    bool cleared = ToBool(mutable.Child(DatabaseKeys.cleared).Child(index.ToString()).Value ?? false);
+                    bool claimed = ToBool(mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value ?? false);
                     if (!cleared || claimed)
                         return TransactionResult.Abort();
-
-                    // 지급
-                    RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
-                    // TODO: 수령 UI 표기
 
                     // 수령 마크
                     mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value = true;
                     return TransactionResult.Success(mutable);
                 },
-                _ => Debug.Log("[MissionService] achievement 미션 보상 수령 완료"),
-                err => Debug.Log($"[MissionService] achievement 미션 보상 수령 실패: {err}")
+                _ => 
+                {
+                    // 지급
+                    RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
+                    // 수령 UI 표기
+                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
+                    UIManager.Instance.Show("Reward Panel");
+
+                    OnSucces?.Invoke();
+                    Debug.Log("[MissionService] achievement 미션 보상 수령 완료");
+                } ,
+                err => 
+                {
+                    OnError?.Invoke(err);
+                    Debug.Log($"[MissionService] achievement 미션 보상 수령 실패: {err}");
+                } 
             );
         }
 

@@ -47,6 +47,8 @@ public enum RoomKey
 
     // Vote
     WinnerMapIndex,             // KEY_VOTE_WINNER_INDEX
+    VoteState,                  // KEY_ROOM_VOTE_STATE
+    VoteEndTime,                // KEY_ROOM_VOTE_END_AT
 }
 
 public enum PlayerKey
