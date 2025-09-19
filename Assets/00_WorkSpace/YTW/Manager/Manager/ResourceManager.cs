@@ -443,6 +443,7 @@ namespace YTW
             lock (_lock) { _instanceHandles[go] = h; }
             return go;
         }
+
         public T LoadSync<T>(string address) where T : UnityEngine.Object
         {
             EnsureInitializedAsync().GetAwaiter().GetResult();
@@ -476,7 +477,7 @@ namespace YTW
         {
             if (assetRef == null || !assetRef.RuntimeKeyIsValid()) return;
             var key = "addrref:" + assetRef.AssetGUID;
-            Release(key); // ±‚¡∏ Release
+            Release(key); // Release
         }
     }
 }

@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 32
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -16,6 +16,7 @@ MonoBehaviour:
   carName: "\uBD80\uD654\uD55C \uC54C"
   kartPrefab: {fileID: 0}
   kartSprite: {fileID: 0}
+  currencyType: {fileID: 0}
   carDesc: 
   passiveSkillId: 11007
   useAddr: 1

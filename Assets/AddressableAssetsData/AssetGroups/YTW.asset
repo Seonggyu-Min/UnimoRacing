@@ -17,6 +17,12 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: ce9d3d6cd27594040abc7adee1cfba5b
   m_SerializeEntries:
+  - m_GUID: 012da8a3996f9794a9567550a5291df2
+    m_Address: AudioMixer
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 11e60bbd464b4c048bca3c2a6a4334c3
     m_Address: TempMap1
     m_ReadOnly: 0
@@ -26,10 +32,17 @@ MonoBehaviour:
   - m_GUID: 3f2e10d0590e1b14488dd31e4c5d44db
     m_Address: YTW_TestScene2
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5a5fabb214248234e9c832324ee09207
     m_Address: Lobby_Remote
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 735240edc2851ac43bbde40036e16f6b
+    m_Address: AudioDB
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
@@ -51,6 +64,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - NetworkPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5ec85332c4aaa74e9f66e1f00f116fe
+    m_Address: Game_Remote
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 77e2d83c7e8f57943b8b09c4fc47a174, type: 2}

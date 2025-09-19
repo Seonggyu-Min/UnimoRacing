@@ -15,12 +15,11 @@ public class SOAddressablePreloader : MonoBehaviour
 
     private async void Awake()
     {
-        // 이미 한번 돌았으면 재진입 차단 (씬 리로드/패치 후 재시작 대비)
         if (_ran) { Destroy(this); return; }
         _ran = true;
+        DontDestroyOnLoad(gameObject); // 씬 갈아껴도 생존
 
-        // 패치/다운로드가 끝난 뒤에만 로드 시작 (LoadRefAsync는 PatchGate를 안 기다리므로)
-        if (!YTW.Launcher.PatchGate.Task.IsCompleted)
+        if (!YTW.Launcher.PatchGate.Task.IsCompleted) // 패치 후 시작 보장
             await YTW.Launcher.PatchGate.Task;
 
         await YTW.ResourceManager.Instance.EnsureInitializedAsync();
@@ -29,25 +28,26 @@ public class SOAddressablePreloader : MonoBehaviour
         if (loadFromResources)
         {
             var karts = Resources.LoadAll<UnimoKartSO>(kartSOPath);
-            Debug.Log($"[Preloader] Kart SO count = {karts.Length} at '{kartSOPath}'");
-            foreach (var so in Resources.LoadAll<UnimoKartSO>(kartSOPath))
-            {
-                tasks.Add(so.EnsureKartPrefabAsync());
-                tasks.Add(so.EnsureKartSpriteAsync());
-            }
             var chars = Resources.LoadAll<UnimoCharacterSO>(charSOPath);
-            Debug.Log($"[Preloader] Char SO count = {chars.Length} at '{charSOPath}'");
-            foreach (var so in Resources.LoadAll<UnimoCharacterSO>(charSOPath))
-            {
-                tasks.Add(so.EnsureCharacterPrefabAsync());
-                tasks.Add(so.EnsureCharacterSpriteAsync());
-            }
+
+            kartSOs = new List<UnimoKartSO>(karts);              // 리스트에 붙잡기
+            characterSOs = new List<UnimoCharacterSO>(chars);
+
+            // 언로드 방지
+            foreach (var so in kartSOs) so.hideFlags |= HideFlags.DontUnloadUnusedAsset;
+            foreach (var so in characterSOs) so.hideFlags |= HideFlags.DontUnloadUnusedAsset;
+
+            foreach (var so in kartSOs) { tasks.Add(so.EnsureKartPrefabAsync()); tasks.Add(so.EnsureKartSpriteAsync()); }
+            foreach (var so in characterSOs) { tasks.Add(so.EnsureCharacterPrefabAsync()); tasks.Add(so.EnsureCharacterSpriteAsync()); }
         }
         else
         {
+            // 인스펙터에 넣어준 리스트 자체가 참조를 유지
             foreach (var so in kartSOs) if (so) { tasks.Add(so.EnsureKartPrefabAsync()); tasks.Add(so.EnsureKartSpriteAsync()); }
             foreach (var so in characterSOs) if (so) { tasks.Add(so.EnsureCharacterPrefabAsync()); tasks.Add(so.EnsureCharacterSpriteAsync()); }
         }
-        await Task.WhenAll(tasks);
+
+        await Task.WhenAll(tasks); //
     }
+    
 }

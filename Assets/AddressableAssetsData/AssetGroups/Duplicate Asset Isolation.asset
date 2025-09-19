@@ -15,7 +15,7 @@ MonoBehaviour:
   m_GroupName: Duplicate Asset Isolation
   m_Data:
     m_SerializedData: []
-  m_GUID: 6fcb7e8e6a3defc47a77d5a223b79139
+  m_GUID: a6ff9658dcac462419a1d2b43b5733da
   m_SerializeEntries:
   - m_GUID: 0406db5a14f94604a8c57ccfbc9f3b46
     m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Particles/ParticlesUnlit.shader
@@ -72,8 +72,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 933532a4fcc9baf4fa0491de14d08ed7
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: aeb3dbe62b5ed4a459b9900b3101dc8f
     m_Address: Assets/Imports/Lobby_01/A_Toaster_Idle_01.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b50955928b87e714ab31f7fe9003b849
+    m_Address: Assets/Imports/Suntail Village/Shaders/Suntail_Surface.shader
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -96,5 +106,5 @@ MonoBehaviour:
   m_Settings: {fileID: 11400000, guid: 77e2d83c7e8f57943b8b09c4fc47a174, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 82d8aecee3ca5f24e97364dc911dd038, type: 2}
-    - {fileID: 11400000, guid: 3a13407c193340d45969a647dd81565e, type: 2}
+    - {fileID: 11400000, guid: 7388b9410108c334393f5d54677add23, type: 2}
+    - {fileID: 11400000, guid: 523135f2aa328b5438970116d82baf62, type: 2}

@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 32
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -16,6 +16,7 @@ MonoBehaviour:
   characterName: "\uC544\uC6B0\uAD6C\uC2A4\uD22C\uC2A4"
   characterPrefab: {fileID: 0}
   characterSprite: {fileID: 0}
+  currencyType: {fileID: 0}
   characterInfo: 
   SynergyKartID: 10008
   relationCharacterId: -1
