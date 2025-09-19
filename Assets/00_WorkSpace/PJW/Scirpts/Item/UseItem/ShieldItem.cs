@@ -1,11 +1,15 @@
 using Photon.Pun;  
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
     public class ShieldItem : MonoBehaviour, IUsableItem
     {
         [SerializeField] private float shieldDuration = 5f;
+
+        [SerializeField] private string sfxUseKey = "Shield_Use";   
+        [SerializeField] private string sfxLoopKey = "Shield";
 
         public void Use(GameObject owner)
         {
@@ -14,6 +18,8 @@ namespace PJW
                 Destroy(gameObject);
                 return;
             }
+
+            AudioManager.Instance.PlaySFX(sfxUseKey);
 
             var shield = owner.GetComponentInParent<PlayerShield>();
             if (shield == null)
