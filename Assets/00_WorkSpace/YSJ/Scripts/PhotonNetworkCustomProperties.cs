@@ -34,7 +34,9 @@ public static class PhotonNetworkCustomProperties
     public const int VALUE_ROOM_NOT_CHOSEN_RACE_MAP_ID          = -1;
 
     // VOTE
-    public const string KEY_VOTE_WINNER_INDEX =                 "vote_winner_index";                // 방에서 투표로 선정된 맵의 인덱스를 저장할 키
+    public const string KEY_ROOM_VOTE_STATE                     = "vote_state";                     // 투표 중인지 여부
+    public const string KEY_ROOM_VOTE_END_AT                    = "vote_endAt";                    // 투표 종료 시간 (PhotonNetwork.Time)
+    public const string KEY_VOTE_WINNER_INDEX                   = "vote_winner_index";              // 방에서 투표로 선정된 맵의 인덱스를 저장할 키
 
     #endregion
 
@@ -90,6 +92,8 @@ public static class PhotonNetworkCustomProperties
 
         // Vote
         RoomKey.WinnerMapIndex => KEY_VOTE_WINNER_INDEX,
+        RoomKey.VoteState => KEY_ROOM_VOTE_STATE,
+        RoomKey.VoteEndTime => KEY_ROOM_VOTE_END_AT,
 
         _ => key.ToString()
     };
