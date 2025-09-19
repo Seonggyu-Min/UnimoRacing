@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3322082969725720463}
   - component: {fileID: 3831461283949501305}
   - component: {fileID: 2150771333856453433}
+  - component: {fileID: 4836010692674315641}
   m_Layer: 0
   m_Name: RandomItemBox
   m_TagString: Untagged
@@ -213,3 +214,16 @@ MonoBehaviour:
   respawnTime: 5
   rotationSpeed: {x: 0, y: 60, z: 0}
   sfxGetKey: Itembox_SFX
+--- !u!114 &4836010692674315641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2765151154048604652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 262ad69288eaad64b940491c614dbfce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupVfxPrefab: {fileID: 0}
