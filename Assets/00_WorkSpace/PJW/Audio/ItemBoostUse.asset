@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 589bf9a5c8c9a604194d31b76b6e1e27, type: 3}
   m_Name: ItemBoostUse
   m_EditorClassIdentifier: 
-  ClipName: ItemBoostUse
-  ClipAddress: Sound/ItemGet
+  ClipName: Itembox_SFX
+  ClipAddress: Sound/Itembox_SFX
   Volume: 1
   Pitch: 1
   Loop: 0

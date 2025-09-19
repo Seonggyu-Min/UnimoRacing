@@ -29,12 +29,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 2305c767349155844b47f9d0fee106e8
-    m_Address: Sound/ItemGet
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Remote
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 502ba81c4bcfcbf4b8bce86a7c1b64ee
     m_Address: Sound/Egg_Use_SFX
     m_ReadOnly: 0
@@ -79,6 +73,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dd2c69cd0537ea245ab40ee695a4781a
     m_Address: Audio/BGM/LobbyBGM
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ffa96af717384704c9c5a003564d4228
+    m_Address: Sound/Itembox_SFX
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote

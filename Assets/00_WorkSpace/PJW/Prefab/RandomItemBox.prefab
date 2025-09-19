@@ -212,3 +212,4 @@ MonoBehaviour:
     weight: 20
   respawnTime: 5
   rotationSpeed: {x: 0, y: 60, z: 0}
+  sfxGetKey: Itembox_SFX
