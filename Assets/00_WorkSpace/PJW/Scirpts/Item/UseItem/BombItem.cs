@@ -15,7 +15,7 @@ namespace PJW
         [SerializeField] private float distanceAhead = 0.02f;
 
         [Header("»ç¿îµå")]
-        [SerializeField] private string sfxUseKey = "BombItem_Use_SFX";
+        [SerializeField] private string sfxUseKey = "BombItem_Use";
 
         public void Use(GameObject owner)
         {

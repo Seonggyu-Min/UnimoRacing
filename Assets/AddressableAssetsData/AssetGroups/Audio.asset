@@ -18,7 +18,7 @@ MonoBehaviour:
   m_GUID: 0129a701a6fda96428f78e497e437a36
   m_SerializeEntries:
   - m_GUID: 1d7478c81d0df8f4a96033b354454b5f
-    m_Address: Audio/SFX/Bomb_Use_SFX
+    m_Address: Audio/SFX/Bomb_Use
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
@@ -150,7 +150,7 @@ MonoBehaviour:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a89c3191c9db8d842923c4b31e3573e4
-    m_Address: Audio/SFX/Bang_SFX
+    m_Address: Audio/SFX/Bang
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
@@ -162,7 +162,7 @@ MonoBehaviour:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: aeec18e0604214e23a3b1c28a84cf680
-    m_Address: Audio/SFX/Egg_Crush
+    m_Address: Audio/SFX/Egg_Crash
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
@@ -210,7 +210,7 @@ MonoBehaviour:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f85f7009bf4cc5a49ac408ca2504d9db
-    m_Address: Audio/SFX/Boost_Start_SFX
+    m_Address: Audio/SFX/Boost_Start
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
@@ -222,7 +222,7 @@ MonoBehaviour:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ffa96af717384704c9c5a003564d4228
-    m_Address: Audio/SFX/Itembox_SFX
+    m_Address: Audio/SFX/Itembox
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote

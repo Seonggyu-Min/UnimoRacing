@@ -13,7 +13,7 @@ namespace PJW
 
         [Header("사운드 키")]
         [SerializeField] private string sfxBlockedKey = "Shield_Block_SFX";   // 쉴드로 막혔을 때
-        [SerializeField] private string sfxHitKey = "Bang_SFX";    // 트랩 발동했을 때
+        [SerializeField] private string sfxHitKey = "Bang";    // 트랩 발동했을 때
 
         private bool hasTriggered;
 

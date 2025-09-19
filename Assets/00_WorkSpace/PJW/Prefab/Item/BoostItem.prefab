@@ -46,6 +46,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speedMultiplier: 2
   duration: 2
-  sfxUseKey: Boost_Start_SFX
-  sfxActiveKey: Boost_SFX
-  sfxEndKey: Boost_End_SFX
+  sfxUse: Boost_Start
+  sfxActive: Boost
+  sfxEnd: Boost_End
