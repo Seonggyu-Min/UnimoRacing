@@ -35,12 +35,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5a5fabb214248234e9c832324ee09207
-    m_Address: Lobby_Remote
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Remote
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 735240edc2851ac43bbde40036e16f6b
     m_Address: AudioDB
     m_ReadOnly: 0
