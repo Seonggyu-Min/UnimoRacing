@@ -48,6 +48,10 @@ public class DollyCartSync : MonoBehaviourPun, IPunObservable
 
         stream.SendNext(_data.Lap);                 // 렙
         stream.SendNext(_data.Norm);                // 진행 퍼센트
+
+        stream.SendNext(_data.IsControlable);      
+        stream.SendNext(_data.IsMovable);          
+        stream.SendNext(_data.IsItemUsable);       
     }
 
     // 받기
@@ -59,10 +63,16 @@ public class DollyCartSync : MonoBehaviourPun, IPunObservable
         int     recvLap           = (int)stream.ReceiveNext();
         float   recvNorm          = (float)stream.ReceiveNext();
 
+        bool   recvIsControlable  = (bool)stream.ReceiveNext();
+        bool   recvIsMovable      = (bool)stream.ReceiveNext();
+        bool   recvIsItemUsable   = (bool)stream.ReceiveNext();
+
         _data.Controller.ChangeTrack(recvTrackIndex, info);
 
         _data.Movement.ChangeSpeed(recvKartSpeed, info);
         _data.Movement.SyncPosition(recvNorm, info);
+        _data.SetState(recvIsControlable, recvIsMovable, recvIsItemUsable);
+
         // _controller.SyncReceive(recvNorm, recvLap, recvSpeed);
     }
 }

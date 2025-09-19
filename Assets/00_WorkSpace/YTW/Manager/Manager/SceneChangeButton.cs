@@ -28,7 +28,7 @@ namespace YTW
             if (Manager.Scene != null)
             {
                 // Manager.Scene.LoadScene(targetScene);
-                Manager.Scene.LoadGameScene(targetScene);
+               // Manager.Scene.LoadGameScene(targetScene);
             }
             else
             {

@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 32
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -14,10 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterId: 20002
   characterName: "\uC810\uBD84\uC774"
-  characterPrefab: {fileID: 2090828822177639507, guid: d169d16d267a65849bec71e24dcc6617,
-    type: 3}
-  characterSprite: {fileID: 21300000, guid: f591dc3330b2b414eb6464e776ffacc5, type: 3}
+  characterPrefab: {fileID: 0}
+  characterSprite: {fileID: 0}
+  currencyType: {fileID: 0}
   characterInfo: 
   SynergyKartID: 10002
   relationCharacterId: -1
   dialogId: -1
+  useAddr: 1
+  characterPrefabRef:
+    m_AssetGUID: 834c26b85244f0a499ba417d481df5ef
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  characterSpriteRef:
+    m_AssetGUID: f591dc3330b2b414eb6464e776ffacc5
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

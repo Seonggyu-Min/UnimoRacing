@@ -96,6 +96,7 @@ public class DollyCartController : MonoBehaviourPun
 
         // 해당 포톤 뷰가, 해당 클라이언트 것이 맞고 조종이 가능한 상태인지
         if (!photonView.IsMine) return;
+        if (!_data.IsControlable) return;
 
         if (_platform == RuntimePlatform.WindowsPlayer)
         {

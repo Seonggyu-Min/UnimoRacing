@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 32
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -14,8 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   KartID: 10013
   carName: "\uD1A0\uC2A4\uD130\uAE30"
-  kartPrefab: {fileID: 6756548505415015468, guid: cbd4b0a6116183041af80c1c830ba124,
-    type: 3}
-  kartSprite: {fileID: 21300000, guid: c211f8ea5b051f243afadcb33a6759f0, type: 3}
+  kartPrefab: {fileID: 0}
+  kartSprite: {fileID: 0}
+  currencyType: {fileID: 0}
   carDesc: 
   passiveSkillId: 11013
+  useAddr: 1
+  kartPrefabRef:
+    m_AssetGUID: cbd4b0a6116183041af80c1c830ba124
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  kartSpriteRef:
+    m_AssetGUID: c211f8ea5b051f243afadcb33a6759f0
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 1
