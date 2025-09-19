@@ -15,5 +15,10 @@ MonoBehaviour:
   itemID: 30003
   itemName: "\uC790\uBB3C\uC1E0"
   itemIconSprite: {fileID: 21300000, guid: e9aaea700cb5646d69b655c85f9fc7ba, type: 3}
-  itemDuration: 3
-  optoins: []
+  isOptionApplyStep: 0
+  options:
+  - optionStatusEffect: 3
+    optionApplyDelayTime: 0
+    optionValue: 0
+    optionPercent: 0
+    optionDuration: 3
