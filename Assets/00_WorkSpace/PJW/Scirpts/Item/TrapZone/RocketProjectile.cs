@@ -10,12 +10,12 @@ namespace PJW
 {
     public class RocketProjectile : MonoBehaviourPun, IPunInstantiateMagicCallback, IOnEventCallback, IPunObservable
     {
-        [Header("À¯µµ ¼³Á¤")]
+        [Header("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
         [SerializeField] private float speed = 20f;
         [SerializeField] private float turnRate = 360f;
         [SerializeField] private float maxLifeTime = 8f;
 
-        [Header("Ãæµ¹ ¹Ý°æ")]
+        [Header("ï¿½æµ¹ ï¿½Ý°ï¿½")]
         [SerializeField] private float hitRadius = 2f;
 
         private int targetViewId;
@@ -24,8 +24,10 @@ namespace PJW
         private PhotonView targetPv;
         private float lifeTimer;
         private bool hasHit;
+        private Vector3 netPos;
+        private Quaternion netRot;
 
-        // ³×Æ®¿öÅ© º¸°£¿ë
+        // ï¿½ï¿½Æ®ï¿½ï¿½Å© ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         private Vector3 networkPos;
         private Quaternion networkRot;
         private bool hasNetSnapshot;
@@ -33,7 +35,7 @@ namespace PJW
 
         private const byte RocketStunEvent = 41;
 
-        // ·ÎÄÃ ±¸µ¿ ±ÇÇÑ: ¼ÒÀ¯ÀÚ or ¸¶½ºÅÍ (¼ÒÀ¯±Ç ²¿¿©µµ ¸¶½ºÅÍ°¡ ¹é¾÷À¸·Î ±¸µ¿)
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ or ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         private bool CanDrive => photonView != null && (photonView.IsMine || PhotonNetwork.IsMasterClient);
 
         private sealed class StunRunner : MonoBehaviour
@@ -79,6 +81,20 @@ namespace PJW
             }
         }
 
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            if (stream.IsWriting) // ï¿½ï¿½ï¿½ï¿½ -> ï¿½Ù¸ï¿½ Å¬ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            {
+                stream.SendNext(transform.position);
+                stream.SendNext(transform.rotation);
+            }
+            else // ï¿½ï¿½ï¿½ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            {
+                netPos = (Vector3)stream.ReceiveNext();
+                netRot = (Quaternion)stream.ReceiveNext();
+            }
+        }
+
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
             var data = info.photonView.InstantiationData;
@@ -101,7 +117,7 @@ namespace PJW
             var col = GetComponent<Collider>(); if (col) col.isTrigger = true;
             var rb = GetComponent<Rigidbody>(); if (rb) rb.isKinematic = true;
 
-            // ÀÚ½ÅÀ» ObservedComponents¿¡ °­Á¦ µî·Ï
+            // ï¿½Ú½ï¿½ï¿½ï¿½ ObservedComponentsï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             if (photonView != null)
             {
                 if (photonView.ObservedComponents == null)
@@ -118,7 +134,7 @@ namespace PJW
 
         private void Update()
         {
-            // ¼ö¸í
+            // ï¿½ï¿½ï¿½ï¿½
             lifeTimer += Time.deltaTime;
             if (lifeTimer > maxLifeTime)
             {
@@ -127,7 +143,7 @@ namespace PJW
                 return;
             }
 
-            // ±¸µ¿(ÀÌµ¿/À¯µµ): ¼ÒÀ¯ÀÚ or ¸¶½ºÅÍ
+            // ï¿½ï¿½ï¿½ï¿½(ï¿½Ìµï¿½/ï¿½ï¿½ï¿½ï¿½): ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ or ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             if (CanDrive)
             {
                 if (targetPv == null || targetPv.transform == null)
@@ -148,7 +164,7 @@ namespace PJW
 
                 transform.position += transform.forward * speed * Time.deltaTime;
 
-                // ¸íÁß ÆÇÁ¤Àº ÇÑÂÊ¸¸ ¼öÇà (¸¶½ºÅÍ°¡ ¿ì¼±, ¾Æ´Ï¸é ¼ÒÀ¯ÀÚ)
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ê¸ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ì¼±, ï¿½Æ´Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
                 bool hasAuthorityForHit = PhotonNetwork.IsMasterClient || (photonView != null && photonView.IsMine);
                 if (hasAuthorityForHit && !hasHit &&
                     (transform.position - targetPos).sqrMagnitude <= hitRadius * hitRadius)
@@ -158,7 +174,7 @@ namespace PJW
             }
             else
             {
-                // ºñ±¸µ¿ Å¬¶ó: ³×Æ®¿öÅ© ½º³À¼¦ º¸°£
+                // ï¿½ñ±¸µï¿½ Å¬ï¿½ï¿½: ï¿½ï¿½Æ®ï¿½ï¿½Å© ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 if (hasNetSnapshot)
                 {
                     transform.position = Vector3.Lerp(transform.position, networkPos, netLerp * Time.deltaTime);
@@ -169,7 +185,7 @@ namespace PJW
 
         private void OnTriggerEnter(Collider other)
         {
-            // Æ®¸®°Å Ãæµ¹µµ ±ÇÇÑ Ãø¸¸ Ã³¸®
+            // Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
             if (!CanDrive || hasHit) return;
 
             var hitPv = other.GetComponentInParent<PhotonView>();
@@ -203,7 +219,7 @@ namespace PJW
                 var me = PhotonNetwork.LocalPlayer;
                 if (me == null || me.ActorNumber != targetActorNumber) return;
 
-                // ³» ·ÎÄÃ ÇÃ·¹ÀÌ¾îÀÇ PlayerRaceData Ã£±â
+                // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ PlayerRaceData Ã£ï¿½ï¿½
                 var racer = FindObjectsOfType<PlayerRaceData>(true)
                     .FirstOrDefault(r =>
                     {
@@ -213,7 +229,7 @@ namespace PJW
 
                 if (racer == null) return;
 
-                // PlayerRaceData ±â¹ÝÀ¸·Î ½ºÅÏ Àû¿ë
+                // PlayerRaceData ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 StunRunner.Instance.ApplyStun(targetActorNumber, racer, duration);
             }
         }
@@ -231,7 +247,7 @@ namespace PJW
             return null;
         }
 
-        // À§Ä¡/È¸Àü Á÷·ÄÈ­
+        // ï¿½ï¿½Ä¡/È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
             if (stream.IsWriting)

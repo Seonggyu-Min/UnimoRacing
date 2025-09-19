@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Linq;
 using Photon.Pun;
 using UnityEngine;
@@ -87,14 +87,14 @@ namespace PJW
             boundInv.OnItemAssigned += OnItemAssigned;
             boundInv.OnItemAvailabilityChanged += OnItemAvailabilityChanged;
 
-            // ¾ÈÀüÇÏ°Ô Á¸Àç ¿©ºÎ Ã¼Å©
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
             try
             {
                 boundInv.OnItemCountChanged += OnItemCountChanged;
             }
-            catch { /* ÀÌÀü ¹öÀüÀÏ ¼ö ÀÖÀ¸´Ï ¹«½Ã */ }
+            catch { /* ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ */ }
 
-            // ÃÊ±â »óÅÂ ¹Ý¿µ
+            // ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ý¿ï¿½
             OnItemAvailabilityChanged(boundInv.HasItem);
 
             var currentName = boundInv.CurrentItemName();
@@ -122,13 +122,13 @@ namespace PJW
         {
             if (boundInv == null) return;
             boundInv.UseItem();
-            // »ç¿ëÇÏ¸é ¸Ç ¾ÕÀÌ ºüÁö¹Ç·Î Áï½Ã °»½Å
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             RefreshIcons();
         }
 
         private void OnItemAssigned(string _)
         {
-            // ¸Ç ¾Õ ¾ÆÀÌÅÛÀÌ ¹Ù²ð ¼ö ÀÖÀ¸´Ï ÀüÃ¼ °»½Å
+            // ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
             RefreshIcons();
         }
 
@@ -151,7 +151,7 @@ namespace PJW
                 return;
             }
 
-            // ¹öÆ° È°¼ºÈ­: ¾ÆÀÌÅÛ ÀÖ°í, »ç¿ë °¡´ÉÇÒ ¶§
+            // ï¿½ï¿½Æ° È°ï¿½ï¿½È­: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö°ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
             bool canUse = boundInv.HasItem && boundInv.CanUseItem;
             SetUsable(canUse);
 
