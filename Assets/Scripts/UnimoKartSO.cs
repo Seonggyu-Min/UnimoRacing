@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 [CreateAssetMenu(fileName = "NewUnimoKartSO", menuName = "Unimo/Kart")]
 public class UnimoKartSO : ScriptableObject
@@ -30,4 +33,42 @@ public class UnimoKartSO : ScriptableObject
     [Header("스킬")]
     [Tooltip("패시브 스킬 ID")]
     public int passiveSkillId;
+
+    // 
+    [Header("Addressables")]
+    public bool useAddr = true;
+    public AssetReferenceGameObject kartPrefabRef;
+    public AssetReferenceSprite kartSpriteRef;
+    
+    public async Task<GameObject> EnsureKartPrefabAsync()
+    {
+        if (kartPrefab) return kartPrefab;
+        if (kartPrefabRef == null || !kartPrefabRef.RuntimeKeyIsValid()) return null;
+        kartPrefab = await YTW.ResourceManager.Instance.LoadRefAsync<GameObject>(kartPrefabRef);
+        return kartPrefab;
+    }
+
+    public async Task<Sprite> EnsureKartSpriteAsync()
+    {
+        if (kartSprite != null) return kartSprite;
+        if (kartSpriteRef == null || !kartSpriteRef.RuntimeKeyIsValid()) return null;
+
+        var s = await YTW.ResourceManager.Instance.LoadRefAsync<Sprite>(kartSpriteRef);
+        kartSprite = s;   
+        return s;
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode) return; 
+        // 에디터에서 useAddr 켜두면, 직참조를 즉시 비움
+        if (useAddr && (kartPrefab != null || kartSprite != null))
+        {
+            kartPrefab = null;
+            kartSprite = null;
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
+    }
+#endif
 }
