@@ -17,8 +17,80 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 0129a701a6fda96428f78e497e437a36
   m_SerializeEntries:
+  - m_GUID: 1d7478c81d0df8f4a96033b354454b5f
+    m_Address: Audio/SFX/Bomb_Use
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1fa3bc5eb41feeb4ea2c542735f8f047
+    m_Address: Audio/SFX/Special_Item
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 22ede9d2fb2b0874bb006b34fa24f73c
     m_Address: Audio/BGM/GameBGM01
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2d038fcb84d2a7e4dbfa58b1a485152f
+    m_Address: Audio/SFX/Blind_Use
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2e477861742f1df46a388b1ef07f1347
+    m_Address: Audio/SFX/Lock_Use
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2eb3dadce8177471996f94d099823504
+    m_Address: Audio/SFX/Reward
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 300639a107d864698917049ffdc782e0
+    m_Address: Audio/BGM/Track_02
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 34afbab80ca8e6949a17de2addb4f6c4
+    m_Address: Audio/SFX/Car
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3dd6e8edbd6ac4c48b3e84a52cf76ed3
+    m_Address: Audio/SFX/Missile_Coming
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 47e3c07c002727e41b940ad16f3198c4
+    m_Address: Audio/SFX/Shield
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4a315fc7e8a994f64982bb9f0014de68
+    m_Address: Audio/BGM/Voting
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 502ba81c4bcfcbf4b8bce86a7c1b64ee
+    m_Address: Audio/SFX/Egg_Use
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 58c26f61be2db914fa6fb4480d3c74c4
+    m_Address: Audio/SFX/Blind_Hit
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
@@ -29,14 +101,80 @@ MonoBehaviour:
     m_SerializedLabels:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5c35f62eeabede54f8352b9df65bb2bd
+    m_Address: Audio/SFX/Lock
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 73697167aaa1a4e3482249a07fc66ac6
+    m_Address: Audio/BGM/Track_01
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 754e561ab4de24bff870055d216e4a10
+    m_Address: Audio/BGM/Track_03
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 79ca93df23195594b8eb63f6c1a22256
     m_Address: Audio/BGM/GameBGM02
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 83e89c63ddc06ec4aac9d7e9ca0cbedb
-    m_Address: Audio/SFX/Collision
+  - m_GUID: 7bd09f2818e534585bedb7cbe9d0c0e8
+    m_Address: Audio/BGM/Result
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8bbdd39c16ad2de43adde5e39b5d6df7
+    m_Address: Assets/Imports/Sound/02. SFX/Collision_SFX.wav
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 97811d6e0217094459b26e9083ed81e4
+    m_Address: Audio/SFX/Shield_Use
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a43b7375b818b51488ac242dae21677a
+    m_Address: Audio/SFX/Invite_Accept
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a89c3191c9db8d842923c4b31e3573e4
+    m_Address: Audio/SFX/Bang
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ad673dae09ad048988395eb8bd490646
+    m_Address: Audio/SFX/Race_End
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aeec18e0604214e23a3b1c28a84cf680
+    m_Address: Audio/SFX/Egg_Crush
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: af73e215d384c4c8c9fbedcb4ce73c83
+    m_Address: Audio/BGM/Loading
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b886b2c2cb92a354298807e61847d1ca
+    m_Address: Audio/SFX/Missile_Use
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
@@ -49,6 +187,42 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dd2c69cd0537ea245ab40ee695a4781a
     m_Address: Audio/BGM/LobbyBGM
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ddcec25d77d5b4647a2d9ac9ba8ed29b
+    m_Address: Audio/SFX/Upgrade
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e87956eae519dd74c9d477d92bf49ae6
+    m_Address: Audio/SFX/Click
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e97959c6e3806e243b495afaa6df16d3
+    m_Address: Audio/SFX/Boost
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f85f7009bf4cc5a49ac408ca2504d9db
+    m_Address: Audio/SFX/Boost_Start
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fae982edd3825a649b45d90c522c0f7e
+    m_Address: Audio/SFX/Boost_End
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ffa96af717384704c9c5a003564d4228
+    m_Address: Audio/SFX/Itembox
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
