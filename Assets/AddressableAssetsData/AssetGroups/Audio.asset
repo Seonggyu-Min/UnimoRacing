@@ -222,7 +222,7 @@ MonoBehaviour:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ffa96af717384704c9c5a003564d4228
-    m_Address: Audio/SFX/Itembox
+    m_Address: Audio/SFX/Itembox_SFX
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
