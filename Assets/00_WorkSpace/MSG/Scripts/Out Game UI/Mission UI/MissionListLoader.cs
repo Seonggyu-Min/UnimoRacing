@@ -9,7 +9,7 @@ namespace MSG
 {
     public class MissionListLoader : MonoBehaviour
     {
-        [SerializeField] private MissionUIBehaviour _uiPrefab;
+        [SerializeField] private MissionUnitBehaviour _uiPrefab;
         [SerializeField] private Transform _dailyParent;        // 데일리 미션 프리팹 부모
         [SerializeField] private Transform _achievementParent;  // 도전과제 미션 프리팹 부모
 
@@ -18,6 +18,13 @@ namespace MSG
         {
             RenewUI();
         }
+
+
+        public void OnClickCloseButton()
+        {
+            UIManager.Instance.Hide("Mission Panel");
+        }
+
 
         [Button("RenewUI")]
         private void RenewUI()
