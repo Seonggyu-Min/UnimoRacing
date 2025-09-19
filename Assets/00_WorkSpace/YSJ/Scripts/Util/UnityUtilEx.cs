@@ -87,5 +87,10 @@ namespace YSJ.Util
             }
 #endif
         }
+
+        public static bool IsInLayerMask(int layer, LayerMask mask)
+        {
+            return ((1 << layer) & mask.value) != 0;
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Photon.Pun;
 using UnityEngine;
 
-public class PlayerInventory : MonoBehaviour
+public class ItemInventory : MonoBehaviour
 {
     private PhotonView _ownerView;
     private bool _isSetup = false;

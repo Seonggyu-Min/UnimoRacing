@@ -14,7 +14,7 @@ using YSJ.Util;
 [RequireComponent(typeof(DollyCartController))] // 경로 컨트롤
 [RequireComponent(typeof(DollyCartMovement))] // 이동 제어
 
-[RequireComponent(typeof(PlayerInventory))] // 인벤
+[RequireComponent(typeof(ItemInventory))] // 인벤
 [RequireComponent(typeof(UnimoSynergySystem))] // 시너지
 [RequireComponent(typeof(UnimoRaceAnimationController))] // 유니모 애니메이션 컨트롤러
 
@@ -53,7 +53,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     private DollyCartController _cartController;
     private DollyCartMovement _cartMovement;
-    private PlayerInventory _playerInventory;
+    private ItemInventory _playerInventory;
 
     private UnimoSynergySystem _synergySystem;
     private UnimoRaceAnimationController _raceAniCtrl;
@@ -105,13 +105,15 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _cartController = gameObject.GetOrAddComponent<DollyCartController>();
         _cartMovement = gameObject.GetOrAddComponent<DollyCartMovement>();
 
-        _playerInventory = gameObject.GetOrAddComponent<PlayerInventory>();
+        _playerInventory = gameObject.GetOrAddComponent<ItemInventory>();
         _synergySystem = gameObject.GetOrAddComponent<UnimoSynergySystem>();
         _raceAniCtrl = gameObject.GetOrAddComponent<UnimoRaceAnimationController>();
 
         _sync = gameObject.GetOrAddComponent<DollyCartSync>();
 
         _inGM = InGameManager.Instance;
+
+        _kartCurrentSpeed = 0.0f;
 
         _isControlable = false;    // 컨트롤 가능 여부
         _isMovable = false;        // 이동 가능 여부
@@ -270,6 +272,10 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             _inGM.OnRaceState_LoadPlayers -= OnPlayReady;
             _inGM.OnRaceState_LoadPlayers += OnPlayReady;
 
+            // 쿨다운
+            _inGM.OnRaceState_Countdown -= OnPlayCountdown;
+            _inGM.OnRaceState_Countdown += OnPlayCountdown;
+
             // 레이싱
             _inGM.OnRaceState_Racing -= OnPlayRaceEnter;
             _inGM.OnRaceState_Racing += OnPlayRaceEnter;
@@ -329,10 +335,17 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _isMovable      = false;    // 이동 가능 여부
         _isItemUsable   = false;    // 아이템 사용가능 여부
     }
+    private void OnPlayCountdown()
+    {
+        // TODO: 플레이 준비(로드 되고 셋업 되었을 때, 실행)
+        _kartCurrentSpeed = 0;
+        _isControlable  = true;    // 컨트롤 가능 여부
+        _isMovable      = false;    // 이동 가능 여부
+        _isItemUsable   = false;    // 아이템 사용가능 여부
+    }
     private void OnPlayRaceEnter()
     {
         // TODO: 플레이 들어갈 때
-        // 
         _kartCurrentSpeed = _kartBaseSpeed;
         _isControlable  = true;    // 컨트롤 가능 여부
         _isMovable      = true;    // 이동 가능 여부

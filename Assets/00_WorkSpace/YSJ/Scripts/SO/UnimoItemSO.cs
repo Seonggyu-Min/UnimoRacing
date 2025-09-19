@@ -27,8 +27,15 @@ public class UnimoItemSO : ScriptableObject
     [Tooltip("아이템 아이콘 이미지")]
     public Sprite itemIconSprite;
 
-    [Tooltip("테이블의 '효과 지속 시간'")]
-    public float itemDuration;
+    [Tooltip("아이템 등장 가중치"), Min(0.0f)]
+    public float _spawnWeight = 1.0f;
 
-    public List<StatusEffectOption> optoins;
+    [Header("효과 관련 설정")]
+    [Tooltip("아이템 효과 적용 시, 효과 초기화(false 시, 해당 아이템 상태가 완전히 끝났을 때 적용됩니다. 스택 수가 무시됩니다.)")]
+    public bool isReapplication = false;
+
+    [Tooltip("아이템 효과 최대 스택 수")]
+    public float stackCount = 1;
+
+    public List<StatusEffectOption> options;
 }
