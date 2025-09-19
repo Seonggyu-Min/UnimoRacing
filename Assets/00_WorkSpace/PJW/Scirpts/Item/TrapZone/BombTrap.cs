@@ -13,7 +13,7 @@ namespace PJW
         [SerializeField] private float stopDuration;
 
         [Header("사운드 키")]
-        [SerializeField] private string sfxHitKey = "BombHit";
+        [SerializeField] private string sfxHitKey = "Bang_SFX";
         [SerializeField] private string sfxBlockedKey = "ShieldBlock";
         private bool hasTriggered;
 

@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stopDuration: 2
-  sfxHitKey: BombHit
+  sfxHitKey: Bang_SFX
   sfxBlockedKey: ShieldBlock
 --- !u!54 &4763146997510126995
 Rigidbody:

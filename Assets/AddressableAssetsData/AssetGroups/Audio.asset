@@ -20,7 +20,8 @@ MonoBehaviour:
   - m_GUID: 1d7478c81d0df8f4a96033b354454b5f
     m_Address: Sound/Bomb_Use_SFX
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 22ede9d2fb2b0874bb006b34fa24f73c
     m_Address: Audio/BGM/GameBGM01
@@ -54,6 +55,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 83e89c63ddc06ec4aac9d7e9ca0cbedb
     m_Address: Audio/SFX/Collision
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Remote
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a89c3191c9db8d842923c4b31e3573e4
+    m_Address: Sound/Bang_SFX
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
