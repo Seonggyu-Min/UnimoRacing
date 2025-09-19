@@ -33,6 +33,7 @@ namespace MSG
         [Header("애니메이션 타입 설정")]
         public bool UseSlide = true;
         public bool UseFade = false;
+        public bool UseScale = false;
 
         [Header("애니메이션 대상")]
         public List<RectWithCanvasGroup> Targets;
@@ -64,6 +65,20 @@ namespace MSG
         public Ease FadeInEase = Ease.OutBack;
         [ShowField(nameof(UseFade))]
         public Ease FadeOutEase = Ease.OutCirc;
+
+        [Header("스케일 설정")]
+        [ShowField(nameof(UseScale))]
+        public float ScaleInFrom = 0.8f;
+        [ShowField(nameof(UseScale))]
+        public float ScaleOutTo = 0.8f;
+        [ShowField(nameof(UseScale))]
+        public float ScaleInDuration = 0.5f;
+        [ShowField(nameof(UseScale))]
+        public float ScaleOutDuration = 0.5f;
+        [ShowField(nameof(UseScale))]
+        public Ease ScaleInEase = Ease.OutBack;
+        [ShowField(nameof(UseScale))]
+        public Ease ScaleOutEase = Ease.OutCirc;
 
         [Header("공통 설정")]
         public bool WillPlayTogether = true;                // 설정한 애니메이션이 동시에 실행될 것인지
@@ -224,6 +239,18 @@ namespace MSG
                         else seq.Append(fade);
                     }
 
+                    if (group.UseScale)
+                    {
+                        rect.localScale = Vector3.one * group.ScaleInFrom;
+                        var scale = rect.DOScale(Vector3.one, group.ScaleInDuration)
+                                        .SetEase(group.ScaleInEase)
+                                        .SetUpdate(true)
+                                        .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
+
+                        if (group.WillPlayTogether) seq.Join(scale);
+                        else seq.Append(scale);
+                    }
+
                     if (group.WillWaitUntilSeqEnd)
                     {
                         yield return seq.WaitForCompletion();
@@ -294,6 +321,17 @@ namespace MSG
 
                         if (group.WillPlayTogether) seq.Join(fade);
                         else seq.Append(fade);
+                    }
+
+                    if (group.UseScale)
+                    {
+                        var scale = rect.DOScale(Vector3.one * group.ScaleOutTo, group.ScaleOutDuration)
+                                        .SetEase(group.ScaleOutEase)
+                                        .SetUpdate(true)
+                                        .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
+
+                        if (group.WillPlayTogether) seq.Join(scale);
+                        else seq.Append(scale);
                     }
 
                     if (group.WillWaitUntilSeqEnd)
