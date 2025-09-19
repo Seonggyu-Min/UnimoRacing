@@ -2294,7 +2294,7 @@ PrefabInstance:
     - target: {fileID: 2150771333856453433, guid: 7536569a35057d84d97afd90286f5501,
         type: 3}
       propertyPath: sfxGetKey
-      value: Itembox_SFX
+      value: Itembox
       objectReference: {fileID: 0}
     - target: {fileID: 2150771333856453433, guid: 7536569a35057d84d97afd90286f5501,
         type: 3}

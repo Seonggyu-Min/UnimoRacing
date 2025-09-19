@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 589bf9a5c8c9a604194d31b76b6e1e27, type: 3}
   m_Name: Boost_Start_SFX
   m_EditorClassIdentifier: 
-  ClipName: Boost_Start_SFX
-  ClipAddress: Audio/SFX/Boost_Start_SFX
+  ClipName: Boost_Start
+  ClipAddress: Audio/SFX/Boost_Start
   Volume: 1
   Pitch: 1
   Loop: 0

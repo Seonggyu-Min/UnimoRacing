@@ -152,6 +152,8 @@ MonoBehaviour:
   maxLifeTime: 8
   hitRadius: 0.5
   netLerp: 20
+  sfxHitKey: Bang
+  sfxFlyLoopKey: Missile_Coming
 --- !u!114 &237597069379400556
 MonoBehaviour:
   m_ObjectHideFlags: 0

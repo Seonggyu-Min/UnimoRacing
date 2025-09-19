@@ -44,6 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06cc366b6bb911d419a45091cebdd64e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rocketPrefab: {fileID: 51292570567724990, guid: 1eaca8da7d9aa5747a198a754cee4f6c,
-    type: 3}
-  lockDuration: 3
+  rocketResourceKey: RocketProjectile
+  stunDuration: 1.5
+  spawnOffset: {x: 0, y: 0, z: 0}
+  maxSearchDistance: 9999
+  sfxUseKey: Missile_Use
