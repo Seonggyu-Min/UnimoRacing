@@ -2,6 +2,7 @@
 using Cinemachine;
 using Photon.Pun;
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
@@ -12,6 +13,9 @@ namespace PJW
 
         [Header("앞쪽 배치 거리")]
         [SerializeField] private float distanceAhead = 0.02f;
+
+        [Header("사운드")]
+        [SerializeField] private string sfxUseKey = "BombItem_Use_SFX";
 
         public void Use(GameObject owner)
         {
@@ -54,6 +58,8 @@ namespace PJW
             var probe = Resources.Load<GameObject>(bombResourceKey);
             if (probe == null || !PhotonNetwork.InRoom)
                 return;
+
+            AudioManager.Instance.PlaySFX(sfxUseKey);
 
             PhotonNetwork.Instantiate(bombResourceKey, spawnPos, spawnRot);
             Destroy(gameObject);
