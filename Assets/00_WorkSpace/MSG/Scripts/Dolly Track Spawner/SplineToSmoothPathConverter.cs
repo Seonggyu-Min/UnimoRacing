@@ -2,16 +2,19 @@
 using EditorAttributes;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Splines;
 
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 
 namespace MSG
 {
     public class SplineToSmoothPathConverter : MonoBehaviour
     {
+#if UNITY_EDITOR
         [Header("Source")]
         [SerializeField] private SplineContainer sourceSpline;
 
@@ -331,5 +334,7 @@ namespace MSG
             path.transform.SetPositionAndRotation(sourceSpline.transform.position, sourceSpline.transform.rotation);
             return path;
         }
+
+#endif
     }
 }
