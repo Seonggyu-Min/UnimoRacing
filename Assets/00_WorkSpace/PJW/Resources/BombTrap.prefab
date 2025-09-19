@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7302539967368303557}
   - component: {fileID: 4763146997510126995}
   - component: {fileID: 1939815619367186002}
+  - component: {fileID: 7630947843782795695}
   m_Layer: 0
   m_Name: BombTrap
   m_TagString: Untagged
@@ -172,3 +173,16 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &7630947843782795695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1160533761362168744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 262ad69288eaad64b940491c614dbfce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupVfxPrefab: {fileID: 196072, guid: 0b4ea991852d6984aab98759fa8d4ebb, type: 3}
