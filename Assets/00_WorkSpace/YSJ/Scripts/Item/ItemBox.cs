@@ -14,9 +14,10 @@ public class ItemBox : MonoBehaviour
 
     [Header("Config")]
     [SerializeField] private bool _selfSetup = true;
-    [SerializeField] private LayerMask _collisionLayers;    // 충돌 가능한 레이어들
-    [SerializeField] private bool _isDespawnStart = false;  // 없어진 상태로 시작할지 여부
-    [SerializeField] private float _respawnCycleTime = 8f;  // 리스폰 주기 시간
+    // [SerializeField] private LayerMask _collisionLayers;     // 충돌 가능한 레이어들
+    [SerializeField] private string _collisionTag = "Player";   // 충돌 태그
+    [SerializeField] private bool _isDespawnStart = false;      // 없어진 상태로 시작할지 여부
+    [SerializeField] private float _respawnCycleTime = 8f;      // 리스폰 주기 시간
 
     [Header("Visual Config")]
     [SerializeField] private GameObject _boxBody;           // 시각적 오브젝트
@@ -57,7 +58,7 @@ public class ItemBox : MonoBehaviour
 
     private void Update()
     {
-        if (_isDespawn && _respawnTime > PhotonNetwork.Time)
+        if (_isDespawn && _respawnTime <= PhotonNetwork.Time)
         {
             ForceSpawn();
         }
@@ -66,10 +67,16 @@ public class ItemBox : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // 이미 디스폰 상태면 무시
-        if (_isDespawn) return;
+        if (_isDespawn)
+        {
+            this.PrintLog("디스폰 되어 있습니다.");
+            return;
+        }
 
         // 레이어 필터링
-        if (!UnityUtilEx.IsInLayerMask(other.gameObject.layer, _collisionLayers))
+        /*if (!UnityUtilEx.IsInLayerMask(other.gameObject.layer, _collisionLayers))
+            return;*/
+        if (!other.CompareTag(_collisionTag))
             return;
 
         // 마지막 충돌 정보
@@ -81,6 +88,10 @@ public class ItemBox : MonoBehaviour
 
         // 아이템 지급 로직은 보통 외부 OnCollisionAction에서 처리
         ForceDespawn(0f);
+        this.PrintLog(
+            $"\n[충돌된 오브젝트: {other.name}]\n" +
+            $"디스폰 시간: {_despawnTime}\n" +
+            $"리스폰 시간: {_respawnTime}\n");
     }
     #endregion
 
