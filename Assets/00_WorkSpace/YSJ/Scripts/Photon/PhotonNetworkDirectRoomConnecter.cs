@@ -1,5 +1,7 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
+using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using YSJ.Util;
 
@@ -50,7 +52,7 @@ public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetwork
         {
             // 런타임에서 서버 설정의 FixedRegion을 교체 (선택사항)
             PhotonNetwork.PhotonServerSettings.AppSettings.FixedRegion = fixedRegion;
-            Debug.Log($"{LOG_PREFIX}Force FixedRegion = {fixedRegion}");
+            PrintLog($"{LOG_PREFIX}Force FixedRegion = {fixedRegion}");
         }
     }
 
@@ -63,16 +65,16 @@ public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetwork
     {
         if (PhotonNetwork.IsConnected)
         {
-            Debug.Log($"{LOG_PREFIX}Already connected. Trying to (re)join a room...");
+            PrintLog($"{LOG_PREFIX}Already connected. Trying to (re)join a room...");
             TryJoin();
             return;
         }
 
-        Debug.Log($"{LOG_PREFIX}Connecting using settings... AppId/Region/Protocol from PhotonServerSettings, GameVersion = {PhotonNetwork.GameVersion}");
+        PrintLog($"{LOG_PREFIX}Connecting using settings... AppId/Region/Protocol from PhotonServerSettings, GameVersion = {PhotonNetwork.GameVersion}");
         bool ok = PhotonNetwork.ConnectUsingSettings();
         if (!ok)
         {
-            Debug.LogError($"{LOG_PREFIX}ConnectUsingSettings() returned false (check PhotonServerSettings).");
+            PrintLog($"{LOG_PREFIX}ConnectUsingSettings() returned false (check PhotonServerSettings).", LogType.Error);
         }
     }
 
@@ -80,12 +82,12 @@ public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetwork
     {
         if (!string.IsNullOrEmpty(roomName))
         {
-            Debug.Log($"{LOG_PREFIX}Joining named room: {roomName}");
+            PrintLog($"{LOG_PREFIX}Joining named room: {roomName}");
             PhotonNetwork.JoinRoom(roomName);
         }
         else
         {
-            Debug.Log($"{LOG_PREFIX}Joining random room (no roomName provided).");
+            PrintLog($"{LOG_PREFIX}Joining random room (no roomName provided).");
             PhotonNetwork.JoinRandomRoom();
         }
     }
@@ -117,23 +119,23 @@ public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetwork
     // =========================
     public override void OnConnected()
     {
-        Debug.Log($"{LOG_PREFIX}OnConnected (to NameServer).");
+        PrintLog($"{LOG_PREFIX}OnConnected (to NameServer).");
     }
 
     public override void OnConnectedToMaster()
     {
-        Debug.Log($"{LOG_PREFIX}OnConnectedToMaster | Region={PhotonNetwork.CloudRegion} UserId={PhotonNetwork.LocalPlayer?.UserId}");
+        PrintLog($"{LOG_PREFIX}OnConnectedToMaster | Region={PhotonNetwork.CloudRegion} UserId={PhotonNetwork.LocalPlayer?.UserId}");
         TryJoin();
     }
 
     public override void OnDisconnected(DisconnectCause cause)
     {
-        Debug.LogWarning($"{LOG_PREFIX}OnDisconnected | Cause={cause}");
+        PrintLog($"{LOG_PREFIX}OnDisconnected | Cause={cause}", LogType.Warning);
     }
 
     public override void OnRegionListReceived(RegionHandler regionHandler)
     {
-        Debug.Log($"{LOG_PREFIX}OnRegionListReceived | Best={regionHandler.BestRegion?.Code} Regions={string.Join(",", regionHandler.EnabledRegions.ConvertAll(r => r.Code))}");
+        PrintLog($"{LOG_PREFIX}OnRegionListReceived | Best={regionHandler.BestRegion?.Code} Regions={string.Join(",", regionHandler.EnabledRegions.ConvertAll(r => r.Code))}");
     }
 
     // =========================
@@ -141,66 +143,66 @@ public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetwork
     // =========================
     public override void OnJoinedLobby()
     {
-        Debug.Log($"{LOG_PREFIX}OnJoinedLobby");
+        PrintLog($"{LOG_PREFIX}OnJoinedLobby");
     }
 
     public override void OnLeftLobby()
     {
-        Debug.Log($"{LOG_PREFIX}OnLeftLobby");
+        PrintLog($"{LOG_PREFIX}OnLeftLobby");
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        Debug.LogError($"{LOG_PREFIX}OnCreateRoomFailed | Code={returnCode} Msg={message}");
+        PrintLog($"{LOG_PREFIX}OnCreateRoomFailed | Code={returnCode} Msg={message}", LogType.Error);
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-        Debug.LogWarning($"{LOG_PREFIX}OnJoinRoomFailed | Code={returnCode} Msg={message}");
+        PrintLog($"{LOG_PREFIX}OnJoinRoomFailed | Code={returnCode} Msg={message}", LogType.Warning);
 
         if (createIfNotExists && !string.IsNullOrEmpty(roomName))
         {
-            Debug.Log($"{LOG_PREFIX}Creating room because join failed. Room={roomName}");
+            PrintLog($"{LOG_PREFIX}Creating room because join failed. Room={roomName}");
             PhotonNetwork.CreateRoom(roomName, BuildRoomOptions(), TypedLobby.Default);
         }
         else if (createIfNotExists && string.IsNullOrEmpty(roomName))
         {
             string newRoom = $"Auto_{Random.Range(1000, 9999)}";
-            Debug.Log($"{LOG_PREFIX}Creating random-named room because join failed. Room={newRoom}");
+            PrintLog($"{LOG_PREFIX}Creating random-named room because join failed. Room={newRoom}");
             PhotonNetwork.CreateRoom(newRoom, BuildRoomOptions(), TypedLobby.Default);
         }
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        Debug.LogWarning($"{LOG_PREFIX}OnJoinRandomFailed | Code={returnCode} Msg={message}");
+        PrintLog($"{LOG_PREFIX}OnJoinRandomFailed | Code={returnCode} Msg={message}", LogType.Warning);
 
         if (createIfNotExists)
         {
             string newRoom = !string.IsNullOrEmpty(roomName) ? roomName : $"Auto_{Random.Range(1000, 9999)}";
-            Debug.Log($"{LOG_PREFIX}Creating room because random join failed. Room={newRoom}");
+            PrintLog($"{LOG_PREFIX}Creating room because random join failed. Room={newRoom}");
             PhotonNetwork.CreateRoom(newRoom, BuildRoomOptions(), TypedLobby.Default);
         }
     }
 
     public override void OnCreatedRoom()
     {
-        Debug.Log($"{LOG_PREFIX}OnCreatedRoom | Name={PhotonNetwork.CurrentRoom?.Name}");
+        PrintLog($"{LOG_PREFIX}OnCreatedRoom | Name={PhotonNetwork.CurrentRoom?.Name}");
     }
 
     public override void OnJoinedRoom()
     {
         var room = PhotonNetwork.CurrentRoom;
-        Debug.Log($"{LOG_PREFIX}OnJoinedRoom | Name={room?.Name} PlayerCount={room?.PlayerCount} IsVisible={room?.IsVisible} IsOpen={room?.IsOpen}");
+        PrintLog($"{LOG_PREFIX}OnJoinedRoom | Name={room?.Name} PlayerCount={room?.PlayerCount} IsVisible={room?.IsVisible} IsOpen={room?.IsOpen}");
         foreach (var kv in room.CustomProperties)
         {
-            Debug.Log($"{LOG_PREFIX}RoomProp {kv.Key} = {kv.Value}");
+            PrintLog($"{LOG_PREFIX}RoomProp {kv.Key} = {kv.Value}");
         }
     }
 
     public override void OnLeftRoom()
     {
-        Debug.Log($"{LOG_PREFIX}OnLeftRoom");
+        PrintLog($"{LOG_PREFIX}OnLeftRoom");
     }
 
     // =========================
@@ -208,19 +210,19 @@ public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetwork
     // =========================
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        Debug.Log($"{LOG_PREFIX}OnPlayerEnteredRoom | {newPlayer.NickName} ({newPlayer.UserId})");
+        PrintLog($"{LOG_PREFIX}OnPlayerEnteredRoom | {newPlayer.NickName} ({newPlayer.UserId})");
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        Debug.Log($"{LOG_PREFIX}OnPlayerLeftRoom | {otherPlayer.NickName} ({otherPlayer.UserId})");
+        PrintLog($"{LOG_PREFIX}OnPlayerLeftRoom | {otherPlayer.NickName} ({otherPlayer.UserId})");
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
         foreach (var k in changedProps.Keys)
         {
-            Debug.Log($"{LOG_PREFIX}OnPlayerPropertiesUpdate | {targetPlayer.NickName} {k}={changedProps[k]}");
+            PrintLog($"{LOG_PREFIX}OnPlayerPropertiesUpdate | {targetPlayer.NickName} {k}={changedProps[k]}");
         }
     }
 
@@ -228,13 +230,13 @@ public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetwork
     {
         foreach (var k in propertiesThatChanged.Keys)
         {
-            Debug.Log($"{LOG_PREFIX}OnRoomPropertiesUpdate | {k}={propertiesThatChanged[k]}");
+            PrintLog($"{LOG_PREFIX}OnRoomPropertiesUpdate | {k}={propertiesThatChanged[k]}");
         }
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
-        Debug.Log($"{LOG_PREFIX}OnMasterClientSwitched | NewMaster={newMasterClient.NickName}");
+        PrintLog($"{LOG_PREFIX}OnMasterClientSwitched | NewMaster={newMasterClient.NickName}");
     }
 
     // =========================
@@ -243,7 +245,7 @@ public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetwork
     [ContextMenu("Force Reconnect")]
     public void ForceReconnect()
     {
-        Debug.Log($"{LOG_PREFIX}ForceReconnect()");
+        PrintLog($"{LOG_PREFIX}ForceReconnect()");
         if (PhotonNetwork.IsConnected) PhotonNetwork.Disconnect();
         Connect();
     }
@@ -253,8 +255,13 @@ public class PhotonNetworkDirectRoomConnector : SimpleSingletonPun<PhotonNetwork
     {
         if (PhotonNetwork.InRoom)
         {
-            Debug.Log($"{LOG_PREFIX}LeaveRoom()");
+            PrintLog($"{LOG_PREFIX}LeaveRoom()");
             PhotonNetwork.LeaveRoom();
         }
+    }
+
+    private void PrintLog(string printLogString, LogType logType = LogType.Log)
+    {
+        this.PrintLog(printLogString, logType, Color.blue);
     }
 }
