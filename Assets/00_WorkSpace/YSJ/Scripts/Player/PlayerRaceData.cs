@@ -14,7 +14,7 @@ using YSJ.Util;
 [RequireComponent(typeof(DollyCartController))] // 경로 컨트롤
 [RequireComponent(typeof(DollyCartMovement))] // 이동 제어
 
-[RequireComponent(typeof(ItemInventory))] // 인벤
+// [RequireComponent(typeof(PlayerInventory))] // 인벤
 [RequireComponent(typeof(UnimoSynergySystem))] // 시너지
 [RequireComponent(typeof(UnimoRaceAnimationController))] // 유니모 애니메이션 컨트롤러
 
@@ -53,7 +53,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     private DollyCartController _cartController;
     private DollyCartMovement _cartMovement;
-    private ItemInventory _playerInventory;
+    // private PlayerInventory _playerInventory;
 
     private UnimoSynergySystem _synergySystem;
     private UnimoRaceAnimationController _raceAniCtrl;
@@ -92,8 +92,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     public UnimoCharacterSO CharacterSO => _characterSO;
     public UnimoKartSO KartSO => _kartSO;
 
-    public bool IsControlable => _isControlable;     
-    public bool IsMovable => _isMovable;         
+    public bool IsControlable => _isControlable;
+    public bool IsMovable => _isMovable;
     public bool IsItemUsable => _isItemUsable;
 
     #region Unity
@@ -105,15 +105,13 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _cartController = gameObject.GetOrAddComponent<DollyCartController>();
         _cartMovement = gameObject.GetOrAddComponent<DollyCartMovement>();
 
-        _playerInventory = gameObject.GetOrAddComponent<ItemInventory>();
+        // _playerInventory = gameObject.GetOrAddComponent<PlayerInventory>();
         _synergySystem = gameObject.GetOrAddComponent<UnimoSynergySystem>();
         _raceAniCtrl = gameObject.GetOrAddComponent<UnimoRaceAnimationController>();
 
         _sync = gameObject.GetOrAddComponent<DollyCartSync>();
 
         _inGM = InGameManager.Instance;
-
-        _kartCurrentSpeed = 0.0f;
 
         _isControlable = false;    // 컨트롤 가능 여부
         _isMovable = false;        // 이동 가능 여부
@@ -140,7 +138,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             // _speed = 서버 속도
             PatchService.Instance.GetSpeedOfKart(_kartID, GetSuccessKartSpeedData, GetErrorKartSpeedData);
         }
-        
+
         // Kart ID로 Kart 속성 및 SO Load
         _kartSO = Resources.Load<UnimoKartSO>($"{LoadPath.PLAYER_UNIMO_KART_SO}_{_kartID}");
 
@@ -228,10 +226,10 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private void PlayerInventroySetup()
     {
         this.PrintLog("PlayerInventroySetup 진행");
-        if (_playerInventory != null)
+        /*if (_playerInventory != null)
         {
             _playerInventory.Setup();
-        }
+        }*/
         this.PrintLog("PlayerInventroySetup 진행 완료");
     }
     private void AniCtrlSetup()
@@ -271,10 +269,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             // 로드
             _inGM.OnRaceState_LoadPlayers -= OnPlayReady;
             _inGM.OnRaceState_LoadPlayers += OnPlayReady;
-
-            // 쿨다운
-            _inGM.OnRaceState_Countdown -= OnPlayCountdown;
-            _inGM.OnRaceState_Countdown += OnPlayCountdown;
 
             // 레이싱
             _inGM.OnRaceState_Racing -= OnPlayRaceEnter;
@@ -320,9 +314,9 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     }
     public void SetState(bool isControlable, bool isMovable, bool isItemUsable)
     {
-        _isControlable  = isControlable;    
-        _isMovable      = isMovable;        
-        _isItemUsable   = isItemUsable;
+        _isControlable = isControlable;
+        _isMovable = isMovable;
+        _isItemUsable = isItemUsable;
     }
 
 
@@ -331,33 +325,26 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     {
         // TODO: 플레이 준비(로드 되고 셋업 되었을 때, 실행)
         _kartCurrentSpeed = 0;
-        _isControlable  = false;    // 컨트롤 가능 여부
-        _isMovable      = false;    // 이동 가능 여부
-        _isItemUsable   = false;    // 아이템 사용가능 여부
-    }
-    private void OnPlayCountdown()
-    {
-        // TODO: 플레이 준비(로드 되고 셋업 되었을 때, 실행)
-        _kartCurrentSpeed = 0;
-        _isControlable  = true;    // 컨트롤 가능 여부
-        _isMovable      = false;    // 이동 가능 여부
-        _isItemUsable   = false;    // 아이템 사용가능 여부
+        _isControlable = false;    // 컨트롤 가능 여부
+        _isMovable = false;    // 이동 가능 여부
+        _isItemUsable = false;    // 아이템 사용가능 여부
     }
     private void OnPlayRaceEnter()
     {
         // TODO: 플레이 들어갈 때
+        // 
         _kartCurrentSpeed = _kartBaseSpeed;
-        _isControlable  = true;    // 컨트롤 가능 여부
-        _isMovable      = true;    // 이동 가능 여부
-        _isItemUsable   = true;    // 아이템 사용가능 여부
+        _isControlable = true;    // 컨트롤 가능 여부
+        _isMovable = true;    // 이동 가능 여부
+        _isItemUsable = true;    // 아이템 사용가능 여부
     }
     private void OnPlayRaceExit()
     {
         // TODO: 플레이 
         _kartCurrentSpeed = 0;
-        _isControlable  = false;    // 컨트롤 가능 여부
-        _isMovable      = false;    // 이동 가능 여부
-        _isItemUsable   = false;    // 아이템 사용가능 여부
+        _isControlable = false;    // 컨트롤 가능 여부
+        _isMovable = false;    // 이동 가능 여부
+        _isItemUsable = false;    // 아이템 사용가능 여부
     }
 
     #endregion
@@ -434,22 +421,155 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             }
         }
 
-        // 로그
-        this.PrintLog(
-        $"\n플레이어 오브젝트 이름: {playerGoName}\n" +
-        $"생성한 플레이어: {player.NickName}\n" +
-        $"서버에 도착한 시간(초): {time}\n" +
-        $"서버에 도착한 시간(밀리초): {timestamp}\n" +
 
-        $"PhotonView ID: {view.ViewID}\n" +
+        // _useDataBase 분기
+        // _useDataBase 가 true이고 View.IsMine이면 로컬 유저의 DB에서 장착 데이터 조회 후 셋업했습니다
+        // _useDataBase 가 true이고 !View.IsMine이면 원격 유저의 DB에서 장착 데이터 조회 후 셋업했습니다 (근데 남의 DB를 직접 조회하는 방식이 좋지는 않지만 일단 썼습니다)
+        // _useDataBase가 false이면 바로 instData 값으로 셋업했습니다
+        if (_useDataBase && View.IsMine)
+        {
+            bool gotChar = false;
+            bool gotKart = false;
 
-        $"CharacterID: {_characterID}\n" +
-        $"KartID: {_kartID}\n" +
+            void TryContinueSetup()
+            {
+                if (gotChar && gotKart)
+                {
+                    ProceedSetupInline(playerGoName, player, view, time, timestamp, instData);
+                }
+            }
 
-        $"Sync: {_isSync}\n" +
-        $"Synergy: {_isSynergy}\n" +
-        $"");
+            // 로컬 유저의 장착 데이터 조회
+            string uId = PhotonNetwork.LocalPlayer.UserId;
 
+            DatabaseManager.Instance.GetOnMain(
+                DBRoutes.EquippedUnimo(uId),
+                snap =>
+                {
+                    GetSuccessCharacterData(snap);
+                    gotChar = true;
+                    TryContinueSetup();
+                },
+                GetErrorCharacterData
+            );
+
+            DatabaseManager.Instance.GetOnMain(
+                DBRoutes.EquippedKart(uId),
+                snap =>
+                {
+                    GetSuccessKartData(snap);
+                    gotKart = true;
+                    TryContinueSetup();
+                },
+                GetErrorKartData
+            );
+        }
+        else if (_useDataBase && !View.IsMine)
+        {
+            bool gotChar = false;
+            bool gotKart = false;
+
+            void TryContinueSetup()
+            {
+                if (gotChar && gotKart)
+                {
+                    ProceedSetupInline(playerGoName, player, view, time, timestamp, instData);
+                }
+            }
+
+            string remoteUid = info.Sender.UserId; // 원격 유저의 UID
+
+            DatabaseManager.Instance.GetOnMain(
+                DBRoutes.EquippedUnimo(remoteUid),
+                snap =>
+                {
+                    GetSuccessCharacterData(snap);
+                    gotChar = true;
+                    TryContinueSetup();
+                },
+                err =>
+                {
+                    GetErrorCharacterData(err);
+                    // 실패시 instData 사용
+                    gotChar = true;
+                    TryContinueSetup();
+                }
+            );
+
+            DatabaseManager.Instance.GetOnMain(
+                DBRoutes.EquippedKart(remoteUid),
+                snap =>
+                {
+                    GetSuccessKartData(snap);
+                    gotKart = true;
+                    TryContinueSetup();
+                },
+                err =>
+                {
+                    GetErrorKartData(err);
+                    gotKart = true;
+                    TryContinueSetup();
+                }
+            );
+        }
+        else
+        {
+            // instData로 셋업
+            ProceedSetupInline(playerGoName, player, view, time, timestamp, instData);
+        }
+    }
+
+    // 네트워크
+    // onSuccess
+    private void GetSuccessCharacterData(DataSnapshot snapShot)
+    {
+        object value = snapShot.Value;
+        this.PrintLog($"장착 중인 유니모: {value ?? "없음"}");
+
+        if (value != null)
+        {
+            if (value is long l) _characterID = (int)l;
+            else if (!int.TryParse(value.ToString(), out _characterID))
+                this.PrintLog("CharacterID 파싱 실패");
+        }
+    }
+    private void GetSuccessKartData(DataSnapshot snapShot)
+    {
+        object value = snapShot.Value;
+        this.PrintLog($"장착 중인 카트: {value ?? "없음"}");
+
+        if (value != null)
+        {
+            if (value is long l) _kartID = (int)l;
+            else if (!int.TryParse(value.ToString(), out _kartID))
+                this.PrintLog("KartID 파싱 실패");
+        }
+    }
+    private void GetSuccessKartSpeedData(float speedData)
+    {
+        this.PrintLog($"장착 중인 카트의 속도: {speedData}");
+        _kartBaseSpeed = speedData;
+    }
+
+
+    // onError
+    private void GetErrorCharacterData(string snapShot)
+    {
+        this.PrintLog($"장착 중인 유니모 읽기 오류: {snapShot}");
+    }
+    private void GetErrorKartData(string snapShot)
+    {
+        this.PrintLog($"장착 중인 카트 읽기 오류: {snapShot}");
+    }
+    private void GetErrorKartSpeedData(string snapShot)
+    {
+        this.PrintLog($"장착 중인 카트 속도 읽기 오류: {snapShot}");
+    }
+
+
+    // 셋업용 로컬 함수
+    void ProceedSetupInline(string playerGoName, Player player, PhotonView view, double time, float timestamp, object[] instData)
+    {
         // Setup(순서: (Kart > Character) > (Controller > Movement) > Sync > (Cam > AniCtrl > Synergy))
         // Visual
         KartSetup();
@@ -472,44 +592,29 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         // 게임 매니저
         GameManagerSetup();
 
+        // DB 값 대입 이후 로그
+        this.PrintLog(
+            $"\n[셋업 이후 값들]\n" +
+            $"\n플레이어 오브젝트 이름: {playerGoName}\n" +
+            $"생성한 플레이어: {player.NickName}\n" +
+            $"서버에 도착한 시간(초): {time}\n" +
+            $"서버에 도착한 시간(밀리초): {timestamp}\n" +
+
+            $"PhotonView ID: {view.ViewID}\n" +
+
+            $"CharacterID: {_characterID}\n" +
+            $"KartID: {_kartID}\n" +
+
+            $"Sync: {_isSync}\n" +
+            $"Synergy: {_isSynergy}\n" +
+
+            $"_isSetups: {_isSetups}\n" +
+            $"");
+
         // 플레이어의 커스텀 프롬퍼티 생성 시점 > 매칭이 되었을 때
         // 룸데이터는 그 이전에 되어 있어야된다.
         var pm = PlayerManager.Instance;
-        pm.SetPlayerCPRaceLoaded(_isSetups);
-    }
-
-    // 네트워크
-    // onSuccess
-    private void GetSuccessCharacterData(DataSnapshot snapShot)
-    {
-        object value = snapShot.Value;
-        this.PrintLog($"장착 중인 유니모: {value ?? "없음"}");
-        _characterID = _characterID.CompareTo(value);
-    }
-    private void GetSuccessKartData(DataSnapshot snapShot)
-    {
-        object value = snapShot.Value;
-        this.PrintLog($"장착 중인 카트: {value ?? "없음"}");
-        _kartID = _kartID.CompareTo(value);
-    }
-    private void GetSuccessKartSpeedData(float speedData)
-    {
-        this.PrintLog($"장착 중인 카트의 속도: {speedData}");
-        _kartBaseSpeed = speedData;
-    }
-
-
-    // onError
-    private void GetErrorCharacterData(string snapShot)
-    {
-        this.PrintLog($"장착 중인 유니모 읽기 오류: {snapShot}");
-    }
-    private void GetErrorKartData(string snapShot)
-    {
-        this.PrintLog($"장착 중인 카트 읽기 오류: {snapShot}");
-    }
-    private void GetErrorKartSpeedData(string snapShot)
-    {
-        this.PrintLog($"장착 중인 카트 속도 읽기 오류: {snapShot}");
+        if (_isSetups)
+            pm.SetPlayerCPRaceLoaded(_isSetups);
     }
 }
