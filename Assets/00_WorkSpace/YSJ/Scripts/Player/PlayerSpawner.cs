@@ -312,7 +312,6 @@ public class PlayerSpawner : MonoBehaviour
         object[] instData = {userCharacterID, userKartID};
         PhotonNetwork.Instantiate(_baseGO.name, Vector3.zero, Quaternion.identity, 0, instData);
     }
-
     private void TrySpawnLocal_2()
     {
         // 아이디 값 이상하게 들어왔을 때에 대한 예외 처리
