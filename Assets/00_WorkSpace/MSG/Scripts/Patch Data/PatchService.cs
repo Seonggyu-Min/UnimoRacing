@@ -251,6 +251,108 @@ namespace MSG
         }
 
         /// <summary>
+        /// 현재 카트의 현재 속도와 다음 레벨의 속도를 반환합니다. UI에 강화 전 및 후의 속도를 알기 위해 사용합니다.
+        /// </summary>
+        public void GetSpeedOfKartUpgradeText(int kartId, Action<float, float> onSuccess, Action<string> onError = null)
+        {
+            if (!_patchReady)
+            {
+                onError?.Invoke("[PatchService] 패치를 불러오지 못하여 속도를 반환할 수 없습니다");
+                return;
+            }
+            var auth = FirebaseManager.Instance?.Auth?.CurrentUser;
+            if (auth == null)
+            {
+                onError?.Invoke("[PatchService] 유저가 null입니다");
+                return;
+            }
+
+            DatabaseManager.Instance.GetOnMain(
+                DBRoutes.KartInventory(auth.UserId, kartId),
+                snap =>
+                {
+                    // 현재 레벨 파싱
+                    int level = 0;
+                    if (snap != null && snap.Exists && snap.Value != null)
+                    {
+                        int.TryParse(snap.Value.ToString(), out level);
+                    }
+
+                    // 오버라이드가 있는지 먼저 확인 후 없으면 글로벌 룰 적용
+                    var rule = _globalSpeed;
+                    if (_speedOverrides.TryGetValue(kartId, out var ovr)) rule = ovr;
+
+                    // 미보유면 현재는 0, 다음은 1레벨 속도
+                    if (level <= 0)
+                    {
+                        float nextSpeedLv1 = ComputeSpeed(rule, 1);
+                        onSuccess?.Invoke(0f, nextSpeedLv1);
+                        return;
+                    }
+
+                    // 현재 속도
+                    float currentSpeed = ComputeSpeed(rule, level);
+
+                    // 최대 여부
+                    bool isMax = (rule.MaxLevel > 0) && (level >= rule.MaxLevel);
+
+                    // 다음 속도가 최대라면 현재와 동일
+                    float nextSpeed = isMax ? currentSpeed : ComputeSpeed(rule, level + 1);
+
+                    onSuccess?.Invoke(currentSpeed, nextSpeed);
+                },
+                err =>
+                {
+                    onError?.Invoke(err);
+                }
+            );
+        }
+
+        /// <summary>
+        /// 카트가 최대 레벨인지 확인하는 메서드입니다.
+        /// </summary>
+        public void IsKartAtMaxLevel(int kartId, Action<bool> onSuccess, Action<string> onError = null)
+        {
+            if (!_patchReady)
+            {
+                onError?.Invoke("[PatchService] 패치를 불러오지 못하여 최대 여부를 확인할 수 없습니다");
+                return;
+            }
+            var auth = FirebaseManager.Instance?.Auth?.CurrentUser;
+            if (auth == null)
+            {
+                onError?.Invoke("[PatchService] 유저가 null입니다");
+                return;
+            }
+
+            DatabaseManager.Instance.GetOnMain(
+                DBRoutes.KartInventory(auth.UserId, kartId),
+                snap =>
+                {
+                    int level = 0;
+                    if (snap != null && snap.Exists && snap.Value != null)
+                    {
+                        int.TryParse(snap.Value.ToString(), out level);
+                    }
+
+                    if (level <= 0)
+                    {
+                        onSuccess?.Invoke(false);
+                        return;
+                    }
+
+                    var rule = _globalSpeed;
+                    if (_speedOverrides.TryGetValue(kartId, out var ovr)) rule = ovr;
+
+                    bool isMax = (rule.MaxLevel > 0) && (level >= rule.MaxLevel);
+                    onSuccess?.Invoke(isMax);
+                },
+                err => onError?.Invoke(err)
+            );
+        }
+
+
+        /// <summary>
         /// 패치와 관련된 DB를 모두 삭제하는 메서드입니다.
         /// 모든 패치 사항이 사라져 정상적인 진행이 되지 않을 수 있으니 호출에 유의해야 합니다.
         /// </summary>
