@@ -1,6 +1,7 @@
 // PJW.RocketItem.cs
 using Photon.Pun;
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
@@ -18,6 +19,9 @@ namespace PJW
         [Header("타겟 탐색 최대 거리")]
         [SerializeField] private float maxSearchDistance = 9999f;
 
+        [Header("사운드 키")]
+        [SerializeField] private string sfxUseKey = "Missile_Use";
+
         public void Use(GameObject owner)
         {
             // 오너/소유권 체크
@@ -34,6 +38,9 @@ namespace PJW
                 Destroy(gameObject);
                 return;
             }
+
+            // 로켓 사용 시 사운드 재생
+            AudioManager.Instance.PlaySFX(sfxUseKey);
 
             // 스폰 위치/회전
             Vector3 pos = owner.transform.TransformPoint(spawnOffset);

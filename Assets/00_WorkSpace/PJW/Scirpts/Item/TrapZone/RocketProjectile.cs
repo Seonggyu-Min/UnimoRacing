@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
@@ -30,6 +31,11 @@ namespace PJW
         private Quaternion networkRot;
         private bool hasNetSnapshot;
         [SerializeField] private float netLerp = 20f;
+
+        [SerializeField] private string sfxHitKey = "Bang";
+
+        [SerializeField] private string sfxFlyLoopKey = "Missile_Coming";  
+        private AudioSource flyLoopSource;
 
         private const byte RocketStunEvent = 41;
 
@@ -113,8 +119,31 @@ namespace PJW
             }
         }
 
-        private void OnEnable() { PhotonNetwork.AddCallbackTarget(this); }
-        private void OnDisable() { PhotonNetwork.RemoveCallbackTarget(this); }
+        private void OnEnable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
+
+            if (!string.IsNullOrEmpty(sfxFlyLoopKey))
+            {
+                if (flyLoopSource == null)
+                {
+                    flyLoopSource = gameObject.AddComponent<AudioSource>();
+                    flyLoopSource.playOnAwake = false;
+                    flyLoopSource.spatialBlend = 1f; // 3D
+                }
+                AudioManager.Instance.PlayLoopingSoundOn(flyLoopSource, sfxFlyLoopKey, 0.05f);
+            }
+        }
+        private void OnDisable()
+        {
+            PhotonNetwork.RemoveCallbackTarget(this);
+
+            // 비행 루프 사운드 정지(페이드아웃 후 정지)
+            if (flyLoopSource != null)
+            {
+                AudioManager.Instance.StopSoundOn(flyLoopSource, 0.1f);
+            }
+        }
 
         private void Update()
         {
@@ -181,6 +210,8 @@ namespace PJW
         private void HandleHit(PhotonView hitPv)
         {
             hasHit = true;
+
+            AudioManager.Instance.PlaySFX(sfxHitKey);
 
             object[] content = new object[] { hitPv.OwnerActorNr, stunDuration };
             RaiseEventOptions reo = new RaiseEventOptions { Receivers = ReceiverGroup.All };

@@ -162,7 +162,7 @@ MonoBehaviour:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: aeec18e0604214e23a3b1c28a84cf680
-    m_Address: Audio/SFX/Egg_Crush
+    m_Address: Audio/SFX/Egg_Crash
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
