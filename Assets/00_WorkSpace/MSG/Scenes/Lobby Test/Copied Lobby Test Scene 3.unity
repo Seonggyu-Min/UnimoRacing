@@ -87544,7 +87544,7 @@ GameObject:
   - component: {fileID: 1551078288}
   - component: {fileID: 1551078289}
   m_Layer: 5
-  m_Name: UnimoKartDatabase
+  m_Name: UnimoKartDatabase (this should be ROOT OBJ in Real Lobby Scene too)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -87557,16 +87557,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1551078287}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.3333334, y: 1.3333334, z: 1.3333334}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4830575462587041287}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 540, y: 1140}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1551078289
@@ -136542,7 +136542,6 @@ RectTransform:
   - {fileID: 1190791817}
   - {fileID: 689117954412253881}
   - {fileID: 1584608542}
-  - {fileID: 1551078288}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -159817,3 +159816,4 @@ SceneRoots:
   - {fileID: 1471528932}
   - {fileID: 1476611762}
   - {fileID: 1765010739}
+  - {fileID: 1551078288}
