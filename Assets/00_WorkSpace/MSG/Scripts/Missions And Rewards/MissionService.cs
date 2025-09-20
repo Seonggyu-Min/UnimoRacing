@@ -205,23 +205,14 @@ namespace MSG
                 return;
             }
 
-            DatabaseManager.Instance.RunTransactionOnMain(
-                DBRoutes.UserDailyMissionRoot(CurrentUid),
-                mutable =>
-                {
-                    // cleared == true && claimed == false일 때만 수령
-                    bool cleared = ToBool(mutable.Child(DatabaseKeys.cleared).Child(index.ToString()).Value ?? false);
-                    bool claimed = ToBool(mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value ?? false);
-                    if (!cleared || claimed)
-                    {
-                        return TransactionResult.Abort();
-                    }
+            Dictionary<string, object> updates = new()
+            {
+                { DBRoutes.UserDailyMissionClaimed(CurrentUid, index), true },
+            };
 
-                    // 수령 마크
-                    mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value = true;
-                    return TransactionResult.Success(mutable);
-                },
-                _ =>
+            DatabaseManager.Instance.UpdateOnMain(
+                updates,
+                () =>
                 {
                     // 지급
                     RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
@@ -236,8 +227,7 @@ namespace MSG
                 {
                     OnError?.Invoke(err);
                     Debug.Log($"[MissionService] 데일리 미션 보상 수령 실패: {err}");
-                }
-            );
+                });
         }
 
         /// <summary>
@@ -257,7 +247,6 @@ namespace MSG
                 { DBRoutes.UserAchievementMissionClaimed(CurrentUid, index), true },
             };
 
-
             DatabaseManager.Instance.UpdateOnMain(
                 updates,
                 () =>
@@ -276,40 +265,6 @@ namespace MSG
                     OnError?.Invoke(err);
                     Debug.Log($"[MissionService] achievement 미션 보상 수령 실패: {err}");
                 });
-
-
-
-            DatabaseManager.Instance.RunTransactionOnMain(
-                DBRoutes.UserAchievementMissionRoot(CurrentUid),
-                mutable =>
-                {
-                    // cleared == true && claimed == false일 때만 수령
-                    bool cleared = ToBool(mutable.Child(DatabaseKeys.cleared).Child(index.ToString()).Value ?? false);
-                    bool claimed = ToBool(mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value ?? false);
-                    if (!cleared || claimed)
-                        return TransactionResult.Abort();
-
-                    // 수령 마크
-                    mutable.Child(DatabaseKeys.claimed).Child(index.ToString()).Value = true;
-                    return TransactionResult.Success(mutable);
-                },
-                _ => 
-                {
-                    // 지급
-                    RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
-                    // 수령 UI 표기
-                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
-                    UIManager.Instance.Show("Reward Panel");
-
-                    OnSucces?.Invoke();
-                    Debug.Log("[MissionService] achievement 미션 보상 수령 완료");
-                } ,
-                err => 
-                {
-                    OnError?.Invoke(err);
-                    Debug.Log($"[MissionService] achievement 미션 보상 수령 실패: {err}");
-                } 
-            );
         }
 
         /// <summary>
