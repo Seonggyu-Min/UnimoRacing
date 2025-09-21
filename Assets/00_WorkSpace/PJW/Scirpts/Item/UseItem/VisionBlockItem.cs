@@ -1,16 +1,19 @@
 using Photon.Pun;
 using UnityEngine;
+using Cinemachine;
+using YTW;
 
 namespace PJW
 {
     [DisallowMultipleComponent]
     public class VisionBlockItem : MonoBehaviour, IUsableItem
     {
-        [Header("Obscure Settings")]
-        [SerializeField] private float blockDuration = 3f;     
-        [SerializeField] private float fadeIn = 0.2f;          
-        [SerializeField, Range(0f, 1f)] private float maxAlpha = 0.9f; 
-        [SerializeField] private float fadeOut = 0.4f;         
+        [Header("소환 설정")]
+        [SerializeField] private string zoneResourceName = "VisionObscureZone"; // Resources 폴더 안에 프리팹 이름
+        [SerializeField] private float distanceAhead = 0.02f; // 경로상 앞쪽 배치 거리 (정규화 경로 단위)
+
+        [Header("사운드 키")]
+        [SerializeField] private string sfxUseKey = "Blind_Use_SFX";
 
         public void Use(GameObject owner)
         {
@@ -21,29 +24,44 @@ namespace PJW
                 return;
             }
 
-            var ownerView = owner.GetComponent<PhotonView>() ?? owner.GetComponentInParent<PhotonView>();
-            if (ownerView == null)
-            {
-                Debug.LogError("[VisionBlockItem] Owner has no PhotonView to send RPC.");
-                Destroy(gameObject);
-                return;
-            }
-
-            if (!ownerView.IsMine)
+            var pv = owner.GetComponentInParent<PhotonView>();
+            if (pv == null || !pv.IsMine)
             {
                 Destroy(gameObject);
                 return;
             }
 
-            ownerView.RPC(
-                "RpcObscureOpponents",
-                RpcTarget.All,
-                ownerView.OwnerActorNr,
-                blockDuration,
-                fadeIn,
-                maxAlpha,
-                fadeOut
-            );
+            var cart = owner.GetComponentInParent<CinemachineDollyCart>();
+            var path = cart ? cart.m_Path : null;
+            if (cart == null || path == null)
+            {
+                Debug.LogError("[VisionBlockItem] DollyCart or Path not found.");
+                Destroy(gameObject);
+                return;
+            }
+
+            // 앞쪽 위치 계산
+            float norm = cart.m_Position / path.PathLength;
+            float spawnNorm = norm + distanceAhead;
+            if (spawnNorm > 1f)
+                spawnNorm -= 1f; // 루프 경로 고려
+
+            Vector3 spawnPos = path.EvaluatePositionAtUnit(spawnNorm * path.PathLength, CinemachinePathBase.PositionUnits.Distance);
+            Quaternion spawnRot = Quaternion.identity;
+
+            // 프리팹 로드
+            var prefab = Resources.Load<GameObject>(zoneResourceName);
+            if (prefab == null)
+            {
+                Debug.LogError($"[VisionBlockItem] Prefab '{zoneResourceName}' not found in Resources.");
+                Destroy(gameObject);
+                return;
+            }
+
+            // 네트워크 전체에 소환
+            PhotonNetwork.Instantiate(zoneResourceName, spawnPos, spawnRot);
+
+            AudioManager.Instance.PlaySFX(sfxUseKey);
 
             Destroy(gameObject);
         }

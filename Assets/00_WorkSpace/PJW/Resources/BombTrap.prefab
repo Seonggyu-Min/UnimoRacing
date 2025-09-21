@@ -150,7 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stopDuration: 2
   sfxBlockedKey: Shield_Block_SFX
-  sfxHitKey: BombTrap_Hit_SFX
+  sfxHitKey: Bang
 --- !u!114 &1939815619367186002
 MonoBehaviour:
   m_ObjectHideFlags: 0
