@@ -1,6 +1,7 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using YSJ.Util;
 
 [DefaultExecutionOrder(-1000)]
 public class SOAddressablePreloader : MonoBehaviour
@@ -11,29 +12,36 @@ public class SOAddressablePreloader : MonoBehaviour
     public List<UnimoKartSO> kartSOs;
     public List<UnimoCharacterSO> characterSOs;
 
-    private static bool _ran; // ÇÁ·Î¼¼½º µ¿¾È 1È¸¸¸
+    private static bool _ran; // í”„ë¡œì„¸ìŠ¤ ë™ì•ˆ 1íšŒë§Œ
 
     private async void Awake()
     {
-        if (_ran) { Destroy(this); return; }
+        Debug.Log("[SOAddressablePreloader] Awake enter");
+        if (_ran) { Debug.Log("[SOAddressablePreloader] Skip (_ran)"); Destroy(this); return; }
         _ran = true;
-        DontDestroyOnLoad(gameObject); // ¾À °¥¾Æ²¸µµ »ıÁ¸
 
-        if (!YTW.Launcher.PatchGate.Task.IsCompleted) // ÆĞÄ¡ ÈÄ ½ÃÀÛ º¸Àå
+        DontDestroyOnLoad(gameObject);
+        Debug.Log("[SOAddressablePreloader] Wait PatchGate...");
+        if (!YTW.Launcher.PatchGate.Task.IsCompleted)
             await YTW.Launcher.PatchGate.Task;
+        Debug.Log("[SOAddressablePreloader] PatchGate done");
 
+        Debug.Log("[SOAddressablePreloader] EnsureInitialized...");
         await YTW.ResourceManager.Instance.EnsureInitializedAsync();
+        Debug.Log("[SOAddressablePreloader] EnsureInitialized done");
+        
 
         var tasks = new List<Task>();
         if (loadFromResources)
         {
+            this.PrintLog("Test 1");
             var karts = Resources.LoadAll<UnimoKartSO>(kartSOPath);
             var chars = Resources.LoadAll<UnimoCharacterSO>(charSOPath);
 
-            kartSOs = new List<UnimoKartSO>(karts);              // ¸®½ºÆ®¿¡ ºÙÀâ±â
+            kartSOs = new List<UnimoKartSO>(karts);              // ë¦¬ìŠ¤íŠ¸ì— ë¶™ì¡ê¸°
             characterSOs = new List<UnimoCharacterSO>(chars);
 
-            // ¾ğ·Îµå ¹æÁö
+            // ì–¸ë¡œë“œ ë°©ì§€
             foreach (var so in kartSOs) so.hideFlags |= HideFlags.DontUnloadUnusedAsset;
             foreach (var so in characterSOs) so.hideFlags |= HideFlags.DontUnloadUnusedAsset;
 
@@ -42,7 +50,8 @@ public class SOAddressablePreloader : MonoBehaviour
         }
         else
         {
-            // ÀÎ½ºÆåÅÍ¿¡ ³Ö¾îÁØ ¸®½ºÆ® ÀÚÃ¼°¡ ÂüÁ¶¸¦ À¯Áö
+            this.PrintLog("Test 2");
+            // ì¸ìŠ¤í™í„°ì— ë„£ì–´ì¤€ ë¦¬ìŠ¤íŠ¸ ìì²´ê°€ ì°¸ì¡°ë¥¼ ìœ ì§€
             foreach (var so in kartSOs) if (so) { tasks.Add(so.EnsureKartPrefabAsync()); tasks.Add(so.EnsureKartSpriteAsync()); }
             foreach (var so in characterSOs) if (so) { tasks.Add(so.EnsureCharacterPrefabAsync()); tasks.Add(so.EnsureCharacterSpriteAsync()); }
         }

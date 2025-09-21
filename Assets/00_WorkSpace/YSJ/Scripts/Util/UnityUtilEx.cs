@@ -1,6 +1,5 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,7 +27,7 @@ namespace YSJ.Util
             return null;
         }
 
-        public static GameObject FindOrCreateGameObject(string name) 
+        public static GameObject FindOrCreateGameObject(string name)
         {
             GameObject go = GameObject.Find(name);
             if (go == null)
@@ -68,21 +67,27 @@ namespace YSJ.Util
             return -1;
         }
 
-        public static void PrintLog<T>(this T type, string log, LogType logType = LogType.Log, bool isPrint = true)
+        public static void PrintLog<T>(this T type, string log, LogType logType = LogType.Log, Color? color = null, bool isPrint = true)
         {
             if (!isPrint) return;
 
 #if UNITY_EDITOR
+            // 지정된 색이 없으면 기본은 white
+            var c = color ?? Color.white;
+            string hex = ColorUtility.ToHtmlStringRGB(c);
+
+            string prefix = $"[<color=#{hex}>{type}</color>]:";
+
             switch (logType)
             {
                 case LogType.Error:
-                    Debug.LogError($"[{type}]: {log}");
+                    Debug.LogError($"{prefix} {log}");
                     break;
                 case LogType.Warning:
-                    Debug.LogWarning($"[{type}]: {log}");
+                    Debug.LogWarning($"{prefix} {log}");
                     break;
                 case LogType.Log:
-                    Debug.Log($"[{type}]: {log}");
+                    Debug.Log($"{prefix} {log}");
                     break;
             }
 #endif

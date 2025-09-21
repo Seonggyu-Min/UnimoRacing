@@ -526,4 +526,9 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         PhotonNetwork.LoadLevel(1);
         PhotonNetwork.LeaveRoom();
     }
+
+    private void PrintLog(string printLogString)
+    {
+        this.PrintLog(printLogString, LogType.Log, Color.green);
+    }
 }
