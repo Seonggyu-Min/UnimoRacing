@@ -8,8 +8,8 @@ namespace PJW
     {
         [SerializeField] private float shieldDuration = 5f;
 
-        [SerializeField] private string sfxUseKey = "Shield_Use";   
-        [SerializeField] private string sfxLoopKey = "Shield";
+        [SerializeField] private string sfxUseKey = "Shield_Use_SFX";   
+        [SerializeField] private string sfxLoopKey = "Shield_SFX";
 
         public void Use(GameObject owner)
         {

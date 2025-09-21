@@ -1,6 +1,6 @@
-using Photon.Pun;
-using System.Collections;
+Ôªøusing System.Collections;
 using UnityEngine;
+using Photon.Pun;
 using YTW;
 
 namespace PJW
@@ -8,20 +8,18 @@ namespace PJW
     [DisallowMultipleComponent]
     public class PlayerShield : MonoBehaviour
     {
-        [Header("Shield Visual Effect")]
-        [SerializeField] private GameObject shieldEffectPrefab;    // Ω«µÂ ¿Ø¡ˆµøæ» ∫∏ø©¡Ÿ ¿Ã∆Â∆Æ
-        [SerializeField] private Vector3 effectLocalPosition = Vector3.zero;
-        [SerializeField] private Vector3 effectLocalEuler = Vector3.zero;
-        [SerializeField] private bool destroyEffectOnDisable = false; // false∏È ¿ÁªÁøÎ(∫Ò»∞º∫/»∞º∫ ¿¸»Ø)
-
         private bool isShieldActive;
         private Coroutine shieldRoutine;
 
-        // ∑±≈∏¿” ¿Ã∆Â∆Æ ¿ŒΩ∫≈œΩ∫/∆ƒ∆º≈¨ ƒ≥Ω√
-        private GameObject shieldEffectInstance;
-        private ParticleSystem[] cachedParticles;
-
         public bool IsShieldActive => isShieldActive;
+
+        [Header("ÏÇ¨Ïö¥Îìú ÌÇ§")]
+        [SerializeField] private string sfxLoopKey = "Shield_SFX"; // AudioDBÏóêÏÑú Loop=trueÎ°ú ÏÑ§Ï†ï
+
+        [Header("Î£®ÌîÑ Ï†ïÏßÄ ÌéòÏù¥Îìú(ÏÑ†ÌÉù)")]
+        [SerializeField] private float loopFadeOut = 0.15f;
+
+        private AudioSource loopSrc;
 
         [PunRPC]
         public void RpcActivateShield(float duration)
@@ -40,24 +38,35 @@ namespace PJW
             if (shieldRoutine != null)
                 StopCoroutine(shieldRoutine);
 
-            // ¿Ã∆Â∆Æ ƒ—±‚
-            EnableShieldEffect();
-
             shieldRoutine = StartCoroutine(ShieldRoutine(duration));
         }
 
         private IEnumerator ShieldRoutine(float duration)
         {
             isShieldActive = true;
+
+            loopSrc = AudioManager.Instance.PlaySFX(sfxLoopKey);
+
             yield return new WaitForSeconds(duration);
+
             isShieldActive = false;
 
-            // ¿Ã∆Â∆Æ ≤Ù±‚
-            DisableShieldEffect();
+            if (loopSrc != null)
+            {
+                if (loopFadeOut > 0f)
+                    AudioManager.Instance.StopSoundOn(loopSrc, loopFadeOut);
+                else
+                    AudioManager.Instance.StopLoopedSFX(loopSrc);
+
+                loopSrc = null;
+            }
 
             shieldRoutine = null;
         }
 
+        /// <summary>
+        /// Ïã§ÎìúÎ°ú ÎßâÏïòÏùÑ Îïå true. consume=trueÎ©¥ Ï¶âÏãú Ïã§Îìú Ï¢ÖÎ£å(ÏÜåÎ™®) Ï≤òÎ¶¨
+        /// </summary>
         public bool SuccessShield(bool consume = false)
         {
             if (!isShieldActive) return false;
@@ -69,111 +78,21 @@ namespace PJW
                     StopCoroutine(shieldRoutine);
                     shieldRoutine = null;
                 }
+
                 isShieldActive = false;
 
-                // º“∫Ò Ω√ø°µµ ¿Ã∆Â∆Æ ≤Ù±‚
-                DisableShieldEffect();
+                if (loopSrc != null)
+                {
+                    if (loopFadeOut > 0f)
+                        AudioManager.Instance.StopSoundOn(loopSrc, loopFadeOut);
+                    else
+                        AudioManager.Instance.StopLoopedSFX(loopSrc);
+
+                    loopSrc = null;
+                }
             }
+
             return true;
-        }
-
-        [PunRPC]
-        public void RpcPlayShieldLoop(string loopKey, float duration)
-        {
-            PlayShieldLoop(loopKey, duration);
-        }
-
-        public void PlayShieldLoop(string loopKey, float duration)
-        {
-            if (string.IsNullOrEmpty(loopKey)) return;
-
-            var src = AudioManager.Instance.PlaySFX(loopKey);
-            if (src != null && src.loop)
-            {
-                StartCoroutine(StopLoopAfter(src, duration));
-            }
-        }
-
-        private IEnumerator StopLoopAfter(AudioSource src, float duration)
-        {
-            yield return new WaitForSeconds(duration);
-            if (src != null)
-            {
-                AudioManager.Instance.StopLoopedSFX(src);
-            }
-        }
-
-        // ---------- Effect Helpers ----------
-        private void EnableShieldEffect()
-        {
-            if (shieldEffectPrefab == null)
-                return;
-
-            // ¿ÃπÃ ª˝º∫µ≈ ¿÷¿∏∏È ¿ÁªÁøÎ
-            if (shieldEffectInstance == null)
-            {
-                shieldEffectInstance = Instantiate(shieldEffectPrefab, transform);
-                shieldEffectInstance.transform.localPosition = effectLocalPosition;
-                shieldEffectInstance.transform.localRotation = Quaternion.Euler(effectLocalEuler);
-                cachedParticles = shieldEffectInstance.GetComponentsInChildren<ParticleSystem>(true);
-            }
-
-            if (!shieldEffectInstance.activeSelf)
-                shieldEffectInstance.SetActive(true);
-
-            // ∆ƒ∆º≈¨µÈ ¿Áª˝
-            if (cachedParticles != null)
-            {
-                for (int i = 0; i < cachedParticles.Length; i++)
-                {
-                    if (cachedParticles[i] == null) continue;
-                    cachedParticles[i].Play(true);
-                }
-            }
-        }
-
-        private void DisableShieldEffect()
-        {
-            if (shieldEffectInstance == null)
-                return;
-
-            // ∆ƒ∆º≈¨µÈ ¡§¡ˆ
-            if (cachedParticles != null)
-            {
-                for (int i = 0; i < cachedParticles.Length; i++)
-                {
-                    if (cachedParticles[i] == null) continue;
-                    cachedParticles[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                }
-            }
-
-            if (destroyEffectOnDisable)
-            {
-                Destroy(shieldEffectInstance);
-                shieldEffectInstance = null;
-                cachedParticles = null;
-            }
-            else
-            {
-                // ¥Ÿ¿Ωø° ¥ŸΩ√ ªÁøÎ«“ ºˆ ¿÷µµ∑œ ∫Ò»∞º∫»≠
-                if (shieldEffectInstance.activeSelf)
-                    shieldEffectInstance.SetActive(false);
-            }
-        }
-
-        // æ»¿¸¿Âƒ°: ƒƒ∆˜≥Õ∆Æ∞° ∫Ò»∞º∫/∆ƒ±´µ… ∂ß ¿Ã∆Â∆Æ ¡§∏Æ
-        private void OnDisable()
-        {
-            if (isShieldActive)
-            {
-                isShieldActive = false;
-            }
-            DisableShieldEffect();
-        }
-
-        private void OnDestroy()
-        {
-            DisableShieldEffect();
         }
     }
 }

@@ -44,5 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 984d444ff2d0c144d9eb035a23c03d0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shieldCount: 1
-  durationSeconds: 0
+  shieldDuration: 5
+  sfxUseKey: Shield_Use_SFX
+  sfxLoopKey: Shield_SFX
