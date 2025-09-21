@@ -10,11 +10,9 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 namespace MSG
 {
-    // TODO: 미니맵 UI 추가
     public class InGameLoadingUIBehaviour : MonoBehaviourPunCallbacks
     {
-        [SerializeField] private GameObject _inGameUI;
-        [SerializeField] private List<LoadingPlayerUIItem> _players = new();
+        [SerializeField] private List<PlayerUIItem> _players = new();
         [SerializeField] private Image _loadingBarImage;
 
         [SerializeField] private TMP_Text _mapNameText;
@@ -98,7 +96,7 @@ namespace MSG
                 string nickname = "Loading...";
 
                 _players[slot].gameObject.SetActive(true);
-                _players[slot].Init(nickname, index, false);
+                _players[slot].InitForLoading(nickname, index, false);
 
                 DatabaseManager.Instance.GetOnMain(
                     DBRoutes.Users(uid),
@@ -126,11 +124,11 @@ namespace MSG
                         {
                             if (uid == PhotonNetwork.LocalPlayer.UserId)
                             {
-                                _players[slot].Init(nn, uni, true);
+                                _players[slot].InitForLoading(nn, uni, true);
                             }
                             else
                             {
-                                _players[slot].Init(nn, uni, false);
+                                _players[slot].InitForLoading(nn, uni, false);
                             }
                         }
                     },
@@ -139,7 +137,7 @@ namespace MSG
                         Debug.LogWarning($"[InGameLoadingUIBehaviour] 플레이어 데이터 읽기 실패: {err}");
                         if (slot < _players.Count)
                         {
-                            _players[slot].Init("Error", _unimoFallbackIndex, false);
+                            _players[slot].InitForLoading("Error", _unimoFallbackIndex, false);
                         }
                     });
             }
@@ -174,7 +172,6 @@ namespace MSG
 
         private void OnReady()
         {
-            _inGameUI.SetActive(true);      // 준비됐으니 인게임 UI 켜주고
             gameObject.SetActive(false);    // 로딩은 종료
         }
 
@@ -183,7 +180,6 @@ namespace MSG
         {
             yield return new WaitForSeconds(3f);
 
-            _inGameUI.SetActive(true);      // 준비됐으니 인게임 UI 켜주고
             gameObject.SetActive(false);    // 로딩은 종료
         }
     }
