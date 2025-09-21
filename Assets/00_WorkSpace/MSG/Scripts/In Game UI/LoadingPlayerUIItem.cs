@@ -11,10 +11,21 @@ namespace MSG
     {
         [SerializeField] private TMP_Text _nicknameText;
         [SerializeField] private Image _unimoImage;
+        [SerializeField] private Color _selfNicknameColor = Color.yellow;
+        [SerializeField] private Color _otherNicknameColor = Color.white;
 
-        public void Init(string nickname, int unimoIndex)
+        public void Init(string nickname, int unimoIndex, bool amISelf)
         {
             _nicknameText.text = nickname;
+
+            if (amISelf)
+            {
+                _nicknameText.color = _selfNicknameColor;
+            }
+            else
+            {
+                _nicknameText.color = _otherNicknameColor;
+            }
 
             if (UnimoKartDatabase.Instance == null)
             {
