@@ -898,7 +898,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9062924129704225273}
-  - component: {fileID: 8687869732140806281}
+  - component: {fileID: 6241188188945140242}
   m_Layer: 5
   m_Name: Player 0
   m_TagString: Untagged
@@ -927,7 +927,7 @@ RectTransform:
   m_AnchoredPosition: {x: 80, y: -76}
   m_SizeDelta: {x: 800, y: 280}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &8687869732140806281
+--- !u!114 &6241188188945140242
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -936,13 +936,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 2529708706298526794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62ea91e02b587f0439db37f5c67f3909, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d926d543c512ff4ab4508ed215d3107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _nicknameText: {fileID: 8565321372575922730}
   _unimoImage: {fileID: 2340082247722943688}
-  _selfNicknameColor: {r: 0.9960785, g: 0.86274517, b: 0.24705884, a: 1}
-  _otherNicknameColor: {r: 0.9921569, g: 0.9921569, b: 0.9921569, a: 1}
+  _selfNicknameColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _otherNicknameColor: {r: 1, g: 1, b: 1, a: 1}
+  _rankText: {fileID: 0}
+  _timeText: {fileID: 0}
+  _notInColor: {r: 1, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &2579438698591255298
 GameObject:
   m_ObjectHideFlags: 0
@@ -952,7 +955,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1273816172898515707}
-  - component: {fileID: 3261191440640364439}
+  - component: {fileID: 5145761667659990114}
   m_Layer: 5
   m_Name: Player 3
   m_TagString: Untagged
@@ -981,7 +984,7 @@ RectTransform:
   m_AnchoredPosition: {x: 80, y: -916}
   m_SizeDelta: {x: 800, y: 280}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &3261191440640364439
+--- !u!114 &5145761667659990114
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -990,13 +993,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 2579438698591255298}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62ea91e02b587f0439db37f5c67f3909, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d926d543c512ff4ab4508ed215d3107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _nicknameText: {fileID: 6725586215389137045}
   _unimoImage: {fileID: 7601429945914675728}
-  _selfNicknameColor: {r: 0.9960785, g: 0.86274517, b: 0.24705884, a: 1}
-  _otherNicknameColor: {r: 0.9921569, g: 0.9921569, b: 0.9921569, a: 1}
+  _selfNicknameColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _otherNicknameColor: {r: 1, g: 1, b: 1, a: 1}
+  _rankText: {fileID: 0}
+  _timeText: {fileID: 0}
+  _notInColor: {r: 1, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &2613002553815557717
 GameObject:
   m_ObjectHideFlags: 0
@@ -3240,7 +3246,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!114 &7607939453131762921
 MonoBehaviour:
@@ -3294,12 +3300,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da0ea3ad277310c4585a585f8893d2db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _inGameUI: {fileID: 0}
   _players:
-  - {fileID: 8687869732140806281}
-  - {fileID: 7017037564824497314}
-  - {fileID: 5531112347687282323}
-  - {fileID: 3261191440640364439}
+  - {fileID: 6241188188945140242}
+  - {fileID: 4417416517725911351}
+  - {fileID: 2657339559648438804}
+  - {fileID: 5145761667659990114}
   _loadingBarImage: {fileID: 8294308182067373133}
   _mapNameText: {fileID: 1213175690982991818}
   _mapNames:
@@ -4524,7 +4529,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6237462901461703273}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -6034,7 +6039,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7365782817385925471}
-  - component: {fileID: 5531112347687282323}
+  - component: {fileID: 2657339559648438804}
   m_Layer: 5
   m_Name: Player 2
   m_TagString: Untagged
@@ -6063,7 +6068,7 @@ RectTransform:
   m_AnchoredPosition: {x: 80, y: -636}
   m_SizeDelta: {x: 800, y: 280}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &5531112347687282323
+--- !u!114 &2657339559648438804
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6072,13 +6077,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 7897167817188176330}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62ea91e02b587f0439db37f5c67f3909, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d926d543c512ff4ab4508ed215d3107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _nicknameText: {fileID: 3070188682260524647}
   _unimoImage: {fileID: 8801107830218203177}
-  _selfNicknameColor: {r: 0.9960785, g: 0.86274517, b: 0.24705884, a: 1}
-  _otherNicknameColor: {r: 0.9921569, g: 0.9921569, b: 0.9921569, a: 1}
+  _selfNicknameColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _otherNicknameColor: {r: 1, g: 1, b: 1, a: 1}
+  _rankText: {fileID: 0}
+  _timeText: {fileID: 0}
+  _notInColor: {r: 1, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &8004384716255776007
 GameObject:
   m_ObjectHideFlags: 0
@@ -6620,7 +6628,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6342479654785422184}
-  - component: {fileID: 7017037564824497314}
+  - component: {fileID: 4417416517725911351}
   m_Layer: 5
   m_Name: Player 1
   m_TagString: Untagged
@@ -6649,7 +6657,7 @@ RectTransform:
   m_AnchoredPosition: {x: 80, y: -356.00003}
   m_SizeDelta: {x: 800, y: 280}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &7017037564824497314
+--- !u!114 &4417416517725911351
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6658,13 +6666,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 8349114724338811897}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62ea91e02b587f0439db37f5c67f3909, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d926d543c512ff4ab4508ed215d3107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _nicknameText: {fileID: 7131951892717117199}
   _unimoImage: {fileID: 239209904496284003}
-  _selfNicknameColor: {r: 0.9960785, g: 0.86274517, b: 0.24705884, a: 1}
-  _otherNicknameColor: {r: 0.9921569, g: 0.9921569, b: 0.9921569, a: 1}
+  _selfNicknameColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _otherNicknameColor: {r: 1, g: 1, b: 1, a: 1}
+  _rankText: {fileID: 0}
+  _timeText: {fileID: 0}
+  _notInColor: {r: 1, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &8472271540271813253
 GameObject:
   m_ObjectHideFlags: 0
