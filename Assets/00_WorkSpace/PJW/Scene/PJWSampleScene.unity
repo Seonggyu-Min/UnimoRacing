@@ -307,8 +307,6 @@ MonoBehaviour:
   _playerSpawnDatas:
   - CharacterID: -1
     KartID: -1
-    injectDefaultCharacterSO: {fileID: 0}
-    injectDefaultInJectKartSO: {fileID: 0}
 --- !u!114 &88742561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2709,6 +2707,21 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 603333964790063775, guid: 91e96a1612e485b40b14cfdd1c2c6a79,
         type: 3}
+      propertyPath: items.Array.data[0].weight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 603333964790063775, guid: 91e96a1612e485b40b14cfdd1c2c6a79,
+        type: 3}
+      propertyPath: items.Array.data[1].weight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 603333964790063775, guid: 91e96a1612e485b40b14cfdd1c2c6a79,
+        type: 3}
+      propertyPath: items.Array.data[2].weight
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 603333964790063775, guid: 91e96a1612e485b40b14cfdd1c2c6a79,
+        type: 3}
       propertyPath: items.Array.data[6].itemPrefab
       value: 
       objectReference: {fileID: 4070489616884424043, guid: 9bedcbadbf4e6864ebf67c051e2563a9,
@@ -2726,7 +2739,7 @@ PrefabInstance:
     - target: {fileID: 7341975556987768667, guid: 91e96a1612e485b40b14cfdd1c2c6a79,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.26
+      value: -7.38
       objectReference: {fileID: 0}
     - target: {fileID: 7341975556987768667, guid: 91e96a1612e485b40b14cfdd1c2c6a79,
         type: 3}
