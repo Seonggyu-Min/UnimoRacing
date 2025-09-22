@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using YSJ.Util;
@@ -53,6 +54,7 @@ public class ItemInventory : MonoBehaviour
         _isSetup = (_selfSetup || _data != null);
     }
 
+    #region Save
     public void SaveItem(UnimoItemSO itemSO, bool isDelaySave = false)
     {
         if (!_isSetup)
@@ -95,113 +97,6 @@ public class ItemInventory : MonoBehaviour
         _items[nullIndex] = itemSO;
         this.PrintLog($"아이템을 저장합니다.[저장 인덱스: {nullIndex} / 저장 아이템 {itemSO.name}_{itemSO.itemID}]");
     }
-            if (_delaySaveItemList.Count <= 0)
-            {
-                this.PrintLog($"지연 아이템 저장에 사용될 아이템들 유실 되어, 지연 아이템 저장을 진행 할 수 없습니다.");
-                return;
-            }
-
-            // 데이터 받고도 유실 시, 처리
-            if (delaySaveItem == null)
-            {
-                this.PrintLog($"Delay Save Item 데이터가 유실 되어서 습니다. 기존에 진행하려고 했던 지연 아이템 저장 기능을 사용할 수 없습니다. > 필요 없는 데이터들을 정리합니다.");
-                return;
-            }
-
-            _items[saveIndex] = delaySaveItem;
-            this.PrintLog($"지연 아이템 저장 완료. 되었습니다.(=> 지연 저장 아이템 정보: {delaySaveItem.name}_{delaySaveItem.itemID})");
-    /// <summary>
-    /// 보유 아이템, 인텍스로 제거
-    /// </summary>
-    /// <param name="index">제거 하고 싶은 보유 배열 인덱스</param>
-    public void RemoveItemForIndex(int index)
-    {
-        if (!_isSetup)
-        {
-            this.PrintLog("셋업이 정상적으로 진행되지 않았습니다.");
-            return;
-        }
-
-        if (_items.Length <= 0 || _items.Length <= index)
-        {
-            this.PrintLog($"인벤토리 저장 가능 수를 초과 하던가, 잘 못된 인텍스입니다. (Index => {index})");
-            return;
-        }
-
-        UnimoItemSO resultItem = _items[index];
-        RemoveItemForSO(resultItem);
-    }
-
-    /// <summary>
-    /// 보유 아이템, 아이디로 제거
-    /// </summary>
-    /// <param name="id">제거 하고 싶은 아이템 ID</param>
-    public void RemoveItemForID(int id)
-    {
-        if (!_isSetup)
-        {
-            this.PrintLog("셋업이 정상적으로 진행되지 않았습니다.");
-            return;
-        }
-
-        if (id <= 0)
-        {
-            this.PrintLog($"음수의 아이템 아이디가 들어왔습니다.{id}");
-            return;
-        }
-
-        UnimoItemSO resultItem = null;
-        foreach (var item in _items)
-        {
-            if (id.Equals(item.itemID))
-            {
-                resultItem = item;
-                break;
-            }
-        }
-
-        RemoveItemForSO(resultItem);
-    }
-
-    public void RemoveItemForSO(UnimoItemSO inItemSO)
-    {
-        if (!_isSetup)
-        {
-            this.PrintLog("셋업이 정상적으로 진행되지 않았습니다.");
-            return;
-        }
-
-        if (inItemSO == null)
-        {
-            this.PrintLog("제거 하고자하는 아이템 SO가 존재 하지않습니다.");
-            return;
-        }
-
-        int removeIndex = -1;
-        for (int i = 0; i < _items.Length; i++)
-        {
-            var item = _items[i];
-            if (inItemSO.itemID.Equals(item.itemID))
-            {
-                removeIndex = i;
-                break;
-            }
-        }
-
-        if (removeIndex < 0)
-        {
-            this.PrintLog("제거할 수 있는 오브젝트가 존재 하지않습니다.");
-            return;
-        }
-
-        var removeItem = _items[removeIndex];
-        _items[removeIndex] = null;
-        this.PrintLog($"인벤토리 제거 대상 아이템(=> {removeItem.itemName}) > 인벤토리에서 제거(=> 제거 여부: {_items[removeIndex] == null})");
-
-        // 아이템 지연 저장 기능
-        DelaySaveItem(removeIndex);
-    }
-
     private void DelaySaveItem(int saveIndex)
     {
         if (_delaySaveItemList.Count > 0)
@@ -241,6 +136,148 @@ public class ItemInventory : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Remove
+    /// <summary>
+    /// 보유 아이템, 인텍스로 제거
+    /// </summary>
+    /// <param name="index">제거 하고 싶은 보유 배열 인덱스</param>
+    public void RemoveItemForIndex(int index)
+    {
+        UnimoItemSO resultItem = FindItemForIndex(index);
+        RemoveItemForSO(resultItem);
+    }
+    
+    /// <summary>
+    /// 보유 아이템, 아이디로 제거
+    /// </summary>
+    /// <param name="id">제거 하고 싶은 아이템 ID</param>
+    public void RemoveItemForID(int id)
+    {
+        UnimoItemSO resultItem = FindItemForID(id);
+        RemoveItemForSO(resultItem);
+    }
+
+    /// <summary>
+    /// 보유 아이템, SO로 제거
+    /// </summary>
+    /// <param name="inItemSO">제거 하고 싶은 아이템</param>
+    public void RemoveItemForSO(UnimoItemSO inItemSO)
+    {
+        if (!_isSetup)
+        {
+            this.PrintLog("셋업이 정상적으로 진행되지 않았습니다.");
+            return;
+        }
+
+        if (inItemSO == null)
+        {
+            this.PrintLog("제거 하고자하는 아이템 SO가 존재 하지않습니다.");
+            return;
+        }
+
+        int removeIndex = -1;
+        for (int i = 0; i < _items.Length; i++)
+        {
+            var item = _items[i];
+            if (inItemSO.itemID.Equals(item.itemID))
+            {
+                removeIndex = i;
+                break;
+            }
+        }
+
+        if (removeIndex < 0)
+        {
+            this.PrintLog("제거할 수 있는 오브젝트가 존재 하지않습니다.");
+            return;
+        }
+
+        var removeItem = _items[removeIndex];
+        _items[removeIndex] = null;
+        this.PrintLog($"인벤토리 제거 대상 아이템(=> {removeItem.itemName}) > 인벤토리에서 제거(=> 제거 여부: {_items[removeIndex] == null})");
+
+        // 아이템 지연 저장 기능
+        DelaySaveItem(removeIndex);
+    }
+
+    #endregion
+
+    #region Find
+    public UnimoItemSO FindItemForIndex(int index)
+    {
+        if (!_isSetup)
+        {
+            this.PrintLog("셋업이 정상적으로 진행되지 않았습니다.");
+            return null;
+        }
+
+        if (_items.Length <= 0 || _items.Length <= index)
+        {
+            this.PrintLog($"인벤토리 저장 가능 수를 초과 하던가, 잘 못된 인텍스입니다. (Index => {index})");
+            return null;
+        }
+
+        return _items[index];
+    }
+    public UnimoItemSO FindItemForID(int id)
+    {
+        if (!_isSetup)
+        {
+            this.PrintLog("셋업이 정상적으로 진행되지 않았습니다.");
+            return null;
+        }
+
+        if (id <= 0)
+        {
+            this.PrintLog($"음수의 아이템 아이디가 들어왔습니다.{id}");
+            return null;
+        }
+
+        UnimoItemSO resultItem = null;
+        foreach (var item in _items)
+        {
+            if (id.Equals(item.itemID))
+            {
+                resultItem = item;
+                break;
+            }
+        }
+        return resultItem;
+    }
+    public int FindItemIndexForSO(UnimoItemSO itemSO)
+    {
+        int result = -1;
+        if(itemSO == null)
+        {
+            this.PrintLog($"`아이템 SO` 데이터가 NULL이여서 SO로 ItemIndex 찾기를 중단합니다.");
+            return result;
+        }
+
+        for (int i = 0; i < _items.Length; i++)
+        {
+            var item = _items[i];
+            if (item == null) 
+                continue;
+            ItemId checkItemSOID = _items[i].itemID;
+            if (itemSO.itemID.Equals(checkItemSOID))
+            {
+                result = i;
+                break;
+            }
+        }
+        return result;
+    }
+    #endregion
+
+    #region Contains
+    public bool ItemContains(UnimoItemSO itemSO)
+    {
+        int id = FindItemIndexForSO(itemSO);
+        return (id != -1 && id >= 0);
+    }
+    #endregion
 
     public void PrintLog(string printLog, LogType type = LogType.Log)
     {
