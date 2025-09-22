@@ -5,11 +5,24 @@ using YSJ.Util;
 [RequireComponent(typeof(PhotonView))]
 public class DollyCartSync : MonoBehaviourPun, IPunObservable
 {
+    #region Parameter
+    [SerializeField, Min(0.1f)] private float _fixedCPUpdateCycleTime = 2.0f;
+
     private bool _isSetup = false;
 
     private PlayerRaceData _data;
+    private PlayerManager _pm;
+    private float _currentCycleTime = 0.0f;
 
     public bool IsSetup => _isSetup;
+    #endregion
+
+    private void OnDisable()
+    {
+        if (!_isSetup) return;
+
+        _data.OnAfterRaceSetupAction -= AfterPlayerRaceSetupChangeRacableCP;
+    }
 
     public void Setup(PlayerRaceData data)
     {
@@ -20,6 +33,11 @@ public class DollyCartSync : MonoBehaviourPun, IPunObservable
         }
 
         _data = data;
+        _pm = PlayerManager.Instance;
+
+        _data.OnAfterRaceSetupAction -= AfterPlayerRaceSetupChangeRacableCP;
+        _data.OnAfterRaceSetupAction += AfterPlayerRaceSetupChangeRacableCP;
+        _currentCycleTime = 0.0f;
         _isSetup = true;
     }
 
@@ -49,9 +67,9 @@ public class DollyCartSync : MonoBehaviourPun, IPunObservable
         stream.SendNext(_data.Lap);                 // 렙
         stream.SendNext(_data.Norm);                // 진행 퍼센트
 
-        stream.SendNext(_data.IsControlable);      
-        stream.SendNext(_data.IsMovable);          
-        stream.SendNext(_data.IsItemUsable);       
+        stream.SendNext(_data.IsControlable);
+        stream.SendNext(_data.IsMovable);
+        stream.SendNext(_data.IsItemUsable);
     }
 
     // 받기
@@ -74,5 +92,35 @@ public class DollyCartSync : MonoBehaviourPun, IPunObservable
         _data.SetState(recvIsControlable, recvIsMovable, recvIsItemUsable);
 
         // _controller.SyncReceive(recvNorm, recvLap, recvSpeed);
+    }
+
+    private void AfterPlayerRaceSetupChangeRacableCP()
+    {
+        if (_isSetup) return;
+
+        var pm = PlayerManager.Instance;
+        if (_data != null)
+        {
+            pm.SetPlayerCPRaceLoaded(_data.IsSetups);
+            pm.SetPlayerCPRaceCurrentNorm(_data.Lap + _data.Norm);
+        }
+    }
+
+    private void FixedCPUpdate()
+    {
+        _pm?.SetPlayerCPRaceCurrentNorm(_data.Lap + _data.Norm);
+    }
+
+    public void Update()
+    {
+        if (!_isSetup) return;
+        if (!_data.View.IsMine) return;
+
+        _currentCycleTime += Time.deltaTime;
+        if (_currentCycleTime > _fixedCPUpdateCycleTime)
+        {
+            _currentCycleTime -= _fixedCPUpdateCycleTime;
+            FixedCPUpdate();
+        }
     }
 }

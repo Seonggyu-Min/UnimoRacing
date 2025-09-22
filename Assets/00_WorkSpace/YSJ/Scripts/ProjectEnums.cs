@@ -62,7 +62,7 @@ public enum PlayerKey
 
     MatchReady,         // KEY_PLAYER_MATCH_READY
 
-    RaceCurrent,         // KEY_PLAYER_RACE_LOADED
+    RaceCurrentNorm,    // KEY_PLAYER_RACE_CURRENT_NORM
     RaceLoaded,         // KEY_PLAYER_RACE_LOADED
     RaceIsFinished,     // KEY_PLAYER_RACE_IS_FINISHED
     RaceFinishedTime,   // KEY_PLAYER_RACE_FINISHED_TIME

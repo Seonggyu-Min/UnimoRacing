@@ -2,6 +2,7 @@
 using Photon.Pun;
 using Photon.Realtime;
 using PJW;
+using System;
 using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -39,6 +40,9 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     [SerializeField] private bool _isControlable = false;    // 컨트롤 가능 여부
     [SerializeField] private bool _isMovable = false;        // 이동 가능 여부
     [SerializeField] private bool _isItemUsable = false;     // 아이템 사용가능 여부
+
+    public Action OnBeforeRaceSetupAction;
+    public Action OnAfterRaceSetupAction;
 
     private bool _isEndRace = false;
     private int _currentTrackIndex = -1;
@@ -86,6 +90,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private bool _isSync = false;
     private bool _isSynergy = false;
 
+    public bool IsSetup => _isSetups;
 
     public PhotonView View => _view;
     public CinemachineDollyCart Cart => _cart;
@@ -539,6 +544,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             $"_isSetups: {_isSetups}\n" +
             $"");
 
+        OnBeforeRaceSetupAction?.Invoke();
+
         // Setup(순서: (Kart > Character) > (Controller > Movement) > Sync > (Cam > AniCtrl > Synergy))
         // Visual
         KartSetup();
@@ -556,7 +563,12 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         // 동기화
         SyncSetup();
 
-        _isSetups = (_cartController.IsSetup && _cartMovement.IsSetup && _raceAniCtrl.IsSetup && _synergySystem.IsSetup && _sync.IsSetup);
+        _isSetups = (
+            _cartController.IsSetup 
+            && _cartMovement.IsSetup 
+            && _raceAniCtrl.IsSetup 
+            && _synergySystem.IsSetup 
+            && _sync.IsSetup);
 
         // 게임 매니저
         GameManagerSetup();
@@ -582,10 +594,9 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         // 플레이어의 커스텀 프롬퍼티 생성 시점 > 매칭이 되었을 때
         // 룸데이터는 그 이전에 되어 있어야된다.
-        var pm = PlayerManager.Instance;
-        if (_isSetups)
-            pm.SetPlayerCPRaceLoaded(_isSetups);
+        
 
+        OnAfterRaceSetupAction?.Invoke();
         this.PrintLog("Delay Load Data 진행 완료");
     }
 
