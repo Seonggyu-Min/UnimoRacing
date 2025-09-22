@@ -243,7 +243,7 @@ public class MyRoomManager : MonoBehaviour
         foreach (var kartData in allKartData)
         {
             GameObject item = Instantiate(kartInventoryPrefab, kartInventoryParent);
-            
+
             IPreviewItem previewItem = item.GetComponent<IPreviewItem>();
             _kartDict.Add(kartData.KartID, previewItem);
             var ui = item.GetComponent<KartInventoryUI>();
@@ -345,7 +345,7 @@ public class MyRoomManager : MonoBehaviour
         PopulateKartInventory();
         LoadEquippedItems(); // Reload equipped items to update the UI
     }
-   
+
     private bool IsDefaultOwned(UnimoCharacterSO character)
     {
         return character.characterId >= 20001 && character.characterId <= 20003;

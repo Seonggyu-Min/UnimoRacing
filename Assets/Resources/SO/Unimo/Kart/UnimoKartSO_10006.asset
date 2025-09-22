@@ -17,7 +17,9 @@ MonoBehaviour:
   kartPrefab: {fileID: 0}
   kartSprite: {fileID: 0}
   currencyType: {fileID: 0}
-  carDesc: 
+  carDesc: "\uD55C \uB54C \uD558\uB298\uC744 \uC7AC\uD328\uD588\uB358 \uBAA8\uB178
+    \uD50C\uB808\uC778!\n\uC774\uC81C\uBD80\uD130\uB294 \uD2B8\uB799 \uC704\uB3C4
+    \uC7AC\uD328\uD574\uBCFC\uAE4C\uC694?!"
   passiveSkillId: 11006
   useAddr: 1
   kartPrefabRef:
