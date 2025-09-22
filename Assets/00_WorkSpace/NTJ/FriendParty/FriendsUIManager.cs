@@ -5,8 +5,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// PopupBase를 상속받아 팝업 기능을 통합
-public class FriendsUIManager : PopupBase
+// PopupBase를 상속받아 팝업 기능을 통합(popup base 사용 안함,기록용 주석)
+public class FriendsUIManager : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TMP_InputField searchInputField;
@@ -57,19 +57,6 @@ public class FriendsUIManager : PopupBase
                 err => LogMessage($"친구 요청 실패: {err}")
             );
         });
-
-        // 닫기 버튼 연결
-        if (closeButton != null)
-        {
-            closeButton.onClick.AddListener(() => Close()); // PopupBase의 Close() 함수 연결
-        }
-    }
-
-    // 팝업이 열릴 때 친구 목록을 업데이트
-    public override void Open()
-    {
-        base.Open(); // 팝업 활성화
-        PopulateFriendList();
     }
 
     private void PopulateFriendList()

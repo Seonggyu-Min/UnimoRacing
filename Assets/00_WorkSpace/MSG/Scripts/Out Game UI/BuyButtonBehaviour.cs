@@ -18,12 +18,14 @@ namespace MSG
         [SerializeField] private Image _itemIcon;
         [SerializeField] private Image _currencyImage;
         [SerializeField] private TMP_Text _priceText;
-        [SerializeField] private TMP_Text _buyButtonText;
+       // [SerializeField] private TMP_Text _buyButtonText;
         [SerializeField] private Button _buyButton;
+        [SerializeField] private RawImage _rawImage;
 
         // 인스펙터에 화폐 스프라이트를 참조하도록 설정합니다.
         [SerializeField] private Sprite _gameMoneySprite;
         [SerializeField] private Sprite _cashSprite;
+
 
         private int _itemCost;
         private MoneyType _moneyType;
@@ -31,6 +33,24 @@ namespace MSG
         public Button Button => _buyButton;
         private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
 
+        public bool IsBound { get; private set; }
+
+        public void TryBind()
+        {
+            if (IsBound) return;
+            if (itemType == ItemType.Unimo) ItemPreviewManager.Instance.BindUnimoPreview(_itemId, _rawImage);
+            else ItemPreviewManager.Instance.BindKartPreview(_itemId, _rawImage);
+            IsBound = true;
+        }
+
+        public void TryUnbind()
+        {
+            if (!IsBound) return;
+            if (itemType == ItemType.Unimo) ItemPreviewManager.Instance.BindUnimoPreview(_itemId, _rawImage);
+            else ItemPreviewManager.Instance.BindKartPreview(_itemId, _rawImage);
+            IsBound = false;
+        }
+    
         public void SetupButton(string name, Sprite itemSprite, string price, Sprite currencyType)
         {
             _itemName.text = name;
@@ -100,7 +120,7 @@ namespace MSG
             {
                 // 이미 소유한 아이템
                 _buyButton.interactable = false;
-                _buyButtonText.text = "보유 중";
+               // _buyButtonText.text = "보유 중";
                 _priceText.text = ""; // 가격 텍스트 숨기기
                 _currencyImage.enabled = false; // 화폐 이미지 숨기기
 
@@ -113,7 +133,7 @@ namespace MSG
             {
                 // 아직 소유하지 않은 아이템
                 _buyButton.interactable = true;
-                _buyButtonText.text = "구매하기";
+               // _buyButtonText.text = "구매하기";
                 _priceText.text = _itemCost.ToString();
                 _currencyImage.enabled = true; // 화폐 이미지 보이기
 

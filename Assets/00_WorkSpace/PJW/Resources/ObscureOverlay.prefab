@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8840363823491266618}
   - component: {fileID: 6098794577533396580}
   m_Layer: 5
-  m_Name: Obscure
+  m_Name: ObscureOverlay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
