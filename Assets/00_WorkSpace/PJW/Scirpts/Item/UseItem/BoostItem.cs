@@ -13,9 +13,18 @@ namespace PJW
         [SerializeField] private float duration = 2f;
 
         [Header("사운드 키")]
-        [SerializeField] private string sfxUse = "Boost_Start_SFX";   // 사용 즉시
-        [SerializeField] private string sfxActive = "Boost_SFX";      // 사용 0.5s 후
-        [SerializeField] private string sfxEnd = "Boost_End_SFX";     // 종료 시
+        [SerializeField] private string sfxUse = "Boost_Start_SFX";   
+        [SerializeField] private string sfxActive = "Boost_SFX";      
+        [SerializeField] private string sfxEnd = "Boost_End_SFX";     
+
+        [Header("이펙트 프리팹")]
+        [SerializeField] private GameObject boostVfxPrefab;
+
+        [Tooltip("플레이어 로컬 기준 오프셋")]
+        [SerializeField] private Vector3 vfxLocalOffset = new Vector3(0f, 0.25f, -0.8f);
+
+        [Tooltip("파티클을 진행 방향으로 회전시킬지 여부 (true=앞, false=뒤)")]
+        [SerializeField] private bool alignToForward = false;
 
         private static readonly Dictionary<int, Running> running = new Dictionary<int, Running>();
 
@@ -46,6 +55,19 @@ namespace PJW
             if (!string.IsNullOrEmpty(sfxUse))
                 AudioManager.Instance.PlaySFX(sfxUse);
 
+            if (boostVfxPrefab != null)
+            {
+                var anchor = owner.transform;
+                Vector3 worldPos = anchor.TransformPoint(vfxLocalOffset);
+
+                // 진행 방향 또는 반대 방향으로 회전
+                Vector3 dir = alignToForward ? anchor.forward : -anchor.forward;
+                Quaternion rot = Quaternion.LookRotation(dir, anchor.up);
+
+                var vfx = Instantiate(boostVfxPrefab, worldPos, rot, anchor);
+                Destroy(vfx, duration); // 부스트 끝나면 정리
+            }
+
             float mul = Mathf.Max(1f, speedMultiplier);
             float baseSpeed = data.KartSpeed;
             float boosted = baseSpeed * mul;
@@ -53,7 +75,7 @@ namespace PJW
 
             // 사용 0.5초 후 SFX (Active)
             if (!string.IsNullOrEmpty(sfxActive))
-                data.StartCoroutine(PlayDelayedSfx(sfxActive, 1f));
+                data.StartCoroutine(PlayDelayedSfx(sfxActive, 0.5f));
 
             var slot = new Running { baseSpeed = baseSpeed };
             slot.routine = data.StartCoroutine(BoostRoutine(data, key, slot, duration, sfxEnd));

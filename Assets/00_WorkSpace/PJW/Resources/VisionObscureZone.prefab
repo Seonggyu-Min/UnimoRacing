@@ -14,8 +14,9 @@ GameObject:
   - component: {fileID: 6410309771383723812}
   - component: {fileID: 8832181184771242900}
   - component: {fileID: 7591227672696175777}
+  - component: {fileID: 4583796219121358532}
   m_Layer: 0
-  m_Name: VisionObscure
+  m_Name: VisionObscureZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -119,9 +120,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98b1cc98ea9ce3144b339d51a43a6b23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obscureImagePrefab: {fileID: 2642799003745956747, guid: e0ec0778775d0ac43a0f9bbde0aa046e,
-    type: 3}
+  obscureOverlayResource: ObscureOverlay
   duration: 2
+  fadeIn: 0.2
+  maxAlpha: 0.9
+  fadeOut: 0.4
+  oneShot: 1
+  sfxHitKey: Blind_Hit_SFX
 --- !u!54 &7591227672696175777
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -149,3 +154,25 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &4583796219121358532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2429755031137161156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
