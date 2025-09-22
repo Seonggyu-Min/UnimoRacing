@@ -7,7 +7,7 @@ namespace YSJ
 {
     public class ItemManager : SimpleSingletonPun<ItemManager>
     {
-
+        #region Parameter
         [Header("Load Config")]
         [SerializeField] private bool _useLoadAllItem = true;
         [SerializeField] private List<ItemSpawnProbabilityData> _itemDataList = new();
@@ -18,6 +18,8 @@ namespace YSJ
         public Action OnInitAction;
 
         private bool _isLoadedItem = false;
+
+        #endregion
 
         protected override void Init()
         {
