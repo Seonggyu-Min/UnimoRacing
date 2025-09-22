@@ -768,6 +768,7 @@ public static class PhotonNetworkCustomProperties
                 // { PlayerKey.MatchReady,               true          },
 
                 // PHOTON - Race
+                // { PlayerKey.RaceCurrentNorm,          0.0f          },
                 { PlayerKey.RaceLoaded,               true          },
                 { PlayerKey.RaceIsFinished,           -1            },
                 { PlayerKey.RaceFinishedTime,         -1            },
