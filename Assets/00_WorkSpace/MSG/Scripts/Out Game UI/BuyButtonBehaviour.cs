@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace MSG
 {
-    public class BuyButtonBehaviour : MonoBehaviour
+    public class BuyButtonBehaviour : MonoBehaviour, IPreviewItem
     {
 
         public enum ItemType { Kart, Unimo }
@@ -45,8 +45,8 @@ namespace MSG
         public void TryUnbind()
         {
             if (!IsBound) return;
-            if (itemType == ItemType.Unimo) ItemPreviewManager.Instance.BindUnimoPreview(_itemId, _rawImage);
-            else ItemPreviewManager.Instance.BindKartPreview(_itemId, _rawImage);
+            if (itemType == ItemType.Unimo) ItemPreviewManager.Instance.UnbindPreview(_itemId, _rawImage);
+            else ItemPreviewManager.Instance.UnbindPreview(_itemId, _rawImage);
             IsBound = false;
         }
     
