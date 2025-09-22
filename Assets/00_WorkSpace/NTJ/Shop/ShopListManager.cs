@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class ShopListManager : MonoBehaviour
 {
@@ -22,12 +23,14 @@ public class ShopListManager : MonoBehaviour
     [SerializeField] private BuyButtonBehaviour _kartButtonPrefab; // 카트용 버튼 프리팹
 
     [Header("Info Text")]
-    [SerializeField] private TMP_Text _infoText;
+    //[SerializeField] private TMP_Text _infoText;
 
     [SerializeField] private ScrollRect _scrollRect;
+    [SerializeField] private ScrollItemChecker2 _scrollItemChecker2;
 
-    private readonly Dictionary<int, BuyButtonBehaviour> _unimoDict = new();
-    private readonly Dictionary<int, BuyButtonBehaviour> _kartDict = new();
+
+    private readonly Dictionary<int, IPreviewItem> _unimoDict = new();
+    private readonly Dictionary<int, IPreviewItem> _kartDict = new();
     private bool _isGenerated = false;
 
     private Action _unsubUnimoInv;
@@ -42,11 +45,25 @@ public class ShopListManager : MonoBehaviour
         // OnEnable()은 구독만 시작합니다.
         // 버튼 생성은 데이터가 도착하면 스냅샷 콜백에서 처리합니다.
         SubscribeInventory();
+
+        if (_scrollRect != null && _unimoDict != null && _unimoDict.Count > 0)
+        {
+            _scrollItemChecker2.Register(_scrollRect, _unimoDict);
+        }
+        if (_scrollRect != null && _kartDict != null && _kartDict.Count > 0)
+        {
+            _scrollItemChecker2.Register(_scrollRect, _kartDict);
+        }
     }
 
     private void OnDisable()
     {
         UnsubscribeInventory();
+
+        if (_scrollItemChecker2 != null)
+        {
+            _scrollItemChecker2.Unregister();
+        }
     }
 
     #endregion
@@ -63,7 +80,7 @@ public class ShopListManager : MonoBehaviour
 
             // Unimo 프리팹 사용
             BuyButtonBehaviour button = Instantiate(_unimoButtonPrefab, _unimoParent);
-            button.name = $"UnimoButton_{so.characterName}";          
+            button.name = $"UnimoButton_{so.characterName}";
             button.SetupButton(so.characterName, string.Empty, so.currencyType);
             button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Unimo, so.characterId);
             _unimoDict.Add(so.characterId, button);
@@ -84,8 +101,8 @@ public class ShopListManager : MonoBehaviour
             button.RefreshItemState(0);
         }
 
-        ScrollItemChecker2.Instance.Register(_scrollRect, _unimoDict);
-        ScrollItemChecker2.Instance.Register(_scrollRect, _kartDict);
+        _scrollItemChecker2.Register(_scrollRect, _unimoDict);
+        _scrollItemChecker2.Register(_scrollRect, _kartDict);
     }
 
     private void SubscribeInventory()
@@ -126,7 +143,7 @@ public class ShopListManager : MonoBehaviour
         foreach (var kv in _unimoDict)
         {
             int unimoId = kv.Key;
-            BuyButtonBehaviour button = kv.Value;
+            BuyButtonBehaviour button = kv.Value as BuyButtonBehaviour;
             if (inventoryData.ContainsKey(unimoId.ToString()))
             {
                 button.RefreshItemState(1); // 1: 소유 중
@@ -151,7 +168,7 @@ public class ShopListManager : MonoBehaviour
         foreach (var kv in _kartDict)
         {
             int kartId = kv.Key;
-            BuyButtonBehaviour button = kv.Value;
+            BuyButtonBehaviour button = kv.Value as BuyButtonBehaviour;
 
             if (inventoryData.ContainsKey(kartId.ToString()))
             {

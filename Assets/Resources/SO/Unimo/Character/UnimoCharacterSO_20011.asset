@@ -17,7 +17,7 @@ MonoBehaviour:
   characterPrefab: {fileID: 0}
   characterSprite: {fileID: 0}
   currencyType: {fileID: 0}
-  characterInfo: 
+  characterInfo: "\uC7AC\uBD80\uD305 \uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?"
   SynergyKartID: 10011
   relationCharacterId: -1
   dialogId: -1

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6969892510879357850}
   - component: {fileID: 2520998659361704690}
   m_Layer: 5
-  m_Name: ShopList(Unimo)BG
+  m_Name: MyRoomList(Kart)BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -199,12 +199,12 @@ GameObject:
   - component: {fileID: 7939762219589516947}
   - component: {fileID: 7310721313692327667}
   m_Layer: 5
-  m_Name: ShopList(Unimo)MoneyType
+  m_Name: MyRoomList(Kart)MoneyType
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1776020475415195923
 RectTransform:
   m_ObjectHideFlags: 0
@@ -386,12 +386,12 @@ GameObject:
   - component: {fileID: 650068455061598522}
   - component: {fileID: 5099157954460730611}
   m_Layer: 5
-  m_Name: ShopList(Unimo)Price
+  m_Name: MyRoomList(Kart)Price
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5292368860846866219
 RectTransform:
   m_ObjectHideFlags: 0
@@ -409,7 +409,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 24, y: -135.5}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 179.88, y: 28.009995}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5893661645634605194
 MonoBehaviour:
@@ -633,6 +633,81 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &1883816665671181970
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4337926879276196411}
+  - component: {fileID: 5994740221475932858}
+  - component: {fileID: 7676893479180929826}
+  m_Layer: 5
+  m_Name: CharacterOverlay
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4337926879276196411
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883816665671181970}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2868282689739333600}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -706.5, y: 679.97266}
+  m_SizeDelta: {x: 500, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &5994740221475932858
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883816665671181970}
+  m_CullTransparentMesh: 1
+--- !u!114 &7676893479180929826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883816665671181970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 0.4392157}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &3266456279481873554
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,9 +718,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3094603065491638725}
   - component: {fileID: 2048137538944892358}
-  - component: {fileID: 4991152916794811793}
+  - component: {fileID: 8504523554561296484}
   m_Layer: 5
-  m_Name: ShopList(Unimo)Icon
+  m_Name: MyRoomList(Kart)Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -678,7 +753,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3266456279481873554}
   m_CullTransparentMesh: 1
---- !u!114 &4991152916794811793
+--- !u!114 &8504523554561296484
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -718,7 +793,7 @@ GameObject:
   - component: {fileID: 7269895924583769621}
   - component: {fileID: 2552365923641003215}
   m_Layer: 5
-  m_Name: ShopList(Unimo)BG2
+  m_Name: MyRoomList(Kart)BG2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -902,10 +977,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2868282689739333600}
   - component: {fileID: 3361064993690510581}
-  - component: {fileID: 7490808812642202199}
   - component: {fileID: 507792839905570533}
+  - component: {fileID: 1372840481078229747}
   m_Layer: 5
-  m_Name: ShopList(Unimo)
+  m_Name: MyRoomList(Kart)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -926,6 +1001,7 @@ RectTransform:
   - {fileID: 6444236054497172120}
   - {fileID: 443881760089758774}
   - {fileID: 7275778302366066120}
+  - {fileID: 4337926879276196411}
   - {fileID: 1776020475415195923}
   - {fileID: 5292368860846866219}
   m_Father: {fileID: 0}
@@ -1043,26 +1119,6 @@ MonoBehaviour:
     parentTransformRect: {fileID: 0}
     parentTransform: {fileID: 0}
     partOfPrefab: 0
---- !u!114 &7490808812642202199
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4226686437539964634}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af697d6bfd90684438f5dfe4b213d39e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemType: 1
-  _itemName: {fileID: 4888566950833713472}
-  _currencyImage: {fileID: 7310721313692327667}
-  _priceText: {fileID: 5099157954460730611}
-  _buyButton: {fileID: 507792839905570533}
-  _rawImage: {fileID: 4991152916794811793}
-  _gameMoneySprite: {fileID: 21300000, guid: 37ca940deea86f14aab10d2def6fcfec, type: 3}
-  _cashSprite: {fileID: 21300000, guid: d46471f8ea6780240a8149a1432a41a8, type: 3}
 --- !u!114 &507792839905570533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1107,6 +1163,23 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1372840481078229747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4226686437539964634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 370a248b83e193341afb0bb6e3dd4036, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  kartIcon: {fileID: 8504523554561296484}
+  kartNameText: {fileID: 4888566950833713472}
+  equipButton: {fileID: 507792839905570533}
+  selectionOverlay: {fileID: 7676893479180929826}
+  lockedOverlay: {fileID: 1883816665671181970}
 --- !u!1 &8807392156226058120
 GameObject:
   m_ObjectHideFlags: 0
@@ -1121,7 +1194,7 @@ GameObject:
   - component: {fileID: 4907829797719709911}
   - component: {fileID: 4888566950833713472}
   m_Layer: 5
-  m_Name: ShopList(Unimo)Name
+  m_Name: MyRoomList(Kart)Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

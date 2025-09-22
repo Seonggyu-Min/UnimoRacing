@@ -38,6 +38,14 @@ public class MyRoomManager : MonoBehaviour
     [SerializeField] private TMP_Text characterDescText;
     [SerializeField] private TMP_Text passiveSkillIdText;
 
+    [SerializeField] private ScrollItemChecker2 _unimoScrollItemChecker2;
+    [SerializeField] private ScrollRect _unimoScrollRect;
+    [SerializeField] private ScrollItemChecker2 _kartScrollItemChecker2;
+    [SerializeField] private ScrollRect _kartScrollRect;
+
+    private Dictionary<int, IPreviewItem> _unimoDict = new();
+    private Dictionary<int, IPreviewItem> _kartDict = new();
+
     private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
     public Sprite CurrentEquippedCharacterSprite => currentEquippedCharacter.characterSprite;
     public Sprite CurrentEquippedKartSprite => currentEquippedKart.kartSprite;
@@ -229,27 +237,36 @@ public class MyRoomManager : MonoBehaviour
 
     public void PopulateKartInventory()
     {
+        _kartDict.Clear();
         foreach (Transform child in kartInventoryParent) Destroy(child.gameObject);
 
         foreach (var kartData in allKartData)
         {
             GameObject item = Instantiate(kartInventoryPrefab, kartInventoryParent);
-            var ui = item.GetComponent<KartInventoryUI>();
 
+            IPreviewItem previewItem = item.GetComponent<IPreviewItem>();
+            _kartDict.Add(kartData.KartID, previewItem);
+            var ui = item.GetComponent<KartInventoryUI>();
             bool isOwned = (_ownedKarts != null && _ownedKarts.ContainsKey(kartData.KartID.ToString())); // || IsDefaultOwned(kartData);
 
             // UI ���� ���ҿ� ������ ���� ����
             ui.Init(kartData, this, isOwned);
         }
+
+        _kartScrollItemChecker2.Register(_kartScrollRect, _kartDict);
     }
 
     public void PopulateCharacterInventory()
     {
+        _unimoDict.Clear();
         foreach (Transform child in characterInventoryParent) Destroy(child.gameObject);
 
         foreach (var charData in allCharacterData)
         {
             GameObject item = Instantiate(characterInventoryPrefab, characterInventoryParent);
+
+            IPreviewItem previewItem = item.GetComponent<IPreviewItem>();
+            _unimoDict.Add(charData.characterId, previewItem);
             var ui = item.GetComponent<CharacterInventoryUI>();
 
             bool isOwned = (_ownedCharacters != null && _ownedCharacters.ContainsKey(charData.characterId.ToString()));// || IsDefaultOwned(charData);
@@ -257,6 +274,8 @@ public class MyRoomManager : MonoBehaviour
             // UI ���� ���ҿ� ������ ���� ����
             ui.Init(charData, this, isOwned);
         }
+
+        _unimoScrollItemChecker2.Register(_unimoScrollRect, _unimoDict);
     }
     #endregion
 
@@ -264,12 +283,30 @@ public class MyRoomManager : MonoBehaviour
     {
         // MyRoom �г��� Ȱ��ȭ�Ǹ� �κ��丮 ���� ������ �����մϴ�
         SubscribeToInventoryChanges();
+
+        if (_unimoScrollRect != null && _unimoDict != null && _unimoDict.Count > 0)
+        {
+            _unimoScrollItemChecker2.Register(_unimoScrollRect, _unimoDict);
+        }
+        if (_kartScrollItemChecker2 != null && _kartDict != null && _kartDict.Count > 0)
+        {
+            _unimoScrollItemChecker2.Register(_kartScrollRect, _kartDict);
+        }
     }
 
     private void OnDisable()
     {
         // �޸��� ������ ������ ������ ����
         UnsubscribeFromInventoryChanges();
+
+        if (_unimoScrollItemChecker2 != null)
+        {
+            _unimoScrollItemChecker2.Unregister();
+        }
+        if (_kartScrollItemChecker2 != null)
+        {
+            _kartScrollItemChecker2.Unregister();
+        }
     }
 
     private void SubscribeToInventoryChanges()
@@ -308,7 +345,7 @@ public class MyRoomManager : MonoBehaviour
         PopulateKartInventory();
         LoadEquippedItems(); // Reload equipped items to update the UI
     }
-   
+
     private bool IsDefaultOwned(UnimoCharacterSO character)
     {
         return character.characterId >= 20001 && character.characterId <= 20003;

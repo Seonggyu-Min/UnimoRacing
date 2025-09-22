@@ -1,47 +1,60 @@
+ï»¿using MSG;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CharacterInventoryUI : MonoBehaviour
+public class CharacterInventoryUI : MonoBehaviour, IPreviewItem
 {
     private UnimoCharacterSO characterData;
     private MyRoomManager myRoomManager;
 
-    [SerializeField] private Image characterIcon;
+    [SerializeField] private RawImage characterIcon;
     [SerializeField] private TMP_Text characterNameText;
 
-    // ¼±ÅÃ »óÅÂ¸¦ Ç¥½ÃÇÒ ÀÌ¹ÌÁö ¿À¹ö·¹ÀÌ º¯¼ö Ãß°¡
+    // ì„ íƒ ìƒíƒœë¥¼ í‘œì‹œí•  ì´ë¯¸ì§€ ì˜¤ë²„ë ˆì´ ë³€ìˆ˜ ì¶”ê°€
     [SerializeField] private Image selectionOverlay;
 
-    // ±¸¸ÅÇÏÁö ¾ÊÀº ¾ÆÀÌÅÛÀ» À§ÇÑ È¸»ö ¿À¹ö·¹ÀÌ ¶Ç´Â »ö»ó º¯°æ¿ë
+    // êµ¬ë§¤í•˜ì§€ ì•Šì€ ì•„ì´í…œì„ ìœ„í•œ íšŒìƒ‰ ì˜¤ë²„ë ˆì´ ë˜ëŠ” ìƒ‰ìƒ ë³€ê²½ìš©
     [SerializeField] private GameObject lockedOverlay;
-    [SerializeField] private Button equipButton; // ¹öÆ° º¯¼ö Ãß°¡
+    [SerializeField] private Button equipButton; // ë²„íŠ¼ ë³€ìˆ˜ ì¶”ê°€
 
-    public void Init(UnimoCharacterSO data, MyRoomManager manager, bool isOwned) // isOwned ¸Å°³º¯¼ö Ãß°¡
+    public bool IsBound { get; private set; }
+
+    private UnimoCharacterSO _data;
+
+
+    private void OnDisable()
     {
+        TryUnbind();
+    }
+
+    public void Init(UnimoCharacterSO data, MyRoomManager manager, bool isOwned) // isOwned ë§¤ê°œë³€ìˆ˜ ì¶”ê°€
+    {
+        if (IsBound) TryUnbind();
+
         this.characterData = data;
         this.myRoomManager = manager;
 
-        characterIcon.sprite = data.characterSprite;
+        _data = data;
         if (characterNameText != null)
         {
             characterNameText.text = data.characterName;
         }
 
-        // isOwned »óÅÂ¿¡ µû¶ó UI ¾÷µ¥ÀÌÆ®
+        // isOwned ìƒíƒœì— ë”°ë¼ UI ì—…ë°ì´íŠ¸
         UpdateVisuals(isOwned);
 
-        // ¹öÆ° Å¬¸¯ ÀÌº¥Æ®¿¡ ÇÔ¼ö ¿¬°á
-        // ±âÁ¸ GetComponent<Button>() ´ë½Å Á÷·ÄÈ­µÈ equipButton »ç¿ë
+        // ë²„íŠ¼ í´ë¦­ ì´ë²¤íŠ¸ì— í•¨ìˆ˜ ì—°ê²°
+        // ê¸°ì¡´ GetComponent<Button>() ëŒ€ì‹  ì§ë ¬í™”ëœ equipButton ì‚¬ìš©
         if (equipButton != null)
         {
             equipButton.onClick.RemoveAllListeners();
             equipButton.onClick.AddListener(OnEquipButtonClicked);
         }
 
-        // ÃÊ±â »óÅÂ´Â ¼±ÅÃµÇÁö ¾ÊÀ½
+        // ì´ˆê¸° ìƒíƒœëŠ” ì„ íƒë˜ì§€ ì•ŠìŒ
         SetSelected(false);
     }
 
@@ -50,12 +63,12 @@ public class CharacterInventoryUI : MonoBehaviour
         myRoomManager.EquipCharacter(characterData);
     }
 
-    // ¿ÜºÎ¿¡¼­ È£ÃâÇÏ¿© ¼±ÅÃ »óÅÂ¸¦ º¯°æÇÏ´Â ¸Ş¼­µå
+    // ì™¸ë¶€ì—ì„œ í˜¸ì¶œí•˜ì—¬ ì„ íƒ ìƒíƒœë¥¼ ë³€ê²½í•˜ëŠ” ë©”ì„œë“œ
     public void SetSelected(bool isSelected)
     {
         if (selectionOverlay != null)
         {
-            // selectionOverlay ÀÌ¹ÌÁöÀÇ È°¼º/ºñÈ°¼ºÀ¸·Î À½¿µ Ã³¸®
+            // selectionOverlay ì´ë¯¸ì§€ì˜ í™œì„±/ë¹„í™œì„±ìœ¼ë¡œ ìŒì˜ ì²˜ë¦¬
             selectionOverlay.enabled = isSelected;
         }
     }
@@ -64,17 +77,31 @@ public class CharacterInventoryUI : MonoBehaviour
     {
         if (isOwned)
         {
-            // ¼ÒÀ¯ÇÑ ¾ÆÀÌÅÛ: ¿ø·¡ »ö»óÀ¸·Î, ¹öÆ° È°¼ºÈ­
+            // ì†Œìœ í•œ ì•„ì´í…œ: ì›ë˜ ìƒ‰ìƒìœ¼ë¡œ, ë²„íŠ¼ í™œì„±í™”
             characterIcon.color = Color.white;
             if (lockedOverlay != null) lockedOverlay.SetActive(false);
             if (equipButton != null) equipButton.interactable = true;
         }
         else
         {
-            // ¼ÒÀ¯ÇÏÁö ¾ÊÀº ¾ÆÀÌÅÛ: È¸»öÀ¸·Î, ¹öÆ° ºñÈ°¼ºÈ­
+            // ì†Œìœ í•˜ì§€ ì•Šì€ ì•„ì´í…œ: íšŒìƒ‰ìœ¼ë¡œ, ë²„íŠ¼ ë¹„í™œì„±í™”
             characterIcon.color = Color.gray;
             if (lockedOverlay != null) lockedOverlay.SetActive(true);
             if (equipButton != null) equipButton.interactable = false;
         }
+    }
+
+    public void TryBind()
+    {
+        if (IsBound || _data == null || characterIcon == null) return;
+        ItemPreviewManager.Instance.BindUnimoPreview(_data.characterId, characterIcon);
+        IsBound = true;
+    }
+
+    public void TryUnbind()
+    {
+        if (!IsBound || _data == null || characterIcon == null) return;
+        ItemPreviewManager.Instance.UnbindPreview(_data.characterId, characterIcon);
+        IsBound = false;
     }
 }
