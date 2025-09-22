@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3171767348146554723}
-  - component: {fileID: 81222664669692848}
   - component: {fileID: 4926564071929197148}
   - component: {fileID: 6616863447039872630}
   - component: {fileID: 1392249891778202740}
@@ -38,14 +37,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &81222664669692848
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 51292570567724990}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &4926564071929197148
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -192,3 +183,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupVfxPrefab: {fileID: 1554052670201816, guid: 32563c1c7ddb94746889e29751f49ec9,
     type: 3}
+  spawnOffset: {x: 0, y: 0, z: 0}
+  spawnEulerAngles: {x: 0, y: 0, z: 0}
