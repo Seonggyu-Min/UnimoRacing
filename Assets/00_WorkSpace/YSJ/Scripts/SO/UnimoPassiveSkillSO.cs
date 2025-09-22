@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public enum SkillType
+public enum PassiveSkillType
 {
     None,
     ConditionalEnhancement, // 조건부 강화
@@ -19,30 +19,30 @@ public enum TriggerType
 }
 
 [CreateAssetMenu(fileName = "NewUnimoSkillSO", menuName = "Unimo/Skill")]
-public class UnimoSkillSO : ScriptableObject
+public class UnimoPassiveSkillSO : ScriptableObject
 {
     [Header("ID & 기본 정보")]
     [Tooltip("테이블의 '스킬 ID'")]
-    public int skillID;
+    public int passiveSkillID;
 
     [Tooltip("테이블의 '스킬 이름'")]
-    public string skillName;
+    public string passiveSkillName;
 
     [Tooltip("스킬 아이콘 이미지")]
-    public Sprite skillIconSprite;
+    public Sprite passiveSkillIconSprite;
 
     [Tooltip("스킬 오브젝트 프리팹")]
-    public GameObject skillPrefab;
+    public GameObject passiveSkillPrefab;
 
     [Tooltip("테이블의 '스킬 타입'")]
-    public SkillType skillType = SkillType.None;
+    public PassiveSkillType passiveSkillType = PassiveSkillType.None;
 
     [Space(10), Header("Trigger")]
     [Tooltip("테이블의 '발동 조건'")]
     public TriggerType triggerType = TriggerType.None;
 
     [Tooltip("테이블의 '연관 아이템'")]
-    public int skillItemID = -1;
+    public int passiveSkillItemID = -1;
 
     [Header("Trigger Type > Collect")]
     [Tooltip("테이블의 '수집형 아이템'")]
