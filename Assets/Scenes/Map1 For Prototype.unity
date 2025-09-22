@@ -5443,8 +5443,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7357886073913363927, guid: 3df895512e13b014b89d51cba30806d4,
         type: 3}
+      propertyPath: _moneyType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7357886073913363927, guid: 3df895512e13b014b89d51cba30806d4,
+        type: 3}
       propertyPath: _baseReward
-      value: 50000
+      value: 5000
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
