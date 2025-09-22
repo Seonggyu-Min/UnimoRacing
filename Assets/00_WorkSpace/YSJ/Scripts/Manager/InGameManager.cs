@@ -53,7 +53,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
     private SceneID GetPlayerSceneID(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<SceneID>(p, PlayerKey.CurrentScene);
     private bool GetPlayerRaceLoaded(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceLoaded);
-    private bool GetPlayerRaceFinished(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceIsFinished);
+    private bool GetPlayerRaceFinished(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceIsFinished, false);
     private float GetPlayerRaceFinishTime(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<float>(p, PlayerKey.RaceFinishedTime);
 
     // public Value
@@ -426,13 +426,17 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         if (!IsMasterClient || CurrentRoom == null) return;
 
         this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_RaceKartLoaded {CurrentRoom.Players.Values.Count}");
+
+        if (_playablePlayersCount != CurrentRoom.Players.Values.Count)
+        {
+            this.PrintLog($"플레이 가능 인원 수가 맞지 않습니다. => [인원 수 상황: {CurrentRoom.Players.Values.Count} / {_playablePlayersCount}]");
+            return;
+        }
         foreach (var p in CurrentRoom.Players.Values)
         {
-            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
+            this.PrintLog(PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p));
             var raceLoaded = GetPlayerRaceLoaded(p);
             if (!raceLoaded) return;
-
-            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
         }
 
         this.PrintLog($"Complete Action >>>>>>>>>>>>> Check_Players_RaceKartLoaded {CurrentRoom.Players.Values.Count}");
@@ -448,15 +452,14 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         float finishTime = float.MaxValue;
         foreach (var p in CurrentRoom.Players.Values)
         {
-            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
             var finished = GetPlayerRaceFinished(p);
             var playerFinishTime = GetPlayerRaceFinishTime(p);
 
+           this.PrintLog(PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p));
+            this.PrintLog($"Checking >>>>>>>>>>>>> Check_Players_IsRaceFinished [({finishTime} > {playerFinishTime}) => {finishTime > playerFinishTime} / finished => {finished}]");
             if (finishTime > playerFinishTime)
                 finishTime = playerFinishTime;
             if (!finished) return;
-
-            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
         }
 
         PhotonNetworkCustomProperties.RaceFinishSetting(finishTime, _finishSeconds);
