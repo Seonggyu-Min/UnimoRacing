@@ -186,3 +186,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pickupVfxPrefab: {fileID: 196072, guid: 0b4ea991852d6984aab98759fa8d4ebb, type: 3}
+  spawnOffset: {x: 0, y: 0, z: 0}
+  spawnEulerAngles: {x: -90, y: 0, z: 0}
