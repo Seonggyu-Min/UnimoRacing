@@ -9,10 +9,11 @@ using YSJ.Util;
 public class ItemBox : MonoBehaviour
 {
     [Header("ItemSO Config")]
-    [SerializeField] private bool _useItemRegistry = false;     // 아이템 레지스터리 사용 여부
-    [SerializeField] private List<UnimoItemSO> _items = new();
+    [SerializeField] private bool _useItemManager = false;
+    [SerializeField] private List<ItemSpawnProbabilityData> _items = new();  // 등장 가능한 아이템 리스트
 
     [Header("Config")]
+    // [SerializeField] private bool _selfSetup = true;
     [SerializeField] private bool _selfSetup = true;
     // [SerializeField] private LayerMask _collisionLayers;     // 충돌 가능한 레이어들
     [SerializeField] private string _collisionTag = "Player";   // 충돌 태그
@@ -20,16 +21,22 @@ public class ItemBox : MonoBehaviour
     [SerializeField] private float _respawnCycleTime = 8f;      // 리스폰 주기 시간
 
     [Header("Visual Config")]
-    [SerializeField] private GameObject _boxBody;           // 시각적 오브젝트
-    [SerializeField] private AudioClip _collisionAudioClip; // 충돌 시
-    [SerializeField] private AudioClip _spawnAudioClip;     // 스폰 시
-    [SerializeField] private AudioClip _despawnAudioClip;   // 디스폰 시
+    [SerializeField] private bool _isSpawnVisualBoxBody;            // 시작적 오브젝트 생성 여부
+    [SerializeField] private GameObject _spawnableVisualBoxBody;    // 시각적 오브젝트
+    [SerializeField] private GameObject _boxBodySpawnPoint;         // 실적용 바디를 스폰할 포인트
+
+    [Header("Sound Config")]
+    [SerializeField] private AudioClip _collisionAudioClip;         // 충돌 시
+    [SerializeField] private AudioClip _spawnAudioClip;             // 스폰 시
+    [SerializeField] private AudioClip _despawnAudioClip;           // 디스폰 시
 
     public Action<Collider> OnCollisionAction;              // 충돌 시 콜백
     public Action OnSpawnAction;                            // 스폰 시 콜백
     public Action OnDespawnAction;                          // 디스폰 시 콜백
 
     // 상태
+    private GameObject _boxBody;
+
     private double _firtSpawnTime;      // 첫 생성 시간
 
     private bool _isDespawn = false;    // 디스폰 상태
@@ -39,15 +46,17 @@ public class ItemBox : MonoBehaviour
     private GameObject _lastCollisionPlayerGO;
     private string _lastCollisionPlayerID;
 
-
     #region Unity Func
     private void Awake()
     {
         _firtSpawnTime = PhotonNetwork.Time;
-        if (_boxBody == null)
-            this.PrintLog($"{name}: _boxBody가 비어있어. 비주얼이 보이지 않을 수 있습니다.");
+        if (_isSpawnVisualBoxBody)
+        {
+            if (_boxBody == null)
+                this.PrintLog($"{name}: _boxBody가 비어있어. 비주얼이 보이지 않을 수 있습니다.");
+        }
 
-        this.PrintLog($"Item ID: {gameObject.GetInstanceID()} / 첫 스폰 시간: {_firtSpawnTime}");
+        this.PrintLog($"Local Item ID: {gameObject.GetInstanceID()} / 첫 스폰 시간: {_firtSpawnTime}");
     }
 
     private void Start()
@@ -73,15 +82,23 @@ public class ItemBox : MonoBehaviour
             return;
         }
 
-        // 레이어 필터링
-        /*if (!UnityUtilEx.IsInLayerMask(other.gameObject.layer, _collisionLayers))
-            return;*/
+        // 충돌체가 없는 상황 시
+        if (other == null)
+        {
+            this.PrintLog($"충돌된 오브젝트가 없습니다. 해당 오브젝트 충돌 파트에 대한 확인 필요");
+            return;
+        }
+
+        // 충돌 체크 태그 확인
         if (!other.CompareTag(_collisionTag))
             return;
 
-        // 마지막 충돌 정보
+        // 마지막 플레리어의 충돌 정보
         bool setInfo = LastCollisionInfo(other);
         if (!setInfo) return;
+
+        // 플레이어 아이템을 저장 시도
+        ApplyPlayerSaveItem(other);
 
         // 외부 콜백 먼저
         OnCollisionAction?.Invoke(other);
@@ -98,13 +115,18 @@ public class ItemBox : MonoBehaviour
     #region Script Func
     public void Setup()
     {
-        LoadItemRegistry();
+        if (_useItemManager)
+        {
+            this.PrintLog($"해당 아이템 박스에 등장할 수 있는 아이템 리스트를 아이템 매니저쪽으로 이관 합니다.");
+            ItemManager.Instance.RegisterItemDatas(_items.ToArray());
+        }
 
         if (_isDespawnStart)
             ForceDespawn(0f);
         else
             ForceSpawn();
     }
+
 
     public void ForceSpawn()
     {
@@ -123,6 +145,7 @@ public class ItemBox : MonoBehaviour
         SetVisualActive(false);
         OnDespawnAction?.Invoke();
     }
+
 
     private void SetVisualActive(bool active)
     {
@@ -144,33 +167,32 @@ public class ItemBox : MonoBehaviour
 
         return (_lastCollisionPlayerGO != null && view != null);
     }
-
-    private void LoadItemRegistry()
+    private bool ApplyPlayerSaveItem(Collider other)
     {
-        if (!_useItemRegistry) return;
+        // 플레이어 GO 체크
+        GameObject collGO = other.gameObject;
+        if (collGO == null)
+            return false;
 
-        this.PrintLog("LoadAllItem 진행");
+        // 네트워크 송신 가능 옵젝 체크
+        PhotonView view = collGO.GetComponentInChildren<PhotonView>();
+        if (view == null)
+            return false;
 
-        UnimoItemSO[] loadItemSOArray = ItemManager.Instance.GetItemSOs();
-        if (loadItemSOArray == null) return;
+        // 플레리어 인벤 체크
+        ItemInventory inventory = collGO.GetComponentInParent<ItemInventory>();
+        if (inventory == null)
+            return false;
 
+        this.PrintLog($"인벤토리에 해당 오브젝트의 컴포넌트가 아이템 저장을 시도합니다. > 대상: {collGO.name}");
 
-        if (loadItemSOArray.Length > 0)
-        {
-            foreach (var itemSO in loadItemSOArray)
-            {
-                if (_items.Contains(itemSO))
-                {
-                    this.PrintLog($"모든 아이템 자동 로드 시, {itemSO}은 List에 이미 포함 되어 있습니다.", LogType.Warning);
-                    continue;
-                }
+        List<UnimoItemSO> showableItems = new();
+        UnimoItemSO itemSO = (_useItemManager) ?
+            ItemManager.Instance.GetRandomItemSO() :
+            ItemManager.Instance.GetRandomItemSO(_items);
 
-                this.PrintLog($"모든 아이템 자동 로드 시, {itemSO}은 List에 추가합니다.");
-                _items.Add(itemSO);
-            }
-        }
-
-        this.PrintLog("LoadAllItem 진행 완료");
+        inventory.SaveItem(itemSO);
+        return true;
     }
     #endregion
 }
