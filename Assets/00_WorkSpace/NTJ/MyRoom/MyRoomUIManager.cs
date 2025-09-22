@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // PopupBase를 상속받아 팝업 기능을 통합
-public class MyRoomUIManager : PopupBase
+public class MyRoomUIManager : MonoBehaviour
 {
     // 장착된 아이템 표시 UI
     [Header("Equipped Items UI")]
@@ -22,8 +22,6 @@ public class MyRoomUIManager : PopupBase
     [Header("Toggle Buttons")]
     [SerializeField] private Toggle characterToggleButton;
     [SerializeField] private Toggle carToggleButton;
-
-    [SerializeField] private Button closeButton; // 닫기 버튼 추가
 
     // MyRoomManager 스크립트 참조
     private MyRoomManager myRoomManager;
@@ -49,12 +47,6 @@ public class MyRoomUIManager : PopupBase
                 SetInventoryPanel(false);
             }
         });
-
-        // 닫기 버튼에 Close() 함수 연결
-        if (closeButton != null)
-        {
-            closeButton.onClick.AddListener(() => Close());
-        }
 
         // 시작 시 캐릭터 인벤토리로 설정하고, 해당 토글을 'On' 상태로 만듭니다.
         SetInventoryPanel(true);
