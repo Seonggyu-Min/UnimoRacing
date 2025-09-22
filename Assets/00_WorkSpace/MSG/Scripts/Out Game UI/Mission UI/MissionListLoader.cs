@@ -27,7 +27,7 @@ namespace MSG
 
 
         [Button("RenewUI")]
-        private void RenewUI()
+        public void RenewUI()
         {
             MissionService.Instance.LoadUserMissions(
                 RenderList,
