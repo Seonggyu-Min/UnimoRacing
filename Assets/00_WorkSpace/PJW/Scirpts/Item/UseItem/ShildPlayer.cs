@@ -1,6 +1,6 @@
-using Photon.Pun;   
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
+using Photon.Pun;
 using YTW;
 
 namespace PJW
@@ -13,13 +13,21 @@ namespace PJW
 
         public bool IsShieldActive => isShieldActive;
 
+        [Header("사운드 키")]
+        [SerializeField] private string sfxLoopKey = "Shield_SFX"; // AudioDB에서 Loop=true로 설정
+
+        [Header("루프 정지 페이드(선택)")]
+        [SerializeField] private float loopFadeOut = 0.15f;
+
+        private AudioSource loopSrc;
+
         [PunRPC]
         public void RpcActivateShield(float duration)
         {
             ActivateShield(duration);
         }
 
-        [PunRPC] 
+        [PunRPC]
         public void RpcConsumeShield()
         {
             SuccessShield(consume: true);
@@ -36,11 +44,29 @@ namespace PJW
         private IEnumerator ShieldRoutine(float duration)
         {
             isShieldActive = true;
+
+            loopSrc = AudioManager.Instance.PlaySFX(sfxLoopKey);
+
             yield return new WaitForSeconds(duration);
+
             isShieldActive = false;
+
+            if (loopSrc != null)
+            {
+                if (loopFadeOut > 0f)
+                    AudioManager.Instance.StopSoundOn(loopSrc, loopFadeOut);
+                else
+                    AudioManager.Instance.StopLoopedSFX(loopSrc);
+
+                loopSrc = null;
+            }
+
             shieldRoutine = null;
         }
 
+        /// <summary>
+        /// 실드로 막았을 때 true. consume=true면 즉시 실드 종료(소모) 처리
+        /// </summary>
         public bool SuccessShield(bool consume = false)
         {
             if (!isShieldActive) return false;
@@ -52,35 +78,21 @@ namespace PJW
                     StopCoroutine(shieldRoutine);
                     shieldRoutine = null;
                 }
+
                 isShieldActive = false;
+
+                if (loopSrc != null)
+                {
+                    if (loopFadeOut > 0f)
+                        AudioManager.Instance.StopSoundOn(loopSrc, loopFadeOut);
+                    else
+                        AudioManager.Instance.StopLoopedSFX(loopSrc);
+
+                    loopSrc = null;
+                }
             }
+
             return true;
-        }
-
-        [PunRPC]
-        public void RpcPlayShieldLoop(string loopKey, float duration)
-        {
-            PlayShieldLoop(loopKey, duration);
-        }
-
-        public void PlayShieldLoop(string loopKey, float duration)
-        {
-            if (string.IsNullOrEmpty(loopKey)) return;
-
-            var src = AudioManager.Instance.PlaySFX(loopKey); 
-            if (src != null && src.loop)
-            {
-                StartCoroutine(StopLoopAfter(src, duration));
-            }
-        }
-
-        private IEnumerator StopLoopAfter(AudioSource src, float duration)
-        {
-            yield return new WaitForSeconds(duration);
-            if (src != null)
-            {
-                AudioManager.Instance.StopLoopedSFX(src);
-            }
         }
     }
 }

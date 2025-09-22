@@ -16,6 +16,6 @@ MonoBehaviour:
   ClipAddress: Audio/SFX/Shield
   Volume: 1
   Pitch: 1
-  Loop: 0
+  Loop: 1
   MixerGroup: {fileID: -3168114660695895793, guid: 012da8a3996f9794a9567550a5291df2,
     type: 2}

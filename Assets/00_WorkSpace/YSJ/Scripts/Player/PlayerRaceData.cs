@@ -1,7 +1,6 @@
 ﻿using Cinemachine;
 using Photon.Pun;
 using Photon.Realtime;
-using System;
 using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -597,5 +596,87 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         OnAfterRaceSetupAction?.Invoke();
         this.PrintLog("Delay Load Data 진행 완료");
+    }
+
+    /// <summary>
+    /// 박종원 추가
+    /// </summary>
+    [System.Serializable]
+    private class SynergyItemRule
+    {
+        public int characterId;
+        public int kartId;
+        public string prefabKey;  // Resources 경로(예: "Items/SynergyBoost_A")
+        public GameObject prefabRef;
+        public int needCount = 3; // 몇 개 모으면 지급할지
+        public Sprite icon;
+    }
+
+    [Header("Synergy Item Rules (Character x Kart → Item)")]
+    [SerializeField] private SynergyItemRule[] synergyRules;
+
+    private readonly System.Collections.Generic.Dictionary<string, int> synergyCounts
+        = new System.Collections.Generic.Dictionary<string, int>();
+
+    private SynergyItemRule GetActiveSynergyRule()
+    {
+        if (!IsSynergy) return null;                  // 캐릭터-카트 기본 시너지 조건 불충족 시 종료
+        if (synergyRules == null || synergyRules.Length == 0) return null;
+
+        for (int i = 0; i < synergyRules.Length; i++)
+        {
+            var r = synergyRules[i];
+            if (r == null) continue;
+            if (r.characterId == CharacterID && r.kartId == KartID)
+                return r;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 현재 내 조합에 해당하는 시너지 아이템을 1개 획득 시도.
+    /// 임계치에 도달하면 인벤토리에 실제 아이템 지급.
+    /// </summary>
+    public void TryAddSynergyItemForCurrentSynergy()
+    {
+        if (!View || !View.IsMine) return;
+        var rule = GetActiveSynergyRule();
+        if (rule == null) return;
+
+        int cur = 0;
+        synergyCounts.TryGetValue(rule.prefabKey ?? rule.prefabRef?.name ?? "default", out cur);
+        cur++;
+        synergyCounts[rule.prefabKey ?? rule.prefabRef?.name ?? "default"] = cur;
+
+        if (cur >= Mathf.Max(1, rule.needCount))
+        {
+            synergyCounts[rule.prefabKey ?? rule.prefabRef?.name ?? "default"] = 0;
+
+            var inventory = GetComponent<PlayerItemInventory>();
+            if (inventory == null || inventory.IsFull) return;
+
+            // 지급할 프리팹 결정
+            GameObject prefab = rule.prefabRef != null
+                ? rule.prefabRef
+                : (!string.IsNullOrEmpty(rule.prefabKey) ? Resources.Load<GameObject>(rule.prefabKey) : null);
+            if (prefab == null)
+            {
+                Debug.LogError("[SynergyItem] 지급 프리팹을 찾지 못했습니다. prefabRef 또는 prefabKey를 확인하세요.");
+                return;
+            }
+
+            // ★ 아이콘 등록: 프리팹 이름으로 스프라이트 매핑
+            //    (UI는 OnItemAssigned(prefab.name)를 받아 ItemSpriteRegistry에서 아이콘을 찾습니다)
+            if (rule.icon != null)
+            {
+                var reg = PJW.ItemSpriteRegistry.Instance; // 네임스페이스 충돌 방지 위해 완전 수식
+                if (reg != null)
+                    reg.RegisterIcon(prefab.name, rule.icon);
+            }
+
+            // 인벤에 지급 → UI는 기존 이벤트 흐름으로 자동 갱신
+            inventory.AssignItemPrefab(prefab);
+            Debug.Log($"[SynergyItem] 인벤토리에 '{prefab.name}' 지급 + 아이콘 등록 완료");
+        }
     }
 }

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1392249891778202740}
   - component: {fileID: 7612481315039322198}
   - component: {fileID: 237597069379400556}
+  - component: {fileID: 709699632303779648}
   m_Layer: 0
   m_Name: RocketProjectile
   m_TagString: Untagged
@@ -177,3 +178,17 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &709699632303779648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 51292570567724990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 262ad69288eaad64b940491c614dbfce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupVfxPrefab: {fileID: 1554052670201816, guid: 32563c1c7ddb94746889e29751f49ec9,
+    type: 3}

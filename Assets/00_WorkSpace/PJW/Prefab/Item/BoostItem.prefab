@@ -49,3 +49,7 @@ MonoBehaviour:
   sfxUse: Boost_Start
   sfxActive: Boost
   sfxEnd: Boost_End
+  boostVfxPrefab: {fileID: 2656279320163362575, guid: f5ef8585464c189468231a82fb3e6a30,
+    type: 3}
+  vfxAnchor: {fileID: 0}
+  vfxLocalOffset: {x: -1, y: 0.25, z: -0.8}

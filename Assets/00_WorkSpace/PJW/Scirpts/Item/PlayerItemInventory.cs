@@ -10,11 +10,13 @@ namespace PJW
 {
     public interface IUsableItem { void Use(GameObject owner); }
 
+    [DisallowMultipleComponent]
     public class PlayerItemInventory : MonoBehaviour
     {
         [SerializeField] private int capacity = 3;   // 최대 보유 개수 (기본 3)
 
-        [SerializeField] private string sfxHitKey = "Lock_SFX";
+        [Header("사운드 키")]
+        [SerializeField] private string sfxHitKey = "Lock_SFX"; // 잠금 시 효과음
 
         private PhotonView ownerView;
 
@@ -26,7 +28,10 @@ namespace PJW
         public bool IsFull => items.Count >= capacity;
         public int Count => items.Count;
 
-        // 기존 UI 호환을 위해 이름 유지
+        // 비었는지 여부
+        public bool IsEmpty() => !HasItem;
+
+        // 기존 UI 호환 이벤트
         public event Action<bool> OnItemAvailabilityChanged; // 비었는지 여부
         public event Action<string> OnItemAssigned;          // 현재(맨 앞) 아이템 이름 알림
         public event Action<int> OnItemCountChanged;         // 총 개수 변경 알림(추가됨)
@@ -37,6 +42,20 @@ namespace PJW
         {
             if (ownerView == null)
                 ownerView = GetComponent<PhotonView>() ?? GetComponentInParent<PhotonView>();
+        }
+
+        /// <summary>
+        /// 프리팹 이름으로 아이템을 추가
+        /// </summary>
+        public void AssignItemByPrefabName(string prefabName)
+        {
+            var prefab = Resources.Load<GameObject>(prefabName);
+            if (prefab == null)
+            {
+                Debug.LogError($"No prefab: {prefabName}");
+                return;
+            }
+            AssignItemPrefab(prefab);
         }
 
         /// <summary>
@@ -91,7 +110,6 @@ namespace PJW
             usable.Use(ownerView != null ? ownerView.gameObject : gameObject);
 
             items.Dequeue();
-
             FireChangedEvents();
         }
 
@@ -125,6 +143,7 @@ namespace PJW
             if (myInv != null) myInv.ApplyItemLock(duration);
             else ApplyItemLock(duration);
 
+            // 잠금 사운드
             AudioManager.Instance.PlaySFX(sfxHitKey);
         }
 
@@ -164,6 +183,9 @@ namespace PJW
             OnItemCountChanged?.Invoke(items.Count);
         }
 
+        /// <summary>
+        /// 현재 큐 상태를 배열로 반환 (UI 등에 표시용)
+        /// </summary>
         public string[] SnapshotItemNames(int maxCount = 3)
         {
             if (maxCount <= 0) return Array.Empty<string>();
