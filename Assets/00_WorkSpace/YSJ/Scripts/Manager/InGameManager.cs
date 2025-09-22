@@ -48,8 +48,8 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     private bool IsMasterClient => PhotonNetwork.IsMasterClient;
     private Room CurrentRoom => PhotonNetwork.CurrentRoom;
 
-    private string RK(RoomKey k) => PhotonNetworkCustomProperties.ToKeyString(k);
-    private string PK(PlayerKey k) => PhotonNetworkCustomProperties.ToKeyString(k);
+    private string RK(RoomKey k) => PhotonNetworkCustomProperties.ToRoomKeyString(k);
+    private string PK(PlayerKey k) => PhotonNetworkCustomProperties.ToPlayerKeyString(k);
 
     private SceneID GetPlayerSceneID(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<SceneID>(p, PlayerKey.CurrentScene);
     private bool GetPlayerRaceLoaded(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceLoaded);
