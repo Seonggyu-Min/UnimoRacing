@@ -8776,12 +8776,12 @@ PrefabInstance:
     - target: {fileID: 7255852925347395087, guid: 3d2ca6b66cb20a744aee89eff9d489d3,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 540
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7255852925347395087, guid: 3d2ca6b66cb20a744aee89eff9d489d3,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1125
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7255852925347395087, guid: 3d2ca6b66cb20a744aee89eff9d489d3,
         type: 3}
@@ -8827,7 +8827,7 @@ PrefabInstance:
         type: 3}
       propertyPath: _parent
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 118096329}
     - target: {fileID: 7838961549262308372, guid: 3d2ca6b66cb20a744aee89eff9d489d3,
         type: 3}
       propertyPath: _scheduler
@@ -8838,6 +8838,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3d2ca6b66cb20a744aee89eff9d489d3, type: 3}
+--- !u!4 &118096329 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7255852925347395087, guid: 3d2ca6b66cb20a744aee89eff9d489d3,
+    type: 3}
+  m_PrefabInstance: {fileID: 118096328}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &119939409
 GameObject:
   m_ObjectHideFlags: 0
@@ -35382,13 +35388,15 @@ MonoBehaviour:
     FadeOutDuration: 0
     FadeInEase: 0
     FadeOutEase: 0
-    ScaleInFrom: 0
-    ScaleOutTo: 0
+    StartScale: 0
+    TargetScale: 1
+    EndScale: 0
     ScaleInDuration: 0
     ScaleOutDuration: 0
     ScaleInEase: 0
     ScaleOutEase: 0
     WillPlayTogether: 0
+    WillPlayAllTargetsAtOnce: 0
     WillWaitUntilSeqEnd: 0
     LockInteractBeforeAnimEnd: 0
     Interval: 0
@@ -44237,6 +44245,52 @@ MonoBehaviour:
     parentTransformRect: {fileID: 0}
     parentTransform: {fileID: 0}
     partOfPrefab: 0
+--- !u!1 &694307088
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 694307090}
+  - component: {fileID: 694307089}
+  m_Layer: 0
+  m_Name: Scroll Item Checker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &694307089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 694307088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5efc3cf7d2407c74891f5b44b6fa2b15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _unbindWhenInvisible: 1
+  _edgePadding: 20
+--- !u!4 &694307090
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 694307088}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 34.727894, y: 0.56656754, z: 0.24618977}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &710174262
 GameObject:
   m_ObjectHideFlags: 0
@@ -53063,6 +53117,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Scroll Item Checker
+      objectReference: {fileID: 0}
+    - target: {fileID: 8845633471255868142, guid: 76980982784ced44cbd1dc7889510788,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -117513,32 +117572,32 @@ PrefabInstance:
     - target: {fileID: 5320256131280193758, guid: 820ab866c7a7da3409c7d60b1665f41c,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.3333334
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5320256131280193758, guid: 820ab866c7a7da3409c7d60b1665f41c,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.3333334
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5320256131280193758, guid: 820ab866c7a7da3409c7d60b1665f41c,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.3333334
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5320256131280193758, guid: 820ab866c7a7da3409c7d60b1665f41c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 540
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5320256131280193758, guid: 820ab866c7a7da3409c7d60b1665f41c,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1125.9333
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5320256131280193758, guid: 820ab866c7a7da3409c7d60b1665f41c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.6666667
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5320256131280193758, guid: 820ab866c7a7da3409c7d60b1665f41c,
         type: 3}
@@ -118194,6 +118253,7 @@ MonoBehaviour:
   _kartButtonPrefab: {fileID: 7490808812642202199, guid: c5ce0b41f1ae9f449ba1eb1742ef709a,
     type: 3}
   _infoText: {fileID: 0}
+  _scrollRect: {fileID: 804103525}
 --- !u!114 &2060626708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118253,13 +118313,15 @@ MonoBehaviour:
     FadeOutDuration: 0
     FadeInEase: 0
     FadeOutEase: 0
-    ScaleInFrom: 0
-    ScaleOutTo: 0
+    StartScale: 0
+    TargetScale: 1
+    EndScale: 0
     ScaleInDuration: 0
     ScaleOutDuration: 0
     ScaleInEase: 0
     ScaleOutEase: 0
     WillPlayTogether: 0
+    WillPlayAllTargetsAtOnce: 0
     WillWaitUntilSeqEnd: 0
     LockInteractBeforeAnimEnd: 0
     Interval: 0
@@ -163393,6 +163455,7 @@ SceneRoots:
   - {fileID: 2054613806}
   - {fileID: 118096328}
   - {fileID: 882573135}
+  - {fileID: 694307090}
   - {fileID: 638112736}
   - {fileID: 2131273509}
   - {fileID: 1316145733}
