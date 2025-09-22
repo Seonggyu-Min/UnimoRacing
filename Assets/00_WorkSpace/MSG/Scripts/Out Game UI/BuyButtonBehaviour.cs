@@ -15,7 +15,6 @@ namespace MSG
         private int _itemId;
 
         [SerializeField] private TMP_Text _itemName;
-        [SerializeField] private Image _itemIcon;
         [SerializeField] private Image _currencyImage;
         [SerializeField] private TMP_Text _priceText;
        // [SerializeField] private TMP_Text _buyButtonText;
@@ -51,10 +50,9 @@ namespace MSG
             IsBound = false;
         }
     
-        public void SetupButton(string name, Sprite itemSprite, string price, Sprite currencyType)
+        public void SetupButton(string name, string price, Sprite currencyType)
         {
             _itemName.text = name;
-            _itemIcon.sprite = itemSprite;
             _priceText.text = price;
             _currencyImage.sprite = currencyType;
         }

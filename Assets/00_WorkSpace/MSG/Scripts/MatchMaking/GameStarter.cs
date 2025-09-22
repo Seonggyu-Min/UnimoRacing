@@ -20,6 +20,9 @@ namespace MSG
         [SerializeField] private bool _dontTryStartWhenInHomeRoom = true;  // 홈룸에서는 시작 금지
         [SerializeField] private bool _dontTryStartWhenInPartyRoom = true; // 파티룸에서는 시작 금지
 
+        [SerializeField] private float _postVoteWaitTime = 1f; // 투표 종료 후 씬 로드 전 잠시 선택된 맵을 확인할 수 있는 대기 시간
+
+
         private bool _isStarted = false;
         private Coroutine _voteCO;
 
@@ -141,17 +144,23 @@ namespace MSG
                 winner = winners[Random.Range(0, winners.Count)];
             }
 
-            // 룸 상태 종료 설정 및 승자 설정
+            // 승자 설정
             PhotonNetwork.CurrentRoom.SetCustomProperties(new Hashtable
             {
                 { PhotonNetworkCustomProperties.KEY_VOTE_WINNER_INDEX, winner },
-                { PhotonNetworkCustomProperties.KEY_ROOM_VOTE_STATE, RoomStateKeys.ended }
             });
 
             Debug.Log($"투표 집계 완료: {winner}");
 
             // 씬 로드
-            yield return new WaitForSeconds(1f); // UI가 어색해서 일단 1초 대기
+            yield return new WaitForSeconds(_postVoteWaitTime); // UI가 어색해서 대기
+
+            // 1초 뒤 룸 상태 종료 설정
+            PhotonNetwork.CurrentRoom.SetCustomProperties(new Hashtable
+            {
+                { PhotonNetworkCustomProperties.KEY_ROOM_VOTE_STATE, RoomStateKeys.ended }
+            });
+
             Debug.Log("로드 레벨 호출됨");
             PhotonNetwork.LoadLevel(2);
         }

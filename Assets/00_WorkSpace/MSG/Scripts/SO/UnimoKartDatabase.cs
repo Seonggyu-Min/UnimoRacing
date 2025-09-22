@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 
@@ -42,12 +43,28 @@ namespace MSG
         public bool TryGetByUnimoIndex(int index, out UnimoCharacterSO unimo)
         {
             unimo = null;
+
+            StringBuilder sb = new();
+            foreach (var key in _unimoIndexDict.Keys)
+            {
+                sb.Append(key).Append(", ");
+            }
+            Debug.Log($"[UnimoKartDatabase] 현재 유니모 인덱스 목록: {sb.ToString()}");
+
             return _unimoIndexDict != null && _unimoIndexDict.TryGetValue(index, out unimo);
         }
 
         public bool TryGetByKartIndex(int index, out UnimoKartSO kart)
         {
             kart = null;
+
+            StringBuilder sb = new StringBuilder();
+            foreach (var key in _kartIndexDict.Keys)
+            {
+                sb.Append(key).Append(", ");
+            }
+            Debug.Log($"[UnimoKartDatabase] 현재 카트 인덱스 목록: {sb.ToString()}");
+
             return _kartIndexDict != null && _kartIndexDict.TryGetValue(index, out kart);
         }
 
