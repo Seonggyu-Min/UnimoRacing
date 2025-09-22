@@ -11,26 +11,40 @@ namespace PJW
         [SerializeField] private Vector3 spawnOffset = Vector3.zero;      // 위치 오프셋
         [SerializeField] private Vector3 spawnEulerAngles = Vector3.zero; // 회전 각도
 
+        public enum SpawnMode
+        {
+            OnTrigger,   // 1. 닿았을 때
+            OnSpawn,     // 2. 스폰되었을 때 (Start)
+            OnUse        // 3. 사용했을 때 (직접 호출 필요)
+        }
+
         [Header("동작 모드")]
-        [SerializeField] private bool spawnOnTrigger = true; // true = 닿았을 때, false = 설치하자마자
+        [SerializeField] private SpawnMode spawnMode = SpawnMode.OnTrigger;
 
         private bool hasSpawned;
 
         private void Start()
         {
-            if (!spawnOnTrigger)
-            {
+            if (spawnMode == SpawnMode.OnSpawn)
                 TrySpawnVfx();
-            }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!spawnOnTrigger) return; 
+            if (spawnMode != SpawnMode.OnTrigger) return;
 
             if (other.GetComponentInParent<CinemachineDollyCart>() == null) return;
 
             TrySpawnVfx();
+        }
+
+        /// <summary>
+        /// 외부에서 "사용했을 때" 호출하는 함수
+        /// </summary>
+        public void SpawnOnUse()
+        {
+            if (spawnMode == SpawnMode.OnUse)
+                TrySpawnVfx();
         }
 
         private void TrySpawnVfx()
