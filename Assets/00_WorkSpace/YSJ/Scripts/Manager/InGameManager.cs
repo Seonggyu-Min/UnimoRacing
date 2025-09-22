@@ -2,6 +2,7 @@
 using Photon.Realtime;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using YSJ.Util;
@@ -13,8 +14,9 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 {
     [Header("Config")]
     [SerializeField] private InGameRaceRulesConfig _raceRulesConfig;
-    [SerializeField] private bool _useSelfConnecter;
+    [SerializeField] private bool _useSelfPhotonNetworkConnecter;       // 셀프 포톤 네트워크 커낵터
     [SerializeField] private bool _useMapCycleManager;
+    
     #region Config Setup Data
     private int     _laps = 1;                  // 렙
 
@@ -24,7 +26,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
     private int   _playablePlayersCount = 2;     // 결과, 보여주는 시간
 
-    private bool    _itemsEnabled = true;       // 아이템 사용 가능 여부
+    private List<ItemSpawnProbabilityData> _spawnableItems;
 
     private float _finishedEndTime = 0.0f;
     private float _postGameEndTime = 0.0f;
@@ -105,7 +107,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     }
     private IEnumerator CO_Connecter()
     {
-        if (_useSelfConnecter)
+        if (_useSelfPhotonNetworkConnecter)
         {
             var connecter = PhotonNetworkDirectRoomConnector.Instance;
         }
@@ -161,7 +163,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
         _playablePlayersCount = config.playablePlayersCount;    // 플레이 가능한 플레이어 수
 
-        _itemsEnabled = config.itemsEnabled;            // 아이템 사용 가능 여부
+        _spawnableItems = config.spawnableItems;
         this.PrintLog("SetupRaceRule 진행 완료");
     }
     private void SetupRaceMapLoader()
