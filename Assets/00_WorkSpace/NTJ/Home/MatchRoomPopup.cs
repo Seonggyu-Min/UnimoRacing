@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MatchRoomPopup : PopupBase
+public class MatchRoomPopup : MonoBehaviour
 {
     [Header("방장 전용")]
     [SerializeField] private Button mapSelectButton;

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class ShopListManager : PopupBase
+public class ShopListManager : MonoBehaviour
 {
     #region Fields and Properties
     [Header("Register SO")]

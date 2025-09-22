@@ -2,10 +2,11 @@
 using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MatchPopup : PopupBase
+public class MatchPopup : MonoBehaviour
 {
     [SerializeField] private MatchFlowManager _matchFlowManager;
 
@@ -43,7 +44,7 @@ public class MatchPopup : PopupBase
         //MatchManager.Instance.CancelMatch();
         _matchFlowManager.OnClickCancelMatch();
 
-        UIManager.Instance.ClosePopup();
+        UIManager.Instance.Hide("Matching");
         RefreshUI(false); // 다시 Play 상태
     }
 
