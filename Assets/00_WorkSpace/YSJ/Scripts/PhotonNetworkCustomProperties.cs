@@ -689,7 +689,7 @@ public static class PhotonNetworkCustomProperties
                 // PHOTON - Race
                 { PlayerKey.RaceCurrentNorm,          0.0f          },
                 { PlayerKey.RaceLoaded,               false         },
-                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceIsFinished,           false         },
                 { PlayerKey.RaceFinishedTime,         -1            },
                 // { PlayerKey.CurrentScene,             sceneId       },
             }
@@ -716,7 +716,7 @@ public static class PhotonNetworkCustomProperties
                 // PHOTON - Race
                 { PlayerKey.RaceCurrentNorm,          0.0f          },
                 { PlayerKey.RaceLoaded,               false         },
-                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceIsFinished,           false         },
                 { PlayerKey.RaceFinishedTime,         -1            },
                 // { PlayerKey.CurrentScene,             -1            },
             }
@@ -743,7 +743,7 @@ public static class PhotonNetworkCustomProperties
                 // PHOTON - Race
                 // { PlayerKey.RaceCurrentNorm,          0.0f          },
                 { PlayerKey.RaceLoaded,               false         },
-                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceIsFinished,           false         },
                 { PlayerKey.RaceFinishedTime,         -1            },
                 // { PlayerKey.CurrentScene,             -1            },
             }
@@ -770,7 +770,7 @@ public static class PhotonNetworkCustomProperties
                 // PHOTON - Race
                 // { PlayerKey.RaceCurrentNorm,          0.0f          },
                 { PlayerKey.RaceLoaded,               true          },
-                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceIsFinished,           false         },
                 { PlayerKey.RaceFinishedTime,         -1            },
                 // { PlayerKey.CurrentScene,             -1            },
             }

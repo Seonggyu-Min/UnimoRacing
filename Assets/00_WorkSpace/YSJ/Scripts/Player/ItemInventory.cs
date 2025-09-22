@@ -95,7 +95,21 @@ public class ItemInventory : MonoBehaviour
         _items[nullIndex] = itemSO;
         this.PrintLog($"아이템을 저장합니다.[저장 인덱스: {nullIndex} / 저장 아이템 {itemSO.name}_{itemSO.itemID}]");
     }
+            if (_delaySaveItemList.Count <= 0)
+            {
+                this.PrintLog($"지연 아이템 저장에 사용될 아이템들 유실 되어, 지연 아이템 저장을 진행 할 수 없습니다.");
+                return;
+            }
 
+            // 데이터 받고도 유실 시, 처리
+            if (delaySaveItem == null)
+            {
+                this.PrintLog($"Delay Save Item 데이터가 유실 되어서 습니다. 기존에 진행하려고 했던 지연 아이템 저장 기능을 사용할 수 없습니다. > 필요 없는 데이터들을 정리합니다.");
+                return;
+            }
+
+            _items[saveIndex] = delaySaveItem;
+            this.PrintLog($"지연 아이템 저장 완료. 되었습니다.(=> 지연 저장 아이템 정보: {delaySaveItem.name}_{delaySaveItem.itemID})");
     /// <summary>
     /// 보유 아이템, 인텍스로 제거
     /// </summary>

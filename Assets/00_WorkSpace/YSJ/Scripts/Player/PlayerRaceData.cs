@@ -41,9 +41,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     [SerializeField] private bool _isMovable = false;        // 이동 가능 여부
     [SerializeField] private bool _isItemUsable = false;     // 아이템 사용가능 여부
 
-    public Action OnBeforeRaceSetupAction;
-    public Action OnAfterRaceSetupAction;
-
     private bool _isEndRace = false;
     private int _currentTrackIndex = -1;
     private int _lap = 0;
@@ -129,6 +126,16 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _isItemUsable = false;     // 아이템 사용가능 여부
 
         _isEndRace = false;
+    }
+
+    private void OnDisable()
+    {
+        _inGM?.UnregisterPlayer(this);
+    }
+
+    private void OnDestroy()
+    {
+        _inGM?.UnregisterPlayer(this);
     }
 
     #endregion
@@ -260,9 +267,9 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         this.PrintLog("GameManagerSetup 진행");
         if (_inGM != null && _useGM)
         {
-            // 로드
-            _inGM.OnRaceState_LoadPlayers -= OnPlayReady;
-            _inGM.OnRaceState_LoadPlayers += OnPlayReady;
+            // 카운트 다운
+            _inGM.OnRaceState_Countdown -= OnPlayReady;
+            _inGM.OnRaceState_Countdown += OnPlayReady;
 
             // 레이싱
             _inGM.OnRaceState_Racing -= OnPlayRaceEnter;
@@ -271,6 +278,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             // 레이싱 끝
             _inGM.OnRaceState_Finish -= OnPlayRaceExit;
             _inGM.OnRaceState_Finish += OnPlayRaceExit;
+
+            _inGM.RegisterPlayer(this);
         }
 
         this.PrintLog("GameManagerSetup 진행 완료");
@@ -296,8 +305,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         {
             if (_inGM != null && _lap >= _inGM.RaceEndLapCount)
             {
-                PhotonNetworkCustomProperties.LocalPlayerRaceFinishedSetting(PhotonNetwork.Time);
-
                 _isControlable = false;
                 _isMovable = false;
                 _isItemUsable = false;
@@ -544,7 +551,6 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             $"_isSetups: {_isSetups}\n" +
             $"");
 
-        OnBeforeRaceSetupAction?.Invoke();
 
         // Setup(순서: (Kart > Character) > (Controller > Movement) > Sync > (Cam > AniCtrl > Synergy))
         // Visual
@@ -594,9 +600,9 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         // 플레이어의 커스텀 프롬퍼티 생성 시점 > 매칭이 되었을 때
         // 룸데이터는 그 이전에 되어 있어야된다.
-        
+        var pm = PlayerManager.Instance;
+        pm?.SetPlayerCPRaceLoaded(IsSetups);
 
-        OnAfterRaceSetupAction?.Invoke();
         this.PrintLog("Delay Load Data 진행 완료");
     }
 
@@ -618,7 +624,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     [SerializeField] private SynergyItemRule[] synergyRules;
 
     private readonly System.Collections.Generic.Dictionary<string, int> synergyCounts
-        = new System.Collections.Generic.Dictionary<string, int>();
+        = new System.Collections.Generic.Dictionary<string, int>(); 
 
     private SynergyItemRule GetActiveSynergyRule()
     {

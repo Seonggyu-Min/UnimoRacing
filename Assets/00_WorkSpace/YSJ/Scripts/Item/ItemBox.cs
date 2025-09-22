@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using DA_Assets.FCU;
+using Photon.Pun;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,7 +23,7 @@ public class ItemBox : MonoBehaviour
 
     [Header("Visual Config")]
     [SerializeField] private bool _isSpawnVisualBoxBody;            // 시작적 오브젝트 생성 여부
-    [SerializeField] private GameObject _spawnableVisualBoxBody;    // 시각적 오브젝트
+    [SerializeField] private GameObject _spawnableVisualBoxBodyGO;    // 시각적 오브젝트
     [SerializeField] private GameObject _boxBodySpawnPoint;         // 실적용 바디를 스폰할 포인트
 
     [Header("Sound Config")]
@@ -52,6 +53,21 @@ public class ItemBox : MonoBehaviour
         _firtSpawnTime = PhotonNetwork.Time;
         if (_isSpawnVisualBoxBody)
         {
+            if (_boxBodySpawnPoint == null)
+            {
+                this.PrintLog($"{name}: _boxBodySpawnPoint가 비어있어. _boxBodySpawnPoint를 자동 생성합니다.");
+                _boxBodySpawnPoint = GameObject.Instantiate(new GameObject("BodyPoint"), this.gameObject.transform);
+            }
+
+            if(_spawnableVisualBoxBodyGO)
+            {
+                _boxBody = GameObject.Instantiate(_spawnableVisualBoxBodyGO, _boxBodySpawnPoint.transform);
+                _boxBody.transform.localPosition = Vector3.zero;
+                _boxBody.transform.localRotation = Quaternion.identity;
+
+                this.PrintLog($"{name}: _spawnableVisualBoxBodyGO > PhotonNetwork.Instantiate 생성합니다.");
+            }
+
             if (_boxBody == null)
                 this.PrintLog($"{name}: _boxBody가 비어있어. 비주얼이 보이지 않을 수 있습니다.");
         }

@@ -31,7 +31,8 @@ public class PlayerSpawner : MonoBehaviour
     private int _reqKartID;
     private float _reqKartBaseSpeed;
 
-    private bool _isLoadBaseGO= false;
+    private bool _isLoadPlayer = false;
+    private bool _isLoadBaseGO = false;
     private bool _isReqCharacterID = false;
     private bool _isReqKartID = false;
     private bool _isReqKartBaseSpeed = false;
@@ -42,6 +43,7 @@ public class PlayerSpawner : MonoBehaviour
 
     private void Start()
     {
+        _isLoadPlayer = false;
         SetupInjecter();
         if (_isStartDirectSpawn)
         {
@@ -59,7 +61,8 @@ public class PlayerSpawner : MonoBehaviour
     // 외부 스폰 이관 시, 사용
     private void OnSpawnAction()
     {
-        StartCoroutine(CO_PlayerSpanwe());
+        if (!_isLoadPlayer)
+            StartCoroutine(CO_PlayerSpanwe());
     }
 
     // 플레이어 스폰 함수
@@ -326,6 +329,7 @@ public class PlayerSpawner : MonoBehaviour
 
         object[] instData = { _reqCharacterID, _reqKartID, _reqKartBaseSpeed};
         PhotonNetwork.Instantiate(_baseGO.name, Vector3.zero, Quaternion.identity, 0, instData);
+        _isLoadPlayer = true;
     }
 
     // onError
