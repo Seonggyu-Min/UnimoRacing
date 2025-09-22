@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace MSG
 {
     // 실제 BuyButtonBehaviour가 들어간 ScrollItemChecker입니다. 기존 ScrollItemChecker를 대체합니다.
-    public class ScrollItemChecker2 : Singleton<ScrollItemChecker2>
+    public class ScrollItemChecker2 : MonoBehaviour
     {
         [Header("옵션")]
         [SerializeField] private bool _unbindWhenInvisible = true;   // 보이지 않을 때 Unbind
@@ -19,16 +19,16 @@ namespace MSG
         private ScrollRect _scrollRect;
         private Rect _viewRect;
 
-        private IDictionary<int, BuyButtonBehaviour> _items;
+        private IDictionary<int, IPreviewItem> _items;
 
         private UnityAction<Vector2> _onScrollChanged;
 
-        private void Awake()
+        private void OnDestroy()
         {
-            SingletonInit();
+            Unregister();
         }
 
-        public void Register(ScrollRect scrollRect, IDictionary<int, BuyButtonBehaviour> items)
+        public void Register(ScrollRect scrollRect, IDictionary<int, IPreviewItem> items)
         {
             Unregister();
 
