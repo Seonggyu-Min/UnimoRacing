@@ -128,6 +128,16 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _isEndRace = false;
     }
 
+    private void OnDisable()
+    {
+        _inGM?.UnregisterPlayer(this);
+    }
+
+    private void OnDestroy()
+    {
+        _inGM?.UnregisterPlayer(this);
+    }
+
     #endregion
 
     #region Setup
@@ -268,6 +278,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             // 레이싱 끝
             _inGM.OnRaceState_Finish -= OnPlayRaceExit;
             _inGM.OnRaceState_Finish += OnPlayRaceExit;
+
+            _inGM.RegisterPlayer(this);
         }
 
         this.PrintLog("GameManagerSetup 진행 완료");
@@ -612,7 +624,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     [SerializeField] private SynergyItemRule[] synergyRules;
 
     private readonly System.Collections.Generic.Dictionary<string, int> synergyCounts
-        = new System.Collections.Generic.Dictionary<string, int>();
+        = new System.Collections.Generic.Dictionary<string, int>(); 
 
     private SynergyItemRule GetActiveSynergyRule()
     {
