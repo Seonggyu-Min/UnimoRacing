@@ -8260,6 +8260,21 @@ PrefabInstance:
       propertyPath: _minimapPreviewCamera
       value: 
       objectReference: {fileID: 644462849}
+    - target: {fileID: 7871897565246594570, guid: 30035e7b5a3148a4bada3be372c1cf57,
+        type: 3}
+      propertyPath: _mapNames.Array.data[0]
+      value: "\uC720\uB2C8\uBAA8 \uB85C\uBE44"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7871897565246594570, guid: 30035e7b5a3148a4bada3be372c1cf57,
+        type: 3}
+      propertyPath: _mapNames.Array.data[1]
+      value: "\uD558\uC6B0\uC2A4"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7871897565246594570, guid: 30035e7b5a3148a4bada3be372c1cf57,
+        type: 3}
+      propertyPath: _mapNames.Array.data[2]
+      value: "\uC778\uD53C\uB2C8\uD2B8 \uD3F4\uB9C1 \uC2A4\uD0C0"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
