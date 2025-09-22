@@ -1,8 +1,9 @@
+using Cinemachine;
+using Photon.Pun;
 using System.Collections;
 using System.Linq;
-using Photon.Pun;
 using UnityEngine;
-using Cinemachine;
+using YTW;
 
 namespace PJW
 {
@@ -19,6 +20,8 @@ namespace PJW
 
         [Header("최소 유효 속도")]
         [SerializeField] private float minSpeed = 0.1f;
+
+        [SerializeField] private string sfxUseKey = "Egg_Crash";
 
         private bool isTriggered;
         private Collider zoneCol;
@@ -241,6 +244,8 @@ namespace PJW
         [PunRPC]
         private void RpcHideAndDisable()
         {
+            AudioManager.Instance.PlaySFX(sfxUseKey);
+
             if (zoneCol) zoneCol.enabled = false;
             if (renderers != null)
             {

@@ -1,6 +1,7 @@
+using Photon.Pun;   
 using System.Collections;
 using UnityEngine;
-using Photon.Pun;   
+using YTW;
 
 namespace PJW
 {
@@ -54,6 +55,32 @@ namespace PJW
                 isShieldActive = false;
             }
             return true;
+        }
+
+        [PunRPC]
+        public void RpcPlayShieldLoop(string loopKey, float duration)
+        {
+            PlayShieldLoop(loopKey, duration);
+        }
+
+        public void PlayShieldLoop(string loopKey, float duration)
+        {
+            if (string.IsNullOrEmpty(loopKey)) return;
+
+            var src = AudioManager.Instance.PlaySFX(loopKey); 
+            if (src != null && src.loop)
+            {
+                StartCoroutine(StopLoopAfter(src, duration));
+            }
+        }
+
+        private IEnumerator StopLoopAfter(AudioSource src, float duration)
+        {
+            yield return new WaitForSeconds(duration);
+            if (src != null)
+            {
+                AudioManager.Instance.StopLoopedSFX(src);
+            }
         }
     }
 }

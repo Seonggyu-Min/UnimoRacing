@@ -28,7 +28,7 @@ namespace PJW
         [SerializeField] private Vector3 rotationSpeed = new Vector3(0f, 60f, 0f);
 
         [Header("사운드 키")]
-        [SerializeField] private string sfxGetKey = "ItemGet";      // 아이템 획득 (2D)
+        [SerializeField] private string sfxGetKey = "Itembox";    
 
         private Collider boxCollider;
         private Renderer[] renders;

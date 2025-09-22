@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Photon.Pun;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Photon.Pun;
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
@@ -12,6 +13,8 @@ namespace PJW
     public class PlayerItemInventory : MonoBehaviour
     {
         [SerializeField] private int capacity = 3;   // 최대 보유 개수 (기본 3)
+
+        [SerializeField] private string sfxHitKey = "Lock_SFX";
 
         private PhotonView ownerView;
 
@@ -121,6 +124,8 @@ namespace PJW
 
             if (myInv != null) myInv.ApplyItemLock(duration);
             else ApplyItemLock(duration);
+
+            AudioManager.Instance.PlaySFX(sfxHitKey);
         }
 
         private IEnumerator LockRoutine(float duration)
