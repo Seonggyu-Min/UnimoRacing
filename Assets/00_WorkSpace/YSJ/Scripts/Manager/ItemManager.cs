@@ -264,6 +264,27 @@ namespace YSJ
             return result;
         }
 
+        public UnimoItemSO GetItemSOById(int id)
+        {
+            LoadAllItem();
+
+            if (_itemDataList == null || _itemDataList.Count <= 0) return null;
+
+            foreach (var data in _itemDataList)
+            {
+                if (data == null || data.itemSO == null) continue;
+
+                if ((int)data.itemSO.itemID == id)
+                {
+                    return data.itemSO;
+                }
+            }
+
+            // 찾을 수 없을 경우
+            this.PrintLog($"[GetItemSOById] 요청한 ID({id})에 해당하는 아이템 SO를 찾을 수 없습니다.", LogType.Warning);
+            return null;
+        }
+
         #endregion
     }
 }

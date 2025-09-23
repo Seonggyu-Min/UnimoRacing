@@ -21,5 +21,4 @@ public class StatusEffectOption
     // 값, 퍼센트, 지속 시간
     public float optionValue;
     public float optionPercent;
-    public float optionDuration;
 }
