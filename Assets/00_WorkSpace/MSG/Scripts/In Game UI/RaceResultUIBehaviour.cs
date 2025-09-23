@@ -87,8 +87,8 @@ namespace MSG
         {
             if (_nickCache.Count == PlayerCount && _unimoCache.Count == PlayerCount)
             {
-                //gameObject.SetActive(false);
-                UIManager.Instance.Hide("Result UI Panel");
+                gameObject.SetActive(false);    // 캐싱 후 끌 때는 애니메이션 없이 꺼주기
+                //UIManager.Instance.Hide("Result UI Panel");
             }
         }
 
