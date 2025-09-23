@@ -109,7 +109,7 @@ namespace MSG
                 if (player == PhotonNetwork.LocalPlayer)
                 {
                     int lap = (int)norm;
-                    _lapText.text = $"{lap + 1}/{_raceRulesConfig.laps}"; // 랩 수는 0부터 시작하니까 자연스럽게 +1 해줌
+                    _lapText.text = $"{Mathf.Min(lap + 1, _raceRulesConfig.laps)}/{_raceRulesConfig.laps}"; // 랩 수는 0부터 시작하니까 자연스럽게 +1 해줌 / 최대 랩은 안넘게 클램프
                 }
 
                 playerNorms.Add((norm, player));
