@@ -57,7 +57,7 @@ namespace MSG
             if (rootCanvasRT == null || image == null) return;
 
             // 루트 캔버스 크기
-            var target = rootCanvasRT.rect;
+            Rect target = rootCanvasRT.rect;
             float targetW = target.width;
             float targetH = target.height;
 
@@ -72,18 +72,34 @@ namespace MSG
             float imgAspect = imgW / imgH;
             float targetAspect = targetW / targetH;
 
-            // cover
+            // cover 사이즈
             float w, h;
             if (imgAspect < targetAspect) { w = targetW; h = w / imgAspect; }
             else { h = targetH; w = h * imgAspect; }
 
+            // 부모의 중심과 Canvas 중심의 월드 좌표
+            RectTransform parentRT = (RectTransform)rt.parent;
+            Vector3 parentCenterWS = parentRT.TransformPoint(parentRT.rect.center);
+            Vector3 canvasCenterWS = rootCanvasRT.TransformPoint(rootCanvasRT.rect.center);
+
+            // 월드 오프셋을 부모 로컬 좌표로 변환
+            Vector3 canvasCenterInParentLocal = parentRT.InverseTransformPoint(canvasCenterWS);
+            Vector3 parentCenterInParentLocal = parentRT.InverseTransformPoint(parentCenterWS); // 보통 (0,0)
+            Vector2 centerOffsetLocal = (Vector2)(canvasCenterInParentLocal - parentCenterInParentLocal);
+
+            // 배치
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0.5f, 0.5f);
             rt.sizeDelta = new Vector2(w, h);
-            rt.anchoredPosition = new Vector2(
+
+            // 넘친 면 정렬 오프셋
+            Vector2 alignOffset = new Vector2(
                 (w - targetW) * (alignX - 0.5f),
                 (h - targetH) * (alignY - 0.5f)
             );
+
+            // 최종 위치 = Canvas 중심 + 정렬 오프셋
+            rt.anchoredPosition = centerOffsetLocal + alignOffset;
         }
     }
 }
