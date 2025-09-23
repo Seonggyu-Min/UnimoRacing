@@ -40,10 +40,13 @@ namespace MSG
 
         private readonly Dictionary<int, RenderTexture> _rtMap = new();
 
+        // Combine용
         private GameObject _combineObj;
         private RenderTexture _combineRT;
         private const int COMBINE_ADD_KEY = 30000;
-
+        private HashSet<RawImage> _combineTargets = new();
+        private int _combineUnimoId = -1;
+        private int _combineKartId = -1;
 
         public bool Ready { get; private set; }     // 이거 실제로 쓸 때는 필요 없음
 
@@ -104,31 +107,82 @@ namespace MSG
             if (rawImage != null) rawImage.texture = null;
         }
 
-        public void BindCombinePreview(int unimoId, int kartId, RawImage targetRaw)
+        public void BindCombinePreview(int unimoId, int kartId, List<RawImage> targets)
         {
-            _scheduler?.Unregister(COMBINE_ADD_KEY);
-            DisposeCombine();
+            // 이미 같은 조합이 있으면 그대로 사용
+            bool sameCombine = _combineObj != null && _combineRT != null &&
+                                   _combineUnimoId == unimoId && _combineKartId == kartId;
 
-            _combineObj = CreateCombineObject(unimoId, kartId);
-            if (_combineObj == null) return;
+            if (!sameCombine)
+            {
+                // 기존 정리
+                _scheduler?.Unregister(COMBINE_ADD_KEY);
+                DisposeCombine();
 
-            RenderTextureDescriptor desc = new(_combineWidth, _combineHeight);
-            desc.graphicsFormat = _colorFormat;
-            desc.depthStencilFormat = _depthStencilFormat;
-            _combineRT = new RenderTexture(desc);
-            _combineRT.Create();
+                // 새로 생성
+                _combineObj = CreateCombineObject(unimoId, kartId);
+                if (_combineObj == null) return;
 
-            targetRaw.texture = _combineRT;
+                RenderTextureDescriptor desc = new(_combineWidth, _combineHeight)
+                {
+                    graphicsFormat = _colorFormat,
+                    depthStencilFormat = _depthStencilFormat
+                };
+                _combineRT = new RenderTexture(desc);
+                _combineRT.Create();
 
-            _scheduler?.Register(COMBINE_ADD_KEY, _combineObj.transform, targetRaw, _combineRT, true);
+                _scheduler?.Register(COMBINE_ADD_KEY, _combineObj.transform, targets[0], _combineRT, true);
+
+                _combineUnimoId = unimoId;
+                _combineKartId = kartId;
+            }
+
+            // 대상 RawImage들에 하나의 RT 등록
+            if (targets != null)
+            {
+                foreach (var raw in targets)
+                {
+                    if (raw == null) continue;
+                    raw.texture = _combineRT;
+                    _combineTargets.Add(raw);
+                }
+            }
         }
 
         // 해제
         public void UnbindCombinePreview(RawImage raw = null)
         {
-            _scheduler?.Unregister(COMBINE_ADD_KEY);
-            if (raw != null) raw.texture = null;
-            DisposeCombine();
+            if (raw == null)
+            {
+                // 전체 해제
+                foreach (var r in _combineTargets)
+                {
+                    if (r)
+                    {
+                        r.texture = null;
+                    }
+                }
+                _combineTargets.Clear();
+
+                _scheduler?.Unregister(COMBINE_ADD_KEY);
+                DisposeCombine();
+                _combineUnimoId = _combineKartId = -1;
+                return;
+            }
+
+            // 개별 해제
+            if (_combineTargets.Remove(raw))
+            {
+                raw.texture = null;
+            }
+
+            // 아무 대상이 없으면 정리
+            if (_combineTargets.Count == 0)
+            {
+                _scheduler?.Unregister(COMBINE_ADD_KEY);
+                DisposeCombine();
+                _combineUnimoId = _combineKartId = -1;
+            }
         }
 
 

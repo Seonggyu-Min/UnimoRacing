@@ -10,7 +10,8 @@ namespace MSG
 {
     public class PlayerIndicator : MonoBehaviour
     {
-        [SerializeField] private RawImage _playerImage;
+        [SerializeField] private List<RawImage> _playerImages;
+
         private int _equippedCharacterId = 20001;
         private int _equippedKartId = 10001;
 
@@ -31,7 +32,7 @@ namespace MSG
 
         private void OnDestroy()
         {
-            ItemPreviewManager.Instance.UnbindCombinePreview(_playerImage);
+            ItemPreviewManager.Instance.UnbindCombinePreview();
 
             _unsubUnimo?.Invoke();
             _unsubUnimo = null;
@@ -73,7 +74,7 @@ namespace MSG
         [Button("RenewUI")]
         private void RenewUI()
         {
-            ItemPreviewManager.Instance.BindCombinePreview(_equippedCharacterId, _equippedKartId, _playerImage);
+            ItemPreviewManager.Instance.BindCombinePreview(_equippedCharacterId, _equippedKartId, _playerImages);
         }
     }
 }

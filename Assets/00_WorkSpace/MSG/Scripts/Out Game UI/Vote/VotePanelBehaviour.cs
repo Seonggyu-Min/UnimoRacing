@@ -10,6 +10,9 @@ namespace MSG
     public class VotePanelBehaviour : MonoBehaviourPunCallbacks
     {
         [SerializeField] private TMP_Text _countDownText;
+        [SerializeField] private Color _distantColor = Color.white;
+        [SerializeField] private Color _impendingColor = Color.red;
+
 
         private double _endsAt = -1;
 
@@ -45,6 +48,14 @@ namespace MSG
             double remain = _endsAt - PhotonNetwork.Time;
             if (remain < 0) remain = 0;
 
+            if (remain > 3)
+            {
+                _countDownText.color = _distantColor;
+            }
+            else
+            {
+                _countDownText.color = _impendingColor;
+            }
             _countDownText.text = Mathf.CeilToInt((float)remain).ToString();
         }
     }

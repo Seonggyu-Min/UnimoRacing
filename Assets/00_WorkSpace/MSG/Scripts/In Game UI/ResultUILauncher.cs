@@ -12,18 +12,39 @@ namespace MSG
     {
         [SerializeField] private RaceResultUIBehaviour _resultUI;
 
-
-        public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+        private void Start()
         {
-            if (changedProps.ContainsKey(PhotonNetworkCustomProperties.KEY_PLAYER_RACE_IS_FINISHED))
+            InGameManager.Instance.OnStateChanged += OnStateChanged;
+        }
+
+        private void OnDestroy()
+        {
+            if (InGameManager.Instance != null)
             {
-                if (changedProps.TryGetValue(PhotonNetworkCustomProperties.KEY_PLAYER_RACE_IS_FINISHED, out object finished))
-                {
-                    if (finished is bool isFinished && isFinished == true)
-                    {
-                        _resultUI.gameObject.SetActive(true);
-                    }
-                }
+                InGameManager.Instance.OnStateChanged -= OnStateChanged;
+            }
+        }
+
+
+        //public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+        //{
+        //    if (changedProps.ContainsKey(PhotonNetworkCustomProperties.KEY_PLAYER_RACE_IS_FINISHED))
+        //    {
+        //        if (changedProps.TryGetValue(PhotonNetworkCustomProperties.KEY_PLAYER_RACE_IS_FINISHED, out object finished))
+        //        {
+        //            if (finished is bool isFinished && isFinished == true)
+        //            {
+        //                _resultUI.gameObject.SetActive(true);
+        //            }
+        //        }
+        //    }
+        //}
+
+        private void OnStateChanged(RaceState state)
+        {
+            if (state == RaceState.Finish)
+            {
+                UIManager.Instance.Show("Result UI Panel");
             }
         }
     }

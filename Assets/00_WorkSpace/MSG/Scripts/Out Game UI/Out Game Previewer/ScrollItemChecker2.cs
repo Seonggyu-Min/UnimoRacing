@@ -18,10 +18,16 @@ namespace MSG
         private RectTransform _viewport;
         private ScrollRect _scrollRect;
         private Rect _viewRect;
+        private Coroutine _waitCO;
 
         private IDictionary<int, IPreviewItem> _items;
 
         private UnityAction<Vector2> _onScrollChanged;
+
+        private void OnEnable()
+        {
+            _waitCO = StartCoroutine(WaitAndCheck());
+        }
 
         private void OnDestroy()
         {
@@ -51,8 +57,7 @@ namespace MSG
             _onScrollChanged = _ => CheckVisibleAll();
             _scrollRect.onValueChanged.AddListener(_onScrollChanged);
 
-            UpdateViewRect();
-            CheckVisibleAll();
+            _waitCO = StartCoroutine(WaitAndCheck());
         }
 
         public void Unregister()
@@ -106,6 +111,14 @@ namespace MSG
             Vector2 min = new Vector2(c[0].x, c[0].y);
             Vector2 size = new Vector2(c[2].x - c[0].x, c[2].y - c[0].y);
             return new Rect(min, size);
+        }
+
+        private IEnumerator WaitAndCheck()
+        {
+            yield return null;
+            CheckVisibleAll();
+            UpdateViewRect();
+            _waitCO = null;
         }
     }
 }
