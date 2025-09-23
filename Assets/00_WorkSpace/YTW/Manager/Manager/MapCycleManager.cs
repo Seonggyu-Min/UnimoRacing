@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Photon.Pun;
+using System;
 using UnityEngine;
 
 
@@ -7,6 +8,14 @@ namespace YTW
     public class MapCycleManager : MonoBehaviour
     {
         public static MapCycleManager Instance { get; private set; }
+        private bool _isLoading;
+        private bool _isLoadedOnce; // 한 번 성공적으로 로드했는지
+        private void Awake()
+        {
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+            // DontDestroyOnLoad(gameObject); // 필요하면 유지
+        }
 
         [Header("로드할 맵 에셋 주소 목록")]
         [SerializeField] private string[] _mapAddresses;
@@ -14,54 +23,125 @@ namespace YTW
         // 현재 맵을 로드하고 있는 MapAssetLoader의 GameObject
         private GameObject _currentMapLoaderObject;
 
-        public Action<GameObject> OnLoadRandomMap;
+        // 호환 이벤트
+        public event Action<GameObject> OnMapLoaderCreated;
 
-        private void Awake()
+        // 외부에서 상태 확인/접근용
+        public MapAssetLoader CurrentMapLoader => _currentMapLoaderObject ? _currentMapLoaderObject.GetComponent<MapAssetLoader>() : null;
+        public bool HasMapAddresses => _mapAddresses != null && _mapAddresses.Length > 0;
+
+        // 외부에서 투표 결과로 로드 트리거
+        public bool LoadFromVote()
         {
-            if (Instance == null)
+            Debug.Log("[MapCycleManager] TryLoadFromVote 호출");
+            if (_isLoading)
             {
-                Instance = this;
+                Debug.Log("[MapCycleManager] 이미 로딩 중이어서 무시");
+                return false;
             }
-            else
+            if (_isLoadedOnce)
             {
-                Destroy(gameObject);
+                Debug.Log("[MapCycleManager] 이미 한 번 로드 완료되어 무시");
+                return false;
             }
+
+            if (!TryLoadFromVote())
+            {
+                Debug.LogWarning("[MapCycleManager] 투표 결과 없음/범위 밖/비접속 등으로 로드 안 함");
+                return false;
+            }
+            return true;
         }
 
-        void Start()
+        // 방 커스텀 프로퍼티의 투표 인덱스를 읽어 맵을 로드.
+        // 성공 true / 실패 false
+        private bool TryLoadFromVote()
         {
-            // 씬이 시작되면 바로 첫 랜덤 맵 로드
-            LoadRandomMap();
+            if (!PhotonNetwork.IsConnected || !PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null)
+            {
+                Debug.LogWarning("[MapCycleManager] TryLoadFromVote 실패: Photon 상태(Connected/InRoom/Room) 불가");
+                return false;
+            }
+               
+
+            if (!PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(
+                    PhotonNetworkCustomProperties.KEY_VOTE_WINNER_INDEX, out object raw))
+            {
+                Debug.LogWarning("[MapCycleManager] TryLoadFromVote 실패: KEY_VOTE_WINNER_INDEX 없음");
+                return false;
+            }
+
+            Debug.Log($"[MapCycleManager] winner(raw)={raw}");
+            if (raw is not int winnerIndex || winnerIndex < 1)
+            {
+                Debug.LogWarning($"[MapCycleManager] TryLoadFromVote 실패: winnerIndex<1 or not int (raw={raw})");
+                return false;
+            }
+            ;
+
+            if (!HasMapAddresses)
+            {
+                Debug.LogError("[MapCycleManager] 맵 주소 목록이 비어 있어 투표 결과를 적용할 수 없습니다.");
+                return false;
+            }
+
+            int addrIndex = winnerIndex - 1;
+            Debug.Log($"[MapCycleManager] winnerIndex={winnerIndex} -> addrIndex={addrIndex} / maps={_mapAddresses?.Length}");
+            if (addrIndex < 0 || addrIndex >= _mapAddresses.Length)
+            {
+                Debug.LogWarning($"[MapCycleManager] TryLoadFromVote 실패: addrIndex 범위 밖 (winner={winnerIndex})");
+                return false;
+            }
+
+            Debug.Log($"[MapCycleManager] 선택 주소='{_mapAddresses[addrIndex]}'");
+            LoadMapByIndex(addrIndex);
+            return true;
         }
 
-        public void LoadRandomMap()
+        public void LoadMapByIndex(int index)
         {
-            // 1. 기존에 로드된 맵이 있다면 파괴
-            //    _currentMapLoaderObject를 파괴하면, 그 자식인 맵 인스턴스와
-            //    컴포넌트인 MapAssetLoader의 OnDestroy()가 자동으로 호출되어 모든 정리를 수행
+            if (!HasMapAddresses) { Debug.LogError("[MapCycleManager] 맵 주소 목록이 비어 있습니다."); return; }
+            if (index < 0 || index >= _mapAddresses.Length)
+            { Debug.LogError($"[MapCycleManager] 잘못된 맵 인덱스: {index}"); return; }
+
+            InternalLoad(_mapAddresses[index]);
+        }
+
+        public void LoadMapByAddress(string mapAddress)
+        {
+            if (string.IsNullOrWhiteSpace(mapAddress))
+            { Debug.LogError("[MapCycleManager] 빈 맵 주소입니다."); return; }
+
+            InternalLoad(mapAddress);
+        }
+
+        private void InternalLoad(string address)
+        {
             if (_currentMapLoaderObject != null)
-            {
                 Destroy(_currentMapLoaderObject);
-            }
 
-            if (_mapAddresses == null || _mapAddresses.Length == 0)
-            {
-                Debug.LogError("[MapCycleManager] 로드할 맵 주소 목록이 비어있습니다.");
-                return;
-            }
-
-            // 2. 맵 주소 목록에서 랜덤으로 하나 선택
-            int randomIndex = UnityEngine.Random.Range(0, _mapAddresses.Length);
-            string randomMapAddress = _mapAddresses[randomIndex];
-            Debug.Log($"[MapCycleManager] 다음 맵 로드 시도: {randomMapAddress}");
-
-            // 3. 새로운 MapAssetLoader를 담을 빈 GameObject 생성
             _currentMapLoaderObject = new GameObject("MapLoader");
-
-            // 4. MapAssetLoader 컴포넌트 추가 및 선택된 주소로 로드 시작
             var mapLoader = _currentMapLoaderObject.AddComponent<MapAssetLoader>();
-            _ = mapLoader.InitializeAndLoad(randomMapAddress); // _= : 비동기 함수를 호출하되, 끝날 때까지 기다리지 않음
-            OnLoadRandomMap?.Invoke(_currentMapLoaderObject);
+
+            Debug.Log($"[MapCycleManager] 맵 로드 시작: {address}");
+            _isLoading = true;
+
+            _ = mapLoader.InitializeAndLoad(address, onComplete: success =>
+            {
+                _isLoading = false;
+                if (success)
+                {
+                    _isLoadedOnce = true;
+                    Debug.Log("[MapCycleManager] 맵 로드 완료");
+                }
+                else
+                {
+                    Debug.LogWarning("[MapCycleManager] 맵 로드 실패");
+                }
+            });
+
+            // 맵 로더 오브젝트를 이벤트로 즉시 전달
+            OnMapLoaderCreated?.Invoke(_currentMapLoaderObject);
         }
     }
 }

@@ -190,10 +190,20 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
             return;
         }
 
-        _mapCycleManager.OnLoadRandomMap -= MapSetup;
-        _mapCycleManager.OnLoadRandomMap += MapSetup;
-        _mapCycleManager.LoadRandomMap();
+        _mapCycleManager.OnMapLoaderCreated -= MapSetup;
+        _mapCycleManager.OnMapLoaderCreated += MapSetup;
 
+        // 투표 기반 로드 트리거 (없는 경우 false)
+        bool kicked = _mapCycleManager.LoadFromVote();
+        if (!kicked)
+        {
+            // 여기서 선택지:
+            // 1) 아무 것도 안 하고, 이후 RoomPropertiesUpdate로 투표 값 들어오면 다시 호출
+            // 2) 기본 맵 강제 로드
+            // _mapCycleManager.LoadMapByAddress("Maps/DefaultMapAddress");
+
+            this.PrintLog("투표 결과 없음: 이후 커스텀 프로퍼티 업데이트에서 재시도 예정.", LogType.Warning);
+        }
         this.PrintLog("SetupRaceRule 진행 완료");
     }
     private void MapSetup(GameObject go)
@@ -218,6 +228,13 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
             {
                 sb.AppendLine($"{kv.Key} = {kv.Value}");
             }
+        }
+
+        if (_useMapCycleManager && _mapCycleManager != null)
+        {
+            var loader = _mapCycleManager.CurrentMapLoader;
+            if (loader == null || !loader.IsLoaded)
+                _mapCycleManager.LoadFromVote();
         }
 
         var state = GetRaceState();
@@ -476,12 +493,18 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     // Coru
     private IEnumerator CO_MapLoadChangeNextStepDelay()
     {
+        //if (_useMapCycleManager)
+        //{
+        //    while (!_mapAssetLoader.IsLoaded)
+        //    {
+        //        yield return null;
+        //    }
+        //}
+
         if (_useMapCycleManager)
         {
-            while (!_mapAssetLoader.IsLoaded)
-            {
-                yield return null;
-            }
+            while (_mapAssetLoader == null) yield return null; // 로더 생성을 먼저 대기
+            while (!_mapAssetLoader.IsLoaded) yield return null; // 그 다음 로드 완료 대기
         }
 
         SendRaceState(RaceState.LoadPlayers);
