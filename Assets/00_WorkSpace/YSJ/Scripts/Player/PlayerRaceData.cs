@@ -7,6 +7,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 using YSJ.Util;
+using static UnityEditor.Progress;
 
 // 시스템
 [RequireComponent(typeof(PhotonView))] // 네트워크
@@ -17,7 +18,7 @@ using YSJ.Util;
 [RequireComponent(typeof(DollyCartMovement))] // 이동 제어
 
 // [RequireComponent(typeof(PlayerInventory))] // 인벤
-[RequireComponent(typeof(UnimoSynergySystem))] // 시너지
+[RequireComponent(typeof(UnimoPassiveSkillSystem))] // 패시브
 [RequireComponent(typeof(UnimoRaceAnimationController))] // 유니모 애니메이션 컨트롤러
 
 [RequireComponent(typeof(DollyCartSync))] // 싱크(=동기화)
@@ -26,6 +27,9 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     private const float EPS = 0.0001f; // 미세 흔들림 방지
 
     private bool _isSetups = false;
+
+    [Header("Required Config")]
+    [SerializeField] private GameObject _collisionBody;
 
     [Header("Config")]
     [SerializeField] private string _sitPointName = "pivot_Character";
@@ -54,9 +58,9 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
     private DollyCartController _cartController;
     private DollyCartMovement _cartMovement;
-    // private PlayerInventory _playerInventory;
+    // private ItemInventory _itemInventory;
 
-    private UnimoSynergySystem _synergySystem;
+    private UnimoPassiveSkillSystem _passiveSkillSystem;
     private UnimoRaceAnimationController _raceAniCtrl;
 
     private DollyCartSync _sync;
@@ -64,6 +68,10 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
 
     private InGameManager _inGM;
+
+
+
+    private Collision3DAction _collision3DAction;
 
 
 
@@ -94,6 +102,8 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     public DollyCartController Controller => _cartController;
     public DollyCartMovement Movement => _cartMovement;
 
+    public Collision3DAction CollisionActionCmp => _collision3DAction;
+
     public int CharacterID => _characterID;
     public int KartID => _kartID;
 
@@ -114,7 +124,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         _cartMovement = gameObject.GetOrAddComponent<DollyCartMovement>();
 
         // _playerInventory = gameObject.GetOrAddComponent<PlayerInventory>();
-        _synergySystem = gameObject.GetOrAddComponent<UnimoSynergySystem>();
+        _passiveSkillSystem = gameObject.GetOrAddComponent<UnimoPassiveSkillSystem>();
         _raceAniCtrl = gameObject.GetOrAddComponent<UnimoRaceAnimationController>();
 
         _sync = gameObject.GetOrAddComponent<DollyCartSync>();
@@ -177,6 +187,11 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         // 시너지 여부 판단
         _isSynergy = (_characterSO.SynergyKartID == _kartSO.KartID);
+        if (_isSynergy)
+        {
+            this.PrintLog($"시너지 효과 발동 되어어서 기본 속도에 20 추가 됩니다. (기본 속도: {_kartBaseSpeed} > 시너지 적용 후 속도:{_kartBaseSpeed + 20})");
+            _kartBaseSpeed += 20;
+        }
 
         // 서버에서 필요 데이터 불러오기
 
@@ -246,12 +261,12 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
 
         this.PrintLog("AniCtrlSetup 진행 완료");
     }
-    private void SynergySetup()
+    private void PassiveSkillSystemSetup()
     {
-        this.PrintLog("AniCtrlSetup 진행");
-        _synergySystem?.Setup(this);
+        this.PrintLog("PassiveSkillSystemSetup 진행");
+        _passiveSkillSystem?.Setup(this);
 
-        this.PrintLog("AniCtrlSetup 진행 완료");
+        this.PrintLog("PassiveSkillSystemSetup 진행 완료");
     }
 
     private void SyncSetup()
@@ -310,6 +325,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
                 _isItemUsable = false;
 
                 _isEndRace = true;
+                PhotonNetworkCustomProperties.LocalPlayerRaceFinishedSetting(PhotonNetwork.Time);
             }
         }
     }
@@ -530,7 +546,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
     }
 
     // 셋업용 로컬 함수
-    void ProceedSetupInline(string playerGoName, Player player, PhotonView view, double time, float timestamp, object[] instData)
+    private void ProceedSetupInline(string playerGoName, Player player, PhotonView view, double time, float timestamp, object[] instData)
     {
         // DB 값 대입 이후 로그
         this.PrintLog(
@@ -564,17 +580,20 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
         CamSetup();
         PlayerInventroySetup();
         AniCtrlSetup();
-        SynergySetup();
+        PassiveSkillSystemSetup();
 
         // 동기화
         SyncSetup();
+
+        _collision3DAction = _collisionBody.GetOrAddComponent<Collision3DAction>();
 
         _isSetups = (
             _cartController.IsSetup 
             && _cartMovement.IsSetup 
             && _raceAniCtrl.IsSetup 
-            && _synergySystem.IsSetup 
-            && _sync.IsSetup);
+            && _passiveSkillSystem.IsSetup 
+            && _sync.IsSetup
+            && _collision3DAction != null);
 
         // 게임 매니저
         GameManagerSetup();
