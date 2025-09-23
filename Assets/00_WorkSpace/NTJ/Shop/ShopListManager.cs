@@ -1,11 +1,14 @@
-﻿using Firebase.Database;
+﻿using EditorAttributes;
+using Firebase.Database;
 using MSG;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
+
 
 public class ShopListManager : MonoBehaviour
 {
@@ -46,11 +49,7 @@ public class ShopListManager : MonoBehaviour
         // 버튼 생성은 데이터가 도착하면 스냅샷 콜백에서 처리합니다.
         SubscribeInventory();
 
-        if (_scrollRect != null && _unimoDict != null && _unimoDict.Count > 0)
-        {
-            _scrollItemChecker2.Register(_scrollRect, _unimoDict);
-        }
-        if (_scrollRect != null && _kartDict != null && _kartDict.Count > 0)
+        if (_scrollRect != null && _unimoDict != null && _unimoDict.Count > 0 && _kartDict != null && _kartDict.Count > 0)
         {
             _scrollItemChecker2.Register(_scrollRect, _kartDict);
         }
@@ -101,7 +100,10 @@ public class ShopListManager : MonoBehaviour
             button.RefreshItemState(0);
         }
 
-        _scrollItemChecker2.Register(_scrollRect, _unimoDict);
+        foreach (var kv in _unimoDict)
+        {
+            _kartDict.Add(kv.Key, kv.Value);
+        }
         _scrollItemChecker2.Register(_scrollRect, _kartDict);
     }
 
@@ -187,4 +189,21 @@ public class ShopListManager : MonoBehaviour
         }
     }
     #endregion
+
+
+    [Button("Test Register")]
+    public void Register()
+    {
+        _scrollItemChecker2.Register(_scrollRect, _kartDict);
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.AppendLine("Dict 순회");
+        foreach (var kv in _kartDict)
+        {
+            sb.Append($"{kv.Key}, ");
+        }
+
+        Debug.Log(sb);
+    }
 }
