@@ -24,7 +24,7 @@ MonoBehaviour:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1fa3bc5eb41feeb4ea2c542735f8f047
-    m_Address: Sound/Special_Item
+    m_Address: Audio/SFX/Special_Item
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote
