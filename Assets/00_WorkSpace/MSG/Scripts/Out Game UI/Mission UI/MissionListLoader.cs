@@ -20,10 +20,10 @@ namespace MSG
         }
 
 
-        public void OnClickCloseButton()
-        {
-            UIManager.Instance.Hide("Mission Panel");
-        }
+        //public void OnClickCloseButton()
+        //{
+        //    UIManager.Instance.Hide("Mission Panel");
+        //}
 
 
         [Button("RenewUI")]

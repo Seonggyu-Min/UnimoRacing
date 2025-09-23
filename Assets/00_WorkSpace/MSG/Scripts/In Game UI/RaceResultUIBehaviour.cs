@@ -87,7 +87,8 @@ namespace MSG
         {
             if (_nickCache.Count == PlayerCount && _unimoCache.Count == PlayerCount)
             {
-                gameObject.SetActive(false);
+                gameObject.SetActive(false);    // 캐싱 후 끌 때는 애니메이션 없이 꺼주기
+                //UIManager.Instance.Hide("Result UI Panel");
             }
         }
 
@@ -106,6 +107,7 @@ namespace MSG
 
         #region UI Set Methods
 
+        // 이제 이거 받을 필요 없을 듯
         public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
         {
             // 플레이어 완주 할 때마다 UI 갱신

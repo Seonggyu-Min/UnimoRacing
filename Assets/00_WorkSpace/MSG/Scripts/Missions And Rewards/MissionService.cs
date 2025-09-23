@@ -217,7 +217,17 @@ namespace MSG
                     // 지급
                     RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
                     // 수령 UI 표기
-                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
+                    if (!_rewardPanel)
+                    {
+                        _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
+                    }
+                    else
+                    {
+                        // TODO: RewardPanelBehaviour이 직접 MissionService에 Start에서 등록하도록 해야 될 듯
+                        // 그럼 GetComponent 안하고 캐싱된거 써서 성능 부담 줄일 수 있음
+                        UIUnit unit = UIManager.Instance.GetUnit("Reward Panel");
+                        _rewardPanel = unit.GetComponent<RewardPanelBehaviour>();
+                    }
                     UIManager.Instance.Show("Reward Panel");
 
                     OnSucces?.Invoke();
