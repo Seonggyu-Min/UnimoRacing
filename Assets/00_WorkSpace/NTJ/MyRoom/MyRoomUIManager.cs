@@ -1,4 +1,4 @@
-using MSG;
+ï»¿using MSG;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,16 +6,16 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// PopupBase¸¦ »ó¼Ó¹Ş¾Æ ÆË¾÷ ±â´ÉÀ» ÅëÇÕ
+// PopupBaseë¥¼ ìƒì†ë°›ì•„ íŒì—… ê¸°ëŠ¥ì„ í†µí•©
 public class MyRoomUIManager : MonoBehaviour
 {
-    [Header("UI ÆĞ³Î")]
+    [Header("UI íŒ¨ë„")]
     [SerializeField] private GameObject myRoom1Panel;
     [SerializeField] private GameObject myRoom2Panel;
 
-    [Header("¸¶ÀÌ·ë1 UI")]
-    [SerializeField] private RawImage myRoom1CharacterImage;
-    [SerializeField] private RawImage myRoom1KartImage;
+    [Header("ë§ˆì´ë£¸1 UI")]
+    //[SerializeField] private RawImage myRoom1CharacterImage;
+    //[SerializeField] private RawImage myRoom1KartImage;
     [SerializeField] private TMP_Text myRoom1CharacterNameText;
     [SerializeField] private TMP_Text myRoom1CharacterDescText;
     [SerializeField] private TMP_Text myRoom1KartNameText;
@@ -23,25 +23,25 @@ public class MyRoomUIManager : MonoBehaviour
     [SerializeField] private TMP_Text myRoom1KartDescText;
     [SerializeField] private Button changeButton;
 
-    [Header("¸¶ÀÌ·ë2 UI")]
-    [SerializeField] private RawImage myRoom2CharacterImage;
-    [SerializeField] private RawImage myRoom2KartImage;
+    [Header("ë§ˆì´ë£¸2 UI")]
+    //[SerializeField] private RawImage myRoom2CharacterImage;
+    //[SerializeField] private RawImage myRoom2KartImage;
     [SerializeField] private TMP_Text myRoom2KartDescText;
     [SerializeField] private TMP_Text myRoom2CharacterDescText;
 
-    [Header("ÀÎº¥Åä¸® ÆĞ³Î")]
+    [Header("ì¸ë²¤í† ë¦¬ íŒ¨ë„")]
     [SerializeField] private GameObject characterInventoryPanel;
     [SerializeField] private GameObject carInventoryPanel;
     [SerializeField] private Toggle characterToggleButton;
     [SerializeField] private Toggle carToggleButton;
 
-    [Header("ÀÎº¥Åä¸® ºÎ¸ğ ¹× ÇÁ¸®ÆÕ")]
+    [Header("ì¸ë²¤í† ë¦¬ ë¶€ëª¨ ë° í”„ë¦¬íŒ¹")]
     [SerializeField] private Transform kartInventoryParent;
     [SerializeField] private GameObject kartInventoryPrefab;
     [SerializeField] private Transform characterInventoryParent;
     [SerializeField] private GameObject characterInventoryPrefab;
 
-    [Header("½ºÅ©·Ñºä ÃÖÀûÈ­")]
+    [Header("ìŠ¤í¬ë¡¤ë·° ìµœì í™”")]
     [SerializeField] private ScrollItemChecker2 _unimoScrollItemChecker2;
     [SerializeField] private ScrollRect _unimoScrollRect;
     [SerializeField] private ScrollItemChecker2 _kartScrollItemChecker2;
@@ -50,18 +50,18 @@ public class MyRoomUIManager : MonoBehaviour
     private Dictionary<int, IPreviewItem> _unimoDict = new();
     private Dictionary<int, IPreviewItem> _kartDict = new();
 
-    // ÀÌ ¸Ş¼­µå¸¦ ¿ÜºÎ¿¡¼­ È£ÃâÇÏ¿© ¸¶ÀÌ·ë ÆĞ³ÎÀ» ¿±´Ï´Ù.
+    // ì´ ë©”ì„œë“œë¥¼ ì™¸ë¶€ì—ì„œ í˜¸ì¶œí•˜ì—¬ ë§ˆì´ë£¸ íŒ¨ë„ì„ ì—½ë‹ˆë‹¤.
     public void ShowMyRoomPanel()
     {
         SetPanel(true);
         SetInventoryPanel(true);
         characterToggleButton.isOn = true;
         
-        // MyRoomManagerÀÇ ¸ğµç UI ¾÷µ¥ÀÌÆ®¸¦ Æ®¸®°ÅÇÕ´Ï´Ù.
+        // MyRoomManagerì˜ ëª¨ë“  UI ì—…ë°ì´íŠ¸ë¥¼ íŠ¸ë¦¬ê±°í•©ë‹ˆë‹¤.
        // MyRoomManager.Instance.UpdateAllUI();
     }
 
-    // ´Ù¸¥ ÆË¾÷µéÃ³·³ ´İ´Â ¸Ş¼­µåµµ Ãß°¡ÇÒ ¼ö ÀÖ½À´Ï´Ù.
+    // ë‹¤ë¥¸ íŒì—…ë“¤ì²˜ëŸ¼ ë‹«ëŠ” ë©”ì„œë“œë„ ì¶”ê°€í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
     public void HideMyRoomPanel()
     {
         myRoom1Panel.SetActive(false);
@@ -76,7 +76,7 @@ public class MyRoomUIManager : MonoBehaviour
         MyRoomManager.OnKartLevelUpdated += UpdateKartLevelUI;
         MyRoomManager.OnKartStatsUpdated += UpdateKartStatsUI;
 
-        // **OnEnable()¿¡¼­ ÆĞ³ÎÀ» ¹Ù·Î È°¼ºÈ­ÇÏ´ø ÄÚµå¸¦ Á¦°ÅÇß½À´Ï´Ù.**
+        // **OnEnable()ì—ì„œ íŒ¨ë„ì„ ë°”ë¡œ í™œì„±í™”í•˜ë˜ ì½”ë“œë¥¼ ì œê±°í–ˆìŠµë‹ˆë‹¤.**
         // SetPanel(true);
     }
 
@@ -152,8 +152,8 @@ public class MyRoomUIManager : MonoBehaviour
     {
         if (character != null && character.characterSprite != null)
         {
-            myRoom1CharacterImage.texture = character.characterSprite.texture;
-            myRoom2CharacterImage.texture = character.characterSprite.texture;
+            //myRoom1CharacterImage.texture = character.characterSprite.texture;
+            //myRoom2CharacterImage.texture = character.characterSprite.texture;
             myRoom1CharacterNameText.text = character.characterName;
             myRoom1CharacterDescText.text = character.characterInfo;
             myRoom2CharacterDescText.text = character.characterInfo;
@@ -164,8 +164,8 @@ public class MyRoomUIManager : MonoBehaviour
     {
         if (kart != null && kart.kartSprite != null)
         {
-            myRoom1KartImage.texture = kart.kartSprite.texture;
-            myRoom2KartImage.texture = kart.kartSprite.texture;
+            //myRoom1KartImage.texture = kart.kartSprite.texture;
+            //myRoom2KartImage.texture = kart.kartSprite.texture;
             myRoom1KartNameText.text = kart.carName;
             myRoom1KartDescText.text = kart.carDesc;
             myRoom2KartDescText.text = kart.carDesc;
@@ -180,6 +180,6 @@ public class MyRoomUIManager : MonoBehaviour
 
     private void UpdateKartStatsUI(int attack, int defense)
     {
-        // ÀÌ ¸Ş¼­µå´Â MyRoomManager¿¡¼­ ¹ŞÀº ½ºÅÈÀ» »ç¿ëÇØ UI¸¦ ¾÷µ¥ÀÌÆ®ÇÏ´Â ·ÎÁ÷À» Ãß°¡ÇÏ¸é µË´Ï´Ù.
+        // ì´ ë©”ì„œë“œëŠ” MyRoomManagerì—ì„œ ë°›ì€ ìŠ¤íƒ¯ì„ ì‚¬ìš©í•´ UIë¥¼ ì—…ë°ì´íŠ¸í•˜ëŠ” ë¡œì§ì„ ì¶”ê°€í•˜ë©´ ë©ë‹ˆë‹¤.
     }
 }
