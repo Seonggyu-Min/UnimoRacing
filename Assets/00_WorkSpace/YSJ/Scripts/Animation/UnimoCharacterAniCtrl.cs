@@ -8,6 +8,7 @@ public class UnimoCharacterAniCtrl : MonoBehaviour
     private readonly int SHAKE1_ID = Animator.StringToHash("shake1");  // 귀 돌리기1 (Trigger)
     private readonly int SHAKE2_ID = Animator.StringToHash("shake2");  // 귀 돌리기2 (Trigger)
 
+    [SerializeField] private bool _isPrintLog = false;
     private Animator _animator;
 
     // 파라미터 캐시
@@ -88,4 +89,10 @@ public class UnimoCharacterAniCtrl : MonoBehaviour
         return true;
     }
     #endregion
+
+    private void PrintLog(string printLog, LogType type = LogType.Log)
+    {
+        if (!_isPrintLog) return;
+        UnityUtilEx.PrintLog(this, printLog, type);
+    }
 }

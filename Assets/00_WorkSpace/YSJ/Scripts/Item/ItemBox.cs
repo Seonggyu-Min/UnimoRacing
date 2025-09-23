@@ -1,5 +1,4 @@
-﻿using DA_Assets.FCU;
-using Photon.Pun;
+﻿using Photon.Pun;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -59,7 +58,7 @@ public class ItemBox : MonoBehaviour
                 _boxBodySpawnPoint = GameObject.Instantiate(new GameObject("BodyPoint"), this.gameObject.transform);
             }
 
-            if(_spawnableVisualBoxBodyGO)
+            if (_spawnableVisualBoxBodyGO)
             {
                 _boxBody = GameObject.Instantiate(_spawnableVisualBoxBodyGO, _boxBodySpawnPoint.transform);
                 _boxBody.transform.localPosition = Vector3.zero;
