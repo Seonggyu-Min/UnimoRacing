@@ -73,6 +73,15 @@ namespace MSG
 
         #region Public API Methods
 
+        public void RegisterScheduler(PreviewCameraScheduler scheduler)
+        {
+            if (_scheduler == null)
+            {
+                _scheduler = scheduler;
+            }
+        }
+
+
         public void BindUnimoPreview(int unimoId, RawImage targetRawImage)
         {
             if (!_unimoObjs.TryGetValue(unimoId, out GameObject targetObj) || targetObj == null)
