@@ -24,7 +24,7 @@ public class UpgradeButtonBehaviour : MonoBehaviour
     [SerializeField] private Sprite _cashSprite;
 
     private int _itemCost;
-    private MoneyType _moneyType;
+    private MSG.MoneyType _moneyType;
     private int _currentLevel;
 
     private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
@@ -36,7 +36,6 @@ public class UpgradeButtonBehaviour : MonoBehaviour
             _upgradeButton.onClick.AddListener(OnClickUpgradeButton);
         }
 
-        // 초기화 시 UI를 업데이트합니다.
         RefreshUpgradeState();
     }
 
@@ -49,10 +48,10 @@ public class UpgradeButtonBehaviour : MonoBehaviour
         if (string.IsNullOrEmpty(uid))
         {
             Debug.LogError("[RefreshUpgradeState] 사용자 UID가 유효하지 않습니다.");
+            UpdateUIForUnownedKart();
             return;
         }
 
-        // 1. 현재 레벨 조회
         DatabaseManager.Instance.GetOnMain(
             DBRoutes.KartInventory(uid, _itemId),
             snap =>
@@ -63,7 +62,6 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                     int.TryParse(snap.Value.ToString(), out _currentLevel);
                 }
 
-                // 2. 현재 레벨 기반으로 UI 업데이트
                 if (_currentLevel <= 0)
                 {
                     UpdateUIForUnownedKart();
@@ -73,7 +71,11 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                     UpdateUIForOwnedKart();
                 }
             },
-            err => Debug.LogError($"인벤토리 조회 실패: {err}")
+            err =>
+            {
+                Debug.LogError($"인벤토리 조회 실패: {err}");
+                UpdateUIForUnownedKart();
+            }
         );
     }
 
@@ -89,7 +91,6 @@ public class UpgradeButtonBehaviour : MonoBehaviour
 
     private void UpdateUIForOwnedKart()
     {
-        // 2-1. 비용 조회 및 UI 업데이트
         PatchService.Instance.GetCostOfKart(
             _itemId,
             (cost, moneyType) =>
@@ -97,16 +98,12 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                 _itemCost = cost;
                 _moneyType = moneyType;
 
-                // 2-2. 속도 스탯 조회 및 UI 업데이트
                 PatchService.Instance.GetSpeedOfKartUpgradeText(
                     _itemId,
                     (currentSpeed, nextSpeed) =>
                     {
-                        // 2-3. 최종 UI 설정
                         bool isMaxLevel = (currentSpeed >= nextSpeed);
-
                         _currentSpeedText.text = $"부스터 속도 *{currentSpeed:F1}";
-                        _upgradeSpeedText.text = $"-> *{nextSpeed:F1}";
 
                         if (isMaxLevel)
                         {
@@ -114,7 +111,7 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                             _priceText.text = "최대 레벨";
                             _currencyImage.enabled = false;
                             _upgradeButtonText.text = "최대 레벨";
-                            _upgradeSpeedText.text = ""; // 최대 레벨일 경우 다음 스탯 텍스트 비우기
+                            _upgradeSpeedText.text = "";
                         }
                         else
                         {
@@ -122,7 +119,8 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                             _priceText.text = _itemCost.ToString();
                             _currencyImage.enabled = true;
                             _upgradeButtonText.text = $"LV.{_currentLevel + 1} 강화하기";
-                            _currencyImage.sprite = (_moneyType == MoneyType.Gold) ? _gameMoneySprite : _cashSprite;
+                            _upgradeSpeedText.text = $"-> *{nextSpeed:F1}";
+                            _currencyImage.sprite = (_moneyType == MSG.MoneyType.Gold) ? _gameMoneySprite : _cashSprite;
                         }
                     },
                     err => Debug.LogError($"속도 스탯 불러오기 실패: {err}")
@@ -200,12 +198,12 @@ public class UpgradeButtonBehaviour : MonoBehaviour
         );
     }
 
-    private void TrySpendTransaction(MoneyType moneyType, int price, Action<bool> onDone)
+    private void TrySpendTransaction(MSG.MoneyType moneyType, int price, Action<bool> onDone)
     {
         string path = moneyType switch
         {
-            MoneyType.Gold => DBRoutes.Gold(CurrentUid),
-            MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(CurrentUid),
+            MSG.MoneyType.Gold => DBRoutes.Gold(CurrentUid),
+            MSG.MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(CurrentUid),
             _ => null
         };
 
