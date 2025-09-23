@@ -23,6 +23,9 @@ public class BackgroundParentSetter : MonoBehaviour
 
     private void OnDisable()
     {
+        // 생각해보니까 이거 Disable이 안먹음.
+        // 다시 기존 Object로 안돌아감
+        // 근데 이럴거면, 각 패널의 OnEnable에서 등록된 배경 Obj를 켜주고, OnDisable에서 꺼주는 것이 좋을 듯
         SetParentForOrigin();
     }
 
