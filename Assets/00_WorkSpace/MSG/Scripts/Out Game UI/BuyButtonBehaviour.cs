@@ -17,7 +17,7 @@ namespace MSG
         [SerializeField] private TMP_Text _itemName;
         [SerializeField] private Image _currencyImage;
         [SerializeField] private TMP_Text _priceText;
-       // [SerializeField] private TMP_Text _buyButtonText;
+        // [SerializeField] private TMP_Text _buyButtonText;
         [SerializeField] private Button _buyButton;
         [SerializeField] private RawImage _rawImage;
 
@@ -49,7 +49,7 @@ namespace MSG
             else ItemPreviewManager.Instance.UnbindPreview(_itemId, _rawImage);
             IsBound = false;
         }
-    
+
         public void SetupButton(string name, string price, Sprite currencyType)
         {
             _itemName.text = name;
@@ -111,14 +111,14 @@ namespace MSG
         {
             Debug.Log($"Item ID: {_itemId}, Cost: {_itemCost}, Money Type: {_moneyType}");
             Debug.Log($"_moneyType: {_moneyType}, GameMoneySprite null: {_gameMoneySprite == null}, CashSprite null: {_cashSprite == null}");
-            
+
             // _currentLevel 값이 이제 올바르게 설정되었으므로,
             // 이 값을 사용하여 UI 상태를 결정합니다.
             if (_currentLevel > 0)
             {
                 // 이미 소유한 아이템
                 _buyButton.interactable = false;
-               // _buyButtonText.text = "보유 중";
+                // _buyButtonText.text = "보유 중";
                 _priceText.text = ""; // 가격 텍스트 숨기기
                 _currencyImage.enabled = false; // 화폐 이미지 숨기기
 
@@ -131,7 +131,7 @@ namespace MSG
             {
                 // 아직 소유하지 않은 아이템
                 _buyButton.interactable = true;
-               // _buyButtonText.text = "구매하기";
+                // _buyButtonText.text = "구매하기";
                 _priceText.text = _itemCost.ToString();
                 _currencyImage.enabled = true; // 화폐 이미지 보이기
 
@@ -269,22 +269,26 @@ namespace MSG
                     }
                     catch
                     {
-                        // 파싱 실패는 0으로 간주
-                    }
-
-                    // 부족하면 Abort
-                    if (current < price)
-                    {
-                        // 구매할 수 없다
+                        Debug.LogError("트랜잭션: 데이터 파싱 실패. Aborting.");
                         return TransactionResult.Abort();
                     }
 
-                    // 충분하면 차감하고 Success
+                    // 잔액 부족 확인은 한 번만 수행합니다.
+                    if (current < price)
+                    {
+                        Debug.LogWarning("트랜잭션: 잔액 부족. Aborting.");
+                        return TransactionResult.Abort();
+                    }
+
                     mutable.Value = current - price;
                     return TransactionResult.Success(mutable);
                 },
-                _ => onDone?.Invoke(true),
-                _ => onDone?.Invoke(false)
+                // onSuccess, onError 콜백은 기존과 동일합니다.
+                snap => onDone?.Invoke(true),
+                errMsg => {
+                    Debug.LogError($"트랜잭션 실패: {errMsg}");
+                    onDone?.Invoke(false);
+                }
             );
         }
     }
