@@ -10,8 +10,8 @@ public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>
 {
     private bool _isInit = false;
 
-    [SerializeField]
-    private List<CinemachinePathBase> _paths = new();
+    [SerializeField] private bool _isPrintLog = false;
+    [SerializeField] private List<CinemachinePathBase> _paths = new();
 
     public bool IsInit => _isInit;
 
@@ -93,13 +93,33 @@ public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>
 
     public CinemachinePathBase GetPath(int index = -1)
     {
-        if (!_isInit
-            || _paths == null
-            || _paths.Count <= 0
-            || _paths.Count <= index
-            || 0 > index)
+        if (!_isInit)
+        {
+            this.PrintLog("초기화가 진행되지 않았습니다.");
             return null;
+        }
+        if (_paths == null)
+        {
+            this.PrintLog("_paths 가 비어 있습니다.");
+            return null;
+        }
+        if (_paths.Count <= 0)
+        {
+            this.PrintLog("_paths.Count 가 0 이하 입니다.");
+            return null;
+        }
+        if (_paths.Count <= index)
+        {
+            this.PrintLog("요청한 index가 리스트 크기 이상입니다.");
+            return null;
+        }
+        if (0 > index)
+        {
+            this.PrintLog("index가 음수 입니다.");
+            return null;
+        }
 
+        this.PrintLog($"패스가 정상 할당이 되어 리턴됩니다.(=> {_paths[index]})");
         return _paths[index];
     }
     public CinemachinePathBase GetLeftPath(int currentIndex)
@@ -131,5 +151,11 @@ public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>
             return null;
 
         return _paths[rightIndex];
+    }
+
+    private void PrintLog(string printLog, LogType type = LogType.Log)
+    {
+        if (!_isPrintLog) return;
+        UnityUtilEx.PrintLog(this, printLog, type);
     }
 }

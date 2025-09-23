@@ -1,11 +1,16 @@
+ï»¿using EditorAttributes;
 using Firebase.Database;
 using MSG;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class ShopListManager : PopupBase
+
+public class ShopListManager : MonoBehaviour
 {
     #region Fields and Properties
     [Header("Register SO")]
@@ -17,14 +22,18 @@ public class ShopListManager : PopupBase
     [SerializeField] private Transform _kartParent;
 
     [Header("Button Prefabs")]
-    [SerializeField] private BuyButtonBehaviour _unimoButtonPrefab; // À¯´Ï¸ğ¿ë ¹öÆ° ÇÁ¸®ÆÕ
-    [SerializeField] private BuyButtonBehaviour _kartButtonPrefab; // Ä«Æ®¿ë ¹öÆ° ÇÁ¸®ÆÕ
+    [SerializeField] private BuyButtonBehaviour _unimoButtonPrefab; // ìœ ë‹ˆëª¨ìš© ë²„íŠ¼ í”„ë¦¬íŒ¹
+    [SerializeField] private BuyButtonBehaviour _kartButtonPrefab; // ì¹´íŠ¸ìš© ë²„íŠ¼ í”„ë¦¬íŒ¹
 
     [Header("Info Text")]
-    [SerializeField] private TMP_Text _infoText;
+    //[SerializeField] private TMP_Text _infoText;
 
-    private readonly Dictionary<int, BuyButtonBehaviour> _unimoDict = new();
-    private readonly Dictionary<int, BuyButtonBehaviour> _kartDict = new();
+    [SerializeField] private ScrollRect _scrollRect;
+    [SerializeField] private ScrollItemChecker2 _scrollItemChecker2;
+
+
+    private readonly Dictionary<int, IPreviewItem> _unimoDict = new();
+    private readonly Dictionary<int, IPreviewItem> _kartDict = new();
     private bool _isGenerated = false;
 
     private Action _unsubUnimoInv;
@@ -36,14 +45,24 @@ public class ShopListManager : PopupBase
     #region Unity Methods
     private void OnEnable()
     {
-        // OnEnable()Àº ±¸µ¶¸¸ ½ÃÀÛÇÕ´Ï´Ù.
-        // ¹öÆ° »ı¼ºÀº µ¥ÀÌÅÍ°¡ µµÂøÇÏ¸é ½º³À¼¦ Äİ¹é¿¡¼­ Ã³¸®ÇÕ´Ï´Ù.
+        // OnEnable()ì€ êµ¬ë…ë§Œ ì‹œì‘í•©ë‹ˆë‹¤.
+        // ë²„íŠ¼ ìƒì„±ì€ ë°ì´í„°ê°€ ë„ì°©í•˜ë©´ ìŠ¤ëƒ…ìƒ· ì½œë°±ì—ì„œ ì²˜ë¦¬í•©ë‹ˆë‹¤.
         SubscribeInventory();
+
+        if (_scrollRect != null && _unimoDict != null && _unimoDict.Count > 0 && _kartDict != null && _kartDict.Count > 0)
+        {
+            _scrollItemChecker2.Register(_scrollRect, _kartDict);
+        }
     }
 
     private void OnDisable()
     {
         UnsubscribeInventory();
+
+        if (_scrollItemChecker2 != null)
+        {
+            _scrollItemChecker2.Unregister();
+        }
     }
 
     #endregion
@@ -52,22 +71,22 @@ public class ShopListManager : PopupBase
 
     private void GenerateButtons()
     {
-        // À¯´Ï¸ğ ¹öÆ° »ı¼º
+        // ìœ ë‹ˆëª¨ ë²„íŠ¼ ìƒì„±
         for (int i = 0; i < _unimoSOs.Length; i++)
         {
             UnimoCharacterSO so = _unimoSOs[i];
             if (so == null) continue;
 
-            // Unimo ÇÁ¸®ÆÕ »ç¿ë
+            // Unimo í”„ë¦¬íŒ¹ ì‚¬ìš©
             BuyButtonBehaviour button = Instantiate(_unimoButtonPrefab, _unimoParent);
-            button.name = $"UnimoButton_{so.characterName}";          
-            button.SetupButton(so.characterName, so.characterSprite, string.Empty, so.currencyType);
+            button.name = $"UnimoButton_{so.characterName}";
+            button.SetupButton(so.characterName, string.Empty, so.currencyType);
             button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Unimo, so.characterId);
             _unimoDict.Add(so.characterId, button);
             button.RefreshItemState(0);
         }
 
-        // Ä«Æ® ¹öÆ° »ı¼º
+        // ì¹´íŠ¸ ë²„íŠ¼ ìƒì„±
         for (int i = 0; i < _kartSOs.Length; i++)
         {
             UnimoKartSO so = _kartSOs[i];
@@ -75,11 +94,17 @@ public class ShopListManager : PopupBase
 
             BuyButtonBehaviour button = Instantiate(_kartButtonPrefab, _kartParent);
             button.name = $"KartButton_{so.carName}";
-            button.SetupButton(so.carName, so.kartSprite, string.Empty, so.currencyType);
+            button.SetupButton(so.carName, string.Empty, so.currencyType);
             button.SetupTypeAndId(BuyButtonBehaviour.ItemType.Kart, so.KartID);
             _kartDict.Add(so.KartID, button);
             button.RefreshItemState(0);
         }
+
+        foreach (var kv in _unimoDict)
+        {
+            _kartDict.Add(kv.Key, kv.Value);
+        }
+        _scrollItemChecker2.Register(_scrollRect, _kartDict);
     }
 
     private void SubscribeInventory()
@@ -87,13 +112,13 @@ public class ShopListManager : PopupBase
         _unsubUnimoInv = DatabaseManager.Instance.SubscribeValueChanged(
             DBRoutes.UnimosInventory(CurrentUid),
             onChanged: OnUnimoInventorySnapshot,
-            onError: (err) => Debug.LogWarning($"[ShopManager] À¯´Ï¸ğ ÀÎº¥Åä¸® ±¸µ¶ ¿À·ù: {err}")
+            onError: (err) => Debug.LogWarning($"[ShopManager] ìœ ë‹ˆëª¨ ì¸ë²¤í† ë¦¬ êµ¬ë… ì˜¤ë¥˜: {err}")
         );
 
         _unsubKartInv = DatabaseManager.Instance.SubscribeValueChanged(
             DBRoutes.KartsInventory(CurrentUid),
             onChanged: OnKartInventorySnapshot,
-            onError: (err) => Debug.LogWarning($"[ShopManager] Ä«Æ® ÀÎº¥Åä¸® ±¸µ¶ ¿À·ù: {err}")
+            onError: (err) => Debug.LogWarning($"[ShopManager] ì¹´íŠ¸ ì¸ë²¤í† ë¦¬ êµ¬ë… ì˜¤ë¥˜: {err}")
         );
     }
 
@@ -107,8 +132,8 @@ public class ShopListManager : PopupBase
 
     private void OnUnimoInventorySnapshot(DataSnapshot snap)
     {
-        // ¹öÆ°ÀÌ ¾ÆÁ÷ »ı¼ºµÇÁö ¾Ê¾Ò´Ù¸é, Áö±İ »ı¼ºÇÕ´Ï´Ù.
-        // ÀÌ·¸°Ô ÇÏ¸é ÀÎº¥Åä¸® µ¥ÀÌÅÍ¸¦ °¡Áö°í ÀÖ´Â »óÅÂ¿¡¼­ UI¸¦ ¸¸µé ¼ö ÀÖ½À´Ï´Ù.
+        // ë²„íŠ¼ì´ ì•„ì§ ìƒì„±ë˜ì§€ ì•Šì•˜ë‹¤ë©´, ì§€ê¸ˆ ìƒì„±í•©ë‹ˆë‹¤.
+        // ì´ë ‡ê²Œ í•˜ë©´ ì¸ë²¤í† ë¦¬ ë°ì´í„°ë¥¼ ê°€ì§€ê³  ìˆëŠ” ìƒíƒœì—ì„œ UIë¥¼ ë§Œë“¤ ìˆ˜ ìˆìŠµë‹ˆë‹¤.
         if (!_isGenerated)
         {
             GenerateButtons();
@@ -120,21 +145,21 @@ public class ShopListManager : PopupBase
         foreach (var kv in _unimoDict)
         {
             int unimoId = kv.Key;
-            BuyButtonBehaviour button = kv.Value;
+            BuyButtonBehaviour button = kv.Value as BuyButtonBehaviour;
             if (inventoryData.ContainsKey(unimoId.ToString()))
             {
-                button.RefreshItemState(1); // 1: ¼ÒÀ¯ Áß
+                button.RefreshItemState(1); // 1: ì†Œìœ  ì¤‘
             }
             else
             {
-                button.RefreshItemState(0); // 0: ¼ÒÀ¯ÇÏÁö ¾ÊÀ½
+                button.RefreshItemState(0); // 0: ì†Œìœ í•˜ì§€ ì•ŠìŒ
             }
         }
     }
 
     private void OnKartInventorySnapshot(DataSnapshot snap)
     {
-        // ¹öÆ°ÀÌ ¾ÆÁ÷ »ı¼ºµÇÁö ¾Ê¾Ò´Ù¸é, Áö±İ »ı¼ºÇÕ´Ï´Ù.
+        // ë²„íŠ¼ì´ ì•„ì§ ìƒì„±ë˜ì§€ ì•Šì•˜ë‹¤ë©´, ì§€ê¸ˆ ìƒì„±í•©ë‹ˆë‹¤.
         if (!_isGenerated)
         {
             GenerateButtons();
@@ -145,11 +170,11 @@ public class ShopListManager : PopupBase
         foreach (var kv in _kartDict)
         {
             int kartId = kv.Key;
-            BuyButtonBehaviour button = kv.Value;
+            BuyButtonBehaviour button = kv.Value as BuyButtonBehaviour;
 
             if (inventoryData.ContainsKey(kartId.ToString()))
             {
-                // Ä«Æ®ÀÇ °æ¿ì Firebase¿¡¼­ ½ÇÁ¦ ·¹º§À» °¡Á®¿É´Ï´Ù.
+                // ì¹´íŠ¸ì˜ ê²½ìš° Firebaseì—ì„œ ì‹¤ì œ ë ˆë²¨ì„ ê°€ì ¸ì˜µë‹ˆë‹¤.
                 int currentLevel = 0;
                 if (int.TryParse(inventoryData[kartId.ToString()].ToString(), out int level))
                 {
@@ -164,4 +189,21 @@ public class ShopListManager : PopupBase
         }
     }
     #endregion
+
+
+    [Button("Test Register")]
+    public void Register()
+    {
+        _scrollItemChecker2.Register(_scrollRect, _kartDict);
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.AppendLine("Dict ìˆœíšŒ");
+        foreach (var kv in _kartDict)
+        {
+            sb.Append($"{kv.Key}, ");
+        }
+
+        Debug.Log(sb);
+    }
 }

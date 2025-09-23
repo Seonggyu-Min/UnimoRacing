@@ -1,3 +1,4 @@
+ï»¿using MSG;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,75 +6,180 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// PopupBase¸¦ »ó¼Ó¹Ş¾Æ ÆË¾÷ ±â´ÉÀ» ÅëÇÕ
-public class MyRoomUIManager : PopupBase
+// PopupBaseë¥¼ ìƒì†ë°›ì•„ íŒì—… ê¸°ëŠ¥ì„ í†µí•©
+public class MyRoomUIManager : MonoBehaviour
 {
-    // ÀåÂøµÈ ¾ÆÀÌÅÛ Ç¥½Ã UI
-    [Header("Equipped Items UI")]
-    [SerializeField] private Image equippedCharacterImage;
-    [SerializeField] private Image equippedCarImage;
+    [Header("UI íŒ¨ë„")]
+    [SerializeField] private GameObject myRoom1Panel;
+    [SerializeField] private GameObject myRoom2Panel;
 
-    // ÀÎº¥Åä¸® ÆĞ³Î
-    [Header("Inventory Panels")]
+    [Header("ë§ˆì´ë£¸1 UI")]
+    //[SerializeField] private RawImage myRoom1CharacterImage;
+    //[SerializeField] private RawImage myRoom1KartImage;
+    [SerializeField] private TMP_Text myRoom1CharacterNameText;
+    [SerializeField] private TMP_Text myRoom1CharacterDescText;
+    [SerializeField] private TMP_Text myRoom1KartNameText;
+    [SerializeField] private TMP_Text myRoom1KartLevelText;
+    [SerializeField] private TMP_Text myRoom1KartDescText;
+    [SerializeField] private Button changeButton;
+
+    [Header("ë§ˆì´ë£¸2 UI")]
+    //[SerializeField] private RawImage myRoom2CharacterImage;
+    //[SerializeField] private RawImage myRoom2KartImage;
+    [SerializeField] private TMP_Text myRoom2KartDescText;
+    [SerializeField] private TMP_Text myRoom2CharacterDescText;
+
+    [Header("ì¸ë²¤í† ë¦¬ íŒ¨ë„")]
     [SerializeField] private GameObject characterInventoryPanel;
     [SerializeField] private GameObject carInventoryPanel;
-
-    // ÀÎº¥Åä¸® ÀüÈ¯ ¹öÆ°
-    [Header("Toggle Buttons")]
     [SerializeField] private Toggle characterToggleButton;
     [SerializeField] private Toggle carToggleButton;
 
-    [SerializeField] private Button closeButton; // ´İ±â ¹öÆ° Ãß°¡
+    [Header("ì¸ë²¤í† ë¦¬ ë¶€ëª¨ ë° í”„ë¦¬íŒ¹")]
+    [SerializeField] private Transform kartInventoryParent;
+    [SerializeField] private GameObject kartInventoryPrefab;
+    [SerializeField] private Transform characterInventoryParent;
+    [SerializeField] private GameObject characterInventoryPrefab;
 
-    // MyRoomManager ½ºÅ©¸³Æ® ÂüÁ¶
-    private MyRoomManager myRoomManager;
+    [Header("ìŠ¤í¬ë¡¤ë·° ìµœì í™”")]
+    [SerializeField] private ScrollItemChecker2 _unimoScrollItemChecker2;
+    [SerializeField] private ScrollRect _unimoScrollRect;
+    [SerializeField] private ScrollItemChecker2 _kartScrollItemChecker2;
+    [SerializeField] private ScrollRect _kartScrollRect;
+
+    private Dictionary<int, IPreviewItem> _unimoDict = new();
+    private Dictionary<int, IPreviewItem> _kartDict = new();
+
+    // ì´ ë©”ì„œë“œë¥¼ ì™¸ë¶€ì—ì„œ í˜¸ì¶œí•˜ì—¬ ë§ˆì´ë£¸ íŒ¨ë„ì„ ì—½ë‹ˆë‹¤.
+    public void ShowMyRoomPanel()
+    {
+        SetPanel(true);
+        SetInventoryPanel(true);
+        characterToggleButton.isOn = true;
+        
+        // MyRoomManagerì˜ ëª¨ë“  UI ì—…ë°ì´íŠ¸ë¥¼ íŠ¸ë¦¬ê±°í•©ë‹ˆë‹¤.
+       // MyRoomManager.Instance.UpdateAllUI();
+    }
+
+    // ë‹¤ë¥¸ íŒì—…ë“¤ì²˜ëŸ¼ ë‹«ëŠ” ë©”ì„œë“œë„ ì¶”ê°€í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
+    public void HideMyRoomPanel()
+    {
+        myRoom1Panel.SetActive(false);
+        myRoom2Panel.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        MyRoomManager.OnCharacterEquipped += UpdateCharacterUI;
+        MyRoomManager.OnKartEquipped += UpdateKartUI;
+        MyRoomManager.OnInventoryUpdated += PopulateInventories;
+        MyRoomManager.OnKartLevelUpdated += UpdateKartLevelUI;
+        MyRoomManager.OnKartStatsUpdated += UpdateKartStatsUI;
+
+        // **OnEnable()ì—ì„œ íŒ¨ë„ì„ ë°”ë¡œ í™œì„±í™”í•˜ë˜ ì½”ë“œë¥¼ ì œê±°í–ˆìŠµë‹ˆë‹¤.**
+        // SetPanel(true);
+    }
+
+    private void OnDisable()
+    {
+        MyRoomManager.OnCharacterEquipped -= UpdateCharacterUI;
+        MyRoomManager.OnKartEquipped -= UpdateKartUI;
+        MyRoomManager.OnInventoryUpdated -= PopulateInventories;
+        MyRoomManager.OnKartLevelUpdated -= UpdateKartLevelUI;
+        MyRoomManager.OnKartStatsUpdated -= UpdateKartStatsUI;
+    }
 
     private void Start()
     {
-        // MyRoomManager ½ºÅ©¸³Æ® ÂüÁ¶ °¡Á®¿À±â
-        myRoomManager = GetComponent<MyRoomManager>();
-
-        // OnValueChanged ¸®½º³Ê Ãß°¡: Åä±ÛÀÌ ÄÑÁ³À» ¶§¸¸ ÆĞ³ÎÀ» È°¼ºÈ­ÇÏµµ·Ï ¼³Á¤ÇÕ´Ï´Ù.
-        characterToggleButton.onValueChanged.AddListener((isOn) =>
-        {
-            if (isOn)
-            {
-                SetInventoryPanel(true);
-            }
-        });
-
-        carToggleButton.onValueChanged.AddListener((isOn) =>
-        {
-            if (isOn)
-            {
-                SetInventoryPanel(false);
-            }
-        });
-
-        // ´İ±â ¹öÆ°¿¡ Close() ÇÔ¼ö ¿¬°á
-        if (closeButton != null)
-        {
-            closeButton.onClick.AddListener(() => Close());
-        }
-
-        // ½ÃÀÛ ½Ã Ä³¸¯ÅÍ ÀÎº¥Åä¸®·Î ¼³Á¤ÇÏ°í, ÇØ´ç Åä±ÛÀ» 'On' »óÅÂ·Î ¸¸µì´Ï´Ù.
-        SetInventoryPanel(true);
-        characterToggleButton.isOn = true;
+        characterToggleButton.onValueChanged.AddListener((isOn) => { if (isOn) SetInventoryPanel(true); });
+        carToggleButton.onValueChanged.AddListener((isOn) => { if (isOn) SetInventoryPanel(false); });
+        changeButton.onClick.AddListener(() => SetPanel(false));
     }
 
-    // ÀÎº¥Åä¸® ÆĞ³Î È°¼ºÈ­/ºñÈ°¼ºÈ­
+    public void SetPanel(bool isMyRoom1)
+    {
+        myRoom1Panel.SetActive(isMyRoom1);
+        myRoom2Panel.SetActive(!isMyRoom1);
+    }
+
     private void SetInventoryPanel(bool isCharacterPanel)
     {
-        // Ä³¸¯ÅÍ ÀÎº¥Åä¸® ÆĞ³Î È°¼ºÈ­
         characterInventoryPanel.SetActive(isCharacterPanel);
-        // Â÷·® ÀÎº¥Åä¸® ÆĞ³Î È°¼ºÈ­
         carInventoryPanel.SetActive(!isCharacterPanel);
     }
 
-    // ÀåÂø UI ¾÷µ¥ÀÌÆ® ¸Ş¼­µå (MyRoomManager¿¡¼­ È£Ãâ)
-    public void UpdateEquippedUI(Sprite characterSprite, string characterName, Sprite carSprite, string carName)
+    private void PopulateInventories()
     {
-        equippedCharacterImage.sprite = characterSprite;
-        equippedCarImage.sprite = carSprite;
+        PopulateKartInventory();
+        PopulateCharacterInventory();
+    }
+
+    private void PopulateKartInventory()
+    {
+        _kartDict.Clear();
+        foreach (Transform child in kartInventoryParent) Destroy(child.gameObject);
+        foreach (var kartData in MyRoomManager.Instance.GetAllKartData())
+        {
+            GameObject item = Instantiate(kartInventoryPrefab, kartInventoryParent);
+            var ui = item.GetComponent<KartInventoryUI>();
+            _kartDict.Add(kartData.KartID, ui);
+            ui.Init(kartData, MyRoomManager.Instance, MyRoomManager.Instance.IsOwned(kartData));
+        }
+        if (_kartScrollItemChecker2 != null && _kartScrollRect != null)
+        {
+            _kartScrollItemChecker2.Register(_kartScrollRect, _kartDict);
+        }
+    }
+
+    private void PopulateCharacterInventory()
+    {
+        _unimoDict.Clear();
+        foreach (Transform child in characterInventoryParent) Destroy(child.gameObject);
+        foreach (var charData in MyRoomManager.Instance.GetAllCharacterData())
+        {
+            GameObject item = Instantiate(characterInventoryPrefab, characterInventoryParent);
+            var ui = item.GetComponent<CharacterInventoryUI>();
+            _unimoDict.Add(charData.characterId, ui);
+            ui.Init(charData, MyRoomManager.Instance, MyRoomManager.Instance.IsOwned(charData));
+        }
+        if (_unimoScrollItemChecker2 != null && _unimoScrollRect != null)
+        {
+            _unimoScrollItemChecker2.Register(_unimoScrollRect, _unimoDict);
+        }
+    }
+
+    private void UpdateCharacterUI(UnimoCharacterSO character)
+    {
+        if (character != null && character.characterSprite != null)
+        {
+            //myRoom1CharacterImage.texture = character.characterSprite.texture;
+            //myRoom2CharacterImage.texture = character.characterSprite.texture;
+            myRoom1CharacterNameText.text = character.characterName;
+            myRoom1CharacterDescText.text = character.characterInfo;
+            myRoom2CharacterDescText.text = character.characterInfo;
+        }
+    }
+
+    private void UpdateKartUI(UnimoKartSO kart)
+    {
+        if (kart != null && kart.kartSprite != null)
+        {
+            //myRoom1KartImage.texture = kart.kartSprite.texture;
+            //myRoom2KartImage.texture = kart.kartSprite.texture;
+            myRoom1KartNameText.text = kart.carName;
+            myRoom1KartDescText.text = kart.carDesc;
+            myRoom2KartDescText.text = kart.carDesc;
+            MyRoomManager.Instance.UpdateKartStatsFromDB();
+        }
+    }
+
+    private void UpdateKartLevelUI(int level)
+    {
+        myRoom1KartLevelText.text = $"Lv. {level}";
+    }
+
+    private void UpdateKartStatsUI(int attack, int defense)
+    {
+        // ì´ ë©”ì„œë“œëŠ” MyRoomManagerì—ì„œ ë°›ì€ ìŠ¤íƒ¯ì„ ì‚¬ìš©í•´ UIë¥¼ ì—…ë°ì´íŠ¸í•˜ëŠ” ë¡œì§ì„ ì¶”ê°€í•˜ë©´ ë©ë‹ˆë‹¤.
     }
 }

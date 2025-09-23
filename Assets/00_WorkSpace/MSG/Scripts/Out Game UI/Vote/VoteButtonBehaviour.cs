@@ -76,6 +76,7 @@ namespace MSG
                 if (endAt < PhotonNetwork.Time)
                 {
                     Debug.Log($"[VoteButtonBehaviour] 투표 종료 시간이 지나 return");
+                    return;
                 }
             }
 

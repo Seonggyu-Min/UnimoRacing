@@ -38,6 +38,26 @@ namespace MSG
             }
         }
 
+        public void ClearUnit()
+        {
+            _units.Clear();
+        }
+
+        public void ClearUnit(params string[] keys)
+        {
+            foreach (var key in keys)
+            {
+                if (_units.ContainsKey(key))
+                {
+                    _units.Remove(key);
+                }
+                else
+                {
+                    Debug.LogWarning($"유닛 키{key}가 등록되어 있지 않습니다.");
+                }
+            }
+        }
+
         public void Show(string key)
         {
             if (_units.TryGetValue(key, out UIUnit unit))

@@ -12,6 +12,7 @@ namespace MSG
         [SerializeField] private TMP_Text _amountText;
         [SerializeField] private Image _goldIcon;
         [SerializeField] private Image _blueHoneyGemIcon;
+        [SerializeField] private MissionListLoader _missionListLoader;
 
 
         public void Init(MoneyType moneyType, int amount)
@@ -34,6 +35,7 @@ namespace MSG
 
         public void OnTouchToClose()
         {
+            _missionListLoader.RenewUI();
             UIManager.Instance.Hide("Reward Panel");
         }
     }

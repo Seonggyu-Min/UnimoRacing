@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 [CreateAssetMenu(menuName = "Game/Rules")]
 public class InGameRaceRulesConfig : ScriptableObject
@@ -13,5 +14,5 @@ public class InGameRaceRulesConfig : ScriptableObject
     public int playablePlayersCount = 4;
 
     [Header("Items")]
-    public bool itemsEnabled = true;
+    public List<ItemSpawnProbabilityData> spawnableItems;
 }

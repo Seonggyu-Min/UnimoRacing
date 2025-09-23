@@ -16,13 +16,13 @@ MonoBehaviour:
     SpeedRule:
       CurveType: 0
       MaxLevel: 5
-      BaseValue: 100
-      LinearStep: 10
+      BaseValue: 30
+      LinearStep: 2
       MultiplierStep: 0
       Table: []
     KartCostRule:
       GrowthType: 1
-      MoneyType: 0
+      MoneyType: 1
       BaseCost: 100
       MaxLevel: 5
       GrowthRate: 2
@@ -30,10 +30,6 @@ MonoBehaviour:
       Table: 
     UnimoCostRule:
       Cost: 5000
-      MoneyType: 0
+      MoneyType: 1
   LocalRuleKarts: []
-  LocalRuleUnimos:
-  - UnimoId: 5
-    CostOverride: 1
-    Cost: 100
-    MoneyType: 2
+  LocalRuleUnimos: []

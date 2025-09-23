@@ -214,7 +214,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.5, y: 496}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 517.37, y: 64.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &348905997636291732
 MonoBehaviour:
@@ -441,6 +441,7 @@ GameObject:
   - component: {fileID: 5625135033573680401}
   - component: {fileID: 5929153415392371417}
   - component: {fileID: 5397609086657226684}
+  - component: {fileID: 7270709636839586996}
   m_Layer: 5
   m_Name: Gold Image
   m_TagString: Untagged
@@ -606,6 +607,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &7270709636839586996
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2670870429352863247}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3333628761824925554
 GameObject:
   m_ObjectHideFlags: 0
@@ -915,7 +928,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -221}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 189.25, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6546564360253866926
 MonoBehaviour:
@@ -1143,6 +1156,7 @@ GameObject:
   - component: {fileID: 4945058677741939640}
   - component: {fileID: 4418646517190412529}
   - component: {fileID: 2474252238705637215}
+  - component: {fileID: 6543669666504996884}
   m_Layer: 5
   m_Name: Effect Image
   m_TagString: Untagged
@@ -1322,6 +1336,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: 50
+--- !u!225 &6543669666504996884
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5482767401431893902}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7693354117773649540
 GameObject:
   m_ObjectHideFlags: 0
@@ -1334,6 +1360,7 @@ GameObject:
   - component: {fileID: 7358218680391460198}
   - component: {fileID: 6644896498635516927}
   - component: {fileID: 4708958477518738129}
+  - component: {fileID: 5498725909354170337}
   m_Layer: 5
   m_Name: Blue Honey Gem Image
   m_TagString: Untagged
@@ -1499,6 +1526,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &5498725909354170337
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7693354117773649540}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7761516888206856008
 GameObject:
   m_ObjectHideFlags: 0
@@ -1517,7 +1556,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2233488417864170843
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1555,7 +1594,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c828c22f2ca68304baf307bd228857e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiGroups: []
+  _uiGroups:
+  - UseSlide: 0
+    UseFade: 0
+    UseScale: 1
+    Targets:
+    - RectTransform: {fileID: 2719078403829308156}
+      CanvasGroup: {fileID: 6543669666504996884}
+    - RectTransform: {fileID: 3867788157300184018}
+      CanvasGroup: {fileID: 5498725909354170337}
+    - RectTransform: {fileID: 2548475332182612335}
+      CanvasGroup: {fileID: 7270709636839586996}
+    SlideDirection: 0
+    OriginOffset: 0
+    MoveInOffset: 0
+    MoveOutOffset: 0
+    MoveInDuration: 0
+    MoveOutDuration: 0
+    MoveInEase: 0
+    MoveOutEase: 0
+    FadeInDuration: 0
+    FadeOutDuration: 0
+    FadeInEase: 0
+    FadeOutEase: 0
+    StartScale: 0
+    TargetScale: 1
+    EndScale: 0
+    ScaleInDuration: 0.5
+    ScaleOutDuration: 0.5
+    ScaleInEase: 28
+    ScaleOutEase: 28
+    WillPlayTogether: 0
+    WillPlayAllTargetsAtOnce: 1
+    WillWaitUntilSeqEnd: 1
+    LockInteractBeforeAnimEnd: 0
+    Interval: 0
 --- !u!114 &915132118034187256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1584,6 +1657,7 @@ MonoBehaviour:
   _amountText: {fileID: 8634643215711816132}
   _goldIcon: {fileID: 5397609086657226684}
   _blueHoneyGemIcon: {fileID: 4708958477518738129}
+  _missionListLoader: {fileID: 0}
 --- !u!1 &8113377642838552222
 GameObject:
   m_ObjectHideFlags: 0
@@ -1621,7 +1695,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.5, y: -711}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 172.59, y: 36.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &662101146719409882
 MonoBehaviour:

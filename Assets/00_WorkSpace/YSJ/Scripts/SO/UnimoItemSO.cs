@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public enum ItemId
@@ -27,8 +26,11 @@ public class UnimoItemSO : ScriptableObject
     [Tooltip("아이템 아이콘 이미지")]
     public Sprite itemIconSprite;
 
-    [Tooltip("아이템 등장 가중치"), Min(0.0f)]
-    public float _spawnWeight = 1.0f;
+    [Tooltip("아이템 효과 최대 스택 수")]
+    public bool isInventorySavable = false;
+
+    [Tooltip("아이템 지속 시간")]
+    public float itemEffectDuration;
 
     [Header("효과 관련 설정")]
     [Tooltip("아이템 효과 적용 시, 효과 초기화(false 시, 해당 아이템 상태가 완전히 끝났을 때 적용됩니다. 스택 수가 무시됩니다.)")]
@@ -36,6 +38,7 @@ public class UnimoItemSO : ScriptableObject
 
     [Tooltip("아이템 효과 최대 스택 수")]
     public float stackCount = 1;
+
 
     public List<StatusEffectOption> options;
 }

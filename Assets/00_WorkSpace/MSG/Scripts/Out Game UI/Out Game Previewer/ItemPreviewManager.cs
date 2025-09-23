@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.UI;
+using YSJ.Util;
 
 
 namespace MSG
@@ -15,6 +16,7 @@ namespace MSG
         #region Fields and Properties
 
         [Header("프리뷰 오브젝트 설정")]
+        [SerializeField] private string _sitPointName = "pivot_Character";
         [SerializeField] private string _previewLayer;          // 하나만 선택해야 됨. 이것 보다 좋은 방법이 있을 것 같은데...
                                                                 // LayerMask는 중복 가능성, string은 오타 가능, int는 뭐가 어떤 레이어인지 모르는 상태라서 셋 다 마음에는 안드는 듯
         private int _layer;
@@ -25,18 +27,26 @@ namespace MSG
         [Header("Render Texture 설정")]
         [SerializeField] private int _width;
         [SerializeField] private int _height;
+        [SerializeField] private int _combineWidth = 350;
+        [SerializeField] private int _combineHeight = 500;
         [SerializeField] GraphicsFormat _colorFormat;
         [SerializeField] GraphicsFormat _depthStencilFormat;
 
         [Header("Preview Camera 설정")]
         [SerializeField] private PreviewCameraScheduler _scheduler;
 
-
         private Dictionary<int, GameObject> _unimoObjs = new();
         private Dictionary<int, GameObject> _kartObjs = new();
 
         private readonly Dictionary<int, RenderTexture> _rtMap = new();
 
+        // Combine용
+        private GameObject _combineObj;
+        private RenderTexture _combineRT;
+        private const int COMBINE_ADD_KEY = 30000;
+        private HashSet<RawImage> _combineTargets = new();
+        private int _combineUnimoId = -1;
+        private int _combineKartId = -1;
 
         public bool Ready { get; private set; }     // 이거 실제로 쓸 때는 필요 없음
 
@@ -97,6 +107,85 @@ namespace MSG
             if (rawImage != null) rawImage.texture = null;
         }
 
+        public void BindCombinePreview(int unimoId, int kartId, List<RawImage> targets)
+        {
+            // 이미 같은 조합이 있으면 그대로 사용
+            bool sameCombine = _combineObj != null && _combineRT != null &&
+                                   _combineUnimoId == unimoId && _combineKartId == kartId;
+
+            if (!sameCombine)
+            {
+                // 기존 정리
+                _scheduler?.Unregister(COMBINE_ADD_KEY);
+                DisposeCombine();
+
+                // 새로 생성
+                _combineObj = CreateCombineObject(unimoId, kartId);
+                if (_combineObj == null) return;
+
+                RenderTextureDescriptor desc = new(_combineWidth, _combineHeight)
+                {
+                    graphicsFormat = _colorFormat,
+                    depthStencilFormat = _depthStencilFormat
+                };
+                _combineRT = new RenderTexture(desc);
+                _combineRT.Create();
+
+                _scheduler?.Register(COMBINE_ADD_KEY, _combineObj.transform, targets[0], _combineRT, true);
+
+                _combineUnimoId = unimoId;
+                _combineKartId = kartId;
+            }
+
+            // 대상 RawImage들에 하나의 RT 등록
+            if (targets != null)
+            {
+                foreach (var raw in targets)
+                {
+                    if (raw == null) continue;
+                    raw.texture = _combineRT;
+                    _combineTargets.Add(raw);
+                }
+            }
+        }
+
+        // 해제
+        public void UnbindCombinePreview(RawImage raw = null)
+        {
+            if (raw == null)
+            {
+                // 전체 해제
+                foreach (var r in _combineTargets)
+                {
+                    if (r)
+                    {
+                        r.texture = null;
+                    }
+                }
+                _combineTargets.Clear();
+
+                _scheduler?.Unregister(COMBINE_ADD_KEY);
+                DisposeCombine();
+                _combineUnimoId = _combineKartId = -1;
+                return;
+            }
+
+            // 개별 해제
+            if (_combineTargets.Remove(raw))
+            {
+                raw.texture = null;
+            }
+
+            // 아무 대상이 없으면 정리
+            if (_combineTargets.Count == 0)
+            {
+                _scheduler?.Unregister(COMBINE_ADD_KEY);
+                DisposeCombine();
+                _combineUnimoId = _combineKartId = -1;
+            }
+        }
+
+
         // Render Texture 비우기. 씬 떠날 때 호출해야될 듯
         public void DisposePreviewRenderTexture(int id)
         {
@@ -106,6 +195,27 @@ namespace MSG
                 Destroy(rt);
             }
             _rtMap.Remove(id);
+        }
+
+        // Render Texture 비우기. 씬 떠날 때 호출해야될 듯
+        private void DisposeCombine()
+        {
+            if (_combineObj != null)
+            {
+                Destroy(_combineObj);
+                _combineObj = null;
+            }
+            if (_combineRT != null)
+            {
+                if (_combineRT.IsCreated()) _combineRT.Release();
+                Destroy(_combineRT);
+                _combineRT = null;
+            }
+
+            if (_scheduler != null)
+            {
+                _scheduler.Unregister(COMBINE_ADD_KEY);
+            }
         }
 
         #endregion
@@ -131,6 +241,7 @@ namespace MSG
                 SetLayerRecursively(preview);
                 preview.transform.parent = _parent;
                 preview.transform.position = new Vector3(_xPositionInterval * i, 0f, 0f);    // 일렬로 나열해서 카메라에서 다른 오브젝트가 겹쳐지지 않게 함
+                preview.transform.rotation = Quaternion.Euler(0f, 160f, 0f); // 뒤를 보고 있어서 돌림
 
                 _unimoObjs.Add(unimos[i].characterId, preview);
             }
@@ -153,6 +264,7 @@ namespace MSG
                 preview.layer = _layer;  // 레이어를 프리뷰용으로 등록
                 preview.transform.parent = _parent;
                 preview.transform.position = new Vector3(_xPositionInterval * i, _yPositionInterval, 0f);    // 일렬로 나열해서 카메라에서 다른 오브젝트가 겹쳐지지 않게 함
+                preview.transform.rotation = Quaternion.Euler(0f, 160f, 0f); // 뒤를 보고 있어서 돌림
 
                 _kartObjs.Add(karts[i].KartID, preview);
             }
@@ -187,6 +299,49 @@ namespace MSG
                 SetLayerRecursively(child.gameObject);
             }
         }
+
+        private GameObject CreateCombineObject(int unimoId, int kartId)
+        {
+            if (!_unimoObjs.TryGetValue(unimoId, out GameObject unimoPrefab) || unimoPrefab == null)
+            {
+                Debug.LogWarning($"[ItemPreview] Unimo {unimoId} 없음");
+                return null;
+            }
+            if (!_kartObjs.TryGetValue(kartId, out GameObject kartPrefab) || kartPrefab == null)
+            {
+                Debug.LogWarning($"[ItemPreview] Kart {kartId} 없음");
+                return null;
+            }
+
+            var root = new GameObject($"Combine_{unimoId}_{kartId}");
+            root.transform.SetParent(_parent, false);
+
+            root.transform.localPosition = new Vector3(-_xPositionInterval, -_yPositionInterval, 0f);
+            root.transform.localRotation = Quaternion.identity;
+            root.transform.localScale = Vector3.one;
+
+            var kart = Instantiate(kartPrefab, root.transform);
+            kart.transform.localPosition = Vector3.zero;
+            kart.transform.localRotation = Quaternion.identity;
+            kart.transform.localScale = Vector3.one;
+            SetLayerRecursively(kart);
+
+            var findSitPoint = kart.GetChild<Transform>(_sitPointName);
+            GameObject kartSitPoint = findSitPoint?.gameObject;
+            GameObject sitPoint = (kartSitPoint != null) ? kartSitPoint : root;
+
+            var unimo = Instantiate(unimoPrefab, sitPoint.transform);
+            unimo.transform.localPosition = Vector3.zero;
+            unimo.transform.localRotation = Quaternion.identity;
+            unimo.transform.localScale = Vector3.one;
+            SetLayerRecursively(unimo);
+
+            root.transform.localRotation = Quaternion.Euler(0f, 160f, 0f);
+
+            return root;
+        }
+
+
 
         #endregion
 

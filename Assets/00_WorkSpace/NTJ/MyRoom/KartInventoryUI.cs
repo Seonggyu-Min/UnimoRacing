@@ -1,49 +1,61 @@
-using DA_Assets.FCU.Model;
+ï»¿using DA_Assets.FCU.Model;
+using MSG;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class KartInventoryUI : MonoBehaviour
+public class KartInventoryUI : MonoBehaviour, IPreviewItem
 {
     private UnimoKartSO kartData;
     private MyRoomManager myRoomManager;
 
-    [SerializeField] private Image kartIcon;
+    [SerializeField] private RawImage kartIcon;
     [SerializeField] private TMP_Text kartNameText;
 
-    // ¼±ÅÃ Ç¥½Ã¸¦ À§ÇÑ º¯¼ö
+    // ì„ íƒ í‘œì‹œë¥¼ ìœ„í•œ ë³€ìˆ˜
     [SerializeField] private Image selectionOverlay;
 
-    // ±¸¸ÅÇÏÁö ¾ÊÀº ¾ÆÀÌÅÛÀ» À§ÇÑ È¸»ö ¿À¹ö·¹ÀÌ ¶Ç´Â »ö»ó º¯°æ¿ë
+    // êµ¬ë§¤í•˜ì§€ ì•Šì€ ì•„ì´í…œì„ ìœ„í•œ íšŒìƒ‰ ì˜¤ë²„ë ˆì´ ë˜ëŠ” ìƒ‰ìƒ ë³€ê²½ìš©
     [SerializeField] private GameObject lockedOverlay;
-    [SerializeField] private Button equipButton; // ¹öÆ° º¯¼ö Ãß°¡
+    [SerializeField] private Button equipButton; // ë²„íŠ¼ ë³€ìˆ˜ ì¶”ê°€
 
-    public void Init(UnimoKartSO data, MyRoomManager manager, bool isOwned) // isOwned ¸Å°³º¯¼ö Ãß°¡
+    private UnimoKartSO _data;
+
+    public bool IsBound { get; private set; }
+
+    private void OnDisable()
     {
+        TryUnbind();
+    }
+
+    public void Init(UnimoKartSO data, MyRoomManager manager, bool isOwned) // isOwned ë§¤ê°œë³€ìˆ˜ ì¶”ê°€
+    {
+        if (IsBound) TryUnbind();
+
         this.kartData = data;
         this.myRoomManager = manager;
 
-        kartIcon.sprite = data.kartSprite;
-
+        _data = data;
         if (kartNameText != null)
         {
             kartNameText.text = data.carName;
         }
 
-        // isOwned »óÅÂ¿¡ µû¶ó UI ¾÷µ¥ÀÌÆ®
+        // isOwned ìƒíƒœì— ë”°ë¼ UI ì—…ë°ì´íŠ¸
         UpdateVisuals(isOwned);
 
-        // ¹öÆ° Å¬¸¯ ÀÌº¥Æ®¿¡ ÇÔ¼ö ¿¬°á
-        // ±âÁ¸ GetComponent<Button>() ´ë½Å Á÷·ÄÈ­µÈ equipButton »ç¿ë
+        // ë²„íŠ¼ í´ë¦­ ì´ë²¤íŠ¸ì— í•¨ìˆ˜ ì—°ê²°
+        // ê¸°ì¡´ GetComponent<Button>() ëŒ€ì‹  ì§ë ¬í™”ëœ equipButton ì‚¬ìš©
         if (equipButton != null)
         {
             equipButton.onClick.RemoveAllListeners();
             equipButton.onClick.AddListener(OnEquipButtonClicked);
         }
 
-        // ÃÊ±â »óÅÂ´Â ¼±ÅÃµÇÁö ¾ÊÀ½
+        // ì´ˆê¸° ìƒíƒœëŠ” ì„ íƒë˜ì§€ ì•ŠìŒ
         SetSelected(false);
     }
 
@@ -52,7 +64,7 @@ public class KartInventoryUI : MonoBehaviour
         myRoomManager.EquipKart(kartData);
     }
 
-    // ¼±ÅÃ »óÅÂ¸¦ º¯°æÇÏ´Â ¸Ş¼­µå
+    // ì„ íƒ ìƒíƒœë¥¼ ë³€ê²½í•˜ëŠ” ë©”ì„œë“œ
     public void SetSelected(bool isSelected)
     {
         if (selectionOverlay != null)
@@ -65,17 +77,31 @@ public class KartInventoryUI : MonoBehaviour
     {
         if (isOwned)
         {
-            // ¼ÒÀ¯ÇÑ ¾ÆÀÌÅÛ: ¿ø·¡ »ö»óÀ¸·Î, ¹öÆ° È°¼ºÈ­
+            // ì†Œìœ í•œ ì•„ì´í…œ: ì›ë˜ ìƒ‰ìƒìœ¼ë¡œ, ë²„íŠ¼ í™œì„±í™”
             kartIcon.color = Color.white;
             if (lockedOverlay != null) lockedOverlay.SetActive(false);
             if (equipButton != null) equipButton.interactable = true;
         }
         else
         {
-            // ¼ÒÀ¯ÇÏÁö ¾ÊÀº ¾ÆÀÌÅÛ: È¸»öÀ¸·Î, ¹öÆ° ºñÈ°¼ºÈ­
+            // ì†Œìœ í•˜ì§€ ì•Šì€ ì•„ì´í…œ: íšŒìƒ‰ìœ¼ë¡œ, ë²„íŠ¼ ë¹„í™œì„±í™”
             kartIcon.color = Color.gray;
             if (lockedOverlay != null) lockedOverlay.SetActive(true);
             if (equipButton != null) equipButton.interactable = false;
         }
+    }
+
+    public void TryBind()
+    {
+        if (IsBound || _data == null || kartIcon == null) return;
+        ItemPreviewManager.Instance.BindKartPreview(_data.KartID, kartIcon);
+        IsBound = true;
+    }
+
+    public void TryUnbind()
+    {
+        if (!IsBound || _data == null || kartIcon == null) return;
+        ItemPreviewManager.Instance.UnbindPreview(_data.KartID, kartIcon);
+        IsBound = false;
     }
 }

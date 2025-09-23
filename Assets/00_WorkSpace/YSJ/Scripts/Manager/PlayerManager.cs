@@ -63,7 +63,7 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     }
     public void SetPlayerCPExp(int exp)
     {
-        if (!IsSetup) return; // bugfix: 원래 반대로 되어 있었음
+        if (!IsSetup) return;
         PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.Exp, exp, debugTag: "SetCP:Exp");
     }
     public void SetPlayerCPKartId(int kartId)
@@ -85,6 +85,11 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     {
         if (!IsSetup) return;
         PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.MatchReady, isMatchReady, debugTag: "SetCP:MatchReady");
+    }
+    public void SetPlayerCPRaceCurrentNorm(float currentNorm)
+    {
+        if (!IsSetup) return;
+        PhotonNetworkCustomProperties.TrySetLocalPlayerPropSafe(PlayerKey.RaceCurrentNorm, currentNorm, debugTag: "SetCP:RaceCurrentNorm");
     }
     public void SetPlayerCPRaceLoaded(bool isRaceLoaded)
     {
