@@ -45,3 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lockDuration: 3
+  sfxUseKey: Lock_Use
+  followVfxPrefab: {fileID: 1272901806709456, guid: 61bca72f182a8b442a05c4a20cdc2792,
+    type: 3}
+  followVfxOffset: {x: 0, y: 0.7, z: -1}

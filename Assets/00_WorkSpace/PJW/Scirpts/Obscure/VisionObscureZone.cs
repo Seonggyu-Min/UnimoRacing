@@ -2,6 +2,7 @@ using System.Collections;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.VFX;
 using YTW;
 
 namespace PJW
@@ -28,17 +29,47 @@ namespace PJW
         [Header("사운드 키")]
         [SerializeField] private string sfxHitKey = "Blind_Hit_SFX";
 
+        [Header("자동 파괴(초) - 0 이하면 비활성")]
+        [SerializeField] private float lifetime = 0f;
+
+        [Header("이펙트 오브젝트 (Prefab 또는 Child 1개)")]
+        [SerializeField] private GameObject particleObject;     // 파티클/비주얼 이펙트를 담은 게임오브젝트
+        [Tooltip("true면 particleObject를 프리팹으로 보고 현재 위치에 인스턴스 생성")]
+        [SerializeField] private bool instantiateParticle = false;
+
         private bool triggered;
         private Collider zoneCollider;
         private Renderer[] renderers;
-        private ParticleSystem[] particles;
+        private GameObject particleRuntime; // 인스턴스된 오브젝트 보관(instantiateParticle=true 일 때)
 
         private void Awake()
         {
             zoneCollider = GetComponent<Collider>();
             zoneCollider.isTrigger = true;
             renderers = GetComponentsInChildren<Renderer>(true);
-            particles = GetComponentsInChildren<ParticleSystem>(true);
+        }
+
+        private void Start()
+        {
+            // 설치 즉시 이펙트 표시
+            if (particleObject != null)
+            {
+                if (instantiateParticle)
+                {
+                    // 프리팹으로 간주하고 현재 위치/회전으로 생성
+                    particleRuntime = Instantiate(particleObject, transform.position, transform.rotation, transform);
+                    ShowEffectObject(particleRuntime, true);
+                }
+                else
+                {
+                    // 이미 씬에 있는(자식 등) 오브젝트를 활성화
+                    ShowEffectObject(particleObject, true);
+                }
+            }
+
+            // lifetime이 지정된 경우 자동 파괴
+            if (lifetime > 0f)
+                StartCoroutine(CoDestroyAfter(lifetime));
         }
 
         private void OnTriggerEnter(Collider other)
@@ -49,51 +80,87 @@ namespace PJW
             var targetPv = other.GetComponentInParent<PhotonView>();
             if (targetPv == null) return;
 
-            // 동일한 플레이어로 중복 트리거 방지(선택)
             triggered = true;
 
-            // 존 비활성 비주얼 처리(콜라이더 닫고 메쉬 숨김)
+            // 존 비주얼 닫기
             DisableZoneVisuals();
 
-            // 해당 플레이어의 "오너 클라이언트"에서만 화면 오버레이 띄우기
+            // 충돌한 대상의 오너 클라이언트에서만 시야 방해 오버레이 표시
             photonView.RPC(nameof(RpcApplyObscureOnLocal), targetPv.Owner,
                 obscureOverlayResource, duration, fadeIn, maxAlpha, fadeOut);
 
+            // 사운드
             AudioManager.Instance.PlaySFX(sfxHitKey);
 
-            // 원샷이면 잠시 뒤 파괴, 아니면 재사용도 가능
+            // 원샷 모드면 충돌 후 잠시 뒤 파괴
             if (oneShot)
-            {
-                // 효과 전달 후 짧은 시간 뒤 네트워크 오브젝트 제거
                 StartCoroutine(CoDestroyAfter(0.5f));
-            }
         }
 
         private void DisableZoneVisuals()
         {
             if (zoneCollider != null) zoneCollider.enabled = false;
+
             if (renderers != null)
             {
-                foreach (var r in renderers) r.enabled = false;
+                for (int i = 0; i < renderers.Length; i++)
+                    if (renderers[i] != null) renderers[i].enabled = false;
             }
-            if (particles != null)
+
+            // 이펙트 정지/비활성
+            var target = particleRuntime != null ? particleRuntime : particleObject;
+            if (target != null)
+                ShowEffectObject(target, false);
+        }
+
+        /// <summary>
+        /// 이펙트 오브젝트를 보이거나 숨김. 내부의 ParticleSystem/VisualEffect가 있으면 Play/Stop까지 수행.
+        /// </summary>
+        private void ShowEffectObject(GameObject obj, bool show)
+        {
+            if (obj == null) return;
+
+            // 우선 활성/비활성
+            obj.SetActive(true); // Play/Stop을 위해 일단 켰다가 처리
+            // ParticleSystem 제어
+            var psList = obj.GetComponentsInChildren<ParticleSystem>(true);
+            if (psList != null && psList.Length > 0)
             {
-                foreach (var ps in particles) ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                for (int i = 0; i < psList.Length; i++)
+                {
+                    if (psList[i] == null) continue;
+                    if (show) psList[i].Play(true);
+                    else psList[i].Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                }
             }
+
+            // Visual Effect Graph 제어(있다면)
+            var vfxList = obj.GetComponentsInChildren<VisualEffect>(true);
+            if (vfxList != null && vfxList.Length > 0)
+            {
+                for (int i = 0; i < vfxList.Length; i++)
+                {
+                    if (vfxList[i] == null) continue;
+                    if (show) vfxList[i].Play();
+                    else vfxList[i].Stop();
+                }
+            }
+
+            // 최종 활성 상태
+            if (!show)
+                obj.SetActive(false);
         }
 
         private IEnumerator CoDestroyAfter(float t)
         {
             yield return new WaitForSeconds(t);
+
             if (photonView != null && photonView.IsMine)
                 PhotonNetwork.Destroy(gameObject);
+            else if (photonView == null)
+                Destroy(gameObject);
         }
 
-        /// <summary>
-        /// 대상 플레이어의 로컬 클라이언트에서만 실행되는 RPC.
-        /// Resources에서 오버레이 프리팹을 로드해 Canvas 아래에 붙이고
-        /// 페이드 인/유지/아웃 후 제거.
-        /// </summary>
         [PunRPC]
         private void RpcApplyObscureOnLocal(string resourceName, float keep, float fIn, float aMax, float fOut)
         {
@@ -104,7 +171,6 @@ namespace PJW
                 return;
             }
 
-            // 최상단 Canvas 탐색(없으면 간이 Canvas 생성)
             var canvas = FindObjectOfType<Canvas>();
             if (canvas == null)
             {
@@ -118,11 +184,9 @@ namespace PJW
             var overlay = Instantiate(prefab, canvas.transform);
             overlay.transform.SetAsLastSibling();
 
-            // CanvasGroup이 있으면 알파로 페이딩, 없으면 추가
             var cg = overlay.GetComponent<CanvasGroup>();
             if (cg == null) cg = overlay.AddComponent<CanvasGroup>();
 
-            // 안전장치: 이미지가 있으면 RaycastTarget 꺼서 입력 방해 방지(원하면 켜세요)
             var img = overlay.GetComponentInChildren<Image>(true);
             if (img != null) img.raycastTarget = false;
 

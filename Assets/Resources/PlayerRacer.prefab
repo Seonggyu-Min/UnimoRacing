@@ -332,6 +332,7 @@ GameObject:
   - component: {fileID: 831430784033025982}
   - component: {fileID: 6786647454081869713}
   - component: {fileID: 7946033971345635877}
+  - component: {fileID: 4688897661539971053}
   m_Layer: 0
   m_Name: PlayerRacer
   m_TagString: Player

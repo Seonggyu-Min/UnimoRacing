@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 589bf9a5c8c9a604194d31b76b6e1e27, type: 3}
   m_Name: Special_Item_SFX
   m_EditorClassIdentifier: 
-  ClipName: Special_Item_SFX
+  ClipName: Special_Item
   ClipAddress: Audio/SFX/Special_Item
   Volume: 1
   Pitch: 1
