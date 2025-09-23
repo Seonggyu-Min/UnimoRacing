@@ -161,7 +161,7 @@ namespace YTW
                 // 2. SceneManager를 통해 TestScene1을 로드합니다.
                 if (Manager.Scene != null)
                 {
-                    Manager.Scene.LoadScene(SceneType.YTW_TestScene1);
+                    // Manager.Scene.LoadScene(SceneType.YTW_TestScene1);
                 }
 
                 return; // 완주했으므로 아래 이동 로직을 실행하지 않습니다.

@@ -47,6 +47,8 @@ public enum RoomKey
 
     // Vote
     WinnerMapIndex,             // KEY_VOTE_WINNER_INDEX
+    VoteState,                  // KEY_ROOM_VOTE_STATE
+    VoteEndTime,                // KEY_ROOM_VOTE_END_AT
 }
 
 public enum PlayerKey
@@ -60,6 +62,7 @@ public enum PlayerKey
 
     MatchReady,         // KEY_PLAYER_MATCH_READY
 
+    RaceCurrentNorm,    // KEY_PLAYER_RACE_CURRENT_NORM
     RaceLoaded,         // KEY_PLAYER_RACE_LOADED
     RaceIsFinished,     // KEY_PLAYER_RACE_IS_FINISHED
     RaceFinishedTime,   // KEY_PLAYER_RACE_FINISHED_TIME

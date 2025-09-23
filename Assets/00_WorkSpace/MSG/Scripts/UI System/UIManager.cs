@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 namespace MSG
@@ -12,7 +13,14 @@ namespace MSG
         #region Fields
 
         private Dictionary<string, UIUnit> _units = new();
-        
+
+        #endregion
+
+
+        #region Unity Methods
+
+        private void Awake() => SingletonInit();
+
         #endregion
 
 
@@ -27,6 +35,26 @@ namespace MSG
             else
             {
                 Debug.LogWarning($"유닛 키{key}가 이미 등록되어있습니다. 등록에 실패했습니다.");
+            }
+        }
+
+        public void ClearUnit()
+        {
+            _units.Clear();
+        }
+
+        public void ClearUnit(params string[] keys)
+        {
+            foreach (var key in keys)
+            {
+                if (_units.ContainsKey(key))
+                {
+                    _units.Remove(key);
+                }
+                else
+                {
+                    Debug.LogWarning($"유닛 키{key}가 등록되어 있지 않습니다.");
+                }
             }
         }
 
@@ -54,18 +82,18 @@ namespace MSG
             }
         }
 
-        //public UIUnit GetUnit(string key)
-        //{
-        //    if (_units.TryGetValue(key, out UIUnit unit))
-        //    {
-        //        return unit;
-        //    }
-        //    else
-        //    {
-        //        Debug.LogError($"유닛 키{key}가 등록되어 있지 않습니다.");
-        //        return null;
-        //    }
-        //}
+        public UIUnit GetUnit(string key)
+        {
+            if (_units.TryGetValue(key, out UIUnit unit))
+            {
+                return unit;
+            }
+            else
+            {
+                Debug.LogError($"유닛 키{key}가 등록되어 있지 않습니다.");
+                return null;
+            }
+        }
 
         #endregion
 
@@ -74,7 +102,7 @@ namespace MSG
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F1)) DebugUnits();
+            if (Keyboard.current.f1Key.wasPressedThisFrame) DebugUnits();
         }
 
         [Button("Debug Units")]

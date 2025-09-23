@@ -12,10 +12,10 @@ namespace YTW
     public class AudioManager : Singleton<AudioManager>
     {
         // 상수 Resources 폴더 안에서의 경로
-        //private const string AUDIO_DB_PATH = "Audio/AudioDB";
-        //private const string AUDIO_MIXER_PATH = "Audio/GameAudioMixer";
+        //private const string AUDIO_DB_ADDRESS = "Audio/AudioDB";
+        //private const string AUDIO_MIXER_ADDRESS = "Audio/GameAudioMixer";
         private const string AUDIO_DB_ADDRESS = "AudioDB"; // 예시 주소
-        private const string AUDIO_MIXER_ADDRESS = "GameAudioMixer"; // 예시 주소
+        private const string AUDIO_MIXER_ADDRESS = "AudioMixer"; // 예시 주소
 
         [Header("오디오 데이터베이스")]
         [SerializeField] private AudioDB _audioDB;
@@ -74,10 +74,10 @@ namespace YTW
                 await Task.Yield();
             }
 
-            //_audioDB = await Manager.Resource.LoadAsync<AudioDB>(AUDIO_DB_ADDRESS);
-            //_mixer = await Manager.Resource.LoadAsync<AudioMixer>(AUDIO_MIXER_ADDRESS);
-            if (_audioDB == null) _audioDB = Resources.Load<AudioDB>("Audio/AudioDB");
-            if (_mixer == null) _mixer = Resources.Load<AudioMixer>("Audio/GameAudioMixer");
+            if (_audioDB == null) _audioDB = await Manager.Resource.LoadAsync<AudioDB>(AUDIO_DB_ADDRESS);
+            if (_mixer == null) _mixer = await Manager.Resource.LoadAsync<AudioMixer>(AUDIO_MIXER_ADDRESS);
+            //if (_audioDB == null) _audioDB = Resources.Load<AudioDB>("Audio/AudioDB");
+            //if (_mixer == null) _mixer = Resources.Load<AudioMixer>("Audio/GameAudioMixer");
 
             if (_audioDB == null || _mixer == null)
             {

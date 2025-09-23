@@ -1,7 +1,8 @@
+using Photon.Pun;
 using System.Collections;
 using System.Linq;
-using Photon.Pun;
 using UnityEngine;
+using YTW;
 
 namespace PJW
 {
@@ -9,6 +10,11 @@ namespace PJW
     public class BombTrap : MonoBehaviourPun
     {
         [SerializeField] private float stopDuration = 1.5f;
+
+        [Header("사운드 키")]
+        [SerializeField] private string sfxBlockedKey = "Shield_Block_SFX";   // 쉴드로 막혔을 때
+        [SerializeField] private string sfxHitKey = "Bang";    // 트랩 발동했을 때
+
         private bool hasTriggered;
 
         private void OnTriggerEnter(Collider other)
@@ -17,9 +23,22 @@ namespace PJW
                 return;
 
             var targetPv = other.GetComponentInParent<PhotonView>();
-            if (targetPv == null)
+            if (targetPv == null || targetPv.Owner == null)
                 return;
 
+            var shield = targetPv.GetComponent<PlayerShield>() ??
+                         targetPv.GetComponentInChildren<PlayerShield>(true);
+
+            if (shield != null && shield.IsShieldActive)
+            {
+                targetPv.RPC(nameof(PlayerShield.RpcConsumeShield), targetPv.Owner);
+                AudioManager.Instance.PlaySFX(sfxBlockedKey); // 쉴드 막힘 사운드
+                hasTriggered = true;
+                PhotonNetwork.Destroy(gameObject);
+                return;
+            }
+
+            AudioManager.Instance.PlaySFX(sfxHitKey); // 히트 사운드
             hasTriggered = true;
 
             photonView.RPC(nameof(RpcApplyBombStopOnOwner), targetPv.Owner, stopDuration);
@@ -37,7 +56,7 @@ namespace PJW
                 });
 
             if (myRacer != null)
-                StartCoroutine(CoStop(myRacer, duration));
+                myRacer.StartCoroutine(CoStop(myRacer, duration));
         }
 
         private IEnumerator CoStop(PlayerRaceData racer, float duration)
@@ -45,7 +64,8 @@ namespace PJW
             float original = racer.KartSpeed;
             racer.SetKartSpeed(0f);
             yield return new WaitForSeconds(duration);
-            if (racer != null) racer.SetKartSpeed(original);
+            if (racer != null)
+                racer.SetKartSpeed(original);
         }
     }
 }

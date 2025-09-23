@@ -31,22 +31,21 @@ namespace YTW
                         {
                             // 프리팹의 경로는 "Managers/[클래스이름]"으로 가정합니다.
                             // 예: "Managers/SceneManager"
-                            string prefabPath = $"Managers/{typeof(T).Name}";
-                            var singletonPrefab = Resources.Load<T>(prefabPath);
+                            //string prefabPath = $"Managers/{typeof(T).Name}";
+                            //var singletonPrefab = Resources.Load<T>(prefabPath);
 
-                            if (singletonPrefab != null)
-                            {
-                                _instance = Instantiate(singletonPrefab);
-                                _instance.name = $"{typeof(T).Name} (Singleton)";
-                            }
-                            else
-                            {
+                            //if (singletonPrefab != null)
+                            //{
+                            //    _instance = Instantiate(singletonPrefab);
+                            //    _instance.name = $"{typeof(T).Name} (Singleton)";
+                            //}
+
                                 // 프리팹도 없다면 빈 오브젝트를 생성
-                                Debug.Log($"[Singleton] '{prefabPath}' 경로에 프리팹이 없어 빈 오브젝트를 생성합니다.");
+                                // Debug.Log($"[Singleton] '{prefabPath}' 경로에 프리팹이 없어 빈 오브젝트를 생성합니다.");
                                 var singletonObject = new GameObject();
                                 _instance = singletonObject.AddComponent<T>();
                                 singletonObject.name = $"{typeof(T).Name} (Singleton)";
-                            }
+                            
                         }
                     }
                     return _instance;

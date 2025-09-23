@@ -351,7 +351,7 @@ namespace YTW
 
             await AllReadyAsync();
         }
-
+        //
         private async Task AllReadyAsync()
         {
             // 진행바를 반드시 100%까지 애니메이션

@@ -2,6 +2,7 @@
 using Photon.Realtime;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using YSJ.Util;
@@ -11,16 +12,21 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 // 인게임 매니저
 public class InGameManager : SimpleSingletonPun<InGameManager>
 {
-    [SerializeField]private InGameRaceRulesConfig _raceRulesConfig;
-
+    [Header("Config")]
+    [SerializeField] private InGameRaceRulesConfig _raceRulesConfig;
+    [SerializeField] private bool _useSelfPhotonNetworkConnecter;       // 셀프 포톤 네트워크 커낵터
+    [SerializeField] private bool _useMapCycleManager;
+    
     #region Config Setup Data
     private int     _laps = 1;                  // 렙
 
-    private int     _countdownSeconds = 3;     // 카운트 다운
+    private int     _countdownSeconds = 3;      // 카운트 다운
     private float   _finishSeconds = 10f;       // 피니쉬 첫 통과 시, 카운트
     private float   _postGameSeconds = 10f;     // 결과, 보여주는 시간
 
-    private bool    _itemsEnabled = true;       // 아이템 사용 가능 여부
+    private int   _playablePlayersCount = 2;     // 결과, 보여주는 시간
+
+    private List<ItemSpawnProbabilityData> _spawnableItems;
 
     private float _finishedEndTime = 0.0f;
     private float _postGameEndTime = 0.0f;
@@ -33,21 +39,23 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     private double _countDownStartTime   = -1.0f;
     private double _raceStartTime        = -1.0f;
 
-    private double _raceStartDelayTime        = -1.0f;
+    private double _raceStartDelayTime   = -1.0f;
 
     private MapCycleManager _mapCycleManager;
     private MapAssetLoader _mapAssetLoader;
+
+    private List<PlayerRaceData> _playerRaceDatas = new();
 
     // private Util Value
     private bool IsMasterClient => PhotonNetwork.IsMasterClient;
     private Room CurrentRoom => PhotonNetwork.CurrentRoom;
 
-    private string RK(RoomKey k) => PhotonNetworkCustomProperties.ToKeyString(k);
-    private string PK(PlayerKey k) => PhotonNetworkCustomProperties.ToKeyString(k);
+    private string RK(RoomKey k) => PhotonNetworkCustomProperties.ToRoomKeyString(k);
+    private string PK(PlayerKey k) => PhotonNetworkCustomProperties.ToPlayerKeyString(k);
 
     private SceneID GetPlayerSceneID(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<SceneID>(p, PlayerKey.CurrentScene);
     private bool GetPlayerRaceLoaded(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceLoaded);
-    private bool GetPlayerRaceFinished(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceIsFinished);
+    private bool GetPlayerRaceFinished(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceIsFinished, false);
     private float GetPlayerRaceFinishTime(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<float>(p, PlayerKey.RaceFinishedTime);
 
     // public Value
@@ -58,6 +66,8 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     public double RaceStartTime => _raceStartTime;
 
     public int RaceEndLapCount => _laps;
+
+    private List<PlayerRaceData> PlayerRaceDatas => _playerRaceDatas;
 
     // public Action
     /// <summary>
@@ -97,22 +107,29 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     protected override void Init()
     {
         base.Init();
+        StartCoroutine(CO_Connecter());
+    }
+    private IEnumerator CO_Connecter()
+    {
+        if (_useSelfPhotonNetworkConnecter)
+        {
+            var connecter = PhotonNetworkDirectRoomConnector.Instance;
+        }
+
+        while (!PhotonNetwork.InRoom)
+        { yield return null; }
+
         this.PrintLog($"Master Client: {IsMasterClient}!");
 
         _currentRaceState = RaceState.None;
-        _mapCycleManager = GameObject.FindAnyObjectByType<MapCycleManager>();
-        if (_mapCycleManager != null)
-        {
-            _mapCycleManager.OnLoadRandomMap -= MapSetup;
-            _mapCycleManager.OnLoadRandomMap += MapSetup;
-        }
 
+        SetupRaceMapLoader();
         SetupRaceRule();
+
+        this.PrintLog($"초기 상태 동기화 실행");
         // 초기 상태 동기화
         if (CurrentRoom != null)
         {
-            this.PrintLog($"초기 상태 동기화 실행");
-
             this.PrintLog("플레이어 데이터 세팅");
             PlayerManager.Instance.SetPlayerCPCurrentScene(SceneID.InGameScene);
 
@@ -128,10 +145,13 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
                 EnterState(state);
             }
         }
+        this.PrintLog($"초기 상태 동기화 완료");
+        yield break;
     }
 
     private void SetupRaceRule()
     {
+        this.PrintLog("SetupRaceRule 진행");
         if (_raceRulesConfig == null)
         {
             this.PrintLog($"Race Rules Config is Null!!!!!", LogType.Warning);
@@ -140,11 +160,41 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
         var config = _raceRulesConfig;
 
-        _laps = config.laps;                  // 렙
-        _countdownSeconds = config.countdownSeconds;      // 카운트 다운
-        _finishSeconds = config.finishSeconds;         // 피니쉬 첫 통과 시, 카운트
-        _postGameSeconds = config.postGameSeconds;       // 결과, 보여주는     
-        _itemsEnabled = config.itemsEnabled;          // 아이템 사용 가능 여부
+        _laps = config.laps;                            // 렙
+        _countdownSeconds = config.countdownSeconds;    // 카운트 다운
+        _finishSeconds = config.finishSeconds;          // 피니쉬 첫 통과 시, 카운트
+        _postGameSeconds = config.postGameSeconds;      // 결과, 보여주는     
+
+        _playablePlayersCount = config.playablePlayersCount;    // 플레이 가능한 플레이어 수
+
+        _spawnableItems = config.spawnableItems;
+        this.PrintLog("SetupRaceRule 진행 완료");
+    }
+    private void SetupRaceMapLoader()
+    {
+        if (!_useMapCycleManager)
+        {
+            this.PrintLog($"MapCycleManager 사용하지 않는 상태입니다.");
+            return;
+        }
+
+        this.PrintLog("SetupRaceRule 진행");
+
+        _mapCycleManager = GameObject.FindObjectOfType<MapCycleManager>();
+        if (_mapCycleManager == null)
+            _mapCycleManager = MapCycleManager.Instance;
+
+        if (_mapCycleManager == null)
+        {
+            this.PrintLog($"MapCycleManager 가 존재 하지 않습니다.");
+            return;
+        }
+
+        _mapCycleManager.OnLoadRandomMap -= MapSetup;
+        _mapCycleManager.OnLoadRandomMap += MapSetup;
+        _mapCycleManager.LoadRandomMap();
+
+        this.PrintLog("SetupRaceRule 진행 완료");
     }
     private void MapSetup(GameObject go)
     {
@@ -358,7 +408,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         this.PrintLog("Checked >>>>>>>>>>>>> Check_Players_CurrentScene");
         if (!IsMasterClient || CurrentRoom == null) return;
 
-        this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_CurrentScene {CurrentRoom.Players.Values.Count}");
+        this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_CurrentScene {CurrentRoom.Players.Values.Count} / ");
         foreach (var p in CurrentRoom.Players.Values)
         {
             PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
@@ -380,13 +430,17 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         if (!IsMasterClient || CurrentRoom == null) return;
 
         this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_RaceKartLoaded {CurrentRoom.Players.Values.Count}");
+
+        if (_playablePlayersCount != CurrentRoom.Players.Values.Count)
+        {
+            this.PrintLog($"플레이 가능 인원 수가 맞지 않습니다. => [인원 수 상황: {CurrentRoom.Players.Values.Count} / {_playablePlayersCount}]");
+            return;
+        }
         foreach (var p in CurrentRoom.Players.Values)
         {
-            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
+            this.PrintLog(PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p));
             var raceLoaded = GetPlayerRaceLoaded(p);
             if (!raceLoaded) return;
-
-            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
         }
 
         this.PrintLog($"Complete Action >>>>>>>>>>>>> Check_Players_RaceKartLoaded {CurrentRoom.Players.Values.Count}");
@@ -402,15 +456,14 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         float finishTime = float.MaxValue;
         foreach (var p in CurrentRoom.Players.Values)
         {
-            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
             var finished = GetPlayerRaceFinished(p);
             var playerFinishTime = GetPlayerRaceFinishTime(p);
 
+           this.PrintLog(PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p));
+            this.PrintLog($"Checking >>>>>>>>>>>>> Check_Players_IsRaceFinished [({finishTime} > {playerFinishTime}) => {finishTime > playerFinishTime} / finished => {finished}]");
             if (finishTime > playerFinishTime)
                 finishTime = playerFinishTime;
             if (!finished) return;
-
-            PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p);
         }
 
         PhotonNetworkCustomProperties.RaceFinishSetting(finishTime, _finishSeconds);
@@ -423,9 +476,12 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     // Coru
     private IEnumerator CO_MapLoadChangeNextStepDelay()
     {
-        while (!_mapAssetLoader.IsLoaded)
+        if (_useMapCycleManager)
         {
-            yield return null;
+            while (!_mapAssetLoader.IsLoaded)
+            {
+                yield return null;
+            }
         }
 
         SendRaceState(RaceState.LoadPlayers);
@@ -478,5 +534,88 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
         PhotonNetwork.LoadLevel(1);
         PhotonNetwork.LeaveRoom();
+    }
+
+    // Util
+    public void RegisterPlayer(PlayerRaceData raceData)
+    {
+        if (raceData == null)
+        {
+            this.PrintLog("RegisterPlayer 실패: raceData가 null", LogType.Warning);
+            return;
+        }
+
+        // 기존에 같은 객체나 같은 ViewID가 있으면 제거(중복 방지) + 널 정리
+        int before = _playerRaceDatas.Count;
+        _playerRaceDatas.RemoveAll(p =>
+            p == null ||
+            p.Equals(null) ||                 // 파괴된 Unity 객체 대비
+            p == raceData ||
+            (p.View != null && raceData.View != null && p.View.ViewID == raceData.View.ViewID)
+        );
+
+        _playerRaceDatas.Add(raceData);
+
+        // 결정적 순서 유지(네트워크 재현성을 위해 ViewID 기준 정렬)
+        _playerRaceDatas.Sort((a, b) =>
+        {
+            int av = (a != null && a.View != null) ? a.View.ViewID : int.MaxValue;
+            int bv = (b != null && b.View != null) ? b.View.ViewID : int.MaxValue;
+            return av.CompareTo(bv);
+        });
+
+        this.PrintLog($"RegisterPlayer: {raceData.name} (중복 {before - _playerRaceDatas.Count + 1}개 제거 포함) / 총 인원: {_playerRaceDatas.Count}");
+
+        // 마스터면, 로딩 단계였을 때 조건 재검사(전원 로드 완료 여부)
+        if (IsMasterClient && CurrentRoom != null && _currentRaceState == RaceState.LoadPlayers)
+        {
+            Check_Players_RaceKartLoaded();
+        }
+    }
+
+    public void UnregisterPlayer(PlayerRaceData raceData)
+    {
+        if (raceData == null)
+        {
+            this.PrintLog("UnregisterPlayer 실패: raceData가 null", LogType.Warning);
+            return;
+        }
+
+        int removed = _playerRaceDatas.RemoveAll(p =>
+            p == null ||
+            p.Equals(null) ||
+            p == raceData ||
+            (p.View != null && raceData.View != null && p.View.ViewID == raceData.View.ViewID)
+        );
+
+        this.PrintLog($"UnregisterPlayer: {raceData.name} / 제거 {removed}개 / 총 인원: {_playerRaceDatas.Count}");
+
+        // 마스터면, 게임 진행 중 이탈 케이스에 대한 간단한 처리
+        if (IsMasterClient && CurrentRoom != null)
+        {
+            switch (_currentRaceState)
+            {
+                case RaceState.LoadPlayers:
+                    // 로딩 단계에서 인원 변동 시 다시 조건 확인
+                    Check_Players_RaceKartLoaded();
+                    break;
+
+                case RaceState.Racing:
+                    // 모두 나가면 비정상 종료로 전환
+                    if (_playerRaceDatas.Count <= 0)
+                    {
+                        this.PrintLog("모든 플레이어 이탈 감지 → FailedGame 전환");
+                        SendRaceState(RaceState.FailedGame);
+                    }
+                    break;
+            }
+        }
+    }
+
+
+
+    private void PrintLog(string printLogString)
+    {
+        this.PrintLog(printLogString, LogType.Log, Color.green);
     }
 }

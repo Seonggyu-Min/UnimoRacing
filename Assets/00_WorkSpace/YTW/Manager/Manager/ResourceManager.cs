@@ -357,57 +357,127 @@ namespace YTW
             }
         }
 
-        public sealed class PreloadTicket
-        {
-            internal readonly List<AsyncOperationHandle> Handles = new();
-            public IReadOnlyList<string> Labels { get; }
-            internal PreloadTicket(IEnumerable<string> labels)
-            {
-                Labels = new List<string>(labels ?? Array.Empty<string>());
-            }
-        }
+        //public sealed class PreloadTicket
+        //{
+        //    internal readonly List<AsyncOperationHandle> Handles = new();
+        //    public IReadOnlyList<string> Labels { get; }
+        //    internal PreloadTicket(IEnumerable<string> labels)
+        //    {
+        //        Labels = new List<string>(labels ?? Array.Empty<string>());
+        //    }
+        //}
 
-        public async Task<PreloadTicket> PreloadLabelsAsync(IEnumerable<string> labels, bool toMemory = false)
+        //public async Task<PreloadTicket> PreloadLabelsAsync(IEnumerable<string> labels, bool toMemory = false)
+        //{
+        //    await EnsureInitializedAsync();
+        //    if (labels == null) labels = Array.Empty<string>();
+
+        //    var ticket = new PreloadTicket(labels);
+
+        //    // 1) 라벨 → locations
+        //    var locH = Addressables.LoadResourceLocationsAsync(labels, Addressables.MergeMode.Union);
+        //    await locH.Task;
+        //    if (!locH.IsValid() || locH.Result == null)
+        //    {
+        //        try { Addressables.Release(locH); } catch { }
+        //        return ticket; // 빈 티켓 반환
+        //    }
+
+        //    // 2) 다운로드(디스크 캐시까지)
+        //    var dlH = Addressables.DownloadDependenciesAsync(locH.Result, false);
+        //    await dlH.Task;
+        //    ticket.Handles.Add(dlH);
+
+        //    // 3) 선택: 메모리 프리로드
+        //    if (toMemory)
+        //    {
+        //        var loadH = Addressables.LoadAssetsAsync<UnityEngine.Object>(locH.Result, null);
+        //        await loadH.Task;
+        //        ticket.Handles.Add(loadH);
+        //    }
+
+        //    Addressables.Release(locH);
+        //    return ticket;
+        //}
+
+        //public void ReleasePreload(PreloadTicket ticket)
+        //{
+        //    if (ticket == null) return;
+        //    foreach (var h in ticket.Handles)
+        //    {
+        //        try { if (h.IsValid()) Addressables.Release(h); } catch { }
+        //    }
+        //    ticket.Handles.Clear();
+        //}
+
+        public async Task<T> LoadRefAsync<T>(AssetReference assetRef) where T : UnityEngine.Object
         {
             await EnsureInitializedAsync();
-            if (labels == null) labels = Array.Empty<string>();
+            if (assetRef == null || !assetRef.RuntimeKeyIsValid()) return null;
 
-            var ticket = new PreloadTicket(labels);
+            var h = assetRef.LoadAssetAsync<T>();
+            try { await h.Task; } catch (Exception ex) { Debug.LogError(ex); }
+            if (!h.IsValid() || h.Status != AsyncOperationStatus.Succeeded) { try { Addressables.Release(h); } catch { }; return null; }
 
-            // 1) 라벨 → locations
-            var locH = Addressables.LoadResourceLocationsAsync(labels, Addressables.MergeMode.Union);
-            await locH.Task;
-            if (!locH.IsValid() || locH.Result == null)
+            // refCount 테이블에 address 키가 없으므로, RuntimeKey.ToString()으로 키를 만들거나
+            // "addrref:"+assetRef.AssetGUID 와 같이 내부 키 규칙을 정해 put
+            var key = "addrref:" + assetRef.AssetGUID;
+            lock (_lock)
             {
-                try { Addressables.Release(locH); } catch { }
-                return ticket; // 빈 티켓 반환
+                _handles[key] = h;
+                _refCounts[key] = (_refCounts.TryGetValue(key, out var n) ? n : 0) + 1;
             }
-
-            // 2) 다운로드(디스크 캐시까지)
-            var dlH = Addressables.DownloadDependenciesAsync(locH.Result, false);
-            await dlH.Task;
-            ticket.Handles.Add(dlH);
-
-            // 3) 선택: 메모리 프리로드
-            if (toMemory)
-            {
-                var loadH = Addressables.LoadAssetsAsync<UnityEngine.Object>(locH.Result, null);
-                await loadH.Task;
-                ticket.Handles.Add(loadH);
-            }
-
-            Addressables.Release(locH);
-            return ticket;
+            return h.Result as T;
         }
 
-        public void ReleasePreload(PreloadTicket ticket)
+        public async Task<GameObject> InstantiateRefAsync(AssetReferenceGameObject assetRef, Vector3 pos, Quaternion rot, Transform parent = null)
         {
-            if (ticket == null) return;
-            foreach (var h in ticket.Handles)
+            await EnsureInitializedAsync();
+            if (assetRef == null || !assetRef.RuntimeKeyIsValid()) return null;
+
+            var h = assetRef.InstantiateAsync(pos, rot, parent);
+            try { await h.Task; } catch (Exception ex) { Debug.LogError(ex); }
+            if (!h.IsValid() || h.Status != AsyncOperationStatus.Succeeded) { try { Addressables.Release(h); } catch { }; return null; }
+
+            var go = h.Result;
+            lock (_lock) { _instanceHandles[go] = h; }
+            return go;
+        }
+
+        public T LoadSync<T>(string address) where T : UnityEngine.Object
+        {
+            EnsureInitializedAsync().GetAwaiter().GetResult();
+            if (string.IsNullOrWhiteSpace(address)) return null;
+            AsyncOperationHandle<T> h;
+            lock (_lock)
             {
-                try { if (h.IsValid()) Addressables.Release(h); } catch { }
+                if (_handles.TryGetValue(address, out var existing))
+                {
+                    _refCounts[address] = (_refCounts.TryGetValue(address, out var n) ? n : 0) + 1;
+                    return existing.Convert<T>().Result;
+                }
+                h = Addressables.LoadAssetAsync<T>(address);
+                _handles[address] = h;
+                _refCounts[address] = 1;
             }
-            ticket.Handles.Clear();
+            var _ = h.WaitForCompletion(); // 동기
+            return h.Result;
+        }
+
+        // AssetReference 동기 Instantiate (GUID 기준 key 관리)
+        public GameObject InstantiateSync_Ref(AssetReferenceGameObject assetRef, Vector3 pos, Quaternion rot, Transform parent = null)
+        {
+            EnsureInitializedAsync().GetAwaiter().GetResult();
+            var h = assetRef.InstantiateAsync(pos, rot, parent);
+            var go = h.WaitForCompletion();
+            lock (_lock) { _instanceHandles[go] = h; }
+            return go;
+        }
+        public void ReleaseRef(AssetReference assetRef)
+        {
+            if (assetRef == null || !assetRef.RuntimeKeyIsValid()) return;
+            var key = "addrref:" + assetRef.AssetGUID;
+            Release(key); // Release
         }
     }
 }

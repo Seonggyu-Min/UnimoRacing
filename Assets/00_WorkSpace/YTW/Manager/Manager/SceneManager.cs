@@ -12,10 +12,8 @@ namespace YTW
     public enum SceneType
     {
         None,
-        YTW_TestScene1, 
-        YTW_TestScene2,
-        YTW_TestScene3,
-        Map1_TEST
+        NTJTestScene2_1,
+        Map1_For_Prototype
     }
 
     public class SceneManager : Singleton<SceneManager>
@@ -75,37 +73,17 @@ namespace YTW
         // 일반 씬 로드 ( 로그인 씬 -> 로비 씬)
         public async void LoadScene(SceneType sceneType)
         {
-            Debug.Log($"[SceneManager] {sceneType} 로딩 시작");
-            if (_isLoading || CurrentSceneType == sceneType) return;
-
-            _isLoading = true;
-            if (Manager.Audio != null) Manager.Audio.StopBGM(0.3f);
-
-            // ShowLoadingScreen();
-
-            // ResourceManager의 Addressables 기반 씬 로드 실행 (enum을 string으로 변환으로 address지정)
-            var sceneInstance = await ResourceManager.Instance.LoadSceneAsync(sceneType.ToString());
-
-            if (sceneInstance.HasValue)
+            if (sceneType == SceneType.NTJTestScene2_1)
             {
-                Debug.Log($"[SceneManager] {sceneType} 로드 성공");
-                CurrentSceneType = sceneType;
+                await ResourceManager.Instance.LoadSceneAsync("Lobby_Remote"); // Addressables 씬 주소
+                return;
             }
-            else
-            {
-                Debug.LogError($"[SceneManager] {sceneType} 씬 로드에 실패했습니다.");
-                // HideLoadingScreen();
-            }
-
-            _isLoading = false;
         }
 
-        public void LoadGameScene(SceneType sceneType)
-        {
-            if (!PhotonNetwork.IsMasterClient) return;
-             
-            PhotonNetwork.LoadLevel(sceneType.ToString());
-        }
+        //public void LoadGameScene(SceneType sceneType)
+        //{
+
+        //}
 
         // 지금 사용 x
         public void HideLoadingScreen()

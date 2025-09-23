@@ -30,7 +30,7 @@ public class KartSpawner : MonoBehaviour
 
     private bool _isSuccessed => _isSetCharacterID && _isSetkartID;
 
-    private static string PK(PlayerKey k) => PhotonNetworkCustomProperties.ToKeyString(k);
+    private static string PK(PlayerKey k) => PhotonNetworkCustomProperties.ToPlayerKeyString(k);
 
     private void Awake()
     {

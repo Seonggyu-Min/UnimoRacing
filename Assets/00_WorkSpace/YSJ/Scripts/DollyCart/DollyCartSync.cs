@@ -5,11 +5,31 @@ using YSJ.Util;
 [RequireComponent(typeof(PhotonView))]
 public class DollyCartSync : MonoBehaviourPun, IPunObservable
 {
-    private bool _isSetup = false;
+    #region Parameter
+    [SerializeField, Min(0.1f)] private float _fixedCPUpdateCycleTime = 2.0f;
 
+    private bool _isSetup = false;
+    private bool _fixedableUpdateCP = false;
     private PlayerRaceData _data;
+    private PlayerManager _pm;
+    private float _currentCycleTime = 0.0f;
 
     public bool IsSetup => _isSetup;
+    #endregion
+
+    public void Update()
+    {
+        if (!_isSetup) return;
+        if (!_data.View.IsMine) return;
+        if (!_fixedableUpdateCP) return;
+
+        _currentCycleTime += Time.deltaTime;
+        if (_currentCycleTime > _fixedCPUpdateCycleTime)
+        {
+            _currentCycleTime -= _fixedCPUpdateCycleTime;
+            FixedCPUpdate();
+        }
+    }
 
     public void Setup(PlayerRaceData data)
     {
@@ -20,9 +40,20 @@ public class DollyCartSync : MonoBehaviourPun, IPunObservable
         }
 
         _data = data;
+        _pm = PlayerManager.Instance;
+
+        var pm = PlayerManager.Instance;
+        pm.SetPlayerCPRaceCurrentNorm(_data.Lap + _data.Norm);
+
+        var iGM = InGameManager.Instance;
+        iGM.OnStateChanged -= OnRaceStateEnter;
+        iGM.OnStateChanged += OnRaceStateEnter;
+
+        _currentCycleTime = 0.0f;
         _isSetup = true;
     }
 
+    #region Photon Network
     // 동기화를 받아야 되는 카트에 필요
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
@@ -39,7 +70,6 @@ public class DollyCartSync : MonoBehaviourPun, IPunObservable
             Receive(stream, info);
         }
     }
-
     // 보내기
     private void Send(PhotonStream stream, PhotonMessageInfo info)
     {
@@ -48,8 +78,11 @@ public class DollyCartSync : MonoBehaviourPun, IPunObservable
 
         stream.SendNext(_data.Lap);                 // 렙
         stream.SendNext(_data.Norm);                // 진행 퍼센트
-    }
 
+        stream.SendNext(_data.IsControlable);
+        stream.SendNext(_data.IsMovable);
+        stream.SendNext(_data.IsItemUsable);
+    }
     // 받기
     private void Receive(PhotonStream stream, PhotonMessageInfo info)
     {
@@ -59,10 +92,32 @@ public class DollyCartSync : MonoBehaviourPun, IPunObservable
         int     recvLap           = (int)stream.ReceiveNext();
         float   recvNorm          = (float)stream.ReceiveNext();
 
+        bool   recvIsControlable  = (bool)stream.ReceiveNext();
+        bool   recvIsMovable      = (bool)stream.ReceiveNext();
+        bool   recvIsItemUsable   = (bool)stream.ReceiveNext();
+
         _data.Controller.ChangeTrack(recvTrackIndex, info);
 
         _data.Movement.ChangeSpeed(recvKartSpeed, info);
         _data.Movement.SyncPosition(recvNorm, info);
+        _data.SetState(recvIsControlable, recvIsMovable, recvIsItemUsable);
+
         // _controller.SyncReceive(recvNorm, recvLap, recvSpeed);
     }
+
+    #endregion
+
+    #region Action
+    private void OnRaceStateEnter(RaceState state)
+    {
+        _fixedableUpdateCP = (state == RaceState.Racing);
+    }
+
+    #endregion
+
+    private void FixedCPUpdate()
+    {
+        _pm?.SetPlayerCPRaceCurrentNorm(_data.Lap + _data.Norm);
+    }
+
 }

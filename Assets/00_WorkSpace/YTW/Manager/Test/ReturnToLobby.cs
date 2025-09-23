@@ -19,7 +19,7 @@ namespace YTW
                     Debug.Log("ESC 키 입력 감지. 로비 씬으로 돌아갑니다.");
 
                     // YTW_TestScene1 (로비 씬으로 가정)으로 씬 전환 요청
-                    Manager.Scene.LoadGameScene(SceneType.YTW_TestScene1);
+                    // Manager.Scene.LoadGameScene(SceneType.YTW_TestScene1);
                 }
             }
         }

@@ -33,6 +33,7 @@ namespace MSG
         [Header("애니메이션 타입 설정")]
         public bool UseSlide = true;
         public bool UseFade = false;
+        public bool UseScale = false;
 
         [Header("애니메이션 대상")]
         public List<RectWithCanvasGroup> Targets;
@@ -65,8 +66,25 @@ namespace MSG
         [ShowField(nameof(UseFade))]
         public Ease FadeOutEase = Ease.OutCirc;
 
+        [Header("스케일 설정")]
+        [ShowField(nameof(UseScale))]
+        public float StartScale = 0f;
+        [ShowField(nameof(UseScale))]
+        public float TargetScale = 1f;
+        [ShowField(nameof(UseScale))]
+        public float EndScale = 0f;
+        [ShowField(nameof(UseScale))]
+        public float ScaleInDuration = 0.5f;
+        [ShowField(nameof(UseScale))]
+        public float ScaleOutDuration = 0.5f;
+        [ShowField(nameof(UseScale))]
+        public Ease ScaleInEase = Ease.OutBack;
+        [ShowField(nameof(UseScale))]
+        public Ease ScaleOutEase = Ease.OutCirc;
+
         [Header("공통 설정")]
         public bool WillPlayTogether = true;                // 설정한 애니메이션이 동시에 실행될 것인지
+        public bool WillPlayAllTargetsAtOnce = false;       // 타겟별로 순회하지 않고 한꺼번에 다 재생할지
         public bool WillWaitUntilSeqEnd = false;            // 시퀀스가 끝나기 전이라도 다음 인터벌 대기 후 애니메이션 재생할지
         public bool LockInteractBeforeAnimEnd = false;      // 애니메이션이 끝나기 전까지 상호작용을 막을 것인지
         public float Interval = 0.05f;                      // 타겟별 순회 지연 시간
@@ -160,76 +178,181 @@ namespace MSG
             {
                 if (group == null || group.Targets == null) continue;
 
-                foreach (var target in group.Targets)
+                if (group.WillPlayAllTargetsAtOnce)
                 {
-                    if (target == null || target.RectTransform == null || target.CanvasGroup == null) continue;
+                    var groupSeq = DOTween.Sequence()
+                        .SetUpdate(true)
+                        .SetLink(gameObject, LinkBehaviour.KillOnDisable);
 
-                    var rect = target.RectTransform;
-                    var cg = target.CanvasGroup;
-
-                    cg.gameObject.SetActive(true);
-
-                    DOTween.Kill(cg);
-                    DOTween.Kill(rect);
-
-                    // 애니메이션이 없으면 바로 return
-                    if (!group.UseSlide && !group.UseFade)
+                    foreach (var target in group.Targets)
                     {
-                        yield return new WaitForSecondsRealtime(group.Interval);
-                        continue;
+                        if (target == null || !target.RectTransform || !target.CanvasGroup) continue;
+
+                        var rect = target.RectTransform;
+                        var cg = target.CanvasGroup;
+
+                        cg.gameObject.SetActive(true);
+                        DOTween.Kill(cg); DOTween.Kill(rect);
+
+                        if (group.LockInteractBeforeAnimEnd)
+                        {
+                            cg.interactable = false;
+                            cg.blocksRaycasts = false;
+                        }
+                        if (!group.UseFade)
+                        {
+                            cg.alpha = 1f;
+                        }
+
+                        var tSeq = DOTween.Sequence()
+                            .SetUpdate(true)
+                            .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
+
+                        if (group.UseSlide)
+                        {
+                            rect.anchoredPosition = OffsetFromBase(rect, group.SlideDirection, group.MoveInOffset);
+                            tSeq.Join(rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.OriginOffset),
+                                                       group.MoveInDuration)
+                                .SetEase(group.MoveInEase)
+                                .SetUpdate(true));
+                        }
+
+                        if (group.UseFade)
+                        {
+                            cg.alpha = 0f;
+                            tSeq.Join(cg
+                                .DOFade(1f, group.FadeInDuration)
+                                .SetEase(group.FadeInEase)
+                                .SetUpdate(true));
+                        }
+
+                        if (group.UseScale)
+                        {
+                            rect.localScale = Vector3.one * group.StartScale;
+                            tSeq.Join(rect.DOScale(Vector3.one * group.TargetScale,
+                                        group.ScaleInDuration)
+                                .SetEase(group.ScaleInEase)
+                                .SetUpdate(true));
+                        }
+
+                        groupSeq.Join(tSeq);
                     }
 
-                    var seq = DOTween.Sequence()
-                        .SetUpdate(true)
-                        .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable)
+                    groupSeq
                         .OnComplete(() =>
                         {
-                            cg.interactable = true;
-                            cg.blocksRaycasts = true;
+                            foreach (var target in group.Targets)
+                            {
+                                if (target?.CanvasGroup == null) continue;
+                                target.CanvasGroup.interactable = true;
+                                target.CanvasGroup.blocksRaycasts = true;
+                            }
                         })
                         .OnKill(() =>
                         {
-                            cg.interactable = true;
-                            cg.blocksRaycasts = true;
+                            foreach (var t in group.Targets)
+                            {
+                                if (t?.CanvasGroup == null) continue;
+                                t.CanvasGroup.interactable = true;
+                                t.CanvasGroup.blocksRaycasts = true;
+                            }
                         });
-
-                    if (group.LockInteractBeforeAnimEnd)
-                    {
-                        cg.interactable = false;
-                        cg.blocksRaycasts = false;
-                    }
-
-                    if (group.UseSlide)
-                    {
-                        rect.anchoredPosition = OffsetFromBase(rect, group.SlideDirection, group.MoveInOffset);
-                        var slide = rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.OriginOffset),
-                                                     group.MoveInDuration)
-                                        .SetEase(group.MoveInEase)
-                                        .SetUpdate(true)
-                                        .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
-
-                        if (group.WillPlayTogether) seq.Join(slide);
-                        else seq.Append(slide);
-                    }
-
-                    if (group.UseFade)
-                    {
-                        cg.alpha = 0f;
-                        var fade = cg.DOFade(1f, group.FadeInDuration)
-                                    .SetEase(group.FadeInEase)
-                                    .SetUpdate(true)
-                                    .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
-
-                        if (group.WillPlayTogether) seq.Join(fade);
-                        else seq.Append(fade);
-                    }
 
                     if (group.WillWaitUntilSeqEnd)
                     {
-                        yield return seq.WaitForCompletion();
+                        yield return groupSeq.WaitForCompletion();
                     }
-                    yield return new WaitForSecondsRealtime(group.Interval);
                 }
+                else
+                {
+                    foreach (var target in group.Targets)
+                    {
+                        if (target == null || target.RectTransform == null || target.CanvasGroup == null) continue;
+
+                        var rect = target.RectTransform;
+                        var cg = target.CanvasGroup;
+
+                        cg.gameObject.SetActive(true);
+
+                        DOTween.Kill(cg);
+                        DOTween.Kill(rect);
+
+                        // 애니메이션이 없으면 바로 return
+                        if (!group.UseSlide && !group.UseFade && !group.UseScale)
+                        {
+                            yield return new WaitForSecondsRealtime(group.Interval);
+                            continue;
+                        }
+
+                        var seq = DOTween.Sequence()
+                            .SetUpdate(true)
+                            .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable)
+                            .OnComplete(() =>
+                            {
+                                cg.interactable = true;
+                                cg.blocksRaycasts = true;
+                            })
+                            .OnKill(() =>
+                            {
+                                cg.interactable = true;
+                                cg.blocksRaycasts = true;
+                            });
+
+                        if (group.LockInteractBeforeAnimEnd)
+                        {
+                            cg.interactable = false;
+                            cg.blocksRaycasts = false;
+                        }
+                        if (!group.UseFade)
+                        {
+                            cg.alpha = 1f;
+                        }
+
+                        if (group.UseSlide)
+                        {
+                            rect.anchoredPosition = OffsetFromBase(rect, group.SlideDirection, group.MoveInOffset);
+                            var slide = rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.OriginOffset),
+                                                         group.MoveInDuration)
+                                            .SetEase(group.MoveInEase)
+                                            .SetUpdate(true)
+                                            .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
+
+                            if (group.WillPlayTogether) seq.Join(slide);
+                            else seq.Append(slide);
+                        }
+
+                        if (group.UseFade)
+                        {
+                            cg.alpha = 0f;
+                            var fade = cg.DOFade(1f, group.FadeInDuration)
+                                        .SetEase(group.FadeInEase)
+                                        .SetUpdate(true)
+                                        .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
+
+                            if (group.WillPlayTogether) seq.Join(fade);
+                            else seq.Append(fade);
+                        }
+
+                        if (group.UseScale)
+                        {
+                            rect.localScale = Vector3.one * group.StartScale;
+                            var scale = rect.DOScale(Vector3.one * group.TargetScale,
+                                            group.ScaleInDuration)
+                                        .SetEase(group.ScaleInEase)
+                                        .SetUpdate(true)
+                                        .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
+
+                            if (group.WillPlayTogether) seq.Join(scale);
+                            else seq.Append(scale);
+                        }
+
+                        if (group.WillWaitUntilSeqEnd)
+                        {
+                            yield return seq.WaitForCompletion();
+                        }
+                        yield return new WaitForSecondsRealtime(group.Interval);
+                    }
+                } 
             }
             onComplete?.Invoke();
         }
@@ -242,65 +365,160 @@ namespace MSG
             {
                 if (group == null || group.Targets == null) continue;
 
-                foreach (var t in group.Targets)
+                if (group.WillPlayAllTargetsAtOnce)
                 {
-                    if (t == null || t.RectTransform == null || t.CanvasGroup == null) continue;
+                    var groupSeq = DOTween.Sequence()
+                        .SetUpdate(true)
+                        .SetLink(gameObject, LinkBehaviour.KillOnDisable); // (선택) 루트 링크
 
-                    var rect = t.RectTransform;
-                    var cg = t.CanvasGroup;
-
-                    DOTween.Kill(cg);
-                    DOTween.Kill(rect);
-
-                    // 애니메이션 중 상호작용 허용 안하니까 꺼지기 전에 그냥 미리 상호작용 종료
-                    if (group.LockInteractBeforeAnimEnd)
+                    foreach (var t in group.Targets)
                     {
-                        cg.interactable = false;
-                        cg.blocksRaycasts = false;
+                        if (t == null || t.RectTransform == null || t.CanvasGroup == null) continue;
+
+                        var rect = t.RectTransform;
+                        var cg = t.CanvasGroup;
+
+                        DOTween.Kill(cg); DOTween.Kill(rect);
+
+                        if (group.LockInteractBeforeAnimEnd)
+                        {
+                            cg.interactable = false;
+                            cg.blocksRaycasts = false;
+                        }
+
+                        var tSeq = DOTween.Sequence()
+                            .SetUpdate(true)
+                            .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
+
+                        if (group.UseSlide)
+                        {
+                            tSeq.Join(rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.MoveOutOffset),
+                                                       group.MoveOutDuration)
+                                        .SetEase(group.MoveOutEase)
+                                        .SetUpdate(true));
+                        }
+
+                        if (group.UseFade)
+                        {
+                            tSeq.Join(cg.DOFade(0f, group.FadeOutDuration)
+                                        .SetEase(group.FadeOutEase)
+                                        .SetUpdate(true));
+                        }
+
+                        if (group.UseScale)
+                        {
+                            rect.localScale = Vector3.one * group.TargetScale;
+                            tSeq.Join(rect.DOScale(Vector3.one * group.EndScale,
+                                        group.ScaleOutDuration)
+                                .SetEase(group.ScaleOutEase)
+                                .SetUpdate(true));
+                        }
+
+                        groupSeq.Join(tSeq);
                     }
 
-                    var seq = DOTween.Sequence()
-                        .SetUpdate(true)
-                        .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable)
+                    groupSeq
                         .OnComplete(() =>
                         {
-                            cg.interactable = true;
-                            cg.blocksRaycasts = true;
+                            foreach (var t in group.Targets)
+                            {
+                                if (t?.CanvasGroup == null) continue;
+                                t.CanvasGroup.interactable = true;
+                                t.CanvasGroup.blocksRaycasts = true;
+                            }
                         })
                         .OnKill(() =>
                         {
-                            cg.interactable = true;
-                            cg.blocksRaycasts = true;
+                            foreach (var t in group.Targets)
+                            {
+                                if (t?.CanvasGroup == null) continue;
+                                t.CanvasGroup.interactable = true;
+                                t.CanvasGroup.blocksRaycasts = true;
+                            }
                         });
-
-                    if (group.UseSlide)
-                    {
-                        var slide = rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.MoveOutOffset),
-                                                     group.MoveOutDuration)
-                                        .SetEase(group.MoveOutEase)
-                                        .SetUpdate(true)
-                                        .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
-
-                        if (group.WillPlayTogether) seq.Join(slide);
-                        else seq.Append(slide);
-                    }
-
-                    if (group.UseFade)
-                    {
-                        var fade = cg.DOFade(0f, group.FadeOutDuration)
-                                    .SetEase(group.FadeOutEase)
-                                    .SetUpdate(true)
-                                    .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
-
-                        if (group.WillPlayTogether) seq.Join(fade);
-                        else seq.Append(fade);
-                    }
 
                     if (group.WillWaitUntilSeqEnd)
                     {
-                        yield return seq.WaitForCompletion();
+                        yield return groupSeq.WaitForCompletion();
                     }
-                    yield return new WaitForSecondsRealtime(group.Interval);
+                }
+                else
+                {
+                    if (group == null || group.Targets == null) continue;
+
+                    foreach (var t in group.Targets)
+                    {
+                        if (t == null || t.RectTransform == null || t.CanvasGroup == null) continue;
+
+                        var rect = t.RectTransform;
+                        var cg = t.CanvasGroup;
+
+                        DOTween.Kill(cg);
+                        DOTween.Kill(rect);
+
+                        // 애니메이션 중 상호작용 허용 안하니까 꺼지기 전에 그냥 미리 상호작용 종료
+                        if (group.LockInteractBeforeAnimEnd)
+                        {
+                            cg.interactable = false;
+                            cg.blocksRaycasts = false;
+                        }
+
+                        var seq = DOTween.Sequence()
+                            .SetUpdate(true)
+                            .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable)
+                            .OnComplete(() =>
+                            {
+                                cg.interactable = true;
+                                cg.blocksRaycasts = true;
+                            })
+                            .OnKill(() =>
+                            {
+                                cg.interactable = true;
+                                cg.blocksRaycasts = true;
+                            });
+
+                        if (group.UseSlide)
+                        {
+                            var slide = rect.DOAnchorPos(OffsetFromBase(rect, group.SlideDirection, group.MoveOutOffset),
+                                                         group.MoveOutDuration)
+                                            .SetEase(group.MoveOutEase)
+                                            .SetUpdate(true)
+                                            .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
+
+                            if (group.WillPlayTogether) seq.Join(slide);
+                            else seq.Append(slide);
+                        }
+
+                        if (group.UseFade)
+                        {
+                            var fade = cg.DOFade(0f, group.FadeOutDuration)
+                                        .SetEase(group.FadeOutEase)
+                                        .SetUpdate(true)
+                                        .SetLink(cg.gameObject, LinkBehaviour.KillOnDisable);
+
+                            if (group.WillPlayTogether) seq.Join(fade);
+                            else seq.Append(fade);
+                        }
+
+                        if (group.UseScale)
+                        {
+                            rect.localScale = Vector3.one * group.TargetScale;
+                            var scale = rect.DOScale(Vector3.one * group.EndScale,
+                                            group.ScaleOutDuration)
+                                        .SetEase(group.ScaleOutEase)
+                                        .SetUpdate(true)
+                                        .SetLink(rect.gameObject, LinkBehaviour.KillOnDisable);
+
+                            if (group.WillPlayTogether) seq.Join(scale);
+                            else seq.Append(scale);
+                        }
+
+                        if (group.WillWaitUntilSeqEnd)
+                        {
+                            yield return seq.WaitForCompletion();
+                        }
+                        yield return new WaitForSecondsRealtime(group.Interval);
+                    }
                 }
             }
             onComplete?.Invoke();

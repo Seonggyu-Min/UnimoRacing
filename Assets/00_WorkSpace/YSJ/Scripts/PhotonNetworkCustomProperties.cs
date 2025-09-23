@@ -34,7 +34,9 @@ public static class PhotonNetworkCustomProperties
     public const int VALUE_ROOM_NOT_CHOSEN_RACE_MAP_ID          = -1;
 
     // VOTE
-    public const string KEY_VOTE_WINNER_INDEX =                 "vote_winner_index";                // 방에서 투표로 선정된 맵의 인덱스를 저장할 키
+    public const string KEY_ROOM_VOTE_STATE                     = "vote_state";                     // 투표 중인지 여부
+    public const string KEY_ROOM_VOTE_END_AT                    = "vote_endAt";                    // 투표 종료 시간 (PhotonNetwork.Time)
+    public const string KEY_VOTE_WINNER_INDEX                   = "vote_winner_index";              // 방에서 투표로 선정된 맵의 인덱스를 저장할 키
 
     #endregion
 
@@ -49,6 +51,8 @@ public static class PhotonNetworkCustomProperties
     public const string KEY_PLAYER_HOPERACEMAP_ID               = "player_HopeRaceMapId";           // 희망 맵 ID                        포톤
 
     public const string KEY_PLAYER_MATCH_READY                  = "player_match_ready";             // 매치 준비 여부                     필요 없음(테스트용)
+
+    public const string KEY_PLAYER_RACE_CURRENT_NORM            = "player_race_current_norm";       // 현재 위치 정보(=> 랩.위치)         포톤
 
     public const string KEY_PLAYER_RACE_LOADED                  = "player_race_loaded";             // 레이싱 로드 여부                    포톤
     public const string KEY_PLAYER_RACE_IS_FINISHED             = "player_race_isFinished";         // 개인 레이싱 완료 여부               포톤
@@ -70,7 +74,7 @@ public static class PhotonNetworkCustomProperties
 
     #region Mapping
 
-    public static string ToKeyString(RoomKey key) => key switch
+    public static string ToRoomKeyString(RoomKey key) => key switch
     {
         RoomKey.RoomState => KEY_ROOM_STATE_TYPE,
 
@@ -90,11 +94,13 @@ public static class PhotonNetworkCustomProperties
 
         // Vote
         RoomKey.WinnerMapIndex => KEY_VOTE_WINNER_INDEX,
+        RoomKey.VoteState => KEY_ROOM_VOTE_STATE,
+        RoomKey.VoteEndTime => KEY_ROOM_VOTE_END_AT,
 
         _ => key.ToString()
     };
 
-    public static string ToKeyString(PlayerKey key) => key switch
+    public static string ToPlayerKeyString(PlayerKey key) => key switch
     {
         PlayerKey.Level => KEY_PLAYER_LEVEL,
         PlayerKey.Exp => KEY_PLAYER_EXP,
@@ -104,6 +110,8 @@ public static class PhotonNetworkCustomProperties
         PlayerKey.HopeRaceMapId => KEY_PLAYER_HOPERACEMAP_ID,
 
         PlayerKey.MatchReady => KEY_PLAYER_MATCH_READY,
+
+        PlayerKey.RaceCurrentNorm => KEY_PLAYER_RACE_CURRENT_NORM,
 
         PlayerKey.RaceLoaded => KEY_PLAYER_RACE_LOADED,
         PlayerKey.RaceIsFinished => KEY_PLAYER_RACE_IS_FINISHED,
@@ -154,7 +162,7 @@ public static class PhotonNetworkCustomProperties
     public static T GetRoomProp<T>(RoomKey key, T defaultValue = default, Action onSuccess = null, Action onError = null)
     {
         EnsureInRoom();
-        var sKey = ToKeyString(key);
+        var sKey = ToRoomKeyString(key);
         // 특정 타입으로 캐스팅 보정
         if (PhotonNetwork.CurrentRoom.CustomProperties != null &&
             PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(sKey, out var raw) &&
@@ -187,7 +195,7 @@ public static class PhotonNetworkCustomProperties
     public static bool TryGetRoomProp<T>(RoomKey key, out T value)
     {
         EnsureInRoom();
-        var sKey = ToKeyString(key);
+        var sKey = ToRoomKeyString(key);
         value = default;
         if (PhotonNetwork.CurrentRoom.CustomProperties != null &&
             PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(sKey, out var raw))
@@ -212,7 +220,7 @@ public static class PhotonNetworkCustomProperties
     public static bool SetRoomProp(RoomKey key, object value, Hashtable expected = null, WebFlags webFlags = null)
     {
         EnsureInRoom();
-        var sKey = ToKeyString(key);
+        var sKey = ToRoomKeyString(key);
         return PhotonNetwork.CurrentRoom.SetCustomProperties(MakeTable(sKey, value), expected, webFlags);
     }
 
@@ -221,13 +229,13 @@ public static class PhotonNetworkCustomProperties
     {
         EnsureInRoom();
         var toSet = new Dictionary<string, object>();
-        foreach (var kv in values) toSet[ToKeyString(kv.Key)] = kv.Value;
+        foreach (var kv in values) toSet[ToRoomKeyString(kv.Key)] = kv.Value;
 
         Hashtable expectedTable = null;
         if (expected != null)
         {
             expectedTable = new Hashtable();
-            foreach (var kv in expected) expectedTable[ToKeyString(kv.Key)] = kv.Value;
+            foreach (var kv in expected) expectedTable[ToRoomKeyString(kv.Key)] = kv.Value;
         }
 
         return PhotonNetwork.CurrentRoom.SetCustomProperties(MakeTable(toSet), expectedTable, webFlags);
@@ -240,7 +248,7 @@ public static class PhotonNetworkCustomProperties
     public static bool CompareExchangeRoomProp(RoomKey key, object newValue, object expectedValue, WebFlags webFlags = null)
     {
         EnsureInRoom();
-        var sKey = ToKeyString(key);
+        var sKey = ToRoomKeyString(key);
         var set = MakeTable(sKey, newValue);
         var expected = MakeTable(sKey, expectedValue);
         return PhotonNetwork.CurrentRoom.SetCustomProperties(set, expected, webFlags);
@@ -256,7 +264,7 @@ public static class PhotonNetworkCustomProperties
     public static T GetPlayerProp<T>(Player player, PlayerKey key, T defaultValue = default)
     {
         if (player == null) throw new ArgumentNullException(nameof(player));
-        var sKey = ToKeyString(key);
+        var sKey = ToPlayerKeyString(key);
 
         // 그냥 기본형태의 클래스 등의 타입으로만 형변환 됨. Enum은 안됨
         /*if (player.CustomProperties != null &&
@@ -292,7 +300,7 @@ public static class PhotonNetworkCustomProperties
     public static bool TryGetPlayerProp<T>(Player player, PlayerKey key, out T value)
     {
         if (player == null) throw new ArgumentNullException(nameof(player));
-        var sKey = ToKeyString(key);
+        var sKey = ToPlayerKeyString(key);
         value = default;
 
         if (player.CustomProperties != null &&
@@ -325,7 +333,7 @@ public static class PhotonNetworkCustomProperties
     public static bool SetPlayerProp(Player player, PlayerKey key, object value, Hashtable expected = null, WebFlags webFlags = null)
     {
         if (player == null) throw new ArgumentNullException(nameof(player));
-        var sKey = ToKeyString(key);
+        var sKey = ToPlayerKeyString(key);
         return player.SetCustomProperties(MakeTable(sKey, value), expected, webFlags);
     }
 
@@ -339,13 +347,13 @@ public static class PhotonNetworkCustomProperties
         if (player == null) throw new ArgumentNullException(nameof(player));
 
         var toSet = new Dictionary<string, object>();
-        foreach (var kv in values) toSet[ToKeyString(kv.Key)] = kv.Value;
+        foreach (var kv in values) toSet[ToPlayerKeyString(kv.Key)] = kv.Value;
 
         Hashtable expectedTable = null;
         if (expected != null)
         {
             expectedTable = new Hashtable();
-            foreach (var kv in expected) expectedTable[ToKeyString(kv.Key)] = kv.Value;
+            foreach (var kv in expected) expectedTable[ToPlayerKeyString(kv.Key)] = kv.Value;
         }
 
         return player.SetCustomProperties(MakeTable(toSet), expectedTable, webFlags);
@@ -355,7 +363,7 @@ public static class PhotonNetworkCustomProperties
     public static bool CompareExchangePlayerProp(Player player, PlayerKey key, object newValue, object expectedValue, WebFlags webFlags = null)
     {
         if (player == null) throw new ArgumentNullException(nameof(player));
-        var sKey = ToKeyString(key);
+        var sKey = ToPlayerKeyString(key);
         var set = MakeTable(sKey, newValue);
         var expected = MakeTable(sKey, expectedValue);
         return player.SetCustomProperties(set, expected, webFlags);
@@ -679,8 +687,9 @@ public static class PhotonNetworkCustomProperties
                 { PlayerKey.MatchReady,               false         },
 
                 // PHOTON - Race
+                { PlayerKey.RaceCurrentNorm,          0.0f          },
                 { PlayerKey.RaceLoaded,               false         },
-                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceIsFinished,           false         },
                 { PlayerKey.RaceFinishedTime,         -1            },
                 // { PlayerKey.CurrentScene,             sceneId       },
             }
@@ -705,8 +714,9 @@ public static class PhotonNetworkCustomProperties
                 { PlayerKey.MatchReady,               true          },
 
                 // PHOTON - Race
+                { PlayerKey.RaceCurrentNorm,          0.0f          },
                 { PlayerKey.RaceLoaded,               false         },
-                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceIsFinished,           false         },
                 { PlayerKey.RaceFinishedTime,         -1            },
                 // { PlayerKey.CurrentScene,             -1            },
             }
@@ -731,8 +741,9 @@ public static class PhotonNetworkCustomProperties
                 // { PlayerKey.MatchReady,               true          },
 
                 // PHOTON - Race
+                // { PlayerKey.RaceCurrentNorm,          0.0f          },
                 { PlayerKey.RaceLoaded,               false         },
-                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceIsFinished,           false         },
                 { PlayerKey.RaceFinishedTime,         -1            },
                 // { PlayerKey.CurrentScene,             -1            },
             }
@@ -757,8 +768,9 @@ public static class PhotonNetworkCustomProperties
                 // { PlayerKey.MatchReady,               true          },
 
                 // PHOTON - Race
+                // { PlayerKey.RaceCurrentNorm,          0.0f          },
                 { PlayerKey.RaceLoaded,               true          },
-                { PlayerKey.RaceIsFinished,           -1            },
+                { PlayerKey.RaceIsFinished,           false         },
                 { PlayerKey.RaceFinishedTime,         -1            },
                 // { PlayerKey.CurrentScene,             -1            },
             }

@@ -25,7 +25,11 @@ namespace MSG
                 case MoneyType.Gold:
                     DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(DBRoutes.Gold(CurrentUid),
                         quantity,
-                        suc => Debug.Log($"골드 {quantity}을 얻음. 현재 골드: {suc}"),
+                        suc =>
+                        { 
+                            Debug.Log($"골드 {quantity}을 얻음. 현재 골드: {suc}");
+                            MissionService.Instance.Report(MissionVerb.Obtain, MissionObject.Gold, null, quantity); 
+                        },
                         err => Debug.LogWarning($"골드 쓰기 오류: {err}"));
 
                     // TODO: 미션의 92013 ~ 92016 골드 누적 증가 처리 필요한데, Gold가 Money1이 아닐 수 있음. 추후 처리 필요
@@ -40,15 +44,17 @@ namespace MSG
                     //MissionService.Instance.IncrementAchievementProgress(92015, quantity);
                     //MissionService.Instance.IncrementAchievementProgress(92016, quantity);
 
-
-                    // 미션이 생기면 주석 해제될 듯
-                    //MissionService.Instance.Report(MissionVerb.Obtain, MissionObject.Gold, null, quantity);
+                    
                     break;
 
                 case MoneyType.BlueHoneyGem:
                     DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(DBRoutes.BlueHoneyGem(CurrentUid),
                         quantity,
-                        suc => Debug.Log($"블루허니잼 {quantity}을 얻음. 현재 블루허니잼: {suc}"),
+                        suc => 
+                        { 
+                            Debug.Log($"블루허니잼 {quantity}을 얻음. 현재 블루허니잼: {suc}");
+                            MissionService.Instance.Report(MissionVerb.Obtain, MissionObject.BluyHoneyGem, null, quantity);
+                        },
                         err => Debug.LogWarning($"블루허니잼 쓰기 오류: {err}"));
                     break;
 

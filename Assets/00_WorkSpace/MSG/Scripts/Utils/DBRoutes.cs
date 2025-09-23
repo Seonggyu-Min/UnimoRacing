@@ -93,7 +93,13 @@ namespace MSG
         public static string MissionsRoot => DBPathMaker.Join(DatabaseKeys.missions);
         public static string UserMissionsRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions);
         public static string UserDailyMissionRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.daily);
+        public static string UserDailyMissionClaimed(string uid, int missionId) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.daily, DatabaseKeys.claimed, missionId.ToString());
+        public static string UserDailyMissionCleared(string uid, int missionId) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.daily, DatabaseKeys.cleared, missionId.ToString());
+        public static string UserDailyMissionProgress(string uid, int missionId) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.daily, DatabaseKeys.progress, missionId.ToString());
         public static string UserAchievementMissionRoot(string uid) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.achievement);
+        public static string UserAchievementMissionClaimed(string uid, int missionId) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.achievement, DatabaseKeys.claimed, missionId.ToString());
+        public static string UserAchievementMissionCleared(string uid, int missionId) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.achievement, DatabaseKeys.cleared, missionId.ToString());
+        public static string UserAchievementMissionProgress(string uid, int missionId) => DBPathMaker.Join(DatabaseKeys.users, uid, DatabaseKeys.missions, DatabaseKeys.achievement, DatabaseKeys.progress, missionId.ToString());
 
 
         #region Deprecated

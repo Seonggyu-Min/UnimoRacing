@@ -1,279 +1,164 @@
-﻿using DA_Assets.FCU.Model;
-using Firebase.Database;
+﻿using Firebase.Database;
 using MSG;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
-using UnityEngine.UI;
 
+
+// MoneyType 및 DBRoutes는 게임에 맞게 정의되어 있어야 합니다.
+public enum MoneyType { Gold, BlueHoneyGem, Cash }
 
 public class MyRoomManager : MonoBehaviour
 {
+    // 스크립터블 오브젝트 데이터
     [SerializeField] private List<UnimoCharacterSO> allCharacterData;
     [SerializeField] private List<UnimoKartSO> allKartData;
 
-    // UI 관리 스크립트 참조
-    [SerializeField] private MyRoomUIManager uiManager;
+    // 현재 장착된 아이템 데이터 (데이터 전용)
+    private UnimoKartSO _currentEquippedKart;
+    private UnimoCharacterSO _currentEquippedCharacter;
 
-    // 인벤토리 UI를 생성할 부모와 프리팹
-    [SerializeField] private Transform kartInventoryParent;
-    [SerializeField] private GameObject kartInventoryPrefab;
-    [SerializeField] private Transform characterInventoryParent;
-    [SerializeField] private GameObject characterInventoryPrefab;
-
-    private UnimoKartSO currentEquippedKart;
-    private UnimoCharacterSO currentEquippedCharacter;
-
-    // 상단에 표시될 2D 이미지용 Image 컴포넌트
-    [Header("Display Images")]
-    [SerializeField] private Image characterDisplayImage;
-    [SerializeField] private Image kartDisplayImage;
-
-    [Header("Item Descriptions")]
-    [SerializeField] private TMP_Text kartDescText;
-    [SerializeField] private TMP_Text characterDescText;
-    [SerializeField] private TMP_Text passiveSkillIdText;
-
-    private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
-    public Sprite CurrentEquippedCharacterSprite => currentEquippedCharacter.characterSprite;
-    public Sprite CurrentEquippedKartSprite => currentEquippedKart.kartSprite;
-
-    public static event Action OnMyRoomPanelClosed;
-
-    private Action _unsubUnimoInv;
-    private Action _unsubKartInv;
+    // 인벤토리 데이터 (Firebase에서 동기화)
     private Dictionary<string, object> _ownedKarts;
     private Dictionary<string, object> _ownedCharacters;
 
-    #region MyRoom
+    // UI에 변경사항을 알리는 이벤트
+    public static event Action<UnimoCharacterSO> OnCharacterEquipped;
+    public static event Action<UnimoKartSO> OnKartEquipped;
+    public static event Action OnInventoryUpdated;
+
+    // 강화 시 레벨 및 스탯 변경 사항을 알리는 이벤트
+    public static event Action<int, int> OnKartStatsUpdated; // <공격력, 방어력>
+    public static event Action<int> OnKartLevelUpdated;
+
+    private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
+
+    public static MyRoomManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void Start()
     {
-        // UI 관리 스크립트 참조 가져오기
-        uiManager = GetComponent<MyRoomUIManager>();
-
-        // 인벤토리 채우기
-        PopulateKartInventory();
-        PopulateCharacterInventory();
-
-        // 게임 시작 시, 저장된 아이템 불러오기
         LoadEquippedItems();
     }
 
-    // 아이템을 Firebase에서 불러와 장착하는 함수
-    private void LoadEquippedItems()
-    {
-        if (string.IsNullOrEmpty(CurrentUid))
-        {
-            // 유저 정보가 없으면 기본 아이템 장착 후 종료
-            if (allKartData.Count > 0) EquipKartInternal(allKartData[0]);
-            if (allCharacterData.Count > 0) EquipCharacterInternal(allCharacterData[0]);
-            return;
-        }
-
-        // 장착된 카트 불러오기
-        DatabaseManager.Instance.GetOnMain(
-            DBRoutes.EquippedKart(CurrentUid),
-            onSuccess: (snapshot) =>
-            {
-                if (snapshot.Exists && snapshot.Value != null)
-                {
-                    if (int.TryParse(snapshot.Value.ToString(), out int kartId))
-                    {
-                        UnimoKartSO savedKart = allKartData.FirstOrDefault(k => k.KartID == kartId);
-                        if (savedKart != null)
-                        {
-                            EquipKartInternal(savedKart);
-                        }
-                    }
-                }
-                else
-                {
-                    // 저장된 데이터가 없으면 기본 아이템 장착
-                    if (allKartData.Count > 0) EquipKartInternal(allKartData[0]);
-                }
-            },
-            onError: (error) =>
-            {
-                Debug.LogError($"카트 데이터 불러오기 실패: {error}");
-                // 실패 시 기본 아이템 장착
-                if (allKartData.Count > 0) EquipKartInternal(allKartData[0]);
-            }
-        );
-
-        // 장착된 캐릭터 불러오기
-        DatabaseManager.Instance.GetOnMain(
-            DBRoutes.EquippedUnimo(CurrentUid),
-            onSuccess: (snapshot) =>
-            {
-                if (snapshot.Exists && snapshot.Value != null)
-                {
-                    if (int.TryParse(snapshot.Value.ToString(), out int characterId))
-                    {
-                        UnimoCharacterSO savedCharacter = allCharacterData.FirstOrDefault(c => c.characterId == characterId);
-                        if (savedCharacter != null)
-                        {
-                            EquipCharacterInternal(savedCharacter);
-                        }
-                    }
-                }
-                else
-                {
-                    // 저장된 데이터가 없으면 기본 아이템 장착
-                    if (allCharacterData.Count > 0) EquipCharacterInternal(allCharacterData[0]);
-                }
-            },
-            onError: (error) =>
-            {
-                Debug.LogError($"캐릭터 데이터 불러오기 실패: {error}");
-                // 실패 시 기본 아이템 장착
-                if (allCharacterData.Count > 0) EquipCharacterInternal(allCharacterData[0]);
-            }
-        );
-    }
-
-    // UI에서 아이템을 클릭할 때 호출되는 공개 메서드
-    public void EquipKart(UnimoKartSO kart)
-    {
-        // Check ownership before equipping
-        if (!IsDefaultOwned(kart) && !(_ownedKarts != null && _ownedKarts.ContainsKey(kart.KartID.ToString())))
-        {
-            Debug.Log("You do not own this kart.");
-            return;
-        }
-        EquipKartInternal(kart);
-        SaveAndReloadItems();
-    }
-
-    public void EquipCharacter(UnimoCharacterSO character)
-    {
-        // ���� ���� �� ������ Ȯ��
-        if (!IsDefaultOwned(character) && !(_ownedCharacters != null && _ownedCharacters.ContainsKey(character.characterId.ToString())))
-        {
-            Debug.Log("You do not own this character.");
-            return;
-        }
-        EquipCharacterInternal(character);
-        SaveAndReloadItems();
-    }
-
-    // 내부에서만 호출되는 장착 로직
-    private void EquipKartInternal(UnimoKartSO kart)
-    {
-        currentEquippedKart = kart;
-        if (kartDisplayImage != null && kart.kartSprite != null)
-        {
-            kartDisplayImage.sprite = kart.kartSprite;
-            kartDisplayImage.enabled = true;
-        }
-        if (kartDescText != null)
-        {
-            kartDescText.text = kart.carDesc;
-        }
-        if (passiveSkillIdText != null)
-        {
-            passiveSkillIdText.text = "Passive Skill ID: " + kart.passiveSkillId.ToString();
-        }
-        UpdateEquippedUI();
-    }
-
-    private void EquipCharacterInternal(UnimoCharacterSO character)
-    {
-        currentEquippedCharacter = character;
-        if (characterDisplayImage != null && character.characterSprite != null)
-        {
-            characterDisplayImage.sprite = character.characterSprite;
-            characterDisplayImage.enabled = true;
-        }
-        UpdateEquippedUI();
-    }
-
-    // Firebase에 장착 아이템을 저장하는 함수
-
-    private void SaveAndReloadItems()
-    {
-        if (string.IsNullOrEmpty(CurrentUid)) return;
-        if (currentEquippedKart == null || currentEquippedCharacter == null) return;
-
-        var updates = new Dictionary<string, object>
-        {
-            { DBRoutes.EquippedKart(CurrentUid), currentEquippedKart.KartID },
-            { DBRoutes.EquippedUnimo(CurrentUid), currentEquippedCharacter.characterId }
-        };
-
-        DatabaseManager.Instance.UpdateOnMain(updates,
-            onSuccess: () =>
-            {
-                Debug.Log("장착 아이템 저장 완료. 홈 화면 UI 업데이트 요청.");
-                // Direct call to HomeManager's public method
-                HomeManager.Instance.LoadAndEquipItems();
-            },
-            onError: err => Debug.LogError($"장착 아이템 저장 실패: {err}")
-        );
-    }
-
-
-    private void UpdateEquippedUI()
-    {
-        uiManager.UpdateEquippedUI(
-            currentEquippedCharacter.characterSprite,
-            currentEquippedCharacter.characterName,
-            currentEquippedKart.kartSprite,
-            currentEquippedKart.carName
-        );
-    }
-
-    public void PopulateKartInventory()
-    {
-        foreach (Transform child in kartInventoryParent) Destroy(child.gameObject);
-
-        foreach (var kartData in allKartData)
-        {
-            GameObject item = Instantiate(kartInventoryPrefab, kartInventoryParent);
-            var ui = item.GetComponent<KartInventoryUI>();
-
-            bool isOwned = (_ownedKarts != null && _ownedKarts.ContainsKey(kartData.KartID.ToString())); // || IsDefaultOwned(kartData);
-
-            // UI ���� ���ҿ� ������ ���� ����
-            ui.Init(kartData, this, isOwned);
-        }
-    }
-
-    public void PopulateCharacterInventory()
-    {
-        foreach (Transform child in characterInventoryParent) Destroy(child.gameObject);
-
-        foreach (var charData in allCharacterData)
-        {
-            GameObject item = Instantiate(characterInventoryPrefab, characterInventoryParent);
-            var ui = item.GetComponent<CharacterInventoryUI>();
-
-            bool isOwned = (_ownedCharacters != null && _ownedCharacters.ContainsKey(charData.characterId.ToString()));// || IsDefaultOwned(charData);
-
-            // UI ���� ���ҿ� ������ ���� ����
-            ui.Init(charData, this, isOwned);
-        }
-    }
-    #endregion
-
     private void OnEnable()
     {
-        // MyRoom �г��� Ȱ��ȭ�Ǹ� �κ��丮 ���� ������ �����մϴ�
         SubscribeToInventoryChanges();
     }
 
     private void OnDisable()
     {
-        // �޸��� ������ ������ ������ ����
         UnsubscribeFromInventoryChanges();
     }
 
+    #region Equip & Load
+
+    public void LoadEquippedItems()
+    {
+        if (string.IsNullOrEmpty(CurrentUid))
+        {
+            if (allKartData.Count > 0) EquipKartInternal(allKartData[0]);
+            if (allCharacterData.Count > 0) EquipCharacterInternal(allCharacterData[0]);
+            return;
+        }
+
+        DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedKart(CurrentUid),
+            onSuccess: (snapshot) =>
+            {
+                if (snapshot.Exists && int.TryParse(snapshot.Value.ToString(), out int kartId))
+                {
+                    UnimoKartSO savedKart = allKartData.FirstOrDefault(k => k.KartID == kartId);
+                    if (savedKart != null) EquipKartInternal(savedKart);
+                }
+                else
+                {
+                    if (allKartData.Count > 0) EquipKartInternal(allKartData[0]);
+                }
+            }, onError: (err) => Debug.LogError($"카트 데이터 불러오기 실패: {err}")
+        );
+
+        DatabaseManager.Instance.GetOnMain(DBRoutes.EquippedUnimo(CurrentUid),
+            onSuccess: (snapshot) =>
+            {
+                if (snapshot.Exists && int.TryParse(snapshot.Value.ToString(), out int characterId))
+                {
+                    UnimoCharacterSO savedCharacter = allCharacterData.FirstOrDefault(c => c.characterId == characterId);
+                    if (savedCharacter != null) EquipCharacterInternal(savedCharacter);
+                }
+                else
+                {
+                    if (allCharacterData.Count > 0) EquipCharacterInternal(allCharacterData[0]);
+                }
+            }, onError: (err) => Debug.LogError($"캐릭터 데이터 불러오기 실패: {err}")
+        );
+    }
+
+    public void EquipKart(UnimoKartSO kart)
+    {
+        if (!IsOwned(kart))
+        {
+            Debug.Log("이 카트를 소유하고 있지 않습니다.");
+            return;
+        }
+        EquipKartInternal(kart);
+        SaveEquippedItems();
+        UpdateKartStatsFromDB();
+    }
+
+    public void EquipCharacter(UnimoCharacterSO character)
+    {
+        if (!IsOwned(character))
+        {
+            Debug.Log("이 캐릭터를 소유하고 있지 않습니다.");
+            return;
+        }
+        EquipCharacterInternal(character);
+        SaveEquippedItems();
+    }
+
+    private void EquipKartInternal(UnimoKartSO kart)
+    {
+        _currentEquippedKart = kart;
+        OnKartEquipped?.Invoke(kart);
+    }
+    private void EquipCharacterInternal(UnimoCharacterSO character)
+    {
+        _currentEquippedCharacter = character;
+        OnCharacterEquipped?.Invoke(character);
+    }
+
+    private void SaveEquippedItems()
+    {
+        if (string.IsNullOrEmpty(CurrentUid) || _currentEquippedKart == null || _currentEquippedCharacter == null) return;
+        var updates = new Dictionary<string, object>
+        {
+            { DBRoutes.EquippedKart(CurrentUid), _currentEquippedKart.KartID },
+            { DBRoutes.EquippedUnimo(CurrentUid), _currentEquippedCharacter.characterId }
+        };
+        DatabaseManager.Instance.UpdateOnMain(updates,
+            onSuccess: () => Debug.Log("장착 아이템 저장 완료."),
+            onError: err => Debug.LogError($"장착 아이템 저장 실패: {err}")
+        );
+    }
+
+    private Action _unsubUnimoInv;
+    private Action _unsubKartInv;
+
     private void SubscribeToInventoryChanges()
     {
+        if (string.IsNullOrEmpty(CurrentUid)) return;
         _unsubUnimoInv = DatabaseManager.Instance.SubscribeValueChanged(
             DBRoutes.UnimosInventory(CurrentUid),
             onChanged: OnUnimoInventoryChanged,
@@ -285,7 +170,6 @@ public class MyRoomManager : MonoBehaviour
             onError: (err) => Debug.LogWarning($"[MyRoomManager] Kart inventory subscription error: {err}")
         );
     }
-
     private void UnsubscribeFromInventoryChanges()
     {
         _unsubUnimoInv?.Invoke();
@@ -293,29 +177,169 @@ public class MyRoomManager : MonoBehaviour
         _unsubUnimoInv = null;
         _unsubKartInv = null;
     }
-
     private void OnUnimoInventoryChanged(DataSnapshot snapshot)
     {
-        // C# 9.0+ syntax: `as` operator will return null if cast fails.
         _ownedCharacters = snapshot.Value as Dictionary<string, object>;
-        PopulateCharacterInventory();
-        LoadEquippedItems(); // Reload equipped items to update the UI
+        OnInventoryUpdated?.Invoke();
+        LoadEquippedItems();
     }
-
     private void OnKartInventoryChanged(DataSnapshot snapshot)
     {
         _ownedKarts = snapshot.Value as Dictionary<string, object>;
-        PopulateKartInventory();
-        LoadEquippedItems(); // Reload equipped items to update the UI
-    }
-   
-    private bool IsDefaultOwned(UnimoCharacterSO character)
-    {
-        return character.characterId >= 20001 && character.characterId <= 20003;
+        OnInventoryUpdated?.Invoke();
+        LoadEquippedItems();
     }
 
-    private bool IsDefaultOwned(UnimoKartSO kart)
+    public bool IsOwned(UnimoCharacterSO character) => (_ownedCharacters != null && _ownedCharacters.ContainsKey(character.characterId.ToString())) || IsDefaultOwned(character);
+    public bool IsOwned(UnimoKartSO kart) => (_ownedKarts != null && _ownedKarts.ContainsKey(kart.KartID.ToString())) || IsDefaultOwned(kart);
+    private bool IsDefaultOwned(UnimoCharacterSO character) => character.characterId >= 20001 && character.characterId <= 20003;
+    private bool IsDefaultOwned(UnimoKartSO kart) => kart.KartID >= 10001 && kart.KartID <= 10003;
+
+    public List<UnimoCharacterSO> GetAllCharacterData() => allCharacterData;
+    public List<UnimoKartSO> GetAllKartData() => allKartData;
+
+    #endregion
+
+    #region Enhancement Logic
+
+    public void RequestKartEnhance()
     {
-        return kart.KartID >= 10001 && kart.KartID <= 10003;
+        if (_currentEquippedKart == null)
+        {
+            Debug.LogWarning("강화할 카트가 없습니다.");
+            return;
+        }
+
+        int kartId = _currentEquippedKart.KartID;
+        string userId = CurrentUid;
+
+        DatabaseManager.Instance.GetOnMain(DBRoutes.KartInventory(userId, kartId),
+            snap =>
+            {
+                int currentLevel = 0;
+                if (snap.Exists && snap.Value != null)
+                {
+                    int.TryParse(snap.Value.ToString(), out currentLevel);
+                }
+
+                int nextLevel = currentLevel + 1;
+                int maxLevel = 10; // TODO: 최대 레벨은 별도 관리
+
+                if (currentLevel >= maxLevel)
+                {
+                    Debug.Log("최대 레벨에 도달했습니다.");
+                    return;
+                }
+
+                // TODO: 강화 비용 설정 (기존 PatchService 로직 대체)
+                int upgradeCost = 100 + (currentLevel * 50); // 예시: 레벨에 따라 비용 증가
+                MoneyType costType = MoneyType.Gold; // 예시: 골드로 강화
+
+                // 재화 확인 및 차감 트랜잭션 로직
+                TrySpendTransaction(
+                    costType,
+                    upgradeCost,
+                    onDone =>
+                    {
+                        if (!onDone)
+                        {
+                            Debug.LogError("재화가 부족하거나 트랜잭션 실패");
+                            return;
+                        }
+
+                        // Firebase에 레벨 업데이트
+                        DatabaseManager.Instance.SetOnMain(
+                            DBRoutes.KartInventory(userId, kartId),
+                            nextLevel,
+                            () =>
+                            {
+                                Debug.Log($"카트 {_currentEquippedKart.carName} 강화 성공! 새 레벨: {nextLevel}");
+                                UpdateKartStatsFromDB();
+                            },
+                            err => Debug.LogError($"강화 데이터 저장 실패: {err}")
+                        );
+                    }
+                );
+            },
+            err => Debug.LogError($"인벤토리 데이터 불러오기 실패: {err}")
+        );
     }
+
+    public void UpdateKartStatsFromDB()
+    {
+        if (_currentEquippedKart == null) return;
+
+        int kartId = _currentEquippedKart.KartID;
+        string userId = CurrentUid;
+
+        DatabaseManager.Instance.GetOnMain(DBRoutes.KartInventory(userId, kartId),
+            snap =>
+            {
+                int level = 0;
+                if (snap.Exists && snap.Value != null)
+                {
+                    int.TryParse(snap.Value.ToString(), out level);
+                }
+
+                // TODO: 스탯 계산식 (임시 데이터)
+                int baseAttack = 10;
+                int baseDefense = 5;
+                int attackIncrease = 2; // 레벨당 공격력 증가
+                int defenseIncrease = 1; // 레벨당 방어력 증가
+
+                int currentAttack = baseAttack + (level * attackIncrease);
+                int currentDefense = baseDefense + (level * defenseIncrease);
+
+                OnKartLevelUpdated?.Invoke(level);
+                OnKartStatsUpdated?.Invoke(currentAttack, currentDefense);
+            },
+            err => Debug.LogError($"카트 스탯 불러오기 실패: {err}")
+        );
+    }
+
+    private void TrySpendTransaction(MoneyType moneyType, int price, Action<bool> onDone)
+    {
+        string path = moneyType switch
+        {
+            MoneyType.Gold => DBRoutes.Gold(CurrentUid),
+            MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(CurrentUid),
+            MoneyType.Cash => DBRoutes.BlueHoneyGem(CurrentUid),
+            _ => null
+        };
+
+        if (path == null)
+        {
+            onDone?.Invoke(false);
+            return;
+        }
+
+        DatabaseManager.Instance.RunTransactionOnMain(
+            path,
+            mutable =>
+            {
+                long current = 0;
+                try
+                {
+                    if (mutable.Value != null)
+                    {
+                        current = Convert.ToInt64(mutable.Value);
+                    }
+                }
+                catch
+                {
+                }
+
+                if (current < price)
+                {
+                    return TransactionResult.Abort();
+                }
+
+                mutable.Value = current - price;
+                return TransactionResult.Success(mutable);
+            },
+            _ => onDone?.Invoke(true),
+            _ => onDone?.Invoke(false)
+        );
+    }
+    #endregion
 }
