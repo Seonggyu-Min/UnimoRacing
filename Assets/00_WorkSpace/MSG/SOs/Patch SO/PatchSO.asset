@@ -22,7 +22,7 @@ MonoBehaviour:
       Table: []
     KartCostRule:
       GrowthType: 1
-      MoneyType: 0
+      MoneyType: 1
       BaseCost: 100
       MaxLevel: 5
       GrowthRate: 2
@@ -30,6 +30,6 @@ MonoBehaviour:
       Table: 
     UnimoCostRule:
       Cost: 5000
-      MoneyType: 0
+      MoneyType: 1
   LocalRuleKarts: []
   LocalRuleUnimos: []
