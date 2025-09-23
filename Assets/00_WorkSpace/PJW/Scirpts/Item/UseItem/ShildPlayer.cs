@@ -21,6 +21,16 @@ namespace PJW
 
         private AudioSource loopSrc;
 
+        [Header("쉴드 VFX (지속 동안 표시)")]
+        [SerializeField] private GameObject shieldVfxPrefab;                
+        [SerializeField] private Vector3 vfxLocalOffset = new Vector3(0f, 0.6f, 0f);
+        [SerializeField] private Vector3 vfxLocalEuler = Vector3.zero;
+        [SerializeField] private Transform vfxAnchor;                       
+        [SerializeField] private bool attachToOwner = true;                 
+        [SerializeField] private float vfxCleanupDelay = 1.5f;              
+
+        private GameObject vfxInstance;
+
         [PunRPC]
         public void RpcActivateShield(float duration)
         {
@@ -45,12 +55,17 @@ namespace PJW
         {
             isShieldActive = true;
 
+            // 오디오: 루프 SFX 시작
             loopSrc = AudioManager.Instance.PlaySFX(sfxLoopKey);
+
+            // VFX: 쉴드 시작 시 스폰
+            TrySpawnVfx();
 
             yield return new WaitForSeconds(duration);
 
             isShieldActive = false;
 
+            // 오디오: 루프 SFX 종료
             if (loopSrc != null)
             {
                 if (loopFadeOut > 0f)
@@ -60,6 +75,9 @@ namespace PJW
 
                 loopSrc = null;
             }
+
+            // VFX: 쉴드 종료 시 정리
+            CleanupVfx();
 
             shieldRoutine = null;
         }
@@ -81,6 +99,7 @@ namespace PJW
 
                 isShieldActive = false;
 
+                // 오디오: 루프 SFX 종료
                 if (loopSrc != null)
                 {
                     if (loopFadeOut > 0f)
@@ -90,9 +109,43 @@ namespace PJW
 
                     loopSrc = null;
                 }
+
+                // VFX: 즉시 정리
+                CleanupVfx();
             }
 
             return true;
         }
+
+        private void TrySpawnVfx()
+        {
+            if (shieldVfxPrefab == null || vfxInstance != null)
+                return;
+
+            var anchor = vfxAnchor != null ? vfxAnchor : transform;
+
+            Vector3 worldPos = anchor.TransformPoint(vfxLocalOffset);
+            Quaternion worldRot = anchor.rotation * Quaternion.Euler(vfxLocalEuler);
+
+            vfxInstance = Instantiate(shieldVfxPrefab, worldPos, worldRot, attachToOwner ? anchor : null);
+
+            // 안전하게 Play 보장
+            var psList = vfxInstance.GetComponentsInChildren<ParticleSystem>(true);
+            for (int i = 0; i < psList.Length; i++) psList[i].Play();
+        }
+
+        private void CleanupVfx()
+        {
+            if (vfxInstance == null) return;
+
+            // 부드럽게 꺼지도록 StopEmitting
+            var psList = vfxInstance.GetComponentsInChildren<ParticleSystem>(true);
+            for (int i = 0; i < psList.Length; i++)
+                psList[i].Stop(true, ParticleSystemStopBehavior.StopEmitting);
+
+            Destroy(vfxInstance, Mathf.Max(0.01f, vfxCleanupDelay));
+            vfxInstance = null;
+        }
+        // ------------------------------------------------
     }
 }

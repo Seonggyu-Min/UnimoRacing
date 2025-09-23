@@ -47,3 +47,5 @@ MonoBehaviour:
   trapPrefab: {fileID: 8668314144472901380, guid: f5dcb6ae4c2009940a9543a46d3028df,
     type: 3}
   distanceBehind: 0.05
+  slowMultiplier: 0.5
+  duration: 2
