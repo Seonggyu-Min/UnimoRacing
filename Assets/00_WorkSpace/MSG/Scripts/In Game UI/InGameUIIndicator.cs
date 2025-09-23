@@ -2,6 +2,7 @@
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
@@ -115,8 +116,7 @@ namespace MSG
                 playerNorms.Add((norm, player));
             }
 
-            playerNorms.Sort();
-            playerNorms.Reverse();
+            playerNorms = playerNorms.OrderByDescending(p => p.norm).ToList();
 
             int myRank = playerNorms.FindIndex(p => p.player == PhotonNetwork.LocalPlayer) + 1;
 
