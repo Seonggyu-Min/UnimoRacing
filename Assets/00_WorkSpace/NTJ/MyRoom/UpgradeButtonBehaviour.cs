@@ -198,12 +198,12 @@ public class UpgradeButtonBehaviour : MonoBehaviour
         );
     }
 
-    private void TrySpendTransaction(MSG.MoneyType moneyType, int price, Action<bool> onDone)
+    private void TrySpendTransaction(MoneyType moneyType, int price, Action<bool> onDone)
     {
         string path = moneyType switch
         {
-            MSG.MoneyType.Gold => DBRoutes.Gold(CurrentUid),
-            MSG.MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(CurrentUid),
+            MoneyType.Gold => DBRoutes.Gold(CurrentUid),
+            MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(CurrentUid),
             _ => null
         };
 
@@ -227,19 +227,26 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                 }
                 catch
                 {
-                    // 파싱 실패는 0으로 간주
+                    Debug.LogError("트랜잭션: 데이터 파싱 실패. Aborting.");
+                    return TransactionResult.Abort();
                 }
 
+                // 잔액 부족 확인은 한 번만 수행합니다.
                 if (current < price)
                 {
+                    Debug.LogWarning("트랜잭션: 잔액 부족. Aborting.");
                     return TransactionResult.Abort();
                 }
 
                 mutable.Value = current - price;
                 return TransactionResult.Success(mutable);
             },
-            _ => onDone?.Invoke(true),
-            _ => onDone?.Invoke(false)
+            // onSuccess, onError 콜백은 기존과 동일합니다.
+            snap => onDone?.Invoke(true),
+            errMsg => {
+                Debug.LogError($"트랜잭션 실패: {errMsg}");
+                onDone?.Invoke(false);
+            }
         );
     }
 }

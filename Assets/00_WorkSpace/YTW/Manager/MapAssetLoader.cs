@@ -28,53 +28,70 @@ namespace YTW
 
 
         // 맵 어드레스를 받아 로드 or 인스턴스하고, TrackPathRegistry에 트랙을 등록
-        public async Task InitializeAndLoad(string address, Transform parent = null, bool replaceTracks = true)
+        public async Task InitializeAndLoad(
+            string address,
+            Transform parent = null,
+            bool replaceTracks = true,
+            Action<bool> onComplete = null)
         {
-            // 이미 로드돼 있으면 정리
+            bool ok = false;
+
+            // 이미 로드돼 있으면 정리 (TrackPathRegistry는 여기선 건드리지 않고, 맵만 해제)
             if (IsLoaded)
-                await UnloadAsync(clearTracks: false); // 곧 새 맵으로 갈 거면 중복 클리어는 생략
+                await UnloadAsync(clearTracks: false);
 
             _mapAssetAddress = address;
 
             if (string.IsNullOrWhiteSpace(_mapAssetAddress))
             {
-                Debug.LogError("[MapAssetLoader] 로드할 맵 에셋의 주소가 지정되지 않았습니다.");
+                Debug.LogError("[MapAssetLoader] 로드할 맵 에셋 주소가 비었습니다.");
+                onComplete?.Invoke(false);
                 return;
             }
 
             try
             {
-                // 맵 인스턴스
-                _spawnedMapInstance = await ResourceManager.Instance.InstantiateAsync(
+                // 1) 맵 인스턴스 (ResourceManager 경로로 통일)
+                var inst = await ResourceManager.Instance.InstantiateAsync(
                     _mapAssetAddress, Vector3.zero, Quaternion.identity);
 
-                if (_spawnedMapInstance == null)
+                if (inst == null)
                 {
-                    Debug.LogError($"[MapAssetLoader] '{_mapAssetAddress}' 주소의 에셋을 생성하는 데 실패했습니다.");
+                    Debug.LogError($"[MapAssetLoader] Instantiate 실패: '{_mapAssetAddress}'");
+                    onComplete?.Invoke(false);
                     return;
                 }
 
-                // 부모 설정
-                var targetParent = parent != null ? parent : this.transform;
-                _spawnedMapInstance.transform.SetParent(targetParent, worldPositionStays: false);
+                _spawnedMapInstance = inst;
 
-                // 트랙 레지스트리 등록
+                // 2) 로딩 끝났는데 이 로더가 이미 파괴됐는지 가드
+                if (this == null || gameObject == null)
+                {
+                    Debug.LogWarning("[MapAssetLoader] 로딩 도중 로더가 파괴됨 → 인스턴스 즉시 해제");
+                    ResourceManager.Instance?.ReleaseInstance(_spawnedMapInstance);
+                    _spawnedMapInstance = null;
+                    onComplete?.Invoke(false);
+                    return;
+                }
+
+                // 3) 부모 설정
+                var targetParent = parent != null ? parent : transform;
+                _spawnedMapInstance.transform.SetParent(targetParent, false);
+
+                // 4) 트랙 레지스트리 등록 (필요한 처리만)
                 var tpr = TrackPathRegistry.Instance;
                 if (tpr != null)
                 {
-                    // 맵 루트 기준으로 CinemechinePathBase 전부 찾아 등록
-                    //tpr.RegisterFromRoot(_spawnedMapInstance.transform, replace: replaceTracks);
+                    // 프로젝트 쪽에서 쓰던 재스캔 호출 유지
                     tpr.RePathLoad();
                     Debug.Log($"[MapAssetLoader] TrackPathRegistry 등록 완료: {tpr.GetPathLength()}개 트랙");
                 }
                 else
                 {
-                    Debug.LogWarning("[MapAssetLoader] TrackPathRegistry.Instance 가 null 입니다. (등록 생략)");
+                    Debug.LogWarning("[MapAssetLoader] TrackPathRegistry.Instance == null (등록 생략)");
                 }
 
-
-                OnMapLoaded?.Invoke(_spawnedMapInstance);
-
+                // 5) BGM (맵 메타 기반)
                 var meta = _spawnedMapInstance.GetComponentInChildren<MapMeta>(true);
                 if (meta != null && !string.IsNullOrWhiteSpace(meta.BgmAddress))
                 {
@@ -82,13 +99,10 @@ namespace YTW
                     {
                         try
                         {
-                            // AudioManager가 아직 초기화 전이면 보장
                             if (!Manager.Audio.IsInitialized)
-                            {
                                 await Manager.Audio.InitializeAsync();
-                            }
+
                             Manager.Audio.StopBGM(); // 임시
-                            // 핵심: 주소 문자열을 그대로 PlayBGM에 전달 (ClipName과 동일해야 함)
                             Manager.Audio.PlayBGM(meta.BgmAddress, fadeTime: 0.5f, forceRestart: false);
                             Debug.Log($"[MapAssetLoader] BGM 재생: {meta.BgmAddress}");
                         }
@@ -99,20 +113,27 @@ namespace YTW
                     }
                     else
                     {
-                        Debug.LogWarning("[MapAssetLoader] Manager.Audio 가 준비되지 않아 BGM 재생을 건너뜁니다.");
+                        Debug.LogWarning("[MapAssetLoader] Manager.Audio 미준비 → BGM 생략");
                     }
                 }
                 else
                 {
-                    Debug.Log("[MapAssetLoader] MapMeta가 없거나 BGM 주소가 비어 있어 재생을 생략합니다.");
+                    Debug.Log("[MapAssetLoader] MapMeta 없거나 BGM 주소 비어 있음 → BGM 생략");
                 }
+
+                // 6) 이벤트 통지
+                OnMapLoaded?.Invoke(_spawnedMapInstance);
+                ok = true;
             }
             catch (Exception ex)
             {
                 Debug.LogError($"[MapAssetLoader] InitializeAndLoad 예외: {ex}");
             }
+            finally
+            {
+                onComplete?.Invoke(ok);
+            }
         }
-
         // 맵 언로드 + 트랙 레지스트리 초기화
         public async Task UnloadAsync(bool clearTracks = true)
         {

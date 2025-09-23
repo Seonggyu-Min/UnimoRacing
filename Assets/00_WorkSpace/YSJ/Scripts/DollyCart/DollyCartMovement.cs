@@ -1,5 +1,6 @@
 ﻿using Cinemachine;
 using Photon.Pun;
+using PJW;
 using System;
 using UnityEngine;
 using YSJ.Util;
@@ -40,18 +41,32 @@ public class DollyCartMovement : MonoBehaviour
 
         _data = data;
 
-        // 속도 지정
-        CinemachinePathBase trackPath = TrackPathRegistry.Instance.GetPath(0);
-        _trackLength = trackPath.PathLength;
-
-        _applicationSpeed = _data.KartSpeed;
-        _cartSpeed = _applicationSpeed / _trackLength;
+        if(_data.Cart == null)
+        {
+            this.PrintLog("_data.Cart가 Null 이에서 데이터 셋업에 문제가 발생했습니다.");
+            return;
+        }
 
         _cart = _data.Cart;
         _cart.m_Speed = 0.0f;
 
         _posUnwrapped = _cart.m_Position;
         _targetUnwrapped = _posUnwrapped;
+
+        var trackRegistry = TrackPathRegistry.Instance;
+
+        CinemachinePathBase trackPath = TrackPathRegistry.Instance.GetPath(0);
+        if (trackPath == null)
+        {
+            this.PrintLog("trackPath 받아오지 못했습니다.");
+            return;
+        }
+        _trackLength = trackPath.PathLength;
+
+        _applicationSpeed = _data.KartSpeed;
+        _cartSpeed = _applicationSpeed / _trackLength;
+
+        
 
         _isSetup = true;
     }

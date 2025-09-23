@@ -59,8 +59,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - NetworkPrefab
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f5ec85332c4aaa74e9f66e1f00f116fe
-    m_Address: Game_Remote
+  - m_GUID: e4ca38fe477b0b3468b6acfda9bcd108
+    m_Address: TempMap3
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote

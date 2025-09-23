@@ -10,6 +10,7 @@ public class UnimoKartAniCtrl : MonoBehaviour
     private readonly int DISAPPEAR_ID   = Animator.StringToHash("disappear");   // 사라짐
     private readonly int MOVE_SYNC_ID   = Animator.StringToHash("movesync");    // 이동 동기화
 
+    [SerializeField] private bool _isPrintLog = false;
     private Animator _animator;
 
     private readonly Dictionary<int, AnimatorControllerParameterType> _paramMap
@@ -123,7 +124,7 @@ public class UnimoKartAniCtrl : MonoBehaviour
     {
         if (!ContainsParam(nameHash, AnimatorControllerParameterType.Trigger))
         {
-            Debug.LogWarning($"Trigger 파라미터 없음 (hash:{nameHash})");
+            this.PrintLog($"Trigger 파라미터 없음 (hash:{nameHash})", LogType.Warning);
             return false;
         }
         _animator.SetTrigger(nameHash);
@@ -134,7 +135,7 @@ public class UnimoKartAniCtrl : MonoBehaviour
     {
         if (!ContainsParam(nameHash, AnimatorControllerParameterType.Float))
         {
-            Debug.LogWarning($"Float 파라미터 없음 (hash:{nameHash})");
+            this.PrintLog($"Float 파라미터 없음 (hash:{nameHash})", LogType.Warning);
             return false;
         }
         _animator.SetFloat(nameHash, value);
@@ -153,4 +154,10 @@ public class UnimoKartAniCtrl : MonoBehaviour
         return _animator.GetFloat(nameHash);
     }
     #endregion
+
+    private void PrintLog(string printLog, LogType type = LogType.Log)
+    {
+        if (!_isPrintLog) return;
+        UnityUtilEx.PrintLog(this, printLog, type);
+    }
 }

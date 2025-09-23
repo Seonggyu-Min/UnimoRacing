@@ -1,5 +1,99 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1687017786012294582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7976942594364088937}
+  - component: {fileID: 3802575840918471089}
+  - component: {fileID: 7179268779414276073}
+  - component: {fileID: 7492400027576591875}
+  m_Layer: 0
+  m_Name: CollisionBody
+  m_TagString: Player
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7976942594364088937
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687017786012294582}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4144409049029744892}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &3802575840918471089
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687017786012294582}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &7179268779414276073
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687017786012294582}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7492400027576591875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687017786012294582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87bea9fd1c3d0be4aaa19141718e766a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2264498891777200358
 GameObject:
   m_ObjectHideFlags: 0
@@ -101,7 +195,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5000001
   m_Height: 2
@@ -208,7 +302,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5000001
   m_Height: 2
@@ -223,7 +317,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4144409049029744892}
-  - component: {fileID: 6753809735214021856}
+  - component: {fileID: 438557273216473423}
   - component: {fileID: 6071134121439238514}
   - component: {fileID: 7256501748806434507}
   - component: {fileID: 7978271638079185026}
@@ -240,7 +334,7 @@ GameObject:
   - component: {fileID: 7946033971345635877}
   m_Layer: 0
   m_Name: PlayerRacer
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -260,29 +354,36 @@ Transform:
   m_Children:
   - {fileID: 2992980402532751194}
   - {fileID: 8114340678966983306}
+  - {fileID: 7976942594364088937}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &6753809735214021856
-BoxCollider:
+--- !u!54 &438557273216473423
+Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8330706411905914188}
-  m_Material: {fileID: 0}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!114 &6071134121439238514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -362,6 +463,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46c0f6e72ec42d94e9de806820fa579d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _fixedCPUpdateCycleTime: 2
 --- !u!114 &7289342749649180121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -389,6 +491,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c310a67ba36e7941921f29fa1c10f41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _collisionBody: {fileID: 1687017786012294582}
   _sitPointName: pivot_Character
   _followCam: VirtualCam
   _useLoadFollowCam: 0
@@ -398,6 +501,7 @@ MonoBehaviour:
   _isControlable: 1
   _isMovable: 1
   _isItemUsable: 1
+  synergyRules: []
 --- !u!114 &1959652890368414403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -410,6 +514,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33216184922a6864a90ed826f8fced44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  capacity: 3
+  sfxHitKey: Lock_SFX
 --- !u!114 &1815014094688383359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -528,3 +634,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7fe0e923f33a68409a6768ccc1128ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _selfSetup: 1
+  _inventroySaveMaxCount: 2
