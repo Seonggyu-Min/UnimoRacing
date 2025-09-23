@@ -94,7 +94,7 @@ public class KartInventoryUI : MonoBehaviour, IPreviewItem
     public void TryBind()
     {
         if (IsBound || _data == null || kartIcon == null) return;
-        ItemPreviewManager.Instance.BindUnimoPreview(_data.KartID, kartIcon);
+        ItemPreviewManager.Instance.BindKartPreview(_data.KartID, kartIcon);
         IsBound = true;
     }
 
