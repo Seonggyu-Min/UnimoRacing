@@ -238,6 +238,7 @@ GameObject:
   - component: {fileID: 831430784033025982}
   - component: {fileID: 6786647454081869713}
   - component: {fileID: 7946033971345635877}
+  - component: {fileID: 4688897661539971053}
   m_Layer: 0
   m_Name: PlayerRacer
   m_TagString: Untagged
@@ -398,6 +399,38 @@ MonoBehaviour:
   _isControlable: 1
   _isMovable: 1
   _isItemUsable: 1
+  synergyRules:
+  - characterId: 20001
+    kartId: 10001
+    prefabKey: HoneyTrap
+    prefabRef: {fileID: 4774977318374646965, guid: 0ad69218fc191ec4da8cae4368ba4e3c,
+      type: 3}
+    needCount: 3
+    icon: {fileID: 21300000, guid: 514c7edb1bb0423499e7d40015f653d7, type: 3}
+  - characterId: 20006
+    kartId: 10006
+    prefabKey: BoostItem
+    prefabRef: {fileID: 0}
+    needCount: 3
+    icon: {fileID: 21300000, guid: 9518248f58a0c9a478e149a0baba64d5, type: 3}
+  - characterId: 20008
+    kartId: 10008
+    prefabKey: BombItem
+    prefabRef: {fileID: 0}
+    needCount: 3
+    icon: {fileID: 21300000, guid: 7e9a8494d5c459645862c4b64f2896df, type: 3}
+  - characterId: 20005
+    kartId: 10005
+    prefabKey: FishItem
+    prefabRef: {fileID: 0}
+    needCount: 3
+    icon: {fileID: 21300000, guid: b0d0785cd1fa49f478591e158e0af91b, type: 3}
+  - characterId: 20005
+    kartId: 10005
+    prefabKey: FishItem
+    prefabRef: {fileID: 0}
+    needCount: 3
+    icon: {fileID: 21300000, guid: b0d0785cd1fa49f478591e158e0af91b, type: 3}
 --- !u!114 &1959652890368414403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -410,6 +443,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33216184922a6864a90ed826f8fced44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  capacity: 3
+  sfxHitKey: Lock_SFX
 --- !u!114 &1815014094688383359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -528,3 +563,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7fe0e923f33a68409a6768ccc1128ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4688897661539971053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8330706411905914188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c58190ad1f78d4cadfccb3ff0ee7f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sfxLoopKey: Shield_SFX
+  loopFadeOut: 0.15
+  shieldVfxPrefab: {fileID: 3208469172170980495, guid: b51b85f541cd1874bbfcdb4c6ab8e80f,
+    type: 3}
+  vfxLocalOffset: {x: 0, y: 0.6, z: 0}
+  vfxLocalEuler: {x: 0, y: 0, z: 0}
+  vfxAnchor: {fileID: 0}
+  attachToOwner: 1
+  vfxCleanupDelay: 1.5
