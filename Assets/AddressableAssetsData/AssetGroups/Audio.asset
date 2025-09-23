@@ -132,7 +132,7 @@ MonoBehaviour:
     - Remote
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8bbdd39c16ad2de43adde5e39b5d6df7
-    m_Address: Assets/Imports/Sound/02. SFX/Collision_SFX.wav
+    m_Address: Audio/SFX/Collision
     m_ReadOnly: 0
     m_SerializedLabels:
     - Remote

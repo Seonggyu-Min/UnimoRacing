@@ -62,7 +62,8 @@ MonoBehaviour:
   - m_GUID: e4ca38fe477b0b3468b6acfda9bcd108
     m_Address: TempMap3
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Remote
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 77e2d83c7e8f57943b8b09c4fc47a174, type: 2}
