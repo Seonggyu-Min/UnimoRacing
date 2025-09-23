@@ -57,7 +57,10 @@ namespace MSG
             _onScrollChanged = _ => CheckVisibleAll();
             _scrollRect.onValueChanged.AddListener(_onScrollChanged);
 
-            _waitCO = StartCoroutine(WaitAndCheck());
+            if (isActiveAndEnabled)
+            {
+                _waitCO = StartCoroutine(WaitAndCheck());
+            }
         }
 
         public void Unregister()
