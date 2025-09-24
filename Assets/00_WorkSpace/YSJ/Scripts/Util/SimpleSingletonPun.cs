@@ -6,7 +6,7 @@ namespace YSJ.Util
     public abstract class SimpleSingletonPun<T> : MonoBehaviourPunCallbacks where T : MonoBehaviourPunCallbacks
     {
         private static T _instance;
-        [SerializeField] private bool _isDontDestroyOnLoad = true;
+        [SerializeField] private bool _isDontDestroyOnLoad = false;
 
         public static T Instance
         {
@@ -30,6 +30,8 @@ namespace YSJ.Util
                 return _instance;
             }
         }
+
+        public T GetInstance => _instance;
 
         protected virtual bool IsDontDestroyOnLoad => _isDontDestroyOnLoad;
 
