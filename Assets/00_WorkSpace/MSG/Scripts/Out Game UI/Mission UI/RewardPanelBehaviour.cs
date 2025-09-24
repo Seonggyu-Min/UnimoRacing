@@ -15,6 +15,11 @@ namespace MSG
         [SerializeField] private MissionListLoader _missionListLoader;
 
 
+        private void Start()
+        {
+            MissionService.Instance.RegisterRewardPanel(this);
+        }
+
         public void Init(MoneyType moneyType, int amount)
         {
             if (moneyType == MoneyType.Gold)

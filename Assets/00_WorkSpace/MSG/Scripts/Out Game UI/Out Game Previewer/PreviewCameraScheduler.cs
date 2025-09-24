@@ -54,6 +54,11 @@ namespace MSG
             }
         }
 
+        private void Start()
+        {
+            ItemPreviewManager.Instance.RegisterScheduler(this);
+        }
+
 
         public void Register(int id, Transform target, RawImage raw, RenderTexture rt, bool isCombine = false)
         {

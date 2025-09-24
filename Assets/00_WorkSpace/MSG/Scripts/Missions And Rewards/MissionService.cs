@@ -39,12 +39,12 @@ namespace MSG
     {
         #region Fields and Properties
 
-        [SerializeField] private RewardPanelBehaviour _rewardPanel; // 이거 띄우기 위해서, TODO: 이거 전체가 버튼으로써 OnClick에 SetActive false 지정되면 될 듯
-
         private readonly Dictionary<int, MissionEntry> _dailyEntries = new();
         private readonly Dictionary<int, MissionEntry> _achievementEntries = new();
         private readonly Dictionary<MatchKey, List<int>> _dailyIndex = new();
         private readonly Dictionary<MatchKey, List<int>> _achvIndex = new();
+
+        private RewardPanelBehaviour _rewardPanel;
 
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
 
@@ -217,17 +217,13 @@ namespace MSG
                     // 지급
                     RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
                     // 수령 UI 표기
-                    if (!_rewardPanel)
+                    if (_rewardPanel == null)
                     {
-                        _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
-                    }
-                    else
-                    {
-                        // TODO: RewardPanelBehaviour이 직접 MissionService에 Start에서 등록하도록 해야 될 듯
-                        // 그럼 GetComponent 안하고 캐싱된거 써서 성능 부담 줄일 수 있음
+                        Debug.Log("_rewardPanel이 null이어서 GetComponent함");
                         UIUnit unit = UIManager.Instance.GetUnit("Reward Panel");
                         _rewardPanel = unit.GetComponent<RewardPanelBehaviour>();
                     }
+                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
                     UIManager.Instance.Show("Reward Panel");
 
                     OnSucces?.Invoke();
@@ -264,6 +260,12 @@ namespace MSG
                     // 지급
                     RewardManager.Instance.AddMoney(entry.MoneyType, entry.RewardQuantity);
                     // 수령 UI 표기
+                    if (_rewardPanel == null)
+                    {
+                        Debug.Log("_rewardPanel이 null이어서 GetComponent함");
+                        UIUnit unit = UIManager.Instance.GetUnit("Reward Panel");
+                        _rewardPanel = unit.GetComponent<RewardPanelBehaviour>();
+                    }
                     _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
                     UIManager.Instance.Show("Reward Panel");
 
@@ -294,6 +296,19 @@ namespace MSG
                 },
                 err => onError?.Invoke(err)
             );
+        }
+
+        #endregion
+
+
+        #region Public Methods
+
+        public void RegisterRewardPanel(RewardPanelBehaviour rewardPanel)
+        {
+            if (_rewardPanel == null)
+            {
+                _rewardPanel = rewardPanel;
+            }
         }
 
         #endregion
