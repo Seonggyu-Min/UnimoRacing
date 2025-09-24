@@ -591,7 +591,7 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             _cartController.IsSetup 
             && _cartMovement.IsSetup 
             && _raceAniCtrl.IsSetup 
-            && _passiveSkillSystem.IsSetup 
+            // && _passiveSkillSystem.IsSetup 
             && _sync.IsSetup
             && _collision3DAction != null);
 

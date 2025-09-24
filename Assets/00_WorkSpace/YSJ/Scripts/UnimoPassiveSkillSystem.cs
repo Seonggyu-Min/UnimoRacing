@@ -81,17 +81,16 @@ public class UnimoPassiveSkillSystem : MonoBehaviour
     #region Func About Creation
     private void OnItemCreation(UnimoItemSO item)
     {
-
-
         int checkID = (int)item.itemID;
         int triggerID = (int)_passiveSkill.triggerItemID;
+
+        if (_passiveSkill.triggerCount == -1)
+            return;
 
         // 카운팅
         if (_triggerCurrentCount < _passiveSkill.triggerCount)
             _triggerCurrentCount++;
 
-        if (_passiveSkill.triggerCount == -1)
-            return;
 
         // 조건에 맞는다면
         if (_triggerCurrentCount >= _passiveSkill.triggerCount)
