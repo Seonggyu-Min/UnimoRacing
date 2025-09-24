@@ -89,22 +89,25 @@ public class CategoryManager : MonoBehaviour
     /// <param name="texture">아이템 이미지 텍스처</param>
     public void UpdateMainUI(string name, string description, int level, Texture texture)
     {
-        itemNameText.text = name;
-        itemDescriptionText.text = description;
+        if (itemNameText != null) itemNameText.text = name;
+        if (itemDescriptionText != null) itemDescriptionText.text = description;
 
-        if (level > 0)
+        if (itemLevelText != null)
         {
-            itemLevelText.gameObject.SetActive(true);
-            itemLevelText.text = "LV." + level;
-        }
-        else
-        {
-            itemLevelText.gameObject.SetActive(false);
-        }
+            if (level > 0)
+            {
+                itemLevelText.gameObject.SetActive(true);
+                itemLevelText.text = "LV." + level;
+            }
+            else
+            {
+                itemLevelText.gameObject.SetActive(false);
+            }
 
-        // 아이템 장착 시, 이벤트 호출
-        // 이 로직은 `KartInventoryUI.cs`나 장착 버튼 클릭 시 호출되어야 합니다.
-        // OnItemEquipped?.Invoke(name, texture, level);
+            // 아이템 장착 시, 이벤트 호출
+            // 이 로직은 `KartInventoryUI.cs`나 장착 버튼 클릭 시 호출되어야 합니다.
+            // OnItemEquipped?.Invoke(name, texture, level);
+        }
     }
 
     // 토글 상태에 따라 색상을 업데이트하는 함수

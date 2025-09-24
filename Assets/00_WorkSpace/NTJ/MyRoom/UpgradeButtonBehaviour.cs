@@ -36,7 +36,13 @@ public class UpgradeButtonBehaviour : MonoBehaviour
             _upgradeButton.onClick.AddListener(OnClickUpgradeButton);
         }
 
-        RefreshUpgradeState();
+       // RefreshUpgradeState();
+    }
+
+    public void InitializeButton(int itemId)
+    {
+        _itemId = itemId;
+        RefreshUpgradeState(); // 아이템 ID가 설정된 후에 UI 갱신 시작
     }
 
     /// <summary>
