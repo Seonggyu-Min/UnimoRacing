@@ -31,6 +31,8 @@ public class MyRoomManager : MonoBehaviour
     public static event Action<int, int> OnKartStatsUpdated;
     public static event Action<int> OnKartLevelUpdated;
 
+    [SerializeField] private UpgradeButtonBehaviour upgradeButton;
+
     private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
 
     public static MyRoomManager Instance { get; private set; }
@@ -63,6 +65,15 @@ public class MyRoomManager : MonoBehaviour
     }
 
     #region Equip & Load
+
+    public void ShowKartDetails(int kartId)
+    {
+        // 1. 필요한 아이템 ID를 UpgradeButtonBehaviour에 설정
+        upgradeButton.InitializeButton(kartId);
+
+        // 2. 다른 UI 패널 등 초기화
+        // ...
+    }
 
     public void LoadEquippedItems()
     {
@@ -130,12 +141,20 @@ public class MyRoomManager : MonoBehaviour
     private void EquipKartInternal(UnimoKartSO kart)
     {
         _currentEquippedKart = kart;
+        upgradeButton.InitializeButton(_currentEquippedKart.KartID);
         OnKartEquipped?.Invoke(kart);
     }
     private void EquipCharacterInternal(UnimoCharacterSO character)
     {
         _currentEquippedCharacter = character;
         OnCharacterEquipped?.Invoke(character);
+
+        int relation = _currentEquippedCharacter.relationCharacterId;
+        UnimoKartDatabase.Instance.TryGetByUnimoIndex(relation, out UnimoCharacterSO related);
+
+        // 여기서 인덱스가 있으니 그걸 활용하면 됩니다.
+        // Firebase DB에 요청, 아니면 SO에 직접 접근 등을 통해 정보를 얻어올 수 있습니다.
+        // ItemPreviewManager.Instance.BindUnimoPreview(); 이거는 근데 나중에 같이 보겠습니다.
     }
 
     private void SaveEquippedItems()
