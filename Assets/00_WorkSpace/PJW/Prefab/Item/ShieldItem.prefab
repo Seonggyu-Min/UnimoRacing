@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4556861687518623823}
   - component: {fileID: 7874816313538825201}
+  - component: {fileID: 7360686976138606344}
   m_Layer: 0
   m_Name: ShieldItem
   m_TagString: Untagged
@@ -47,3 +48,18 @@ MonoBehaviour:
   shieldDuration: 5
   sfxUseKey: Shield_Use_SFX
   sfxLoopKey: Shield_SFX
+--- !u!114 &7360686976138606344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4070489616884424043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 262ad69288eaad64b940491c614dbfce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupVfxPrefab: {fileID: 0}
+  spawnOffset: {x: 0, y: 0, z: 0}
+  spawnEulerAngles: {x: 0, y: 0, z: 0}

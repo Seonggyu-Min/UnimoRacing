@@ -31,6 +31,7 @@ namespace MSG
 
         public override void OnJoinedRoom()
         {
+            ResetCPForRacing(); // 플레이어 프롭 초기화
             if (PhotonNetwork.IsMasterClient)
             {
                 TryStartVoteAsMaster();
@@ -217,6 +218,12 @@ namespace MSG
             }
 
             return false;
+        }
+
+
+        private void ResetCPForRacing()
+        {
+            PhotonNetworkCustomProperties.LocalPlayerSetup();
         }
     }
 }

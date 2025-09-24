@@ -7,7 +7,6 @@ using UnityEngine;
 
 
 // MoneyType 및 DBRoutes는 게임에 맞게 정의되어 있어야 합니다.
-public enum MoneyType { Gold, BlueHoneyGem, Cash }
 
 public class MyRoomManager : MonoBehaviour
 {
@@ -29,7 +28,7 @@ public class MyRoomManager : MonoBehaviour
     public static event Action OnInventoryUpdated;
 
     // 강화 시 레벨 및 스탯 변경 사항을 알리는 이벤트
-    public static event Action<int, int> OnKartStatsUpdated; // <공격력, 방어력>
+    public static event Action<int, int> OnKartStatsUpdated;
     public static event Action<int> OnKartLevelUpdated;
 
     private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
@@ -303,7 +302,6 @@ public class MyRoomManager : MonoBehaviour
         {
             MoneyType.Gold => DBRoutes.Gold(CurrentUid),
             MoneyType.BlueHoneyGem => DBRoutes.BlueHoneyGem(CurrentUid),
-            MoneyType.Cash => DBRoutes.BlueHoneyGem(CurrentUid),
             _ => null
         };
 
@@ -327,19 +325,27 @@ public class MyRoomManager : MonoBehaviour
                 }
                 catch
                 {
+                    Debug.LogError("트랜잭션: 데이터 파싱 실패. Aborting.");
+                    return TransactionResult.Abort();
                 }
 
+                // 잔액 부족 확인은 한 번만 수행합니다.
                 if (current < price)
                 {
+                    Debug.LogWarning("트랜잭션: 잔액 부족. Aborting.");
                     return TransactionResult.Abort();
                 }
 
                 mutable.Value = current - price;
                 return TransactionResult.Success(mutable);
             },
-            _ => onDone?.Invoke(true),
-            _ => onDone?.Invoke(false)
+            // onSuccess, onError 콜백은 기존과 동일합니다.
+            snap => onDone?.Invoke(true),
+            errMsg => {
+                Debug.LogError($"트랜잭션 실패: {errMsg}");
+                onDone?.Invoke(false);
+            }
         );
+        #endregion
     }
-    #endregion
 }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8094018362907278744}
   - component: {fileID: 650975786435230216}
   m_Layer: 0
-  m_Name: BombTrap
+  m_Name: BombItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
