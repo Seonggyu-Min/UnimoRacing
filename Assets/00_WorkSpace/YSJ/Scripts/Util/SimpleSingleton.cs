@@ -30,7 +30,7 @@ namespace YSJ.Util
             }
         }
 
-        public T GetInstance => _instance;
+        public static T GetInstance => _instance;
         protected virtual bool IsDontDestroyOnLoad => _isDontDestroyOnLoad;
 
         private void Awake() => Init();
