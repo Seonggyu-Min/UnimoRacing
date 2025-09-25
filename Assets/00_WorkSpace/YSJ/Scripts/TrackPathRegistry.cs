@@ -6,14 +6,21 @@ using YSJ.Util;
 /// <summary>
 /// 돌리 트랙 관리
 /// </summary>
-public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>
+public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>, IGameSetup
 {
     private bool _isInit = false;
 
+    [Header("PrintLog")]
     [SerializeField] private bool _isPrintLog = false;
+    
+    [Header("IGameSetup")]
+    [SerializeField] private int _order = 0;
+    
+    [Header("Config")]
     [SerializeField] private List<CinemachinePathBase> _paths = new();
-
+    
     public bool IsInit => _isInit;
+    public int Order => _order;
 
     // 돌리 트랙 레일 찾고
     // 다 찾았다면, 
@@ -28,6 +35,12 @@ public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>
             return;
 
         _isInit = true;
+    }
+
+    public bool Setup()
+    {
+        RePathLoad();
+        return _isInit;
     }
 
     public void RePathLoad()
@@ -205,4 +218,6 @@ public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>
         if (!_isPrintLog) return;
         UnityUtilEx.PrintLog(this, printLog, type);
     }
+
+    
 }
