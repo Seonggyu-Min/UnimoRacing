@@ -502,7 +502,31 @@ MonoBehaviour:
   _isControlable: 1
   _isMovable: 1
   _isItemUsable: 1
-  synergyRules: []
+  synergyRules:
+  - characterId: 20005
+    kartId: 10005
+    prefabKey: FishItem
+    prefabRef: {fileID: 0}
+    needCount: 3
+    icon: {fileID: 21300000, guid: b0d0785cd1fa49f478591e158e0af91b, type: 3}
+  - characterId: 20013
+    kartId: 10010
+    prefabKey: BombItem
+    prefabRef: {fileID: 0}
+    needCount: 3
+    icon: {fileID: 21300000, guid: 7e9a8494d5c459645862c4b64f2896df, type: 3}
+  - characterId: 20001
+    kartId: 10001
+    prefabKey: HoneyTrap
+    prefabRef: {fileID: 0}
+    needCount: 3
+    icon: {fileID: 21300000, guid: 514c7edb1bb0423499e7d40015f653d7, type: 3}
+  - characterId: 20006
+    kartId: 10006
+    prefabKey: BoostItem
+    prefabRef: {fileID: 0}
+    needCount: 3
+    icon: {fileID: 21300000, guid: 9518248f58a0c9a478e149a0baba64d5, type: 3}
 --- !u!114 &1959652890368414403
 MonoBehaviour:
   m_ObjectHideFlags: 0
