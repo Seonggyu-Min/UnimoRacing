@@ -1,4 +1,5 @@
-﻿using Firebase.Database;
+﻿using EditorAttributes;
+using Firebase.Database;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -165,10 +166,15 @@ namespace MSG
 
                     if (dateKey != today)
                     {
-                        mutable.Child(DatabaseKeys.progress).Value = null;
-                        mutable.Child(DatabaseKeys.cleared).Value = null;
-                        mutable.Child(DatabaseKeys.claimed).Value = null;
-                        mutable.Child(DatabaseKeys.dateKey).Value = today;
+                        // Cleared, Claimed, Progress를 초기화 후 DateKey만 오늘로 설정
+                        Dictionary<string, object> newMap = new()
+                        {
+                            [DatabaseKeys.claimed] = null,
+                            [DatabaseKeys.cleared] = null,
+                            [DatabaseKeys.progress] = null,
+                            [DatabaseKeys.dateKey] = today
+                        };
+                        mutable.Value = newMap;
                     }
                     return TransactionResult.Success(mutable);
                 },
@@ -500,5 +506,17 @@ namespace MSG
         }
 
         #endregion
+
+
+        #region Debug Methods
+
+        [Button("RefreshMission")]
+        private void RefreshMission()
+        {
+            LoadMissionsFromServer();
+        }
+
+        #endregion
+
     }
 }
