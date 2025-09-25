@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterId: 20004
   characterName: "\uACF0\uACF0"
-  characterPrefab: {fileID: 0}
-  characterSprite: {fileID: 0}
+  characterPrefab: {fileID: 4600803693058095967, guid: 7add4971919c67b408a29c006276aa63,
+    type: 3}
+  characterSprite: {fileID: 21300000, guid: ef007859432c7f64bacc6ed4249ac82f, type: 3}
   currencyType: {fileID: 0}
   characterInfo: "\uC5EC\uB984 \uC7A0\uC744 \uC790\uB294 \uB3D9\uADF8\uB780 \uACF0"
   SynergyKartID: 10004
