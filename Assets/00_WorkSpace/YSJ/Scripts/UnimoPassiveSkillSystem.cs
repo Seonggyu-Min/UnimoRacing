@@ -135,13 +135,13 @@ public class UnimoPassiveSkillSystem : MonoBehaviour
         _inventory.RemoveItemBySO(so);
 
         // 조건이 맞을 때, 리워드 아이템 아이디 가지고 오기
-        UnimoItemSO reward = ItemManager.Instance.GetItemSOById((int)_passiveSkill.triggerRewardItemID);
+        // UnimoItemSO reward = ItemManager.Instance.GetItemSOById((int)_passiveSkill.triggerRewardItemID);
 
         // 보상 아이템을 넣어줄 때 
         // - 지연 저장 > 가능
         // - 무조건 저장 > 가능
         // - 아이템이 저장될 때 같이 실행 되는 액션 실행 > 불가능
-        _inventory.SaveItem(reward, true, true, false);
+        // _inventory.SaveItem(reward, true, true, false);
     }
     #endregion
 }
