@@ -20,8 +20,8 @@ MonoBehaviour:
   characterInfo: "\uC790\uC2E0\uC758 \uC790\uB9AC\uB97C \uB418\uCC3E\uACE0 \uC2F6\uC5B4\uD558\uB294
     \uD1A0\uB07C"
   SynergyKartID: 10002
-  relationCharacterId: -1
-  dialogId: -1
+  relationCharacterId: 20013
+  dialogId: 21006
   useAddr: 1
   characterPrefabRef:
     m_AssetGUID: 834c26b85244f0a499ba417d481df5ef

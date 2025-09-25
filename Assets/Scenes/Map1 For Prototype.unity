@@ -1195,6 +1195,7 @@ GameObject:
   - component: {fileID: 204465117}
   - component: {fileID: 204465116}
   - component: {fileID: 204465119}
+  - component: {fileID: 204465120}
   m_Layer: 5
   m_Name: In Game UI Panel
   m_TagString: Untagged
@@ -1364,6 +1365,23 @@ MonoBehaviour:
   _lapText: {fileID: 378449468}
   _rankText: {fileID: 839714747}
   _timtText: {fileID: 1803453399}
+--- !u!114 &204465120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204465114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba9edd6c5aab0449beed3b1d34d2d29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useButton: {fileID: 435070724}
+  itemIcons:
+  - {fileID: 187067806}
+  - {fileID: 1757082065}
+  logVerbose: 1
 --- !u!1001 &235611949
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1684,6 +1702,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &263933183
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 263933185}
+  - component: {fileID: 263933184}
+  m_Layer: 0
+  m_Name: Sky Box Applier
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &263933184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263933183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be0057c3b32ec1c4fb85df961b039e59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _skyBoxMaterials:
+  - {fileID: 2100000, guid: 1cf6f4c6e6e0518419839d3f5448dd99, type: 2}
+  - {fileID: 2100000, guid: 2bd8959f5fbd3644aa33af1a155fc147, type: 2}
+  - {fileID: 2100000, guid: cc421da483ed06c49933077a621bff25, type: 2}
+--- !u!4 &263933185
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263933183}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &272895856
 GameObject:
   m_ObjectHideFlags: 0
@@ -2646,10 +2712,9 @@ GameObject:
   - component: {fileID: 435070726}
   - component: {fileID: 435070725}
   - component: {fileID: 435070724}
-  - component: {fileID: 435070723}
   - component: {fileID: 435070722}
   m_Layer: 5
-  m_Name: Button
+  m_Name: Use Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2697,24 +2762,6 @@ MonoBehaviour:
   sceneViewId: 1
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &435070723
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 435070720}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ba9edd6c5aab0449beed3b1d34d2d29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useButton: {fileID: 435070724}
-  itemIcons:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  logVerbose: 1
 --- !u!114 &435070724
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3028,7 +3075,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &461573073
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3231,6 +3278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDontDestroyOnLoad: 0
+  _isPrintLog: 0
   _paths: []
 --- !u!1 &575582875
 GameObject:
@@ -8997,7 +9045,7 @@ MonoBehaviour:
   _isDontDestroyOnLoad: 0
   _raceRulesConfig: {fileID: 11400000, guid: 7feeb0493e0cffc4ebc6df9894081c0c, type: 2}
   _useSelfPhotonNetworkConnecter: 0
-  _useMapCycleManager: 0
+  _useMapCycleManager: 1
 --- !u!1 &2068057157
 GameObject:
   m_ObjectHideFlags: 0
@@ -9188,6 +9236,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4746884285805977422, guid: 30035e7b5a3148a4bada3be372c1cf57,
+        type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     - target: {fileID: 6955538791517076402, guid: 30035e7b5a3148a4bada3be372c1cf57,
         type: 3}
       propertyPath: m_SizeDelta.x
@@ -9243,6 +9296,7 @@ SceneRoots:
   - {fileID: 1912560689}
   - {fileID: 2017547667}
   - {fileID: 1233580825}
+  - {fileID: 263933185}
   - {fileID: 649543767}
   - {fileID: 940583926}
   - {fileID: 1333230071}

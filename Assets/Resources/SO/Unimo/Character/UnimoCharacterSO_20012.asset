@@ -19,8 +19,8 @@ MonoBehaviour:
   currencyType: {fileID: 0}
   characterInfo: "\uB099\uD0C0 \uC2EB\uC5B4"
   SynergyKartID: 10012
-  relationCharacterId: -1
-  dialogId: -1
+  relationCharacterId: 20010
+  dialogId: 21011
   useAddr: 1
   characterPrefabRef:
     m_AssetGUID: 8718455dd8be0c64fb5f13b2f991fa5d
