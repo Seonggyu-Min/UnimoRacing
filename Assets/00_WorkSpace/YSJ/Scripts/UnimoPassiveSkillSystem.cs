@@ -98,9 +98,9 @@ public class UnimoPassiveSkillSystem : MonoBehaviour
             // 카운팅 초기화
             _triggerCurrentCount = 0;
             // 조건이 맞을 때, 리워드 아이템 아이디 가지고 오기
-            UnimoItemSO reward = ItemManager.Instance.GetItemSOById((int)_passiveSkill.triggerRewardItemID);
+            // UnimoItemSO reward = ItemManager.Instance.GetItemSOById((int)_passiveSkill.triggerRewardItemID);
             // 보상 아이템 추가
-            _inventory.SaveItem(reward, true);
+            // _inventory.SaveItem(reward, true);
         }
     }
     #endregion
