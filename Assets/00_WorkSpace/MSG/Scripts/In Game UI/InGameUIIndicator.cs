@@ -38,7 +38,7 @@ namespace MSG
             }
 
             // 플레이어 완주 체크
-            if (changedProps.ContainsKey(PhotonNetworkCustomProperties.KEY_PLAYER_RACE_IS_FINISHED))
+            if (changedProps.ContainsKey(PhotonNetworkCustomProperties.KEY_PLAYER_RACE_IS_FINISHED) && targetPlayer.IsLocal)
             {
                 if (changedProps.TryGetValue(PhotonNetworkCustomProperties.KEY_PLAYER_RACE_IS_FINISHED, out object finished))
                 {
