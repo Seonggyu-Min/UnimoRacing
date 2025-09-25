@@ -14,14 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterId: 20007
   characterName: "\uB460\uB460"
-  characterPrefab: {fileID: 4295636587615923878, guid: 57de376fda9433f4a90d660f8399a687,
-    type: 3}
-  characterSprite: {fileID: 21300000, guid: d63fbd7e2ab1c9b4c9a716db8f129885, type: 3}
+  characterPrefab: {fileID: 0}
+  characterSprite: {fileID: 0}
   currencyType: {fileID: 0}
   characterInfo: "\uBC1D\uAC8C \uBE5B\uB098\uB294 \uAC83\uB4E4\uC744 \uBAA8\uC544\uC694"
   SynergyKartID: 10007
-  relationCharacterId: -1
-  dialogId: -1
+  relationCharacterId: 20009
+  dialogId: 21010
   useAddr: 1
   characterPrefabRef:
     m_AssetGUID: 57de376fda9433f4a90d660f8399a687
