@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using MSG;
+using Photon.Pun;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -84,6 +85,12 @@ namespace PJW
             if (!CanUseItem) return;
             if (ownerView != null && !ownerView.IsMine) return;
             if (!HasItem) return;
+
+            // 아이템 사용 미션 증가 처리
+            if (MissionService.Instance != null)
+            {
+                MissionService.Instance.Report(MissionVerb.Use, MissionObject.Item, false, 1);
+            }
 
             var currentItemPrefab = items.Peek();
             if (currentItemPrefab == null)

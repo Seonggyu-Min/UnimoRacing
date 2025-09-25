@@ -203,6 +203,15 @@ namespace MSG
                         1, // 획득이므로 무조건 레벨 1로 설정
                         () => Debug.Log("구매 완료"),
                         err => Debug.LogWarning($"{err} 구매 갱신 오류"));
+
+                    if (itemType == ItemType.Unimo)
+                    {
+                        MissionService.Instance.Report(MissionVerb.Collect, MissionObject.Unimo, false, 1);
+                    }
+                    else
+                    {
+                        MissionService.Instance.Report(MissionVerb.Collect, MissionObject.Engine, false, 1);
+                    }
                 });
         }
 
@@ -285,7 +294,8 @@ namespace MSG
                 },
                 // onSuccess, onError 콜백은 기존과 동일합니다.
                 snap => onDone?.Invoke(true),
-                errMsg => {
+                errMsg =>
+                {
                     Debug.LogError($"트랜잭션 실패: {errMsg}");
                     onDone?.Invoke(false);
                 }
