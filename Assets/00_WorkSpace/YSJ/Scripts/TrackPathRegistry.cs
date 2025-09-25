@@ -47,11 +47,58 @@ public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>
         if (_paths == null)
             return;
 
+        _paths.Clear();
+
+        List<(CinemachinePathBase path, int number)> numbered = new(); // 숫자 있는 것들
+        List<CinemachinePathBase> nonNumbered = new();                 // 숫자 없는 것들
+
+        // 숫자 있는 애들 / 없는 애들 분리
         foreach (var path in paths)
+        {
+            if (path == null) continue;
+
+            string name = path.name;
+            int underscoreIndex = name.LastIndexOf('_');
+
+            if (underscoreIndex >= 0 &&
+                int.TryParse(name.Substring(underscoreIndex + 1), out int number))
+            {
+                numbered.Add((path, number));
+            }
+            else
+            {
+                nonNumbered.Add(path);
+            }
+        }
+
+        // 숫자 있는 애들 정렬 (간단 버블 정렬)
+        for (int i = 0; i < numbered.Count - 1; i++)
+        {
+            for (int j = i + 1; j < numbered.Count; j++)
+            {
+                if (numbered[i].number > numbered[j].number)
+                {
+                    var temp = numbered[i];
+                    numbered[i] = numbered[j];
+                    numbered[j] = temp;
+                }
+            }
+        }
+
+        // 최종 합치기
+        foreach (var entry in numbered)
+        {
+            if (!_paths.Contains(entry.path))
+                _paths.Add(entry.path);
+        }
+
+        foreach (var path in nonNumbered)
         {
             if (!_paths.Contains(path))
                 _paths.Add(path);
         }
+
+        this.PrintLog($"총 {_paths.Count} 개의 트랙이 세팅되었습니다.");
     }
 
     public int GetPathIndex(CinemachinePathBase path)
