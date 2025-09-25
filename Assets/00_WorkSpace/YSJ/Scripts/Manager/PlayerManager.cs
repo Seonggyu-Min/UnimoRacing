@@ -179,11 +179,11 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
     #region Race CP
     private void CreateRaceCP()
     {
-        // OnJoinedRoom 시점: 안전하지만 래퍼로 더 단단하게
+        // OnJoinedRoom 시점 : 초기 값 설정
         var dict = new Dictionary<PlayerKey, object>()
         {
             { PlayerKey.RaceLoaded, false },
-            { PlayerKey.RaceIsFinished, -1 },
+            { PlayerKey.RaceIsFinished, false },
             { PlayerKey.RaceFinishedTime, -1d },
         };
         PhotonNetworkCustomProperties.TrySetLocalPlayerPropsSafe(dict, debugTag: "CreateRaceCP");
@@ -204,6 +204,6 @@ public class PlayerManager : SimpleSingleton<PlayerManager>
 
     public void OnPrint(Player targetPlayer, Hashtable changedProps)
     {
-        PhotonNetworkCustomProperties.PrintPlayerCustomProperties(PhotonNetwork.LocalPlayer);
+        this.PrintLog(PhotonNetworkCustomProperties.PrintPlayerCustomProperties(PhotonNetwork.LocalPlayer), LogType.Log, Color.cyan);
     }
 }

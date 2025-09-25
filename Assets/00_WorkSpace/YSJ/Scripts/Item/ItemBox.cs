@@ -23,16 +23,13 @@ public class ItemBox : MonoBehaviour
     [Header("Visual Config")]
     [SerializeField] private bool _isSpawnVisualBoxBody;            // 시작적 오브젝트 생성 여부
     [SerializeField] private GameObject _spawnableVisualBoxBodyGO;    // 시각적 오브젝트
-    [SerializeField] private GameObject _boxBodySpawnPoint;         // 실적용 바디를 스폰할 포인트
+    [SerializeField] private GameObject _boxBodyPoint;         // 실적용 바디를 스폰할 포인트
 
-    [Header("Sound Config")]
-    [SerializeField] private AudioClip _collisionAudioClip;         // 충돌 시
-    [SerializeField] private AudioClip _spawnAudioClip;             // 스폰 시
-    [SerializeField] private AudioClip _despawnAudioClip;           // 디스폰 시
 
-    public Action<Collider> OnCollisionAction;              // 충돌 시 콜백
-    public Action OnSpawnAction;                            // 스폰 시 콜백
-    public Action OnDespawnAction;                          // 디스폰 시 콜백
+    public Action OnSetupAction;                // 셋업 액션
+    public Action<Collider> OnCollisionAction;  // 충돌 시 콜백
+    public Action OnSpawnAction;                // 스폰 시 콜백
+    public Action OnDespawnAction;              // 디스폰 시 콜백
 
     // 상태
     private GameObject _boxBody;
@@ -52,15 +49,15 @@ public class ItemBox : MonoBehaviour
         _firtSpawnTime = PhotonNetwork.Time;
         if (_isSpawnVisualBoxBody)
         {
-            if (_boxBodySpawnPoint == null)
+            if (_boxBodyPoint == null)
             {
                 this.PrintLog($"{name}: _boxBodySpawnPoint가 비어있어. _boxBodySpawnPoint를 자동 생성합니다.");
-                _boxBodySpawnPoint = GameObject.Instantiate(new GameObject("BodyPoint"), this.gameObject.transform);
+                _boxBodyPoint = GameObject.Instantiate(new GameObject("BodyPoint"), this.gameObject.transform);
             }
 
             if (_spawnableVisualBoxBodyGO)
             {
-                _boxBody = GameObject.Instantiate(_spawnableVisualBoxBodyGO, _boxBodySpawnPoint.transform);
+                _boxBody = GameObject.Instantiate(_spawnableVisualBoxBodyGO, _boxBodyPoint.transform);
                 _boxBody.transform.localPosition = Vector3.zero;
                 _boxBody.transform.localRotation = Quaternion.identity;
 
@@ -135,6 +132,8 @@ public class ItemBox : MonoBehaviour
             this.PrintLog($"해당 아이템 박스에 등장할 수 있는 아이템 리스트를 아이템 매니저쪽으로 이관 합니다.");
             ItemManager.Instance.RegisterItemDatas(_items.ToArray());
         }
+
+        OnSetupAction?.Invoke();
 
         if (_isDespawnStart)
             ForceDespawn(0f);
