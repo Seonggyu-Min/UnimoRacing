@@ -194,8 +194,9 @@ namespace MSG
         }
 
 
-        // Render Texture 비우기. 씬 떠날 때 호출해야될 듯
-        public void DisposePreviewRenderTexture(int id)
+        // Render Texture 비우기. 씬 떠날 때 호출해야될 듯.
+        // 근데 인게임씬에서 쓸거면 그냥 계속 갖고 있으면 될 듯
+        public void DisposePreview(int id)
         {
             if (_rtMap.TryGetValue(id, out RenderTexture rt) && rt != null)
             {
@@ -205,8 +206,18 @@ namespace MSG
             _rtMap.Remove(id);
         }
 
+        private void DisposePreviewAll()
+        {
+            foreach (var rt in _rtMap)
+            {
+                if (rt.Value.IsCreated()) rt.Value.Release();
+                Destroy(rt.Value);
+            }
+            _rtMap.Clear();
+        }
+
         // Render Texture 비우기. 씬 떠날 때 호출해야될 듯
-        private void DisposeCombine()
+        public void DisposeCombine()
         {
             if (_combineObj != null)
             {
@@ -380,6 +391,13 @@ namespace MSG
             }
 
             Debug.Log(sb);
+        }
+
+        [Button("Clear RT")]
+        private void ClearRT()
+        {
+            DisposePreviewAll();
+            DisposeCombine();
         }
 
         #endregion

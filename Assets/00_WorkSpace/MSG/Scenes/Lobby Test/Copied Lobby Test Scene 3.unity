@@ -20941,6 +20941,52 @@ MonoBehaviour:
     parentTransformRect: {fileID: 0}
     parentTransform: {fileID: 0}
     partOfPrefab: 0
+--- !u!1 &340257743
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 340257745}
+  - component: {fileID: 340257744}
+  m_Layer: 0
+  m_Name: Memory Debugger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &340257744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 340257743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f81856335b63d7a48a2eebf818ba8018, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _useDebugger: 1
+  interval: 0.1
+--- !u!4 &340257745
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 340257743}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1756.2156, y: 1190.3157, z: -2.8347926}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &341048195
 GameObject:
   m_ObjectHideFlags: 0
@@ -54087,18 +54133,6 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 5850206264853445912}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &951655019 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4118819359239972069, guid: bbac0e2123f3d1e4e983bc5b4b35bb88,
-    type: 3}
-  m_PrefabInstance: {fileID: 5850206264853445912}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb6968e907ce0404e8f5d87b6f991c8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &953341180
 GameObject:
   m_ObjectHideFlags: 0
@@ -83820,7 +83854,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6c2516660ca85f40a9b68db6d61bd05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rewardPanel: {fileID: 951655019}
 --- !u!4 &1471528932
 Transform:
   m_ObjectHideFlags: 0
@@ -114195,7 +114228,7 @@ GameObject:
   - component: {fileID: 2067020938}
   - component: {fileID: 2067020937}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Get Speed Tester
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -120211,22 +120244,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4d06e7641618fd544a5fce630dfc8f1a, type: 2}
   - {fileID: 11400000, guid: 8bee9dc8a1bd79246845e45aad4fdd30, type: 2}
   - {fileID: 11400000, guid: 6d611bb357bb8f9448c1d58b9ca16625, type: 2}
-  uiManager: {fileID: 3994865280805049008}
-  kartInventoryParent: {fileID: 5860759453658139667}
-  kartInventoryPrefab: {fileID: 6967128637826626467, guid: 0025effffd67bf946a70b1676ec276c2,
-    type: 3}
-  characterInventoryParent: {fileID: 1725425950698495046}
-  characterInventoryPrefab: {fileID: 7801464006253188073, guid: f3cd34da256cd804f80326daf9e4ca5b,
-    type: 3}
-  characterDisplayImage: {fileID: 8347960221181832759}
-  kartDisplayImage: {fileID: 2367582514936806963}
-  kartDescText: {fileID: 2109166332}
-  characterDescText: {fileID: 1123105750}
-  passiveSkillIdText: {fileID: 0}
-  _unimoScrollItemChecker2: {fileID: 0}
-  _unimoScrollRect: {fileID: 0}
-  _kartScrollItemChecker2: {fileID: 0}
-  _kartScrollRect: {fileID: 0}
+  upgradeButton: {fileID: 0}
 --- !u!114 &651327331034963938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133323,12 +133341,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d113f02d93bd58e4b99964544ad937e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  equippedCharacterImage: {fileID: 8347960221181832759}
-  equippedCarImage: {fileID: 2367582514936806963}
+  myRoom1Panel: {fileID: 0}
+  myRoom2Panel: {fileID: 0}
+  myRoom1CharacterNameText: {fileID: 0}
+  myRoom1CharacterDescText: {fileID: 0}
+  myRoom1KartNameText: {fileID: 0}
+  myRoom1KartLevelText: {fileID: 0}
+  myRoom1KartDescText: {fileID: 0}
+  changeButton: {fileID: 0}
+  myRoom2KartDescText: {fileID: 0}
+  myRoom2CharacterDescText: {fileID: 0}
   characterInventoryPanel: {fileID: 6760207344933390724}
   carInventoryPanel: {fileID: 8126352935630991707}
   characterToggleButton: {fileID: 6418357629471476042}
   carToggleButton: {fileID: 8448732981561562392}
+  kartInventoryParent: {fileID: 0}
+  kartInventoryPrefab: {fileID: 0}
+  characterInventoryParent: {fileID: 0}
+  characterInventoryPrefab: {fileID: 0}
+  _unimoScrollItemChecker2: {fileID: 0}
+  _unimoScrollRect: {fileID: 0}
+  _kartScrollItemChecker2: {fileID: 0}
+  _kartScrollRect: {fileID: 0}
 --- !u!1 &3997425808213024919
 GameObject:
   m_ObjectHideFlags: 0
@@ -136107,14 +136141,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 818dd76a72f4d68458a059c182c1f6d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  optionButtons:
-  - {fileID: 426903927950130607}
-  - {fileID: 8861277853241545217}
-  - {fileID: 6381567908247564069}
-  checkmarkImages:
-  - {fileID: 4184103324491319741}
-  - {fileID: 3531108302581327201}
-  - {fileID: 6548106266148710609}
 --- !u!1 &4738520064401403051
 GameObject:
   m_ObjectHideFlags: 0
@@ -141638,24 +141664,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92e7ed332e4653e41ae1c3a991308d5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shopButton: {fileID: 2591681186913526884}
-  shopPopup: {fileID: 2060626705}
-  myRoomButton: {fileID: 3198113848220177886}
-  myRoomPopup: {fileID: 3994865280805049008}
-  missionButton: {fileID: 0}
-  missionPopup: {fileID: 0}
-  settingsButton: {fileID: 5116862126287679258}
-  settingsPopup: {fileID: 4731810410104889395}
-  removeAdButton: {fileID: 0}
-  removeAdPopup: {fileID: 0}
-  specialGiftButton: {fileID: 0}
-  specialGiftPopup: {fileID: 0}
-  friendsButton: {fileID: 3250835375647138451}
-  friendsPopup: {fileID: 0}
-  matchButton: {fileID: 0}
-  matchPopup: {fileID: 0}
-  playButton: {fileID: 0}
-  gameSceneName: GameScene
 --- !u!1 &5995733698196485832
 GameObject:
   m_ObjectHideFlags: 0
@@ -159881,3 +159889,4 @@ SceneRoots:
   - {fileID: 1551078288}
   - {fileID: 1718166200}
   - {fileID: 2067020938}
+  - {fileID: 340257745}
