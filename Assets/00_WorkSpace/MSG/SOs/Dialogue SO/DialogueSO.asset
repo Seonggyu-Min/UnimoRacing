@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb393d213e0fbad49814ca4f9ba66757, type: 3}
+  m_Name: DialogueSO
+  m_EditorClassIdentifier: 
+  dialogueBoxes:
+  - _dialogueIndex: 21001
+    _text: "\uC6B0\uC640 \uC774 \uBCC4\uAFC0 \uB098 \uC8FC\uB294\uAC70\uC57C? \uC5ED\uC2DC
+      \uB10C \uC88B\uC740 \uCE5C\uAD6C\uC57C!"
+  - _dialogueIndex: 21002
+    _text: "\uC774\uAC70... \uB0B4\uAC00 \uC81C\uC77C \uC88B\uC544\uD558\uB294 \uAC70\uC600\uB294\uB370..."
+  - _dialogueIndex: 21003
+    _text: "\uB9DB\uC788\uC5B4 \uBCF4\uC774\uB294 \uACE0\uB4F1\uC5B4\uAC00 \uB9D0\uB3C4
+      \uD55C\uB2E4 \uB0E5"
+  - _dialogueIndex: 21004
+    _text: "\uB9D0\uC744 \uD558\uBA74... \uC808 \uBA39\uC9C0 \uC54A\uC744\uAC74\uAC00\uC694
+      \uC18C\uD3EC\uC528...?"
+  - _dialogueIndex: 21005
+    _text: "\uC548\uB155\uC548\uB155??? \uB124\uAC00 \uC810\uBD84\uC774\uAD6C\uB098??"
+  - _dialogueIndex: 21006
+    _text: "......\uC548\uB155?"
+  - _dialogueIndex: 21007
+    _text: "\uB0B4 \uD5EC\uBA67\uC774\uB791 \uACE0\uAE00 \uBA4B\uC9C0\uC9C0 \uC54A\uC544?"
+  - _dialogueIndex: 21008
+    _text: "\uBB34\uC2A8 \uC18C\uB9AC\uC57C. \uB0B4 \uBE44\uD589 \uACE0\uAE00\uC774
+      \uB354 \uBA4B\uC788\uC5B4."
+  - _dialogueIndex: 21009
+    _text: "\uC624\uB298\uC740 \uACF5\uB180\uC774 \uD558\uBA74 \uC548 \uB3FC?"
+  - _dialogueIndex: 21010
+    _text: "\uB124\uAC00 \uAC16\uACE0 \uB180\uC544\uC11C \uB0B4 \uC54C \uAE68\uC9C4
+      \uAC74 \uC548 \uBCF4\uC774\uB2C8."
+  - _dialogueIndex: 21011
+    _text: "\uB108\uB791 \uC190\uC744 \uC7A1\uC744 \uC218 \uC788\uC5B4\uC11C \uB108\uBB34
+      \uC88B\uC544."
+  - _dialogueIndex: 21012
+    _text: "\uB098\uB3C4 \uB108\uB791 \uAC19\uC774 \uB180 \uC218 \uC788\uC5B4\uC11C
+      \uB108\uBB34 \uC88B\uC544."
