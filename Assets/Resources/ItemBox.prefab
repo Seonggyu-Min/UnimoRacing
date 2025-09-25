@@ -40,12 +40,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3630440107764853509}
-  - component: {fileID: 5987890181025987855}
-  - component: {fileID: 5122530072655136145}
   - component: {fileID: 7660328212275464623}
+  - component: {fileID: 5122530072655136145}
+  - component: {fileID: 8301456135463799846}
+  - component: {fileID: 5987890181025987855}
   m_Layer: 0
   m_Name: ItemBox
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -66,52 +67,6 @@ Transform:
   - {fileID: 3593569586566218650}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5987890181025987855
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7838168088428554135}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94f9036cd873613438697a24e0156fdb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _useItemManager: 1
-  _items: []
-  _selfSetup: 1
-  _collisionTag: Player
-  _isDespawnStart: 0
-  _respawnCycleTime: 8
-  _isSpawnVisualBoxBody: 1
-  _spawnableVisualBoxBodyGO: {fileID: 92855279926584434, guid: 10d7c8b4b994eaf4c9106b2cdb75c822,
-    type: 3}
-  _boxBodySpawnPoint: {fileID: 3745958467858508674}
-  _collisionAudioClip: {fileID: 0}
-  _spawnAudioClip: {fileID: 0}
-  _despawnAudioClip: {fileID: 0}
---- !u!65 &5122530072655136145
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7838168088428554135}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &7660328212275464623
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -139,3 +94,68 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &5122530072655136145
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7838168088428554135}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &8301456135463799846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7838168088428554135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 2
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &5987890181025987855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7838168088428554135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94f9036cd873613438697a24e0156fdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _useItemManager: 1
+  _items: []
+  _selfSetup: 1
+  _collisionTag: Player
+  _isDespawnStart: 0
+  _respawnCycleTime: 8
+  _isSpawnVisualBoxBody: 1
+  _spawnableVisualBoxBodyGO: {fileID: 92855279926584434, guid: 10d7c8b4b994eaf4c9106b2cdb75c822,
+    type: 3}
+  _boxBodyPoint: {fileID: 3745958467858508674}
