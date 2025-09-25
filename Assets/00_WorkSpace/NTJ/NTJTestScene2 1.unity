@@ -6668,7 +6668,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6c2516660ca85f40a9b68db6d61bd05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rewardPanel: {fileID: 538442661}
 --- !u!4 &100832730
 Transform:
   m_ObjectHideFlags: 0
@@ -33016,18 +33015,6 @@ MonoBehaviour:
     parentTransformRect: {fileID: 0}
     parentTransform: {fileID: 0}
     partOfPrefab: 0
---- !u!114 &538442661 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4118819359239972069, guid: bbac0e2123f3d1e4e983bc5b4b35bb88,
-    type: 3}
-  m_PrefabInstance: {fileID: 240763792}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb6968e907ce0404e8f5d87b6f991c8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &550141516
 GameObject:
   m_ObjectHideFlags: 0
@@ -47917,7 +47904,7 @@ RectTransform:
   m_GameObject: {fileID: 757654645}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2060626700}
@@ -47956,7 +47943,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 41bc1ce8da9e87a4fa340d902394e0df, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.15791623, g: 0.13962331, b: 0.19711539, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -61688,6 +61675,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 388473023178992805, guid: df23083469091734c83bbfc2998770f1,
+        type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 584285948874383332, guid: df23083469091734c83bbfc2998770f1,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 1920
+      objectReference: {fileID: 0}
     - target: {fileID: 584285948874383332, guid: df23083469091734c83bbfc2998770f1,
         type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -130149,7 +130146,7 @@ RectTransform:
   m_GameObject: {fileID: 6723556477820883405}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1, y: 1.1, z: 1}
+  m_LocalScale: {x: 1.3, y: 1.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5599964383433284621}
