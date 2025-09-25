@@ -125,6 +125,7 @@ public class MyRoomManager : MonoBehaviour
         EquipKartInternal(kart);
         SaveEquippedItems();
         UpdateKartStatsFromDB();
+        MissionService.Instance.Report(MissionVerb.Change, MissionObject.Engine, false, 1);
     }
 
     public void EquipCharacter(UnimoCharacterSO character)
@@ -136,6 +137,7 @@ public class MyRoomManager : MonoBehaviour
         }
         EquipCharacterInternal(character);
         SaveEquippedItems();
+        MissionService.Instance.Report(MissionVerb.Change, MissionObject.Unimo, false, 1);
     }
 
     private void EquipKartInternal(UnimoKartSO kart)
