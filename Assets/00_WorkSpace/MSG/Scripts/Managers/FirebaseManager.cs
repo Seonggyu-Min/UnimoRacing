@@ -65,6 +65,11 @@ namespace MSG
             SingletonInit();
         }
 
+        private void OnDestroy()
+        {
+            Debug.Log("파괴됨");
+        }
+
         private void Start()
         {
             Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
