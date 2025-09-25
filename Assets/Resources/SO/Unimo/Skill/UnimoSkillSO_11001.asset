@@ -12,12 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de801a99caa38b340974c3db387194c6, type: 3}
   m_Name: UnimoSkillSO_11001
   m_EditorClassIdentifier: 
-  skillID: 11001
-  skillName: "\uBC8C\uAFC0"
-  iconSprite: {fileID: 0}
-  skillPrefab: {fileID: 0}
-  skillType: 2
-  triggerType: 1
-  skillItemID: 31001
-  collectCount: 3
-  options: []
+  passiveSkillID: 0
+  passiveSkillName: 
+  passiveSkillIconSprite: {fileID: 0}
+  passiveSkillType: 2
+  triggerCondition: 1
+  triggerItemID: 30001
+  triggerCount: 3
+  triggerRewardItemID: 30002

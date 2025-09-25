@@ -3,9 +3,8 @@ using Firebase.Auth;
 using Firebase.Database;
 using Firebase.Extensions;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using YSJ.Util;
 
 
 namespace MSG
@@ -62,7 +61,14 @@ namespace MSG
 
         private void Awake()
         {
+            this.PrintLog("파이어 베이스 Awake() 진행");
             SingletonInit();
+            this.PrintLog("파이어 베이스 Awake() 진행 완료");
+        }
+
+        private void OnDestroy()
+        {
+            this.PrintLog("파이어 베이스 OnDestroy() 실행");
         }
 
         private void OnDestroy()
@@ -72,11 +78,13 @@ namespace MSG
 
         private void Start()
         {
-            Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
+            this.PrintLog("파이어 베이스 Start() 진행");
+            Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+            {
                 Firebase.DependencyStatus dependencyStatus = task.Result;
                 if (dependencyStatus == Firebase.DependencyStatus.Available)
                 {
-                    Debug.Log("파이어 베이스 설정이 모두 충족되어 사용할 수 있는 상황");
+                    this.PrintLog("파이어 베이스 설정이 모두 충족되어 사용할 수 있는 상황");
                     _app = FirebaseApp.DefaultInstance;
                     _auth = FirebaseAuth.DefaultInstance;
                     _database = FirebaseDatabase.DefaultInstance;
@@ -87,17 +95,22 @@ namespace MSG
                 }
                 else
                 {
-                    Debug.LogError($"파이어 베이스 설정이 충족되지 않아 실패했습니다. 이유: {dependencyStatus}");
+                    this.PrintLog($"파이어 베이스 설정이 충족되지 않아 실패했습니다. 이유: {dependencyStatus}", LogType.Error);
                     _app = null;
                     _auth = null;
                     _database = null;
                 }
             });
+            this.PrintLog("파이어 베이스 Start() 진행 완료");
         }
 
         private void OnApplicationQuit()
         {
             if (Database != null) Database.GoOffline();
+        }
+        private void PrintLog(string log, LogType type = LogType.Log)
+        {
+            this.PrintLog(log, type, Color.cyan);
         }
     }
 }
