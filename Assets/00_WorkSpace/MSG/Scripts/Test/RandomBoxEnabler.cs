@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,24 +16,26 @@ namespace MSG
         private void Start()
         {
             int index = PhotonNetworkCustomProperties.GetRoomProp<int>(RoomKey.WinnerMapIndex);
+            Debug.Log($"index: {index}");
+
+            StartCoroutine(Wait(index));
+        }
+
+        private IEnumerator Wait(int index)
+        {
+            yield return null;
 
             if (index == 1)
             {
-                _map1Obj?.SetActive(true);
-                _map2Obj?.SetActive(false);
-                _map3Obj?.SetActive(false);
+                _map1Obj.SetActive(true);
             }
             else if (index == 2)
             {
-                _map1Obj?.SetActive(false);
-                _map2Obj?.SetActive(true);
-                _map3Obj?.SetActive(false);
+                _map2Obj.SetActive(true);
             }
             else if (index == 3)
             {
-                _map1Obj?.SetActive(false);
-                _map2Obj?.SetActive(false);
-                _map3Obj?.SetActive(true);
+                _map3Obj.SetActive(true);
             }
             else
             {
