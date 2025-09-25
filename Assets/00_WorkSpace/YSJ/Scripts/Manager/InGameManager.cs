@@ -16,7 +16,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     [SerializeField] private InGameRaceRulesConfig _raceRulesConfig;
     [SerializeField] private bool _useSelfPhotonNetworkConnecter;       // 셀프 포톤 네트워크 커낵터
     [SerializeField] private bool _useMapCycleManager;
-    
+
     #region Config Setup Data
     private int     _laps = 1;                  // 렙
 
@@ -40,6 +40,8 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     private double _raceStartTime        = -1.0f;
 
     private double _raceStartDelayTime   = -1.0f;
+
+    private bool _isLoadedTrackPath = false;
 
     private MapCycleManager _mapCycleManager;
     private MapAssetLoader _mapAssetLoader;
@@ -344,6 +346,23 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
                 break;
 
             case RaceState.LoadPlayers:
+                if (TrackPathRegistry.GetInstance && TrackPathRegistry.GetInstance.GetPathLength() != -1)
+                {
+                    TrackPathRegistry.Instance.RePathLoad();
+                    _isLoadedTrackPath = true;
+                }
+                else
+                {
+                    if (TrackPathRegistry.GetInstance == null)
+                    {
+                        this.PrintLog("TrackPathRegistry가 존재 하지않습니다.");
+                    }
+                    else if(TrackPathRegistry.GetInstance.GetPathLength() <= 0)
+                    {
+                        this.PrintLog($"TrackPathRegistry의 경로가 존재 하지않습니다. (=> 현 경로 수: {TrackPathRegistry.GetInstance.GetPathLength()})");
+                    }
+                }
+
                 Check_Players_RaceKartLoaded();
 
                 // 후 처리
@@ -471,7 +490,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
             var finished = GetPlayerRaceFinished(p);
             var playerFinishTime = GetPlayerRaceFinishTime(p);
 
-           this.PrintLog(PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p));
+            this.PrintLog(PhotonNetworkCustomProperties.PrintPlayerCustomProperties(p));
             this.PrintLog($"Checking >>>>>>>>>>>>> Check_Players_IsRaceFinished [({finishTime} > {playerFinishTime}) => {finishTime > playerFinishTime} / finished => {finished}]");
             if (finishTime > playerFinishTime)
                 finishTime = playerFinishTime;
@@ -539,6 +558,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
             yield return null;
         }
 
+        _postGameEndTime = (float)PhotonNetwork.Time + _postGameEndTime;
         SendRaceState(RaceState.PostGame);
     }
     private IEnumerator CO_PostGameCountDown()
