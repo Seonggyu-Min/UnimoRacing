@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6630953751490825512}
   - component: {fileID: 4986260443535547155}
   - component: {fileID: 970545542288703565}
+  - component: {fileID: 1711285634996190611}
   m_Layer: 0
   m_Name: BoosterPad
   m_TagString: Untagged
@@ -29,13 +30,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 129496214721802186}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
   m_LocalPosition: {x: -4.59, y: -1.14, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: -90}
 --- !u!33 &3443066097655442963
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43,7 +44,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 129496214721802186}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: -3711836711291375447, guid: 99036653735ea6b469553aa988bf0cf8, type: 3}
 --- !u!23 &5786382612942634894
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -64,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -2152856844485526421, guid: e490e8712a20df0448dc60df5b5a5f97, type: 3}
+  - {fileID: 2100000, guid: 176076bf4631a374da8f8348f7687da6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -105,8 +106,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 2, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.8996506, y: 0.75231534, z: 1}
+  m_Center: {x: -0.0019874573, y: 0.010990679, z: 4.516467e-17}
 --- !u!54 &4986260443535547155
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -146,7 +147,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53950189fd2019d4a979fd86c94e14dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boostMultiplier: 2
-  boostDuration: 2
-  canRetrigger: 1
-  retriggerCooldown: 0.1
+  boostAmount: 5
+  duration: 2
+  targetTagName: Player
+  localCooldown: 0.06
+--- !u!114 &1711285634996190611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129496214721802186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 262ad69288eaad64b940491c614dbfce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupVfxPrefab: {fileID: 186012, guid: dff0fd5524b08754e9e2b68478c827b3, type: 3}
+  spawnOffset: {x: 0, y: 0, z: -1}
+  spawnEulerAngles: {x: 0, y: 0, z: 0}
+  spawnMode: 1

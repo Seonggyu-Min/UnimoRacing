@@ -14,8 +14,8 @@ namespace PJW
         public enum SpawnMode
         {
             OnTrigger,   // 1. 닿았을 때
-            OnSpawn,     // 2. 스폰되었을 때 (Start)
-            OnUse        // 3. 사용했을 때 (직접 호출 필요)
+            OnSpawn,     // 2. 스폰되었을 때 
+            OnUse        // 3. 사용했을 때 
         }
 
         [Header("동작 모드")]
@@ -56,7 +56,7 @@ namespace PJW
             Vector3 spawnPos = transform.position + spawnOffset;
             Quaternion spawnRot = pickupVfxPrefab.transform.rotation * Quaternion.Euler(spawnEulerAngles);
 
-            var vfx = Instantiate(pickupVfxPrefab, spawnPos, spawnRot);
+            var vfx = Instantiate(pickupVfxPrefab, spawnPos, spawnRot, this.transform);
 
             var ps = vfx.GetComponentsInChildren<ParticleSystem>(true);
             for (int i = 0; i < ps.Length; i++) ps[i].Play();
