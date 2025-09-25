@@ -1,290 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using YSJ.Util;
 
 namespace YSJ
 {
+    [DefaultExecutionOrder(-50)]
     public class ItemManager : SimpleSingletonPun<ItemManager>
     {
-        #region Parameter
-        [Header("Load Config")]
-        [SerializeField] private bool _useLoadAllItem = true;
-        [SerializeField] private List<ItemSpawnProbabilityData> _itemDataList = new();
-
-        [Header("Item Box")]
-        [SerializeField] private List<ItemBox> _thisSceneItemBoxList = new();
-
-        public Action OnInitAction;
-
-        private bool _isLoadedItem = false;
-
-        #endregion
+        private readonly List<ItemSpawnProbabilityData> _globalPool = new();
+        private readonly Dictionary<ItemId, UnimoItemSO> _idIndex = new();
 
         protected override void Init()
         {
             base.Init();
-
-            LoadAllItem();
-            LoadThisSceneItemBox();
-            OnInitAction?.Invoke();
         }
 
-        #region Load 관련
-        private void LoadAllItem()
+        public void RegisterItemDatas(params ItemSpawnProbabilityData[] arr)
         {
-            if (!_useLoadAllItem) return;
-            if (_isLoadedItem) return;
+            if (arr == null || arr.Length == 0) return;
 
-            this.PrintLog("LoadAllItem 진행");
-
-            // 초기화 시, 해당 경로의 필요 아이템들을 로드합니다.
-            UnimoItemSO[] loadItemSOArray = Resources.LoadAll<UnimoItemSO>(LoadPath.PLAYER_UNIMO_ITEM_PATH);
-
-            if (loadItemSOArray.Length > 0)
+            foreach (var d in arr)
             {
-                foreach (var itemSO in loadItemSOArray)
-                {
-                    if (ContainsUnimoSO(itemSO))
-                    {
-                        this.PrintLog($"모든 아이템 자동 로드 시, {itemSO}은 List에 이미 포함 되어 있습니다.", LogType.Warning);
-                        continue;
-                    }
+                if (d == null || d.Item == null) continue;
 
-                    this.PrintLog($"모든 아이템 자동 로드 시, {itemSO}은 List에 추가합니다.");
+                _globalPool.Add(d);
 
-                    ItemSpawnProbabilityData addData = new ItemSpawnProbabilityData();
-                    addData.itemSO = itemSO;
-                    addData.spawnProbability = 1.0f;
-
-                    _itemDataList.Add(addData);
-                }
-            }
-            else
-            {
-                this.PrintLog($"모든 아이템 자동 로드를 진행 할 수 있는 아이템이 없습니다.", LogType.Warning);
+                var id = d.Item.itemID;
+                if (id != ItemId.None)
+                    _idIndex[id] = d.Item; // 최신 참조로 갱신
             }
 
-            this.PrintLog("LoadAllItem 진행 완료");
-
-            _isLoadedItem = true;
-        }
-        private void LoadThisSceneItemBox()
-        {
-            var itemBoxs = GameObject.FindObjectsOfType<ItemBox>();
-            foreach (var itemBox in itemBoxs)
-            {
-                if (itemBox == null)
-                {
-                    this.PrintLog($"아이템 박스");
-                    continue;
-                }
-
-                if (_thisSceneItemBoxList.Contains(itemBox))
-                    continue;
-
-                _thisSceneItemBoxList.Add(itemBox);
-            }
+#if UNITY_EDITOR
+            this.PrintLog($"Registered: pool={_globalPool.Count}, ids={_idIndex.Count}");
+#endif
         }
 
-        #endregion
-
-        #region Register
-        public void RegisterItemData(ItemSpawnProbabilityData inData, bool forceRegister = false)
+        public UnimoItemSO ResolveById(ItemId id)
         {
-            bool isContainsSO = ContainsUnimoSO(inData.itemSO);
-            if (isContainsSO)
-            {
-                this.PrintLog($"포합된 SO가 존재하여 해당 {inData} 등록은 보류됩니다.");
-                if (forceRegister)
-                {
-                    this.PrintLog($"보류된 {inData} 등록의 spawnProbability 값만 현 Data로 변경됩니다.");
+            if (id == ItemId.None) return null;
+            if (_idIndex.TryGetValue(id, out var so) && so != null) return so;
 
-                    foreach (var data in _itemDataList)
-                    {
-                        if (inData.itemSO.itemID.Equals(data.itemSO.itemID))
-                        {
-                            data.spawnProbability = inData.spawnProbability;
-                            break;
-                        }
-                    }
-                }
-                return;
-            }
+            // 없으면 로드를 할까, 말까
 
-            _itemDataList.Add(inData);
-        }
-        public void RegisterItemDatas(params ItemSpawnProbabilityData[] inDatas)
-        {
-            foreach (var inData in inDatas)
-            {
-                if (inData == null) continue;
-                RegisterItemData(inData);
-            }
-        }
-
-        #endregion
-
-        #region 반환 관련
-        /// <summary>
-        /// 포함 여부 확인
-        /// </summary>
-        /// <param name="so"></param>
-        /// <returns></returns>
-        public bool ContainsUnimoSO(UnimoItemSO so)
-        {
-            if (so == null || _itemDataList.Count <= 0) return false;
-
-            foreach (var data in _itemDataList)
-            {
-                // 데이터가 없으면
-                if (data == null) continue;
-
-                // 데이터에 비교 대상이랑 맞으면
-                if (data.itemSO == so) return true;
-            }
-
-            // 찾을 수 없으면
-            return false;
-        }
-
-        /// <summary>
-        ///  아이템 SO 들 리턴(중복 제거 리스트) List
-        /// </summary>
-        /// <returns></returns>
-        public List<UnimoItemSO> GetItemSOs()
-        {
-            LoadAllItem();
-
-            List<UnimoItemSO> resultList = new();
-            foreach (var data in _itemDataList)
-            {
-                // 데이터가 없으면
-                if (data == null) continue;
-
-                // 데이터 안에, so가 없다면
-                var so = data.itemSO;
-                if (so == null) continue;
-
-                // 리턴해줄 리스트에 so가 포함 되어 있다면
-                if (resultList.Contains(so)) continue;
-
-                // 추가
-                resultList.Add(data.itemSO);
-            }
-            return resultList;
-        }
-
-        /// <summary>
-        /// 아이템 스폰 데이터 List
-        /// </summary>
-        /// <returns></returns>
-        public List<ItemSpawnProbabilityData> GetItemSpawnProbabilityDataList()
-        {
-            LoadAllItem();
-            return _itemDataList;
-        }
-
-        // 반환: 랜덤 아이템 SO(가중치 랜덤 진행 후)
-        public UnimoItemSO GetRandomItemSO()
-        {
-            GetItemSpawnProbabilityDataList();
-
-            UnimoItemSO result = null;
-            if (_itemDataList.Count <= 0) return result;
-
-            float catMax = 0.0f;
-
-            // catMax 도출
-            for (int i = 0; i < _itemDataList.Count; i++)
-            {
-                ItemSpawnProbabilityData data = _itemDataList[i];
-                if (data == null) continue;
-
-                catMax += data.spawnProbability;
-            }
-
-            float random = UnityEngine.Random.Range(0, catMax);
-            float nextCat = 0.0f;
-
-            // 컷 체크 및 SO 선별
-            for (int i = 0; i < _itemDataList.Count; i++)
-            {
-                ItemSpawnProbabilityData data = _itemDataList[i];
-                if (data == null) continue;
-
-                if (random > nextCat + data.spawnProbability)
-                {
-                    nextCat += data.spawnProbability;
-                    continue;
-                }
-
-                result = data.itemSO;
-                break;
-            }
-
-            return result;
-        }
-
-        public UnimoItemSO GetRandomItemSO(List<ItemSpawnProbabilityData> itemDataList)
-        {
-            GetItemSpawnProbabilityDataList();
-
-            UnimoItemSO result = null;
-            if (itemDataList.Count <= 0) return result;
-
-            float catMax = 0.0f;
-
-            // catMax 도출
-            for (int i = 0; i < itemDataList.Count; i++)
-            {
-                ItemSpawnProbabilityData data = itemDataList[i];
-                if (data == null) continue;
-
-                catMax += data.spawnProbability;
-            }
-
-            float random = UnityEngine.Random.Range(0, catMax);
-            float nextCat = 0.0f;
-
-            // 컷 체크 및 SO 선별
-            for (int i = 0; i < itemDataList.Count; i++)
-            {
-                ItemSpawnProbabilityData data = itemDataList[i];
-                if (data == null) continue;
-
-                if (random > nextCat + data.spawnProbability)
-                {
-                    result = data.itemSO;
-                    break;
-                }
-                nextCat += data.spawnProbability;
-            }
-
-            return result;
-        }
-
-        public UnimoItemSO GetItemSOById(int id)
-        {
-            LoadAllItem();
-
-            if (_itemDataList == null || _itemDataList.Count <= 0) return null;
-
-            foreach (var data in _itemDataList)
-            {
-                if (data == null || data.itemSO == null) continue;
-
-                if ((int)data.itemSO.itemID == id)
-                {
-                    return data.itemSO;
-                }
-            }
-
-            // 찾을 수 없을 경우
-            this.PrintLog($"[GetItemSOById] 요청한 ID({id})에 해당하는 아이템 SO를 찾을 수 없습니다.", LogType.Warning);
             return null;
         }
 
-        #endregion
+        public UnimoItemSO GetRandomItemSO()
+        {
+            return WeightedPick(_globalPool);
+        }
+
+        public UnimoItemSO GetRandomItemSO(List<ItemSpawnProbabilityData> localPool)
+        {
+            return WeightedPick(localPool);
+        }
+
+        private UnimoItemSO WeightedPick(List<ItemSpawnProbabilityData> pool)
+        {
+            if (pool == null || pool.Count == 0) return null;
+
+            var list = pool.Where(p => p != null && p.Item != null && p.Weight > 0f).ToList();
+            if (list.Count == 0) return null;
+
+            float total = 0f;
+            foreach (var p in list) total += p.Weight;
+
+            float r = UnityEngine.Random.Range(0f, total);
+            float acc = 0f;
+            foreach (var p in list)
+            {
+                acc += p.Weight;
+                if (r <= acc) return p.Item;
+            }
+            return list[list.Count - 1].Item;
+        }
     }
 }
