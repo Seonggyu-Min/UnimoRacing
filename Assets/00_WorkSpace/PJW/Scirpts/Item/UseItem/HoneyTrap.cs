@@ -1,6 +1,7 @@
+using Cinemachine;
 using Photon.Pun;
 using UnityEngine;
-using Cinemachine;
+using YTW;
 
 namespace PJW
 {
@@ -11,6 +12,8 @@ namespace PJW
 
         [SerializeField] private float slowMultiplier = 0.5f;
         [SerializeField] private float duration = 2.0f;
+
+        [SerializeField] private string sfxUseKey = "Egg_Crash";
 
         public void Use(GameObject owner)
         {
@@ -47,6 +50,8 @@ namespace PJW
 
             object[] data = new object[] { slowMultiplier, duration };
             PhotonNetwork.Instantiate(trapPrefab.name, spawnPos, Quaternion.identity, 0, data);
+
+            AudioManager.Instance.PlaySFX(sfxUseKey);
 
             Destroy(gameObject);
         }
