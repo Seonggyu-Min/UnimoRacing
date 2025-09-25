@@ -71,6 +71,11 @@ namespace MSG
             this.PrintLog("파이어 베이스 OnDestroy() 실행");
         }
 
+        private void OnDestroy()
+        {
+            Debug.Log("파괴됨");
+        }
+
         private void Start()
         {
             this.PrintLog("파이어 베이스 Start() 진행");

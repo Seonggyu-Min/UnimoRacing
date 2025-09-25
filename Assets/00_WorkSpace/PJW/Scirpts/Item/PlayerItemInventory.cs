@@ -109,6 +109,17 @@ namespace PJW
 
             usable.Use(ownerView != null ? ownerView.gameObject : gameObject);
 
+            var pv = ownerView ?? GetComponent<PhotonView>() ?? GetComponentInParent<PhotonView>();
+            if (pv != null)
+            {
+                var spawner = pv.GetComponent<NetworkVfxSpawner>() ?? pv.gameObject.AddComponent<NetworkVfxSpawner>();
+
+                string vfxPath = $"VFX/Items/{currentItemPrefab.name}_Use";
+
+                // 소유자 기준 뒤쪽 -1m에 부착, 2초 후 파괴 
+                spawner.SpawnAttached(pv.ViewID, vfxPath, new Vector3(0f, 0f, -1f), Vector3.zero, 2f);
+            }
+
             items.Dequeue();
             FireChangedEvents();
         }

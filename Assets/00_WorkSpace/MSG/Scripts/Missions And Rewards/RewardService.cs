@@ -24,7 +24,7 @@ namespace MSG
 
         private void OnDestroy()
         {
-            if (InGameManager.Instance != null)
+            if (InGameManager.GetInstance != null)
             {
                 InGameManager.Instance.OnRaceState_Finish -= Give;
             }
