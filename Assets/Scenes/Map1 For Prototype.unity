@@ -5207,8 +5207,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDontDestroyOnLoad: 0
-  _isPrintLog: 0
-  _order: 0
+  _isPrintLog: 1
+  _order: 1
   _paths: []
 --- !u!1 &549563494
 GameObject:
@@ -17447,6 +17447,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc9847ab9fd5ceb43ad6ed575fdb9264, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _order: 0
   _mapAddresses:
   - TempMap1
   - TempMap2
@@ -18894,7 +18895,9 @@ MonoBehaviour:
   _raceRulesConfig: {fileID: 11400000, guid: 7feeb0493e0cffc4ebc6df9894081c0c, type: 2}
   _useSelfPhotonNetworkConnecter: 0
   _useMapCycleManager: 1
-  _setupComponents: []
+  _setupComponents:
+  - {fileID: 1912560690}
+  - {fileID: 545797075}
 --- !u!1 &2068057157
 GameObject:
   m_ObjectHideFlags: 0
