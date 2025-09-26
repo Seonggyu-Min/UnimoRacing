@@ -229,8 +229,8 @@ namespace MSG
                         UIUnit unit = UIManager.Instance.GetUnit("Reward Panel");
                         _rewardPanel = unit.GetComponent<RewardPanelBehaviour>();
                     }
-                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
                     UIManager.Instance.Show("Reward Panel");
+                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
 
                     OnSucces?.Invoke();
                     Debug.Log("[MissionService] 데일리 미션 보상 수령 완료");
@@ -272,8 +272,8 @@ namespace MSG
                         UIUnit unit = UIManager.Instance.GetUnit("Reward Panel");
                         _rewardPanel = unit.GetComponent<RewardPanelBehaviour>();
                     }
-                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
                     UIManager.Instance.Show("Reward Panel");
+                    _rewardPanel.Init(entry.MoneyType, entry.RewardQuantity);
 
                     OnSucces?.Invoke();
                     Debug.Log("[MissionService] achievement 미션 보상 수령 완료");
