@@ -68,6 +68,8 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     // 아래 두개 퍼블릭 열어준 이유: 동기화
     public double CountDownStartTime => _countDownStartTime;
     public double RaceStartTime => _raceStartTime;
+    
+    public List<ItemSpawnProbabilityData> SpawnableItems => _spawnableItems;
 
     public int RaceEndLapCount => _laps;
 
@@ -745,6 +747,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     {
         var c = UnityEngine.Color.cyan;
         string hex = ColorUtility.ToHtmlStringRGB(c);
-        this.PrintLog($"[<color=#{hex}>{printLogString}</color>]", LogType.Log, UnityEngine.Color.green);
+        this.PrintLog($"<color=#{hex}>{printLogString}</color>", LogType.Log, UnityEngine.Color.green);
     }
 }

@@ -3,6 +3,6 @@
 [Serializable]
 public class ItemSpawnProbabilityData
 {
-    public UnimoItemSO itemSO;
-    public float spawnProbability = 1.0f;
+    public UnimoItemSO Item;
+    public float Weight = 1.0f;
 }
