@@ -611,8 +611,11 @@ public class PlayerRaceData : MonoBehaviour, IPunInstantiateMagicCallback
             $"CharacterID: {_characterID}\n" +
             $"KartID: {_kartID}\n" +
 
-            $"Sync: {_isSync}\n" +
-            $"Synergy: {_isSynergy}\n" +
+            $"cartController: {_cartController.IsSetup}\n" +
+            $"cartMovement: {_cartMovement.IsSetup}\n" +
+            $"raceAniCtrl: {_raceAniCtrl.IsSetup}\n" +
+            $"sync: {_sync.IsSetup}\n" +
+            $"collision3DAction: {_collision3DAction != null}\n" +
 
             $"_isSetups: {_isSetups}\n" +
             $"");
