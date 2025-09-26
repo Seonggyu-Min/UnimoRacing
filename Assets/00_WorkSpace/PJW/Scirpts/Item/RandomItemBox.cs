@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using MSG;
+using Photon.Pun;
 using System;
 using System.Collections;
 using System.Linq;
@@ -79,6 +80,12 @@ namespace PJW
 
             // 소유자 클라이언트의 인벤토리에 아이템 지급
             photonView.RPC(nameof(RpcGiveItem), pv.Owner, prefab.name);
+
+            // 아이템 획득 미션 증가 처리
+            if (MissionService.Instance != null)
+            {
+                MissionService.Instance.Report(MissionVerb.Obtain, MissionObject.Item, false, 1);
+            }
 
             // 상자 소비 & 리스폰
             if (respawnCO != null)

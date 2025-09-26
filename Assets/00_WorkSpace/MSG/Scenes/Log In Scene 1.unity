@@ -229,7 +229,7 @@ GameObject:
   - component: {fileID: 21293402}
   - component: {fileID: 21293401}
   m_Layer: 0
-  m_Name: Reporter
+  m_Name: '[Debug] Reporter'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2725,7 +2725,7 @@ GameObject:
   - component: {fileID: 557829061}
   - component: {fileID: 557829060}
   m_Layer: 0
-  m_Name: Auth Flow Controller
+  m_Name: '[Log In] Auth Flow Controller'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3151,6 +3151,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &707018291
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 707018292}
+  - component: {fileID: 707018293}
+  m_Layer: 0
+  m_Name: '[Debug] Memory Debugger'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &707018292
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 707018291}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &707018293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 707018291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f81856335b63d7a48a2eebf818ba8018, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interval: 0.1
 --- !u!1 &733010055
 GameObject:
   m_ObjectHideFlags: 0
@@ -3302,7 +3347,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &781244686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4178,7 +4223,7 @@ GameObject:
   - component: {fileID: 1037459154}
   - component: {fileID: 1037459153}
   m_Layer: 5
-  m_Name: UI Canvas
+  m_Name: '[Unity] UI Canvas'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6110,7 +6155,7 @@ GameObject:
   - component: {fileID: 1274308566}
   - component: {fileID: 1274308567}
   m_Layer: 0
-  m_Name: '[Dev] Missions DB Patcher (Editor Only), (WIP)'
+  m_Name: '[Dev] Missions DB Patcher (Editor Only)'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6155,7 +6200,7 @@ GameObject:
   - component: {fileID: 1277592833}
   - component: {fileID: 1277592832}
   m_Layer: 0
-  m_Name: PhotonNetwork Manager
+  m_Name: '[Log In] PhotonNetwork Manager'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7128,7 +7173,7 @@ Transform:
   m_GameObject: {fileID: 1426855755}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -5.94383}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7421,7 +7466,7 @@ GameObject:
   - component: {fileID: 1497804138}
   - component: {fileID: 1497804137}
   m_Layer: 0
-  m_Name: EventSystem
+  m_Name: '[Unity] EventSystem'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7542,7 +7587,7 @@ Transform:
   m_GameObject: {fileID: 1500806685}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 642.6661, y: 1558.5526, z: -122.77717}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7746,7 +7791,7 @@ GameObject:
   - component: {fileID: 1585070217}
   - component: {fileID: 1585070216}
   m_Layer: 0
-  m_Name: Google Sign In Manager
+  m_Name: '[Log In] Google Sign In Manager'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8481,7 +8526,7 @@ GameObject:
   - component: {fileID: 1655635169}
   - component: {fileID: 1655635168}
   m_Layer: 0
-  m_Name: Firebase Manager
+  m_Name: '[Log In] Firebase Manager'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10310,7 +10355,7 @@ GameObject:
   - component: {fileID: 1988645452}
   - component: {fileID: 1988645455}
   m_Layer: 0
-  m_Name: Audio Listener
+  m_Name: '[Unity] Audio Listener'
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10445,7 +10490,7 @@ GameObject:
   - component: {fileID: 2042329270}
   - component: {fileID: 2042329271}
   m_Layer: 0
-  m_Name: Nickname Setter and DB Initializer
+  m_Name: '[Log In] Nickname Setter and DB Initializer'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10708,6 +10753,51 @@ RectTransform:
   m_AnchoredPosition: {x: -4.9994507, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &2113148966
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2113148967}
+  - component: {fileID: 2113148968}
+  m_Layer: 0
+  m_Name: '[Debug] URP Debugger Enabler'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2113148967
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2113148966}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2113148968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2113148966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 325b8ecc396917940a86373e48b3f65e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enableDebugger: 0
 --- !u!1 &2130045599
 GameObject:
   m_ObjectHideFlags: 0
@@ -10961,6 +11051,8 @@ SceneRoots:
   - {fileID: 2042329270}
   - {fileID: 1418527711}
   - {fileID: 21293404}
+  - {fileID: 2113148967}
+  - {fileID: 707018292}
   - {fileID: 359179909}
   - {fileID: 1587041769}
   - {fileID: 851150423}
