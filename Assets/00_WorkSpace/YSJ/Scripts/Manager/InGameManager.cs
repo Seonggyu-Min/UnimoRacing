@@ -44,8 +44,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
     private double _raceStartDelayTime   = -1.0f;
 
-    private bool _isLoadedTrackPath = false;
-
     private MapCycleManager _mapCycleManager;
     private MapAssetLoader _mapAssetLoader;
 
@@ -68,7 +66,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     // 아래 두개 퍼블릭 열어준 이유: 동기화
     public double CountDownStartTime => _countDownStartTime;
     public double RaceStartTime => _raceStartTime;
-    
+
     public List<ItemSpawnProbabilityData> SpawnableItems => _spawnableItems;
 
     public int RaceEndLapCount => _laps;
@@ -413,21 +411,13 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
                 break;
 
             case RaceState.LoadPlayers:
-                if (TrackPathRegistry.GetInstance && TrackPathRegistry.GetInstance.GetPathLength() != -1)
+                if (TrackPathRegistry.GetInstance == null)
                 {
-                    TrackPathRegistry.Instance.RePathLoad();
-                    _isLoadedTrackPath = true;
+                    this.PrintLog("TrackPathRegistry가 존재 하지않습니다.");
                 }
-                else
+                else if (TrackPathRegistry.GetInstance.GetPathLength() <= 0)
                 {
-                    if (TrackPathRegistry.GetInstance == null)
-                    {
-                        this.PrintLog("TrackPathRegistry가 존재 하지않습니다.");
-                    }
-                    else if (TrackPathRegistry.GetInstance.GetPathLength() <= 0)
-                    {
-                        this.PrintLog($"TrackPathRegistry의 경로가 존재 하지않습니다. (=> 현 경로 수: {TrackPathRegistry.GetInstance.GetPathLength()})");
-                    }
+                    this.PrintLog($"TrackPathRegistry의 경로가 존재 하지않습니다. (=> 현 경로 수: {TrackPathRegistry.GetInstance.GetPathLength()})");
                 }
 
                 Check_Players_RaceKartLoaded();
