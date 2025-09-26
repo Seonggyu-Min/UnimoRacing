@@ -2396,7 +2396,8 @@ MonoBehaviour:
   m_text: "\u200B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 934dd59316476cc4bb5148676dd507ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 6497309756745478032, guid: 934dd59316476cc4bb5148676dd507ef,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4407,8 +4408,8 @@ RectTransform:
   - {fileID: 2130045600}
   - {fileID: 602729169}
   - {fileID: 1010358364}
-  - {fileID: 83498667}
   - {fileID: 1438847479}
+  - {fileID: 83498667}
   - {fileID: 1309547657}
   - {fileID: 59761071}
   - {fileID: 1706265367}
@@ -6101,7 +6102,8 @@ MonoBehaviour:
   m_text: Nickname
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 934dd59316476cc4bb5148676dd507ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 6497309756745478032, guid: 934dd59316476cc4bb5148676dd507ef,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
