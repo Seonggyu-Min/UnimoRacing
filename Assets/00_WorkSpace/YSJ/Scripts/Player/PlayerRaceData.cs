@@ -7,7 +7,6 @@ using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 using YSJ.Util;
-using static UnityEditor.Progress;
 
 // 시스템
 [RequireComponent(typeof(PhotonView))] // 네트워크
