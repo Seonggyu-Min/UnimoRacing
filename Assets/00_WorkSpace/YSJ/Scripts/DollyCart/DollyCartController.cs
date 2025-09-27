@@ -26,7 +26,7 @@ public class DollyCartController : MonoBehaviourPun
     private TrackPathRegistry _trackRegistry;
     private int _movableTrackCount = -1;
     private int _currentTrackIndex = -1;
-    private RuntimePlatform _platform;
+    private RuntimePlatform _platform;    
 
     public Action<int> OnChangeTrack = null;
 
@@ -86,12 +86,16 @@ public class DollyCartController : MonoBehaviourPun
             return;
         }
 
+        targetTrackLock = new int[Mathf.Max(0, _movableTrackCount)]; // 종원 추가 
+
         _platform = Application.platform;
         _isSetup = true;
     }
 
     void Update()
     {
+        if (IsSwitchLocked) return; // 종원 추가 
+
         if (!_isSetup) return;
 
         // 해당 포톤 뷰가, 해당 클라이언트 것이 맞고 조종이 가능한 상태인지
@@ -116,6 +120,8 @@ public class DollyCartController : MonoBehaviourPun
 
     private void MobileController()
     {
+        if (IsSwitchLocked) return; // 종원 추가 
+
         // 모바일용
         if (Touchscreen.current == null) return;
 
@@ -125,6 +131,8 @@ public class DollyCartController : MonoBehaviourPun
             Vector2 pos = touch.position.ReadValue();
             int targetIndex = _currentTrackIndex + ((pos.x < Screen.width * 0.5f) ? -1 : 1);
             if (isControlsInverted) targetIndex = 1 - targetIndex;
+
+            if (IsTargetLocked(targetIndex)) return; // 종원 추가 
 #if UNITY_EDITOR
             var oldIndex = _currentTrackIndex;
 #endif
@@ -136,12 +144,16 @@ public class DollyCartController : MonoBehaviourPun
     }
     private void PcCountroller()
     {
+        if (IsSwitchLocked) return; // 종원 추가 
+
         // 에디터/PC용
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             Vector2 pos = Mouse.current.position.ReadValue();
             int targetIndex = _currentTrackIndex + ((pos.x < Screen.width * 0.5f) ? -1 : 1);
             if (isControlsInverted) targetIndex = 1 - targetIndex;
+
+            if (IsTargetLocked(targetIndex)) return; // 종원 추가 
 #if UNITY_EDITOR
             var oldIndex = _currentTrackIndex;
 #endif
@@ -159,6 +171,9 @@ public class DollyCartController : MonoBehaviourPun
     /// <returns></returns>
     public int ChangeTrack(int targetIndex, PhotonMessageInfo info = default)
     {
+        if (IsSwitchLocked) return _currentTrackIndex;
+        if (IsTargetLocked(targetIndex)) return _currentTrackIndex; // 종원 추가 
+
         var fromPath = _cart.m_Path;
         var toPath = _trackRegistry.GetPath(targetIndex);
 
@@ -178,8 +193,48 @@ public class DollyCartController : MonoBehaviourPun
         _cart.m_Position = newPos;
         _currentPath = _cart.m_Path;
 
-        OnChangeTrack.Invoke(targetIndex);
+        OnChangeTrack?.Invoke(targetIndex);
 
         return targetIndex;
     }
+
+    #region 박종원 추가
+
+    private int[] targetTrackLock; // 각 트랙 인덱스별 잠금 카운터
+    private int switchLockCount = 0;
+    public bool IsSwitchLocked => switchLockCount > 0;
+    public void AddSwitchLock() { switchLockCount++; }
+    public void RemoveSwitchLock()
+    {
+        switchLockCount = Mathf.Max(0, switchLockCount - 1);
+    }
+    private bool IsTargetLocked(int trackIndex)
+    {
+        if (targetTrackLock == null) return false;
+        if (trackIndex < 0 || trackIndex >= targetTrackLock.Length) return true; // 범위 밖은 잠금으로 간주
+        return targetTrackLock[trackIndex] > 0;
+    }
+
+    /// <summary>허용한 트랙만 이동 가능하도록 나머지를 모두 잠금</summary>
+    public void LockAllExcept(params int[] allowed)
+    {
+        if (targetTrackLock == null) return;
+        var set = new System.Collections.Generic.HashSet<int>(allowed ?? Array.Empty<int>());
+        for (int i = 0; i < targetTrackLock.Length; i++)
+        {
+            if (!set.Contains(i)) targetTrackLock[i]++;
+        }
+    }
+
+    /// <summary>LockAllExcept로 증가시킨 카운터를 되돌림</summary>
+    public void UnlockAllExcept(params int[] allowed)
+    {
+        if (targetTrackLock == null) return;
+        var set = new System.Collections.Generic.HashSet<int>(allowed ?? Array.Empty<int>());
+        for (int i = 0; i < targetTrackLock.Length; i++)
+        {
+            if (!set.Contains(i)) targetTrackLock[i] = Mathf.Max(0, targetTrackLock[i] - 1);
+        }
+    }
+    #endregion
 }
