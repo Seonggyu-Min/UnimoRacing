@@ -71,7 +71,7 @@ namespace YSJ.Util
         {
             if (!isPrint) return;
 
-#if UNITY_EDITOR
+
             // 지정된 색이 없으면 기본은 white
             var c = color ?? Color.white;
             string hex = ColorUtility.ToHtmlStringRGB(c);
@@ -90,7 +90,7 @@ namespace YSJ.Util
                     Debug.Log($"{prefix} {log}");
                     break;
             }
-#endif
+
         }
 
         public static bool IsInLayerMask(int layer, LayerMask mask)
