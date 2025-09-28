@@ -112,6 +112,7 @@ namespace MSG
             go.SetActive(true);
             go.transform.SetParent(parentT, false);
             go.transform.localPosition = itemSO.offset;
+            go.transform.localRotation = Quaternion.Euler(itemSO.rotationOffset);
 
             StartCoroutine(WaitAndReturn(itemSO.itemEffectDuration, go, itemId: id));
         }
@@ -158,6 +159,7 @@ namespace MSG
             go.SetActive(true);
             go.transform.SetParent(parentT, false);
             go.transform.localPosition = skillSO.offset;
+            go.transform.localRotation = Quaternion.Euler(skillSO.rotationOffset);
 
             StartCoroutine(WaitAndReturn(skillSO.itemEffectDuration, go, passiveId: id));
         }
