@@ -34,6 +34,7 @@ namespace MSG
 
         private void Start()
         {
+            // 일단 빌드할 때는 이거 주석처리 하고 할 듯
             if (SceneManager.GetActiveScene().buildIndex == 2)  // 인게임 씬일 때만 등록 시도
             {
                 Debug.Log($"[PlayerAttatchRegistrant] {gameObject.name}등록 시도");
