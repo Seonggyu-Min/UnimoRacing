@@ -27,10 +27,16 @@ namespace MSG
     }
 
     // 유니모랑 카트 둘 다 있어야 됨. 중복으로 등록해도 같이 합쳐서 받아줌
-    public class PlayerAttatchRegistrant : MonoBehaviourPun
+    public class PlayerAttatchRegistrant : MonoBehaviour
     {
         [SerializeField] private PlayerAttatchWrapper[] _wrappers;
 
+        private PhotonView _photonView;
+
+        private void Awake()
+        {
+            _photonView = GetComponentInParent<PhotonView>();
+        }
 
         private void Start()
         {
@@ -38,7 +44,7 @@ namespace MSG
             if (SceneManager.GetActiveScene().buildIndex == 2)  // 인게임 씬일 때만 등록 시도
             {
                 Debug.Log($"[PlayerAttatchRegistrant] {gameObject.name}등록 시도");
-                PlayerEffectManager.Instance.RegisterPoints(photonView.Owner.UserId, _wrappers);
+                PlayerEffectManager.Instance.RegisterPoints(_photonView.Owner.UserId, _wrappers);
             }
         }
     }
