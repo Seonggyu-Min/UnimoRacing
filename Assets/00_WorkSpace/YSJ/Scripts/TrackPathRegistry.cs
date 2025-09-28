@@ -28,18 +28,25 @@ public class TrackPathRegistry : SimpleSingleton<TrackPathRegistry>, IGameSetup
     {
         base.Init();
 
-        var findTrack = FindObjectsOfType<CinemachinePathBase>(true);
-        SetTrack(findTrack);
+        this.PrintLog($"TrackPathRegistry Init 진행 시작");
 
-        if (_paths.Count == 0)
-            return;
+        RePathLoad();
 
+        //var findTrack = FindObjectsOfType<CinemachinePathBase>(true);
+        //SetTrack(findTrack);
+
+        //if (_paths.Count == 0)
+        //    return;
         _isInit = true;
+        this.PrintLog($"TrackPathRegistry Init 진행 완료");
     }
 
     public bool Setup()
     {
+        this.PrintLog($"TrackPathRegistry Setup 진행 시작");
         RePathLoad();
+
+        this.PrintLog($"TrackPathRegistry Setup 진행 완료");
         return _isInit;
     }
 

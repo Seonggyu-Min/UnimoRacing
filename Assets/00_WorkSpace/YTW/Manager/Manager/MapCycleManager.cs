@@ -1,6 +1,7 @@
 ﻿using Photon.Pun;
 using System;
 using UnityEngine;
+using YSJ.Util;
 
 
 namespace YTW
@@ -149,7 +150,10 @@ namespace YTW
 
         public bool Setup()
         {
-            return _isLoading;
+            this.PrintLog($"CurrentMapLoader {CurrentMapLoader != null} / CurrentMapLoader.IsLoaded : {CurrentMapLoader.IsLoaded}");
+            return InstanceMap;
         }
+
+        public bool InstanceMap => CurrentMapLoader != null && CurrentMapLoader.IsLoaded;
     }
 }
