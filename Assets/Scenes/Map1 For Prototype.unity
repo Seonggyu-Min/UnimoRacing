@@ -9583,6 +9583,77 @@ MonoBehaviour:
     parentTransformRect: {fileID: 0}
     parentTransform: {fileID: 0}
     partOfPrefab: 0
+--- !u!1 &963740588
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 963740589}
+  - component: {fileID: 963740590}
+  m_Layer: 0
+  m_Name: Player Effect Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &963740589
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963740588}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &963740590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963740588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86cbe69b810efa5478a09afb5a57dfe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _itemList:
+  - {fileID: 11400000, guid: 72a4d04b0577b8749bf91e6ee83cb5ea, type: 2}
+  - {fileID: 11400000, guid: 0d632d66fd58ef042808e56f6a33bdf1, type: 2}
+  - {fileID: 11400000, guid: dde2623802ffe2b4caa1d70f64f66277, type: 2}
+  - {fileID: 11400000, guid: c6b1a7828346210499b7ef6d827602a9, type: 2}
+  - {fileID: 11400000, guid: a3db8839159d9ec4390395c77e1ab130, type: 2}
+  - {fileID: 11400000, guid: c833a0ba98c252c4cb8fa5704756c337, type: 2}
+  - {fileID: 11400000, guid: afbfd45c38a18264e86d275f67139a37, type: 2}
+  _passiveSkillList:
+  - {fileID: 11400000, guid: 6e21f0c3e8e7e3946870276c07eac25a, type: 2}
+  - {fileID: 11400000, guid: ef2a9acb8b3394a48a9c7654374f7f97, type: 2}
+  - {fileID: 11400000, guid: 4ada7c22887f9804fb2b5306fca091b9, type: 2}
+  - {fileID: 11400000, guid: 8b5013c82c25d2a4cae48f2213e937a0, type: 2}
+  - {fileID: 11400000, guid: 2c5b1f0667de0164cb7ae54d42a21035, type: 2}
+  - {fileID: 11400000, guid: 9bc4c6ba52f311e4d988bdec3410b8af, type: 2}
+  - {fileID: 11400000, guid: 0124146e917891349b397613c6be5b40, type: 2}
+  - {fileID: 11400000, guid: 7b53c094d7a3ea24cadc1bb0a7d9a2f9, type: 2}
+  - {fileID: 11400000, guid: df7c4ca685f41c74eaa40b4fa724eac5, type: 2}
+  - {fileID: 11400000, guid: f1eef451642b37b4db87428cd3336b43, type: 2}
+  - {fileID: 11400000, guid: d98df3031617c11468b9f4e9ff97ba3b, type: 2}
+  - {fileID: 11400000, guid: b08fc084397ff0f419f4e6464db6c5d5, type: 2}
+  - {fileID: 11400000, guid: 6e346407ebb60814a8ad5eea2e0236af, type: 2}
+  - {fileID: 11400000, guid: 2df6180c15d454045a57ac201bdb4656, type: 2}
+  _useItem: 1
+  _uid: 
+  _itemId: 0
+  _passiveId: 0
 --- !u!1 &968104854
 GameObject:
   m_ObjectHideFlags: 0
@@ -19806,6 +19877,7 @@ SceneRoots:
   - {fileID: 308505651}
   - {fileID: 549563496}
   - {fileID: 1016672076}
+  - {fileID: 963740589}
   - {fileID: 649543767}
   - {fileID: 940583926}
   - {fileID: 1333230071}
