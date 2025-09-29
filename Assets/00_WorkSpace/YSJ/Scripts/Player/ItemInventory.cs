@@ -7,11 +7,13 @@ using YSJ.Util;
 public class ItemInventory : MonoBehaviour
 {
     #region Parameters
-    private const int DEFAULT_INVENTORY_MAX_COUNT = 2;
+    private const int DEFAULT_INVENTORY_NORMAL_SAVE_MAX_COUNT = 2;
+    private const int DEFAULT_INVENTORY_DELAY_SAVE_MAX_COUNT = 1;
 
     [Header("Config")]
     [SerializeField] private bool _selfSetup = false;
-    [SerializeField] private int _inventroySaveMaxCount = 2;
+    [SerializeField] private int _inventroyNormalSaveMaxCount = 2;
+    [SerializeField] private int _inventroyDelaySaveMaxCount = 1;
 
     // Events
     public Action<UnimoItemSO> OnSaveItem;
@@ -20,12 +22,12 @@ public class ItemInventory : MonoBehaviour
 
     // private
     private bool _isSetup = false;
-    private bool _isSavable = false;
+    [SerializeField] private bool _isSavable = false;
 
     private PhotonView _ownerView;
     private PlayerRaceData _data;
 
-    private UnimoItemSO[] _items;                   
+    private UnimoItemSO[] _items;
     private readonly List<UnimoItemSO> _delaySaveItemList = new(); // 대기열(슬롯 꽉 찼을 때)
 
     // Public
@@ -49,9 +51,13 @@ public class ItemInventory : MonoBehaviour
 
         _ownerView = GetComponentInParent<PhotonView>();
         _data = data;
+        if (_data == null)
+            _data = GetComponent<PlayerRaceData>();
 
-        int size = (_inventroySaveMaxCount > 0) ? _inventroySaveMaxCount : DEFAULT_INVENTORY_MAX_COUNT;
+        int size = (_inventroyNormalSaveMaxCount > 0) ? _inventroyNormalSaveMaxCount : DEFAULT_INVENTORY_NORMAL_SAVE_MAX_COUNT;
         _items = new UnimoItemSO[size];
+
+        _inventroyDelaySaveMaxCount = (_inventroyDelaySaveMaxCount > 0) ? _inventroyDelaySaveMaxCount : DEFAULT_INVENTORY_DELAY_SAVE_MAX_COUNT;
 
         // 셋업 완료 조건: 자기 셋업 플래그 or 외부 데이터 주입
         _isSetup = (_selfSetup || _data != null);
@@ -98,8 +104,15 @@ public class ItemInventory : MonoBehaviour
             // 슬롯 꽉 참
             if (isDelaySave)
             {
-                _delaySaveItemList.Add(itemSO);
-                this.PrintLog($"슬롯 가득 → DelayQueue Enqueue: {itemSO.name}({itemSO.itemID}) / 대기:{_delaySaveItemList.Count}");
+                if (_inventroyDelaySaveMaxCount < _delaySaveItemList.Count)
+                {
+                    _delaySaveItemList.Add(itemSO);
+                    this.PrintLog($"슬롯 가득 > DelayQueue Enqueue: {itemSO.name}({itemSO.itemID}) / 대기:{_delaySaveItemList.Count}");
+                }
+                else
+                {
+                    this.PrintLog($"딜레이 슬롯 가득 > Slot Count : {_delaySaveItemList.Count} / {_inventroyDelaySaveMaxCount} << (현재/최대)");
+                }
             }
             else
             {
@@ -154,7 +167,7 @@ public class ItemInventory : MonoBehaviour
         }
         else
         {
-            // 레이스 컨디션으로 다른 경로에서 채워졌을 수 있음 → 다시 큐 뒤로
+            // 레이스 컨디션으로 다른 경로에서 채워졌을 수 있음 > 다시 큐 뒤로
             _delaySaveItemList.Add(picked);
             this.PrintLog("DelaySave 취소: 슬롯이 채워짐(레ース). 다시 큐에 적재.");
         }
@@ -373,7 +386,7 @@ public class ItemInventory : MonoBehaviour
         if (_items == null)
         {
             _items = new UnimoItemSO[newSize];
-            _inventroySaveMaxCount = newSize;
+            _inventroyNormalSaveMaxCount = newSize;
             OnChanged?.Invoke();
             return;
         }
@@ -393,7 +406,7 @@ public class ItemInventory : MonoBehaviour
         }
 
         _items = newArr;
-        _inventroySaveMaxCount = newSize;
+        _inventroyNormalSaveMaxCount = newSize;
         OnChanged?.Invoke();
         this.PrintLog($"Resize 완료: {newSize}");
     }

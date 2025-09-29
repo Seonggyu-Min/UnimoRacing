@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 30002
   itemName: "\uD22C\uCC99\uC6A9 \uD3ED\uD0C4"
   itemIconSprite: {fileID: 21300000, guid: b7e819b96159f4aaa9d0ef95a666770e, type: 3}
-  isInventorySavable: 0
+  isInventorySavable: 1
   itemEffectDuration: 2
   isReapplication: 0
   stackCount: 1

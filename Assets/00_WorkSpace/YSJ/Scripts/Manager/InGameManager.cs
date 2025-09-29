@@ -29,8 +29,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
     private int   _playablePlayersCount = 2;     // 결과, 보여주는 시간
 
-    private List<ItemSpawnProbabilityData> _spawnableItems;
-
     private float _finishedEndTime = 0.0f;
     private float _postGameEndTime = 0.0f;
 
@@ -67,8 +65,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     public double CountDownStartTime => _countDownStartTime;
     public double RaceStartTime => _raceStartTime;
 
-    public List<ItemSpawnProbabilityData> SpawnableItems => _spawnableItems;
-
     public int RaceEndLapCount => _laps;
 
     private List<PlayerRaceData> PlayerRaceDatas => _playerRaceDatas;
@@ -103,6 +99,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         while (!PhotonNetwork.InRoom)
         { yield return null; }
 
+        this.PrintLog($"Master Client: {PhotonNetwork.CurrentRoom.Name}!");
         this.PrintLog($"Master Client: {IsMasterClient}!");
 
         _currentRaceState = RaceState.None;
@@ -164,7 +161,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
         _playablePlayersCount = config.playablePlayersCount;    // 플레이 가능한 플레이어 수
 
-        _spawnableItems = config.spawnableItems;
         this.PrintLog("SetupRaceRule 진행 완료");
     }
     private void SetupRaceMapLoader()
@@ -515,6 +511,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     private void Check_Players_RaceKartLoaded()
     {
         this.PrintLog("Checked >>>>>>>>>>>>> Check_Players_RaceKartLoaded");
+        this.PrintLog($"Action >>>>>>>>>>>>> IsMasterClient {IsMasterClient} / CurrentRoom {CurrentRoom == null}");
         if (!IsMasterClient || CurrentRoom == null) return;
 
         this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_RaceKartLoaded {CurrentRoom.Players.Values.Count}");

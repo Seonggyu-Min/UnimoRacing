@@ -12,7 +12,4 @@ public class InGameRaceRulesConfig : ScriptableObject
 
     [Header("Players")]
     public int playablePlayersCount = 4;
-
-    [Header("Items")]
-    public List<ItemSpawnProbabilityData> spawnableItems;
 }
