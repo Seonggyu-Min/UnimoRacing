@@ -74,28 +74,44 @@ public enum PlayerKey
 }
 
 // ==========================
-// ========== Test ==========
+// ========== Item ==========
 // ==========================
 
-public enum BuffId
+public enum ItemId
 {
     None = 0,
-    Nitro = 11001,  // 속도 증가
-    Shield,         // 피격 1회 무효
-    Magnet,         // 아이템 자석
-    TrapImmunity,   // 함정 면역
-    Slipstream,     // 슬립스트림 가속
+    Booster = 30001,    // 부스터
+    ThrowBomb,          // 투척용 폭탄 (Thrown/Throwable Bomb 계열)
+    Padlock,            // 자물쇠 (락/구속 트랩)
+    Shield,             // 실드
+    SmokeScreen,        // 시야차단 (연막/잉크 등)
+    Missile,            // 미사일 (유도/직선형 모두 커버)
+    FriedEgg            // 계란후라이 (바나나 대체 트랩 느낌)
 }
 
-public enum BuffCategory
+
+
+// ==========================
+// ====== StatusEffect ======
+// ==========================
+
+public enum StatusEffect
 {
-    Speed,
-    Defense,
-    Utility
+    None,
+    Slow,           // 이동속도 감소
+    Haste,          // 이동속도 가속
+    Slip,           // 미끄러짐
+    Silence,        // 침묵
+    Immunity,       // 면역
+    Airborne,       // 에어본
+    Root,           // 속박
+    Blind           // 시야 차단
 }
 
-public enum BuffStackPolicy
+public enum ReapplyMode
 {
-    Replace,        // 같은 카테고리면 교체 + 시간 리프레시
-    Stack,          // 누적(필요 시 레벨/중첩값 반영)
+    RefreshDuration,   // 재적용 시 지속시간 갱신
+    AddDuration,       // 재적용 시 지속시간 누적
+    IgnoreIfActive,    // 활성 중이면 무시
+    ReplaceIfStronger  // 더 강하면 교체(값/퍼센트 기준)
 }
