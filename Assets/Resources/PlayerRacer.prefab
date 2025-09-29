@@ -80,7 +80,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.7, y: 1, z: 0.7}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7492400027576591875
 MonoBehaviour:
@@ -332,7 +332,6 @@ GameObject:
   - component: {fileID: 831430784033025982}
   - component: {fileID: 6786647454081869713}
   - component: {fileID: 7946033971345635877}
-  - component: {fileID: 4688897661539971053}
   m_Layer: 0
   m_Name: PlayerRacer
   m_TagString: Player
@@ -620,6 +619,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd2d549b015d7eb47a8c3ad51a25f57a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _willUseFlatMode: 1
+  _minimapObj: {fileID: 0}
 --- !u!114 &831430784033025982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -660,4 +661,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _selfSetup: 1
-  _inventroySaveMaxCount: 2
+  _inventroyNormalSaveMaxCount: 2
+  _inventroyDelaySaveMaxCount: 1
+  _isSavable: 0
