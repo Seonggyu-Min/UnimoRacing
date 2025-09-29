@@ -14,6 +14,8 @@ namespace MSG
         [SerializeField] private Image _blueHoneyGemIcon;
         [SerializeField] private MissionListLoader _missionListLoader;
 
+        private MoneyType _moneyType;
+        private Coroutine _waitCO;
 
         private void Start()
         {
@@ -24,15 +26,27 @@ namespace MSG
         {
             if (moneyType == MoneyType.Gold)
             {
+                _moneyType = moneyType;
                 Debug.Log("MoneyType.Gold");
-                _goldIcon.gameObject.SetActive(true);
-                _blueHoneyGemIcon.gameObject.SetActive(false);
+
+                if (_waitCO != null)
+                {
+                    StopCoroutine( _waitCO );
+                    _waitCO = null;
+                }
+                _waitCO = StartCoroutine(WaitAndDisable());
             }
             else if (moneyType == MoneyType.BlueHoneyGem)
             {
+                _moneyType = moneyType;
                 Debug.Log("MoneyType.BlueHoneyGem");
-                _goldIcon.gameObject.SetActive(false);
-                _blueHoneyGemIcon.gameObject.SetActive(true);
+
+                if (_waitCO != null)
+                {
+                    StopCoroutine(_waitCO);
+                    _waitCO = null;
+                }
+                _waitCO = StartCoroutine(WaitAndDisable());
             }
 
             _amountText.text = amount.ToString();
@@ -42,6 +56,15 @@ namespace MSG
         {
             _missionListLoader.RenewUI();
             UIManager.Instance.Hide("Reward Panel");
+        }
+
+        private IEnumerator WaitAndDisable()
+        {
+            yield return null;  // 애니메이터에서 골드랑 블루허니잼을 둘 다 만져서 활성화되는 것 같음
+                                // 근본적으로는 Target이 특정 상황에서, 외부에서 실행되지 않게 하는 플래그가 필요함
+
+            _goldIcon.gameObject.SetActive(_moneyType == MoneyType.Gold);
+            _blueHoneyGemIcon.gameObject.SetActive(_moneyType == MoneyType.BlueHoneyGem);
         }
     }
 }

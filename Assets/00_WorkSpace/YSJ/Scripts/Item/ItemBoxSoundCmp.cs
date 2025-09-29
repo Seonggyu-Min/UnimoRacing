@@ -16,8 +16,11 @@ public class ItemBoxSoundCmp : MonoBehaviour
         _itemBoxCmp = GetComponentInChildren<ItemBox>();
         _audioManager = AudioManager.Instance;
 
-        _itemBoxCmp.OnCollisionAction -= OnCollision;
-        _itemBoxCmp.OnCollisionAction += OnCollision;
+        // 사용 안하는 이유
+        // 1. 디스폰 시킬 때 같이 처리
+        // 2. 디스폰이 됐다는 것은 해당 충돌 유저가 획득 시 에만 처리하기 위함
+        // _itemBoxCmp.OnCollisionAction -= OnCollision;
+        // _itemBoxCmp.OnCollisionAction += OnCollision;
 
         _itemBoxCmp.OnSpawnAction -= OnSpawn;
         _itemBoxCmp.OnSpawnAction += OnSpawn;

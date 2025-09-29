@@ -1,12 +1,14 @@
 ﻿using Photon.Pun;
 using System;
 using UnityEngine;
+using YSJ.Util;
 
 
 namespace YTW
 {
-    public class MapCycleManager : MonoBehaviour
+    public class MapCycleManager : MonoBehaviour, IGameSetup
     {
+        [SerializeField] private int _order = 0;
         public static MapCycleManager Instance { get; private set; }
         private bool _isLoading;
         private bool _isLoadedOnce; // 한 번 성공적으로 로드했는지
@@ -29,6 +31,8 @@ namespace YTW
         // 외부에서 상태 확인/접근용
         public MapAssetLoader CurrentMapLoader => _currentMapLoaderObject ? _currentMapLoaderObject.GetComponent<MapAssetLoader>() : null;
         public bool HasMapAddresses => _mapAddresses != null && _mapAddresses.Length > 0;
+
+        public int Order => _order;
 
         // 외부에서 투표 결과로 로드 트리거
         public bool LoadFromVote()
@@ -143,5 +147,13 @@ namespace YTW
             // 맵 로더 오브젝트를 이벤트로 즉시 전달
             OnMapLoaderCreated?.Invoke(_currentMapLoaderObject);
         }
+
+        public bool Setup()
+        {
+            this.PrintLog($"CurrentMapLoader {CurrentMapLoader != null} / CurrentMapLoader.IsLoaded : {CurrentMapLoader.IsLoaded}");
+            return InstanceMap;
+        }
+
+        public bool InstanceMap => CurrentMapLoader != null && CurrentMapLoader.IsLoaded;
     }
 }

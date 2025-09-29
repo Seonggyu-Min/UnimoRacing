@@ -13,6 +13,7 @@ namespace MSG
         [SerializeField] private TMP_Text _infoText;
         [SerializeField] private TMP_InputField _nicknameInputField;
         [SerializeField] private GameObject _tapToStartObj; // tap to start로 다음 씬으로 넘어가게 하는 오브젝트
+        [SerializeField] private BadWordFinder _badWordFinder;
 
         [Header("Init elements")]
         [SerializeField][Min(20000)] private int[] _initInventoryUnimos = new int[0];       // 최초 회원가입 시 가져야할 유니모 배열 (인덱스)
@@ -79,6 +80,12 @@ namespace MSG
             if (newNickname.Length <= 2 || newNickname.Length > 16)
             {
                 StartVanishCO("닉네임은 3자 이상 16자 이하여야 합니다.");
+                return;
+            }
+
+            if (_badWordFinder.ContainsBadWord(newNickname))
+            {
+                StartVanishCO("부적절한 단어가 포함되어 있습니다.");
                 return;
             }
 
