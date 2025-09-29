@@ -169,7 +169,7 @@ public class ItemInventory : MonoBehaviour
         {
             // 레이스 컨디션으로 다른 경로에서 채워졌을 수 있음 > 다시 큐 뒤로
             _delaySaveItemList.Add(picked);
-            this.PrintLog("DelaySave 취소: 슬롯이 채워짐(레ース). 다시 큐에 적재.");
+            this.PrintLog("DelaySave 취소: 슬롯이 채워짐. 다시 큐에 적재.");
         }
     }
     #endregion
