@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slowMultiplier: 0.01
   slowDuration: 2
+  sfxUseKey: Egg_Use_SFX
 --- !u!114 &8794733356989019158
 MonoBehaviour:
   m_ObjectHideFlags: 0

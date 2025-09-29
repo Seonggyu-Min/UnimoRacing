@@ -28,7 +28,7 @@ public class DollyCartController : MonoBehaviourPun
     // null을 받아드릴 수 있게 하여서 값이 없으때에 대한 판단 추가
     private int? _pendingTrackIndex = null;
     private int _currentTrackIndex = -1;
-    private RuntimePlatform _platform;
+    private RuntimePlatform _platform;    
 
     public Action<int> OnChangeTrack = null;
 
@@ -130,6 +130,8 @@ public class DollyCartController : MonoBehaviourPun
 
     private void MobileController()
     {
+        if (IsSwitchLocked) return; // 종원 추가 
+
         // 모바일용
         if (Touchscreen.current == null) return;
 
@@ -142,6 +144,8 @@ public class DollyCartController : MonoBehaviourPun
     }
     private void PcCountroller()
     {
+        if (IsSwitchLocked) return; // 종원 추가 
+
         // 에디터/PC용
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
@@ -219,4 +223,44 @@ public class DollyCartController : MonoBehaviourPun
 
         return targetIndex;
     }
+
+    #region 박종원 추가
+
+    private int[] targetTrackLock; // 각 트랙 인덱스별 잠금 카운터
+    private int switchLockCount = 0;
+    public bool IsSwitchLocked => switchLockCount > 0;
+    public void AddSwitchLock() { switchLockCount++; }
+    public void RemoveSwitchLock()
+    {
+        switchLockCount = Mathf.Max(0, switchLockCount - 1);
+    }
+    private bool IsTargetLocked(int trackIndex)
+    {
+        if (targetTrackLock == null) return false;
+        if (trackIndex < 0 || trackIndex >= targetTrackLock.Length) return true; // 범위 밖은 잠금으로 간주
+        return targetTrackLock[trackIndex] > 0;
+    }
+
+    /// <summary>허용한 트랙만 이동 가능하도록 나머지를 모두 잠금</summary>
+    public void LockAllExcept(params int[] allowed)
+    {
+        if (targetTrackLock == null) return;
+        var set = new System.Collections.Generic.HashSet<int>(allowed ?? Array.Empty<int>());
+        for (int i = 0; i < targetTrackLock.Length; i++)
+        {
+            if (!set.Contains(i)) targetTrackLock[i]++;
+        }
+    }
+
+    /// <summary>LockAllExcept로 증가시킨 카운터를 되돌림</summary>
+    public void UnlockAllExcept(params int[] allowed)
+    {
+        if (targetTrackLock == null) return;
+        var set = new System.Collections.Generic.HashSet<int>(allowed ?? Array.Empty<int>());
+        for (int i = 0; i < targetTrackLock.Length; i++)
+        {
+            if (!set.Contains(i)) targetTrackLock[i] = Mathf.Max(0, targetTrackLock[i] - 1);
+        }
+    }
+    #endregion
 }
