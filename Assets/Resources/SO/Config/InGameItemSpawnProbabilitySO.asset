@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 238b935de9daa7248bf674f103bc36a4, type: 3}
+  m_Name: InGameItemSpawnProbabilitySO
+  m_EditorClassIdentifier: 
+  probabilityList:
+  - Item: {fileID: 11400000, guid: 72a4d04b0577b8749bf91e6ee83cb5ea, type: 2}
+    Weight: 1
+  - Item: {fileID: 11400000, guid: 0d632d66fd58ef042808e56f6a33bdf1, type: 2}
+    Weight: 1
+  - Item: {fileID: 11400000, guid: dde2623802ffe2b4caa1d70f64f66277, type: 2}
+    Weight: 1
+  - Item: {fileID: 11400000, guid: c6b1a7828346210499b7ef6d827602a9, type: 2}
+    Weight: 1
+  - Item: {fileID: 11400000, guid: a3db8839159d9ec4390395c77e1ab130, type: 2}
+    Weight: 1
+  - Item: {fileID: 11400000, guid: c833a0ba98c252c4cb8fa5704756c337, type: 2}
+    Weight: 1
+  - Item: {fileID: 11400000, guid: afbfd45c38a18264e86d275f67139a37, type: 2}
+    Weight: 1
