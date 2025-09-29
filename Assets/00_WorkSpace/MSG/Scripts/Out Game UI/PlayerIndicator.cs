@@ -21,13 +21,20 @@ namespace MSG
         private Action _unsubUnimo;
         private Action _unsubKart;
 
+        private Coroutine _waitCO;
         private string CurrentUid => FirebaseManager.Instance?.Auth?.CurrentUser?.UserId;
 
 
         private void Start()
         {
-            RenewUI(); // 혹시 아래가 모두 실패하면 아예 UI가 안뜰 수 있으니까 한 번 호출했음
             SubscribeEquippedChange();
+
+            if (_waitCO != null)
+            {
+                StopCoroutine(_waitCO);
+                _waitCO = null;
+            }
+            _waitCO = StartCoroutine(RenewUI()); // 혹시 아래가 모두 실패하면 아예 UI가 안뜰 수 있으니까 한 번 호출했음
         }
 
         private void OnDestroy()
@@ -50,7 +57,12 @@ namespace MSG
                     if (newId != _equippedCharacterId)
                     {
                         _equippedCharacterId = newId;
-                        RenewUI();
+                        if (_waitCO != null)
+                        {
+                            StopCoroutine(_waitCO);
+                            _waitCO = null;
+                        }
+                        _waitCO = StartCoroutine(RenewUI());
                     }
                 },
                 err => Debug.LogWarning($"[PlayerIndicator] EquippedUnimo 구독 오류: {err}")
@@ -64,7 +76,12 @@ namespace MSG
                     if (newId != _equippedKartId)
                     {
                         _equippedKartId = newId;
-                        RenewUI();
+                        if (_waitCO != null)
+                        {
+                            StopCoroutine(_waitCO);
+                            _waitCO = null;
+                        }
+                        _waitCO = StartCoroutine(RenewUI());
                     }
                 },
                 err => Debug.LogWarning($"[PlayerIndicator] EquippedKart 구독 오류: {err}")
@@ -72,8 +89,10 @@ namespace MSG
         }
 
         [Button("RenewUI")]
-        private void RenewUI()
+        private IEnumerator RenewUI()
         {
+            yield return new WaitUntil(() => ItemPreviewManager.Instance != null && ItemPreviewManager.Instance.Ready);
+
             ItemPreviewManager.Instance.BindCombinePreview(_equippedCharacterId, _equippedKartId, _playerImages);
         }
     }
