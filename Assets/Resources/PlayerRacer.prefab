@@ -332,7 +332,7 @@ GameObject:
   - component: {fileID: 831430784033025982}
   - component: {fileID: 6786647454081869713}
   - component: {fileID: 7946033971345635877}
-  - component: {fileID: 4688897661539971053}
+  - component: {fileID: 5386014482824120059}
   m_Layer: 0
   m_Name: PlayerRacer
   m_TagString: Player
@@ -495,7 +495,7 @@ MonoBehaviour:
   _collisionBody: {fileID: 1687017786012294582}
   _sitPointName: pivot_Character
   _followCam: VirtualCam
-  _useLoadFollowCam: 0
+  _useLoadFollowCam: 1
   _useGM: 1
   _kartBaseSpeed: 20
   _kartCurrentSpeed: 0
@@ -620,6 +620,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd2d549b015d7eb47a8c3ad51a25f57a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _willUseFlatMode: 1
+  _minimapObj: {fileID: 0}
 --- !u!114 &831430784033025982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -661,3 +663,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _selfSetup: 1
   _inventroySaveMaxCount: 2
+  _isSavable: 1
+--- !u!114 &5386014482824120059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8330706411905914188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 991f49e37bf0dab419af6226080c119c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
