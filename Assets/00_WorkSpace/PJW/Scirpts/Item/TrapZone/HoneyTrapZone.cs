@@ -1,8 +1,9 @@
+using Cinemachine;
+using Photon.Pun;
 using System.Collections;
 using System.Linq;
-using Photon.Pun;
 using UnityEngine;
-using Cinemachine;
+using YTW;
 
 namespace PJW
 {
@@ -14,6 +15,7 @@ namespace PJW
         [Header("동작 파라미터")]
         [SerializeField] private float slowMultiplier = 0.5f; 
         [SerializeField] private float slowDuration = 2.0f;
+        [SerializeField] private string sfxUseKey = "Egg_Use_SFX";
 
         private bool isTriggered;
         private Collider zoneCol;
@@ -206,6 +208,8 @@ namespace PJW
         [PunRPC]
         private void RpcApplyTrapReplaceOld(float mul, float seconds)
         {
+            AudioManager.Instance.PlaySFX(sfxUseKey);
+
             // 로컬 소유자 측 실드 재확인
             var localPv = FindObjectsOfType<PhotonView>(true)
                 .FirstOrDefault(pv => pv.IsMine);
