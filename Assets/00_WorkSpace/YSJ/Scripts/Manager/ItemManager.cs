@@ -28,37 +28,34 @@ namespace YSJ
         public int Order => _order;
 
 
-        
+
         protected override void Init()
         {
             base.Init();
-
-            SetupGameItemSpawnProbabilitySO();
-            SetupItemBoxs();
+            Setup();
         }
 
 
-
+        #region Setup
+        public bool Setup()
+        {
+            SetupGameItemSpawnProbabilitySO();
+            SetupItemBoxs();
+            return _isSetupSpawnProbability && _isSetupItemBoxs;
+        }
         private void SetupGameItemSpawnProbabilitySO()
         {
-            // SO가 있다면
-            if (_spawnProbabilitySO != null && _spawnProbabilitySO.probabilityList.Count >= 1)
+            // 셋업 여부가 중요하지 않음
+            _isSetupSpawnProbability = true;
+
+            if (_spawnProbabilitySO == null)
             {
-                List<ItemSpawnProbabilityData> list = _spawnProbabilitySO.probabilityList;
-                for (int i = 0; i < list.Count; i++)
-                {
-                    ItemSpawnProbabilityData checkData = list[i];
-
-                    if (_globalPool.Any(x => x.Item != null && checkData.Item != null &&
-                                             x.Item.itemID == checkData.Item.itemID))
-                        continue;
-
-                    _globalPool.Add(checkData);
-                    _idIndex.Add(checkData.Item.itemID, checkData.Item);
-                }
+                this.PrintLog($"SpawnProbabilitySO 가 존재하지 않습니다.");
+                return;
             }
 
-            _isSetupSpawnProbability = true;
+            ItemSpawnProbabilityData[] list = _spawnProbabilitySO.probabilityList.ToArray();
+            RegisterItems(list);
         }
         private void SetupItemBoxs()
         {
@@ -78,15 +75,56 @@ namespace YSJ
             _isSetupItemBoxs = true;
         }
 
+        #endregion
 
-
-        public bool Setup()
+        #region Register
+        public void RegisterItem(ItemSpawnProbabilityData data)
         {
-            return _isSetupSpawnProbability && _isSetupItemBoxs;
+            if (data == null)
+            {
+                this.PrintLog($"RegisterItem 실패: data == null");
+                return;
+            }
+
+            if (data.Item == null)
+            {
+                this.PrintLog($"RegisterItem 실패: data.Item == null");
+                return;
+            }
+            
+            if (_globalPool.Any(x => x.Item != null && x.Item.itemID == data.Item.itemID))
+            {
+                this.PrintLog($"RegisterItem 실패: 동일한 아이템이 존재합니다. 요청 Item: {data.Item.itemName}({data.Item.itemID})");
+                return;
+            }
+
+            _globalPool.Add(data);
+            _idIndex.Add(data.Item.itemID, data.Item);
+        }
+        public void RegisterItems(params ItemSpawnProbabilityData[] setList)
+        {
+            if (setList == null)
+            {
+                this.PrintLog($"다중 RegisterItem 실패: setList == null");
+                return;
+            }
+
+            if (setList.Length <= 0)
+            {
+                this.PrintLog($"다중 RegisterItem 실패: 등록할 아이템 List가 없음.");
+                return;
+            }
+
+            for (int i = 0; i < setList.Length; i++)
+            {
+                ItemSpawnProbabilityData checkData = setList[i];
+                RegisterItem(checkData);
+            }
         }
 
+        #endregion
 
-
+        #region UnimoItemSO
         public UnimoItemSO ResolveById(ItemId id)
         {
             if (id == ItemId.None) return null;
@@ -125,5 +163,7 @@ namespace YSJ
             }
             return list[list.Count - 1].Item;
         }
+
+        #endregion
     }
 }
