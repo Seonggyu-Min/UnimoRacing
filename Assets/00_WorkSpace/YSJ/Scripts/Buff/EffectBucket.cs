@@ -14,6 +14,7 @@ public class EffectBucket
 
     /// <summary>
     /// 합산 값(ResultValue, ResultPercent)이 최신인지 여부. false면 다시 계산.
+    /// 데이터 변경 여부(= 데이터 오염 여부)
     /// </summary>
     public bool Dirty = true;
 
