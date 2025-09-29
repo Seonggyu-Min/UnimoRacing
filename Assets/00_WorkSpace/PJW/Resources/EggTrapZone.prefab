@@ -268,4 +268,4 @@ MonoBehaviour:
     type: 3}
   spawnOffset: {x: 0, y: 0, z: 0}
   spawnEulerAngles: {x: 0, y: 0, z: 0}
-  spawnOnTrigger: 1
+  spawnMode: 0
