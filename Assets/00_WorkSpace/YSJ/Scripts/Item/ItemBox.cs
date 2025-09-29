@@ -81,7 +81,9 @@ public class ItemBox : MonoBehaviourPunCallbacks
     {
         if (!_useItemManager)
         {
-            this.PrintLog($"_useItemManager이 FALSE여서 자체 셋업 됩니다.");
+            this.PrintLog($"ItemManager.Instance 가, 생성 되고 해당 박스의 등장 가능한 아이템들의 등록을 진행합니다.", LogType.Warning);
+            var IM = ItemManager.Instance;
+            IM.RegisterItems(_items.ToArray());
             Setup();
         }
     }
