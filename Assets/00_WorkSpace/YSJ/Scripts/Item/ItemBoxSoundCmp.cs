@@ -1,0 +1,49 @@
+﻿using UnityEngine;
+using YTW;
+
+public class ItemBoxSoundCmp : MonoBehaviour
+{
+    [Header("Sound Config")]
+    [SerializeField] private AudioClip _collisionAudioClip;         // 충돌 시
+    [SerializeField] private AudioClip _spawnAudioClip;             // 스폰 시
+    [SerializeField] private AudioClip _despawnAudioClip;           // 디스폰 시
+
+    private ItemBox _itemBoxCmp;
+    private AudioManager _audioManager;
+
+    private void Awake()
+    {
+        _itemBoxCmp = GetComponentInChildren<ItemBox>();
+        _audioManager = AudioManager.Instance;
+
+        // 사용 안하는 이유
+        // 1. 디스폰 시킬 때 같이 처리
+        // 2. 디스폰이 됐다는 것은 해당 충돌 유저가 획득 시 에만 처리하기 위함
+        // _itemBoxCmp.OnCollisionAction -= OnCollision;
+        // _itemBoxCmp.OnCollisionAction += OnCollision;
+
+        _itemBoxCmp.OnSpawnAction -= OnSpawn;
+        _itemBoxCmp.OnSpawnAction += OnSpawn;
+
+        _itemBoxCmp.OnDespawnAction -= OnDespawn;
+        _itemBoxCmp.OnDespawnAction += OnDespawn;
+    }
+
+    private void OnCollision(Collider collider)
+    {
+        if (_collisionAudioClip != null)
+            _audioManager?.PlaySFX(_collisionAudioClip.name, this.transform.position);
+    }
+
+    private void OnSpawn()
+    {
+        if (_spawnAudioClip != null)
+            _audioManager?.PlaySFX(_spawnAudioClip.name, this.transform.position);
+    }
+
+    private void OnDespawn()
+    {
+        if (_despawnAudioClip != null)
+            _audioManager?.PlaySFX(_despawnAudioClip.name, this.transform.position);
+    }
+}

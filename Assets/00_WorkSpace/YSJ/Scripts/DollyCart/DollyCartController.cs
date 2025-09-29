@@ -25,6 +25,8 @@ public class DollyCartController : MonoBehaviourPun
 
     private TrackPathRegistry _trackRegistry;
     private int _movableTrackCount = -1;
+    // null을 받아드릴 수 있게 하여서 값이 없으때에 대한 판단 추가
+    private int? _pendingTrackIndex = null;
     private int _currentTrackIndex = -1;
     private RuntimePlatform _platform;    
 
@@ -32,6 +34,43 @@ public class DollyCartController : MonoBehaviourPun
 
     public bool IsSetup => _isSetup;
     public int CurrentTrackIndex => _currentTrackIndex;
+
+    void Awake()
+    {
+        if (_cart == null) _cart = GetComponent<CinemachineDollyCart>();
+        if (_trackRegistry == null) _trackRegistry = TrackPathRegistry.Instance;
+    }
+
+    void Update()
+    {
+        if (_pendingTrackIndex.HasValue && IsReady())
+        {
+            ApplyTrack(_pendingTrackIndex.Value);
+            _pendingTrackIndex = null;
+        }
+
+
+        if (!_isSetup) return;
+        if (!photonView.IsMine) return;
+        if (!_data.IsControlable) return;
+
+        if (_platform == RuntimePlatform.WindowsPlayer)
+        {
+            // Windows 관련 코드 실행
+            PcCountroller();
+        }
+        else if (_platform == RuntimePlatform.Android)
+        {
+            // Android 관련 코드 실행
+            MobileController();
+        }
+        else
+        {
+            MobileController();
+        }
+    }
+
+
 
     public void Setup(PlayerRaceData data)
     {
@@ -44,7 +83,8 @@ public class DollyCartController : MonoBehaviourPun
         _data = data;
 
         // 트랙 배치 필수 데이터
-        _trackRegistry = TrackPathRegistry.Instance;
+        if (_trackRegistry == null)
+            _trackRegistry = TrackPathRegistry.Instance;
 
         PhotonView view = _data.View;
         _playerlistIndex = view.Owner.GetPlayerRoomIndex();
@@ -73,49 +113,19 @@ public class DollyCartController : MonoBehaviourPun
         }
 
         // 해당 컴포넌트의 설정
-        _cart = _data.Cart;
-        if (_cart)
-        {
-            _cart.m_PositionUnits = CinemachinePathBase.PositionUnits.Normalized;
-            _cart.m_Position = 0.0f;
-            _cart.m_Path = _currentPath;
-        }
-        else
+        _cart = _data.Cart ?? GetComponent<CinemachineDollyCart>();
+        if (!_cart)
         {
             this.PrintLog($"CinemachineDollyCart 컴포넌트를 찾을 수 없습니다. 해당 오브젝트{this.gameObject}를 확인해주세요.");
             return;
         }
 
-        targetTrackLock = new int[Mathf.Max(0, _movableTrackCount)]; // 종원 추가 
+        _cart.m_PositionUnits = CinemachinePathBase.PositionUnits.Normalized;
+        _cart.m_Position = 0.0f;
+        _cart.m_Path = _currentPath;
 
         _platform = Application.platform;
         _isSetup = true;
-    }
-
-    void Update()
-    {
-        if (IsSwitchLocked) return; // 종원 추가 
-
-        if (!_isSetup) return;
-
-        // 해당 포톤 뷰가, 해당 클라이언트 것이 맞고 조종이 가능한 상태인지
-        if (!photonView.IsMine) return;
-        if (!_data.IsControlable) return;
-
-        if (_platform == RuntimePlatform.WindowsPlayer)
-        {
-            // Windows 관련 코드 실행
-            PcCountroller();
-        }
-        else if (_platform == RuntimePlatform.Android)
-        {
-            // Android 관련 코드 실행
-            MobileController();
-        }
-        else
-        {
-            MobileController();
-        }
     }
 
     private void MobileController()
@@ -129,17 +139,7 @@ public class DollyCartController : MonoBehaviourPun
         if (touch.press.wasPressedThisFrame)
         {
             Vector2 pos = touch.position.ReadValue();
-            int targetIndex = _currentTrackIndex + ((pos.x < Screen.width * 0.5f) ? -1 : 1);
-            if (isControlsInverted) targetIndex = 1 - targetIndex;
-
-            if (IsTargetLocked(targetIndex)) return; // 종원 추가 
-#if UNITY_EDITOR
-            var oldIndex = _currentTrackIndex;
-#endif
-            _currentTrackIndex = ChangeTrack(targetIndex);
-#if UNITY_EDITOR
-            this.PrintLog($"MOVE: {oldIndex} > {_currentTrackIndex}");
-#endif
+            Controller(pos);
         }
     }
     private void PcCountroller()
@@ -150,18 +150,32 @@ public class DollyCartController : MonoBehaviourPun
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             Vector2 pos = Mouse.current.position.ReadValue();
-            int targetIndex = _currentTrackIndex + ((pos.x < Screen.width * 0.5f) ? -1 : 1);
-            if (isControlsInverted) targetIndex = 1 - targetIndex;
-
-            if (IsTargetLocked(targetIndex)) return; // 종원 추가 
-#if UNITY_EDITOR
-            var oldIndex = _currentTrackIndex;
-#endif
-            _currentTrackIndex = ChangeTrack(targetIndex);
-#if UNITY_EDITOR
-            this.PrintLog($"MOVE: {oldIndex} > {_currentTrackIndex}");
-#endif
+            Controller(pos);
         }
+    }
+
+    // 라인 팅김 방지 및 스압 정상화
+    private void Controller(Vector2 pos)
+    {
+        int delta = (pos.x < Screen.width * 0.5f) ? -1 : 1;
+        if (isControlsInverted) delta = -delta;
+        int targetIndex = _currentTrackIndex + delta;
+
+#if UNITY_EDITOR
+        var oldIndex = _currentTrackIndex;
+#endif
+        _currentTrackIndex = ChangeTrack(targetIndex);
+#if UNITY_EDITOR
+        this.PrintLog($"MOVE: {oldIndex} > {_currentTrackIndex}");
+#endif
+    }
+
+    private bool IsReady()
+    {
+        if (_cart == null) return false;
+        if (_trackRegistry == null) return false;
+        if (!_trackRegistry.IsInit) return false;
+        return true;
     }
 
     /// <summary>
@@ -171,9 +185,21 @@ public class DollyCartController : MonoBehaviourPun
     /// <returns></returns>
     public int ChangeTrack(int targetIndex, PhotonMessageInfo info = default)
     {
-        if (IsSwitchLocked) return _currentTrackIndex;
-        if (IsTargetLocked(targetIndex)) return _currentTrackIndex; // 종원 추가 
+        // 아직 준비 안 됐으면 나중에 적용
+        if (!IsReady() || !_isSetup)
+        {
+            _pendingTrackIndex = targetIndex;
+            return _currentTrackIndex;
+        }
 
+        int max = _trackRegistry.GetPathLength();
+        if (max <= 0) return _currentTrackIndex;
+        targetIndex = Mathf.Clamp(targetIndex, 0, max - 1);
+
+        return ApplyTrack(targetIndex);
+    }
+    private int ApplyTrack(int targetIndex)
+    {
         var fromPath = _cart.m_Path;
         var toPath = _trackRegistry.GetPath(targetIndex);
 

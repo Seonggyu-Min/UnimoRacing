@@ -6,35 +6,36 @@ using YSJ.Util;
 
 public class ItemInventory : MonoBehaviour
 {
-    #region Parameter
-    // Const
-    private const int DEFAULT_INVENTORY_MAX_COUNT = 2;
+    #region Parameters
+    private const int DEFAULT_INVENTORY_NORMAL_SAVE_MAX_COUNT = 2;
+    private const int DEFAULT_INVENTORY_DELAY_SAVE_MAX_COUNT = 1;
 
-    // SerializeField
     [Header("Config")]
     [SerializeField] private bool _selfSetup = false;
-    [SerializeField] private int _inventroySaveMaxCount = 2;
+    [SerializeField] private int _inventroyNormalSaveMaxCount = 2;
+    [SerializeField] private int _inventroyDelaySaveMaxCount = 1;
 
-    // publilc Action
+    // Events
     public Action<UnimoItemSO> OnSaveItem;
     public Action<UnimoItemSO> OnRemoveItem;
+    public Action OnChanged;
 
-    // private Parameter
+    // private
     private bool _isSetup = false;
-    private bool _isSavable = false;
+    [SerializeField] private bool _isSavable = false;
 
     private PhotonView _ownerView;
     private PlayerRaceData _data;
 
     private UnimoItemSO[] _items;
-    private List<UnimoItemSO> _delaySaveItemList = new();
+    private readonly List<UnimoItemSO> _delaySaveItemList = new(); // 대기열(슬롯 꽉 찼을 때)
 
-    // public Ram
+    // Public
     public bool IsSetup => _isSetup;
-
+    public int Capacity => _items?.Length ?? 0;
     #endregion
 
-    public void Awake()
+    private void Awake()
     {
         if (_selfSetup)
             Setup(null);
@@ -44,160 +45,162 @@ public class ItemInventory : MonoBehaviour
     {
         if (_isSetup)
         {
-            this.PrintLog("셋업이 되어 있는 상태에서, 다시 시도 하여 반려됩니다.");
+            this.PrintLog("이미 셋업되어 있어 무시됩니다.");
             return;
         }
+
         _ownerView = GetComponentInParent<PhotonView>();
         _data = data;
+        if (_data == null)
+            _data = GetComponent<PlayerRaceData>();
 
-        int itemsLength = (_inventroySaveMaxCount > 0) ? _inventroySaveMaxCount : DEFAULT_INVENTORY_MAX_COUNT;
+        int size = (_inventroyNormalSaveMaxCount > 0) ? _inventroyNormalSaveMaxCount : DEFAULT_INVENTORY_NORMAL_SAVE_MAX_COUNT;
+        _items = new UnimoItemSO[size];
 
-        _items = new UnimoItemSO[itemsLength];
+        _inventroyDelaySaveMaxCount = (_inventroyDelaySaveMaxCount > 0) ? _inventroyDelaySaveMaxCount : DEFAULT_INVENTORY_DELAY_SAVE_MAX_COUNT;
 
+        // 셋업 완료 조건: 자기 셋업 플래그 or 외부 데이터 주입
         _isSetup = (_selfSetup || _data != null);
     }
 
     #region Save
+    /// <summary>
+    /// 인벤토리에 아이템 저장.
+    /// - isDelaySave: 슬롯이 꽉 찼을 때 큐에 쌓기.
+    /// - isForceSave: 저장 게이트( _isSavable )가 닫혀도 강제 저장.
+    /// - isSaveItemAction: OnSaveItem 이벤트 트리거 여부.
+    /// </summary>
     public void SaveItem(UnimoItemSO itemSO, bool isDelaySave = false, bool isForceSave = false, bool isSaveItemAction = true)
     {
         if (itemSO == null)
         {
-            this.PrintLog("해당 아이템의 SO 데이터가 비어 있어서 인벤토리에 정상적인 저장을 할 수 없습니다.");
+            this.PrintLog("SaveItem 실패: itemSO == null");
             return;
         }
 
-        string itmeNameString = $"{itemSO.name}_{ itemSO.itemID}";
         if (!_isSetup)
         {
-            this.PrintLog($"셋업이 정상적으로 진행되지 않았습니다. [저장 시도 아이템 {itmeNameString}]");
+            this.PrintLog($"SaveItem 거부: 인벤토리 셋업 미완. 요청 SO: {itemSO.name}({itemSO.itemID})");
             return;
         }
 
+        // 저장 게이트
         if (!_isSavable && !isForceSave)
         {
-            this.PrintLog($"저장 가능한 상태가 아닙니다. 저장할 수 없습니다. [저장 시도 아이템 {itmeNameString}]");
+            this.PrintLog($"SaveItem 거부: 현재 저장 불가 상태(강제저장 아님). 요청 SO: {itemSO.name}({itemSO.itemID})");
             return;
         }
 
-        if (isDelaySave)
-            this.PrintLog($"지연 저장을 시도 할 수 있는 상태입니다. [저장 시도 아이템 {itmeNameString}]");
-
-        if (isForceSave)
-            this.PrintLog($"강제 저장을 시도 할 수 있는 상태입니다. [저장 시도 아이템 {itmeNameString}]");
-
-
-        int nullIndex = -1;
-        // 비어있는 인덱스 체크
-        for (int i = 0; i < _items.Length; i++)
+        // SO 정책 체크(원하면 강제저장으로 무시 가능)
+        if (!itemSO.isInventorySavable && !isForceSave)
         {
-            if (_items[i] == null)
-            {
-                nullIndex = i;
-                break;
-            }
+            this.PrintLog($"SaveItem 거부: SO가 인벤토리 저장 비활성 상태. {itemSO.name}({itemSO.itemID})");
+            return;
         }
 
-        // 비어 있는 칸이 없다면
-        if (nullIndex < 0)
+        int empty = FindFirstEmptySlot();
+        if (empty < 0)
         {
-            // 지연 저장 상태라면
+            // 슬롯 꽉 참
             if (isDelaySave)
             {
-                _delaySaveItemList.Add(itemSO);
-                this.PrintLog(" 지연저장 가능 아이템을 지연 저장 파트에 넣어 처리합니다.");
+                if (_inventroyDelaySaveMaxCount < _delaySaveItemList.Count)
+                {
+                    _delaySaveItemList.Add(itemSO);
+                    this.PrintLog($"슬롯 가득 > DelayQueue Enqueue: {itemSO.name}({itemSO.itemID}) / 대기:{_delaySaveItemList.Count}");
+                }
+                else
+                {
+                    this.PrintLog($"딜레이 슬롯 가득 > Slot Count : {_delaySaveItemList.Count} / {_inventroyDelaySaveMaxCount} << (현재/최대)");
+                }
             }
             else
-                this.PrintLog($"인벤토리가 다 차있어 저장을 못합니다. [저장 시도 아이템 {itmeNameString}]");
+            {
+                this.PrintLog($"SaveItem 실패: 슬롯 가득 & 지연저장 비활성. {itemSO.name}({itemSO.itemID})");
+            }
             return;
         }
 
-        if (itemSO.isInventorySavable)
-        {
-            _items[nullIndex] = itemSO;
-        }
+        _items[empty] = itemSO;
 
-        if (isSaveItemAction)
-            OnSaveItem?.Invoke(itemSO);
+        if (isSaveItemAction) OnSaveItem?.Invoke(itemSO);
+        OnChanged?.Invoke();
 
-        this.PrintLog($"아이템을 저장합니다.[저장 인덱스: {nullIndex} / 저장 아이템 {itmeNameString}]");
+        this.PrintLog($"SaveItem 성공: idx={empty}, {itemSO.name}({itemSO.itemID})");
     }
-    private void DelaySaveItem(int saveIndex)
-    {
-        if (_delaySaveItemList.Count > 0)
-        {
-            this.PrintLog($"지연 아이템 저장 작업을 진행(=> 지연 저장 가능 아이템 수: {_delaySaveItemList.Count})");
-            UnimoItemSO delaySaveItem = null;
-            // 데이터 유실 확인
-            for (int i = 0; i < _delaySaveItemList.Count; i++)
-            {
-                if (_delaySaveItemList[i] != null)
-                {
-                    delaySaveItem = _delaySaveItemList[i];
-                    break;
-                }
 
-                this.PrintLog($"지연 아이템 저장에 사용될 아이템이 유실 되었습니다. 제거 작업을 진행합니다.");
+    /// <summary>
+    /// 특정 슬롯이 비면, DelayQueue에서 하나 꺼내 바로 채운다.
+    /// </summary>
+    private void TryFlushDelayQueueToSlot(int saveIndex)
+    {
+        if (_delaySaveItemList.Count <= 0) return;
+
+        // 유실된 항목 정리 + 첫 유효 항목 선택
+        UnimoItemSO picked = null;
+        for (int i = 0; i < _delaySaveItemList.Count; i++)
+        {
+            if (_delaySaveItemList[i] == null)
+            {
                 _delaySaveItemList.RemoveAt(i);
                 i--;
+                continue;
             }
+            picked = _delaySaveItemList[i];
+            _delaySaveItemList.RemoveAt(i);
+            break;
+        }
 
-            // 모든 데이터 유실 시, 처리
-            if (_delaySaveItemList.Count <= 0)
-            {
-                this.PrintLog($"지연 아이템 저장에 사용될 아이템들 유실 되어, 지연 아이템 저장을 진행 할 수 없습니다.");
-                return;
-            }
+        if (picked == null)
+        {
+            this.PrintLog("DelayQueue 비움: 유효 아이템 없음.");
+            return;
+        }
 
-            // 데이터 받고도 유실 시, 처리
-            if (delaySaveItem == null)
-            {
-                this.PrintLog($"Delay Save Item 데이터가 유실 되어서 습니다. 기존에 진행하려고 했던 지연 아이템 저장 기능을 사용할 수 없습니다. > 필요 없는 데이터들을 정리합니다.");
-                return;
-            }
-
-            _items[saveIndex] = delaySaveItem;
-            this.PrintLog($"지연 아이템 저장 완료. 되었습니다.(=> 지연 저장 아이템 정보: {delaySaveItem.name}_{delaySaveItem.itemID})");
+        // 슬롯이 여전히 비어있는지 최종 확인
+        if (_items[saveIndex] == null)
+        {
+            _items[saveIndex] = picked;
+            OnSaveItem?.Invoke(picked);
+            OnChanged?.Invoke();
+            this.PrintLog($"DelaySave 적용: idx={saveIndex}, {picked.name}({picked.itemID})");
+        }
+        else
+        {
+            // 레이스 컨디션으로 다른 경로에서 채워졌을 수 있음 > 다시 큐 뒤로
+            _delaySaveItemList.Add(picked);
+            this.PrintLog("DelaySave 취소: 슬롯이 채워짐(레ース). 다시 큐에 적재.");
         }
     }
-
     #endregion
 
     #region Remove
-    /// <summary>
-    /// 보유 아이템, 인텍스로 제거
-    /// </summary>
-    /// <param name="index">제거 하고 싶은 보유 배열 인덱스</param>
+    /// <summary> 인덱스로 제거 </summary>
     public void RemoveItemForIndex(int index, bool delaySavable = true)
     {
-        UnimoItemSO resultItem = FindItemByIndex(index);
-        RemoveItemBySO(resultItem, delaySavable);
+        var target = FindItemByIndex(index);
+        RemoveItemBySO(target, delaySavable);
     }
 
-    /// <summary>
-    /// 보유 아이템, 아이디로 제거
-    /// </summary>
-    /// <param name="id">제거 하고 싶은 아이템 ID</param>
-    public void RemoveItemByID(int id, bool delaySavable = true)
+    /// <summary> ID로 제거 </summary>
+    public void RemoveItemByID(ItemId id, bool delaySavable = true)
     {
-        UnimoItemSO resultItem = FindItemByID(id);
-        RemoveItemBySO(resultItem, delaySavable);
+        var target = FindItemByID((int)id);
+        RemoveItemBySO(target, delaySavable);
     }
 
-    /// <summary>
-    /// 보유 아이템, SO로 제거
-    /// </summary>
-    /// <param name="inItemSO">제거 하고 싶은 아이템</param>
+    /// <summary> SO로 제거 </summary>
     public void RemoveItemBySO(UnimoItemSO inItemSO, bool delaySavable = true)
     {
         if (!_isSetup)
         {
-            this.PrintLog("셋업이 정상적으로 진행되지 않았습니다.");
+            this.PrintLog("RemoveItem 거부: 셋업 미완");
             return;
         }
 
         if (inItemSO == null)
         {
-            this.PrintLog("제거 하고자하는 아이템 SO가 존재 하지않습니다.");
+            this.PrintLog("RemoveItem 거부: SO == null");
             return;
         }
 
@@ -205,7 +208,8 @@ public class ItemInventory : MonoBehaviour
         for (int i = 0; i < _items.Length; i++)
         {
             var item = _items[i];
-            if (inItemSO.itemID.Equals(item.itemID))
+            if (item == null) continue;
+            if (item.itemID == inItemSO.itemID)
             {
                 removeIndex = i;
                 break;
@@ -214,21 +218,21 @@ public class ItemInventory : MonoBehaviour
 
         if (removeIndex < 0)
         {
-            this.PrintLog("제거할 수 있는 오브젝트가 존재 하지않습니다.");
+            this.PrintLog("RemoveItem 실패: 대상 없음");
             return;
         }
 
-        var removeItem = _items[removeIndex];
+        var removed = _items[removeIndex];
         _items[removeIndex] = null;
-        OnRemoveItem?.Invoke(removeItem);
 
-        this.PrintLog($"인벤토리 제거 대상 아이템(=> {removeItem.itemName}) > 인벤토리에서 제거(=> 제거 여부: {_items[removeIndex] == null})");
+        OnRemoveItem?.Invoke(removed);
+        OnChanged?.Invoke();
 
-        // 아이템 지연 저장 기능
-        if (delaySavable)
-            DelaySaveItem(removeIndex);
+        this.PrintLog($"RemoveItem 성공: idx={removeIndex}, {removed.itemName}({removed.itemID})");
+
+        // 지연 저장 사용 시, 빈 칸을 DelayQueue로 보충
+        if (delaySavable) TryFlushDelayQueueToSlot(removeIndex);
     }
-
     #endregion
 
     #region Find
@@ -236,95 +240,182 @@ public class ItemInventory : MonoBehaviour
     {
         if (!_isSetup)
         {
-            this.PrintLog("셋업이 정상적으로 진행되지 않았습니다.");
+            this.PrintLog("FindItemByIndex 거부: 셋업 미완");
             return null;
         }
 
-        if (_items.Length <= 0 || _items.Length <= index)
+        if (_items == null || index < 0 || index >= _items.Length)
         {
-            this.PrintLog($"인벤토리 저장 가능 수를 초과 하던가, 잘 못된 인텍스입니다. (Index => {index})");
+            this.PrintLog($"FindItemByIndex 실패: 잘못된 인덱스 {index}");
             return null;
         }
 
         return _items[index];
     }
+
     public UnimoItemSO FindItemByID(int id)
     {
         if (!_isSetup)
         {
-            this.PrintLog("셋업이 정상적으로 진행되지 않았습니다.");
+            this.PrintLog("FindItemByID 거부: 셋업 미완");
             return null;
         }
 
         if (id <= 0)
         {
-            this.PrintLog($"음수의 아이템 아이디가 들어왔습니다.{id}");
+            this.PrintLog($"FindItemByID 실패: 유효하지 않은 id={id}");
             return null;
         }
 
-        UnimoItemSO resultItem = null;
         foreach (var item in _items)
         {
-            if (id.Equals(item.itemID))
-            {
-                resultItem = item;
-                break;
-            }
+            if (item == null) continue;
+            if ((int)item.itemID == id) return item;
         }
-        return resultItem;
+        return null;
     }
+
     public int FindItemIndexBySO(UnimoItemSO itemSO)
     {
-        int result = -1;
         if (itemSO == null)
         {
-            this.PrintLog($"`아이템 SO` 데이터가 NULL이여서 SO로 ItemIndex 찾기를 중단합니다.");
-            return result;
+            this.PrintLog("FindItemIndexBySO 실패: SO == null");
+            return -1;
         }
 
         for (int i = 0; i < _items.Length; i++)
         {
             var item = _items[i];
-            if (item == null)
-                continue;
-            ItemId checkItemSOID = _items[i].itemID;
-            if (itemSO.itemID.Equals(checkItemSOID))
-            {
-                result = i;
-                break;
-            }
+            if (item == null) continue;
+            if (item.itemID == itemSO.itemID) return i;
         }
-        return result;
+        return -1;
     }
-    #endregion
 
-    #region Util
     public bool ItemContains(UnimoItemSO itemSO)
     {
-        int id = FindItemIndexBySO(itemSO);
-        return (id != -1 && id >= 0);
+        int idx = FindItemIndexBySO(itemSO);
+        return (idx >= 0);
     }
 
     public int ItemCount()
     {
-        int result = 0;
+        if (_items == null) return 0;
+        int cnt = 0;
         for (int i = 0; i < _items.Length; i++)
-        {
-            if (FindItemByIndex(i) != null)
-                result++;
-        }
-
-        return result;
+            if (_items[i] != null) cnt++;
+        return cnt;
     }
 
-    public void SetSavable(bool isSavable)
+    private int FindFirstEmptySlot()
     {
-        _isSavable = isSavable;
+        if (_items == null) return -1;
+        for (int i = 0; i < _items.Length; i++)
+            if (_items[i] == null) return i;
+        return -1;
     }
     #endregion
 
+    #region Util 
+    /// <summary> 외부에서 저장 가능 토글  </summary>
+    public void SetSavable(bool isSavable)
+    {
+        _isSavable = isSavable;
+        this.PrintLog($"SetSavable: {isSavable}");
+    }
+
+    /// <summary> 가장 앞(낮은 인덱스) 아이템을 소비 시도. 소비에 성공하면 제거. </summary>
+    public bool TryConsumeFirst(Func<UnimoItemSO, bool> consumer, bool delaySavable = true)
+    {
+        if (consumer == null) return false;
+
+        for (int i = 0; i < _items.Length; i++)
+        {
+            var item = _items[i];
+            if (item == null) continue;
+
+            bool ok = false;
+            try { ok = consumer(item); }
+            catch (Exception e)
+            {
+                this.PrintLog($"TryConsumeFirst 예외: {e.Message}", LogType.Error);
+            }
+
+            if (ok)
+            {
+                RemoveItemForIndex(i, delaySavable);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary> 인벤토리 초기화(슬롯 비우고 큐도 비움) </summary>
+    public void ClearAll(bool invokeRemoveEventPerItem = false)
+    {
+        if (_items != null)
+        {
+            if (invokeRemoveEventPerItem)
+            {
+                for (int i = 0; i < _items.Length; i++)
+                {
+                    if (_items[i] != null) OnRemoveItem?.Invoke(_items[i]);
+                    _items[i] = null;
+                }
+            }
+            else
+            {
+                Array.Clear(_items, 0, _items.Length);
+            }
+        }
+
+        _delaySaveItemList.Clear();
+        OnChanged?.Invoke();
+        this.PrintLog("인벤토리 초기화 완료");
+    }
+
+    /// <summary> 용량 변경(주의: 기존 아이템은 가능한 한 유지시키고 잘리면 뒤에서부터 삭제) </summary>
+    public void Resize(int newSize)
+    {
+        if (newSize <= 0)
+        {
+            this.PrintLog("Resize 거부: newSize <= 0");
+            return;
+        }
+
+        if (_items == null)
+        {
+            _items = new UnimoItemSO[newSize];
+            _inventroyNormalSaveMaxCount = newSize;
+            OnChanged?.Invoke();
+            return;
+        }
+
+        if (newSize == _items.Length) return;
+
+        var newArr = new UnimoItemSO[newSize];
+        int copy = Mathf.Min(newSize, _items.Length);
+        Array.Copy(_items, newArr, copy);
+
+        if (newSize < _items.Length)
+        {
+            for (int i = newSize; i < _items.Length; i++)
+            {
+                if (_items[i] != null) OnRemoveItem?.Invoke(_items[i]);
+            }
+        }
+
+        _items = newArr;
+        _inventroyNormalSaveMaxCount = newSize;
+        OnChanged?.Invoke();
+        this.PrintLog($"Resize 완료: {newSize}");
+    }
+    #endregion
+
+    #region Logging
     public void PrintLog(string printLog, LogType type = LogType.Log)
     {
         this.PrintLog(printLog, type, Color.cyan);
     }
+    #endregion
 }

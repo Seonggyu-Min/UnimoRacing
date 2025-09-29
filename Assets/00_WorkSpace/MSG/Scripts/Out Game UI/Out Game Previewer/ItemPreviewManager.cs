@@ -20,7 +20,6 @@ namespace MSG
         [SerializeField] private string _previewLayer;          // 하나만 선택해야 됨. 이것 보다 좋은 방법이 있을 것 같은데...
                                                                 // LayerMask는 중복 가능성, string은 오타 가능, int는 뭐가 어떤 레이어인지 모르는 상태라서 셋 다 마음에는 안드는 듯
         private int _layer;
-        [SerializeField] private Transform _parent;
         [SerializeField] private int _xPositionInterval = 5;    // x포지션의 간격. 안겹치게 하기 위해서 씀
         [SerializeField] private int _yPositionInterval = 5;    // y포지션의 간격. 카트랑 캐릭터랑 안겹치게 하기 위해서 씀
 
@@ -195,8 +194,9 @@ namespace MSG
         }
 
 
-        // Render Texture 비우기. 씬 떠날 때 호출해야될 듯
-        public void DisposePreviewRenderTexture(int id)
+        // Render Texture 비우기. 씬 떠날 때 호출해야될 듯.
+        // 근데 인게임씬에서 쓸거면 그냥 계속 갖고 있으면 될 듯
+        public void DisposePreview(int id)
         {
             if (_rtMap.TryGetValue(id, out RenderTexture rt) && rt != null)
             {
@@ -206,8 +206,18 @@ namespace MSG
             _rtMap.Remove(id);
         }
 
+        private void DisposePreviewAll()
+        {
+            foreach (var rt in _rtMap)
+            {
+                if (rt.Value.IsCreated()) rt.Value.Release();
+                Destroy(rt.Value);
+            }
+            _rtMap.Clear();
+        }
+
         // Render Texture 비우기. 씬 떠날 때 호출해야될 듯
-        private void DisposeCombine()
+        public void DisposeCombine()
         {
             if (_combineObj != null)
             {
@@ -248,7 +258,7 @@ namespace MSG
             {
                 GameObject preview = Instantiate(unimos[i].characterPrefab);
                 SetLayerRecursively(preview);
-                preview.transform.parent = _parent;
+                preview.transform.parent = gameObject.transform;
                 preview.transform.position = new Vector3(_xPositionInterval * i, 0f, 0f);    // 일렬로 나열해서 카메라에서 다른 오브젝트가 겹쳐지지 않게 함
                 preview.transform.rotation = Quaternion.Euler(0f, 160f, 0f); // 뒤를 보고 있어서 돌림
 
@@ -271,7 +281,7 @@ namespace MSG
                 GameObject preview = Instantiate(karts[i].kartPrefab);
                 SetLayerRecursively(preview);
                 preview.layer = _layer;  // 레이어를 프리뷰용으로 등록
-                preview.transform.parent = _parent;
+                preview.transform.parent = gameObject.transform;
                 preview.transform.position = new Vector3(_xPositionInterval * i, _yPositionInterval, 0f);    // 일렬로 나열해서 카메라에서 다른 오브젝트가 겹쳐지지 않게 함
                 preview.transform.rotation = Quaternion.Euler(0f, 160f, 0f); // 뒤를 보고 있어서 돌림
 
@@ -323,7 +333,7 @@ namespace MSG
             }
 
             var root = new GameObject($"Combine_{unimoId}_{kartId}");
-            root.transform.SetParent(_parent, false);
+            root.transform.SetParent(gameObject.transform, false);
 
             root.transform.localPosition = new Vector3(-_xPositionInterval, -_yPositionInterval, 0f);
             root.transform.localRotation = Quaternion.identity;
@@ -381,6 +391,13 @@ namespace MSG
             }
 
             Debug.Log(sb);
+        }
+
+        [Button("Clear RT")]
+        private void ClearRT()
+        {
+            DisposePreviewAll();
+            DisposeCombine();
         }
 
         #endregion

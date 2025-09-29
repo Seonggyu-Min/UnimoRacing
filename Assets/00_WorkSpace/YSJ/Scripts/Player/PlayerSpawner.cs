@@ -41,14 +41,15 @@ public class PlayerSpawner : MonoBehaviour
     private float _loadableTime = 5.0f;
 
 
-    private void Start()
+    private void Awake()
     {
         _isLoadPlayer = false;
         SetupInjecter();
         if (_isStartDirectSpawn)
         {
             this.PrintLog("Start 함수 실행, 바로 스폰은 진행 합니다.");
-            StartCoroutine(CO_PlayerSpanwe());
+            if (!_isLoadPlayer)
+                StartCoroutine(CO_PlayerSpanwe());
         }
         else
         {

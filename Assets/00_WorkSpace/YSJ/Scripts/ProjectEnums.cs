@@ -9,6 +9,7 @@
 public enum RaceState
 {
     None = 0,
+    Setup,
     WaitPlayer,
     LoadPlayers,
     Countdown,

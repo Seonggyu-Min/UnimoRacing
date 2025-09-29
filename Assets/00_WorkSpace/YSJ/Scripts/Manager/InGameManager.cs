@@ -17,6 +17,9 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     [SerializeField] private bool _useSelfPhotonNetworkConnecter;       // 셀프 포톤 네트워크 커낵터
     [SerializeField] private bool _useMapCycleManager;
 
+    [Header("공통 셋업 대상(IGameSetup 구현 컴포넌트들)")]
+    [SerializeField] private List<MonoBehaviour> _setupComponents = new();
+
     #region Config Setup Data
     private int     _laps = 1;                  // 렙
 
@@ -25,8 +28,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     private float   _postGameSeconds = 10f;     // 결과, 보여주는 시간
 
     private int   _playablePlayersCount = 2;     // 결과, 보여주는 시간
-
-    private List<ItemSpawnProbabilityData> _spawnableItems;
 
     private float _finishedEndTime = 0.0f;
     private float _postGameEndTime = 0.0f;
@@ -41,8 +42,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
     private double _raceStartDelayTime   = -1.0f;
 
-    private bool _isLoadedTrackPath = false;
-
     private MapCycleManager _mapCycleManager;
     private MapAssetLoader _mapAssetLoader;
 
@@ -53,7 +52,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     private Room CurrentRoom => PhotonNetwork.CurrentRoom;
 
     private string RK(RoomKey k) => PhotonNetworkCustomProperties.ToRoomKeyString(k);
-    private string PK(PlayerKey k) => PhotonNetworkCustomProperties.ToPlayerKeyString(k);
 
     private SceneID GetPlayerSceneID(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<SceneID>(p, PlayerKey.CurrentScene);
     private bool GetPlayerRaceLoaded(Player p) => PhotonNetworkCustomProperties.GetPlayerProp<bool>(p, PlayerKey.RaceLoaded);
@@ -77,33 +75,13 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     /// </summary>
     public Action<RaceState> OnStateChanged;
 
-    /// <summary>
-    /// 해당 상태로 변경 시, 기본 실행 코드 실행 후 처리
-    /// </summary>
+    public Func<bool> OnRaceState_Setup;
     public Action OnRaceState_WaitPlayer;
-    /// <summary>
-    /// 해당 상태로 변경 시, 기본 실행 코드 실행 후 처리
-    /// </summary>
     public Action OnRaceState_LoadPlayers;
-    /// <summary>
-    /// 해당 상태로 변경 시, 기본 실행 코드 실행 후 처리
-    /// </summary>
     public Action OnRaceState_Countdown;
-    /// <summary>
-    /// 해당 상태로 변경 시, 기본 실행 코드 실행 후 처리
-    /// </summary>
     public Action OnRaceState_Racing;
-    /// <summary>
-    /// 해당 상태로 변경 시, 기본 실행 코드 실행 후 처리
-    /// </summary>
     public Action OnRaceState_Finish;
-    /// <summary>
-    /// 해당 상태로 변경 시, 기본 실행 코드 실행 후 처리
-    /// </summary>
     public Action OnRaceState_PostGame;
-    /// <summary>
-    /// 해당 상태로 변경 시, 기본 실행 코드 실행 후 처리
-    /// </summary>
     public Action OnRaceState_FailedGame;
 
     protected override void Init()
@@ -121,12 +99,25 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         while (!PhotonNetwork.InRoom)
         { yield return null; }
 
+        this.PrintLog($"Master Client: {PhotonNetwork.CurrentRoom.Name}!");
         this.PrintLog($"Master Client: {IsMasterClient}!");
 
         _currentRaceState = RaceState.None;
 
         SetupRaceMapLoader();
         SetupRaceRule();
+
+        RunAllSetups();
+        if (OnRaceState_Setup != null)
+        {
+            _currentRaceState = RaceState.Setup;
+            this.PrintLog($"[RaceState : Setup] >> 상태 진행");
+            while (!CheckAllSetupTrue())
+            { yield return null; }
+            this.PrintLog($"[RaceState : Setup] >> 상태 진행 완료");
+        }
+        else
+            this.PrintLog($"[RaceState : Setup] >> 상태를 스킵합니다.");
 
         this.PrintLog($"초기 상태 동기화 실행");
         // 초기 상태 동기화
@@ -151,6 +142,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         yield break;
     }
 
+    #region Setup
     private void SetupRaceRule()
     {
         this.PrintLog("SetupRaceRule 진행");
@@ -169,7 +161,6 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
 
         _playablePlayersCount = config.playablePlayersCount;    // 플레이 가능한 플레이어 수
 
-        _spawnableItems = config.spawnableItems;
         this.PrintLog("SetupRaceRule 진행 완료");
     }
     private void SetupRaceMapLoader()
@@ -207,6 +198,76 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     {
         _mapAssetLoader = go.GetComponent<MapAssetLoader>();
     }
+
+    /// <summary>
+    /// 모두 true면 true, 하나라도 false면 false
+    /// </summary>
+    public bool RunAllSetups()
+    {
+        // 유효한 IGameSetup만 수집
+        List<IGameSetup> setups = new List<IGameSetup>();
+        for (int i = 0; i < _setupComponents.Count; i++)
+        {
+            var mb = _setupComponents[i];
+            if (mb == null) continue;
+
+            var s = mb as IGameSetup;
+            if (s == null)
+            {
+                this.PrintLog($"IGameSetup 아님: {mb.name}", LogType.Warning);
+                continue;
+            }
+            setups.Add(s);
+        }
+
+        // Order 오름차순 정렬 (버블 정렬)
+        for (int i = 0; i < setups.Count - 1; i++)
+        {
+            for (int j = i + 1; j < setups.Count; j++)
+            {
+                if (setups[i].Order > setups[j].Order)
+                {
+                    var temp = setups[i];
+                    setups[i] = setups[j];
+                    setups[j] = temp;
+                }
+            }
+        }
+
+        // 순서대로 Setup 업로드
+        for (int i = 0; i < setups.Count; i++)
+        {
+            try
+            {
+                OnRaceState_Setup += setups[i].Setup;
+            }
+            catch (Exception e)
+            {
+                this.PrintLog($"Setup 예외 발생: {e}", LogType.Error);
+                return false;
+            }
+        }
+
+        this.PrintLog("모든 Setup 업로드");
+        return true;
+    }
+
+    private void OnValidate()
+    {
+        if (_setupComponents == null) return;
+
+        for (int i = 0; i < _setupComponents.Count; i++)
+        {
+            var mb = _setupComponents[i];
+            if (mb == null) continue;
+
+            if (!(mb is IGameSetup))
+            {
+                this.PrintLog($"IGameSetup 아닌 컴포넌트가 리스트에 있음: {mb.name}", LogType.Warning);
+            }
+        }
+    }
+    #endregion
 
     #region On CP : Room Player 
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
@@ -346,21 +407,13 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
                 break;
 
             case RaceState.LoadPlayers:
-                if (TrackPathRegistry.GetInstance && TrackPathRegistry.GetInstance.GetPathLength() != -1)
+                if (TrackPathRegistry.GetInstance == null)
                 {
-                    TrackPathRegistry.Instance.RePathLoad();
-                    _isLoadedTrackPath = true;
+                    this.PrintLog("TrackPathRegistry가 존재 하지않습니다.");
                 }
-                else
+                else if (TrackPathRegistry.GetInstance.GetPathLength() <= 0)
                 {
-                    if (TrackPathRegistry.GetInstance == null)
-                    {
-                        this.PrintLog("TrackPathRegistry가 존재 하지않습니다.");
-                    }
-                    else if(TrackPathRegistry.GetInstance.GetPathLength() <= 0)
-                    {
-                        this.PrintLog($"TrackPathRegistry의 경로가 존재 하지않습니다. (=> 현 경로 수: {TrackPathRegistry.GetInstance.GetPathLength()})");
-                    }
+                    this.PrintLog($"TrackPathRegistry의 경로가 존재 하지않습니다. (=> 현 경로 수: {TrackPathRegistry.GetInstance.GetPathLength()})");
                 }
 
                 Check_Players_RaceKartLoaded();
@@ -458,6 +511,7 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
     private void Check_Players_RaceKartLoaded()
     {
         this.PrintLog("Checked >>>>>>>>>>>>> Check_Players_RaceKartLoaded");
+        this.PrintLog($"Action >>>>>>>>>>>>> IsMasterClient {IsMasterClient} / CurrentRoom {CurrentRoom == null}");
         if (!IsMasterClient || CurrentRoom == null) return;
 
         this.PrintLog($"Action >>>>>>>>>>>>> Check_Players_RaceKartLoaded {CurrentRoom.Players.Values.Count}");
@@ -650,10 +704,36 @@ public class InGameManager : SimpleSingletonPun<InGameManager>
         }
     }
 
+    public bool CheckAllSetupTrue()
+    {
+        if (OnRaceState_Setup == null)
+            return false;
+
+        foreach (Func<bool> func in OnRaceState_Setup.GetInvocationList())
+        {
+            try
+            {
+                if (!func()) // 하나라도 false면
+                    return false;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"OnRaceState_Setup 실행 중 오류: {e}");
+                return false;
+            }
+        }
+
+        // 전부 true일 때만 true 반환
+        return true;
+    }
+
+
 
 
     private void PrintLog(string printLogString)
     {
-        this.PrintLog(printLogString, LogType.Log, Color.green);
+        var c = UnityEngine.Color.cyan;
+        string hex = ColorUtility.ToHtmlStringRGB(c);
+        this.PrintLog($"<color=#{hex}>{printLogString}</color>", LogType.Log, UnityEngine.Color.green);
     }
 }
