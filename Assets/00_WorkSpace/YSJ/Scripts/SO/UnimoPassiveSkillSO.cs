@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using MSG;
+using UnityEngine;
 
 public enum PassiveSkillType
 {
@@ -38,4 +39,23 @@ public class UnimoPassiveSkillSO : ScriptableObject
     public int triggerCount = -1;
 
     public ItemId triggerRewardItemID = ItemId.None;
+
+    [Header("이펙트 관련 설정")]
+    [Tooltip("아이템 이펙트 프리팹")]
+    public GameObject itemEffectPrefab;
+
+    [Tooltip("아이템 이펙트 부착 위치")]
+    public AttatchmentType attatchmentType;
+
+    [Tooltip("아이템 이펙트 부착 오프셋")]
+    public Vector3 offset;
+
+    [Tooltip("아이템 이펙트 부착 회전 오프셋")]
+    public Vector3 rotationOffset;
+
+    [Tooltip("아이템 이펙트 지속 시간")]
+    public float itemEffectDuration;
+
+    [Tooltip("중복 사용 시 아이템 이펙트 연장 여부")]
+    public bool WillExtendWhenRepeating;
 }
