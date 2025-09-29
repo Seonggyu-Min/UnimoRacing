@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace MSG
 {
-    // 플레이어 프리팹에 붙어있으면 될 듯
     public class PlayerEffectManager : SceneSingleton<PlayerEffectManager>
     {
         #region Fields and Properties
