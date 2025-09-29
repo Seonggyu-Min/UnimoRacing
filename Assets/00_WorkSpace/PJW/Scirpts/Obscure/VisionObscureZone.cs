@@ -33,14 +33,14 @@ namespace PJW
         [SerializeField] private float lifetime = 0f;
 
         [Header("이펙트 오브젝트 (Prefab 또는 Child 1개)")]
-        [SerializeField] private GameObject particleObject;     // 파티클/비주얼 이펙트를 담은 게임오브젝트
+        [SerializeField] private GameObject particleObject;
         [Tooltip("true면 particleObject를 프리팹으로 보고 현재 위치에 인스턴스 생성")]
         [SerializeField] private bool instantiateParticle = false;
 
         private bool triggered;
         private Collider zoneCollider;
         private Renderer[] renderers;
-        private GameObject particleRuntime; // 인스턴스된 오브젝트 보관(instantiateParticle=true 일 때)
+        private GameObject particleRuntime;
 
         private void Awake()
         {
@@ -56,19 +56,17 @@ namespace PJW
             {
                 if (instantiateParticle)
                 {
-                    // 프리팹으로 간주하고 현재 위치/회전으로 생성
                     particleRuntime = Instantiate(particleObject, transform.position, transform.rotation, transform);
                     ShowEffectObject(particleRuntime, true);
                 }
                 else
                 {
-                    // 이미 씬에 있는(자식 등) 오브젝트를 활성화
                     ShowEffectObject(particleObject, true);
                 }
             }
 
-            // lifetime이 지정된 경우 자동 파괴
-            if (lifetime > 0f)
+            // lifetime 자동 파괴는 마스터만 예약
+            if (lifetime > 0f && PhotonNetwork.IsMasterClient)
                 StartCoroutine(CoDestroyAfter(lifetime));
         }
 
@@ -90,9 +88,10 @@ namespace PJW
                 obscureOverlayResource, duration, fadeIn, maxAlpha, fadeOut);
 
             // 사운드
-            AudioManager.Instance.PlaySFX(sfxHitKey);
+            if (!string.IsNullOrEmpty(sfxHitKey))
+                AudioManager.Instance.PlaySFX(sfxHitKey);
 
-            // 원샷 모드면 충돌 후 잠시 뒤 파괴
+            // 원샷 모드면 충돌 후 잠시 뒤 파괴 (마스터가 책임)
             if (oneShot)
                 StartCoroutine(CoDestroyAfter(0.5f));
         }
@@ -107,22 +106,16 @@ namespace PJW
                     if (renderers[i] != null) renderers[i].enabled = false;
             }
 
-            // 이펙트 정지/비활성
             var target = particleRuntime != null ? particleRuntime : particleObject;
             if (target != null)
                 ShowEffectObject(target, false);
         }
 
-        /// <summary>
-        /// 이펙트 오브젝트를 보이거나 숨김. 내부의 ParticleSystem/VisualEffect가 있으면 Play/Stop까지 수행.
-        /// </summary>
         private void ShowEffectObject(GameObject obj, bool show)
         {
             if (obj == null) return;
 
-            // 우선 활성/비활성
-            obj.SetActive(true); // Play/Stop을 위해 일단 켰다가 처리
-            // ParticleSystem 제어
+            obj.SetActive(true); // Play/Stop 위해 잠시 활성화
             var psList = obj.GetComponentsInChildren<ParticleSystem>(true);
             if (psList != null && psList.Length > 0)
             {
@@ -134,7 +127,6 @@ namespace PJW
                 }
             }
 
-            // Visual Effect Graph 제어(있다면)
             var vfxList = obj.GetComponentsInChildren<VisualEffect>(true);
             if (vfxList != null && vfxList.Length > 0)
             {
@@ -146,7 +138,6 @@ namespace PJW
                 }
             }
 
-            // 최종 활성 상태
             if (!show)
                 obj.SetActive(false);
         }
@@ -155,10 +146,22 @@ namespace PJW
         {
             yield return new WaitForSeconds(t);
 
-            if (photonView != null && photonView.IsMine)
-                PhotonNetwork.Destroy(gameObject);
-            else if (photonView == null)
-                Destroy(gameObject);
+            if (photonView != null)
+            {
+                if (photonView.IsMine)
+                {
+                    PhotonNetwork.Destroy(photonView);
+                    yield break;
+                }
+                if (PhotonNetwork.IsMasterClient /* && photonView.IsSceneView */)
+                {
+                    PhotonNetwork.Destroy(photonView);
+                    yield break;
+                }
+                yield break;
+            }
+
+            Destroy(gameObject);
         }
 
         [PunRPC]
@@ -186,16 +189,35 @@ namespace PJW
 
             var cg = overlay.GetComponent<CanvasGroup>();
             if (cg == null) cg = overlay.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = false;
+            cg.interactable = false;
 
             var img = overlay.GetComponentInChildren<Image>(true);
             if (img != null) img.raycastTarget = false;
 
             overlay.SetActive(true);
-            StartCoroutine(CoFadeOverlayAndDestroy(overlay, cg, fIn, aMax, keep, fOut));
+
+            //  코루틴을 오버레이 자신이 담당하도록 위임 (존이 파괴되어도 정상 종료)
+            var fader = overlay.GetComponent<OverlayFader>();
+            if (fader == null) fader = overlay.AddComponent<OverlayFader>();
+            fader.Play(cg, fIn, aMax, keep, fOut);
+        }
+    }
+
+    /// <summary>
+    /// 오버레이 자체에서 페이드 인/유지/페이드 아웃을 수행하고 마지막에 자기 자신을 파괴.
+    /// (존이 네트워크로 파괴되어도 여기는 독립적으로 동작)
+    /// </summary>
+    public class OverlayFader : MonoBehaviour
+    {
+        public void Play(CanvasGroup cg, float fadeIn, float maxAlpha, float keep, float fadeOut)
+        {
+            StartCoroutine(Run(cg, fadeIn, maxAlpha, keep, fadeOut));
         }
 
-        private IEnumerator CoFadeOverlayAndDestroy(GameObject obj, CanvasGroup cg, float fIn, float aMax, float keep, float fOut)
+        private IEnumerator Run(CanvasGroup cg, float fIn, float aMax, float keep, float fOut)
         {
+            if (cg == null) yield break;
             cg.alpha = 0f;
 
             // Fade In
@@ -228,7 +250,7 @@ namespace PJW
             }
             else cg.alpha = 0f;
 
-            if (obj != null) Destroy(obj);
+            Destroy(gameObject);
         }
     }
 }
