@@ -246,9 +246,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98fd0da8ae1da2347ba15683b90f087d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boostMultiplier: 2
-  boostTime: 1
-  waitAfterBoost: 1
+  boostMultiplier: 1.05
+  boostTime: 0.2
+  waitAfterBoost: 0.5
   stopDuration: 1.5
   minSpeed: 0.1
   sfxUseKey: Egg_Crash
