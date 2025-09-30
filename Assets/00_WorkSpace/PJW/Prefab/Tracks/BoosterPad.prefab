@@ -147,7 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53950189fd2019d4a979fd86c94e14dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boostAmount: 5
+  boostMultiplier: 1.15
   duration: 2
   targetTagName: Player
   localCooldown: 0.06

@@ -56,16 +56,18 @@ namespace PJW
                 });
 
             if (myRacer != null)
-                myRacer.StartCoroutine(CoStop(myRacer, duration));
+                myRacer.StartCoroutine(CoStopMulDiv(myRacer, duration));
         }
 
-        private IEnumerator CoStop(PlayerRaceData racer, float duration)
+        private IEnumerator CoStopMulDiv(PlayerRaceData racer, float duration)
         {
-            float original = racer.KartSpeed;
-            racer.SetKartSpeed(0f);
+            const float stopFactor = 0.001f;
+
+            racer.SetKartSpeed(racer.KartSpeed * stopFactor);
+
             yield return new WaitForSeconds(duration);
-            if (racer != null)
-                racer.SetKartSpeed(original);
+
+            racer.SetKartSpeed(racer.KartSpeed / stopFactor);
         }
     }
 }
