@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   KartID: 10006
   carName: "\uBAA8\uB178 \uD50C\uB808\uC778"
-  kartPrefab: {fileID: 0}
-  kartSprite: {fileID: 0}
+  kartPrefab: {fileID: 794864633689217840, guid: f80c16893823df847a2cc56799da5eca,
+    type: 3}
+  kartSprite: {fileID: 21300000, guid: 3db93fc29ad9e744c8308e3f01b4142e, type: 3}
   currencyType: {fileID: 0}
   carDesc: "\uD55C \uB54C \uD558\uB298\uC744 \uC7AC\uD328\uD588\uB358 \uBAA8\uB178
     \uD50C\uB808\uC778!\n\uC774\uC81C\uBD80\uD130\uB294 \uD2B8\uB799 \uC704\uB3C4
