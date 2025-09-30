@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,6 +78,19 @@ namespace MSG
 
         public async void OnClickQuickMatch()
         {
+            if (!PhotonNetwork.InRoom)
+            {
+                Debug.Log("방에 있지 않아서 return");
+                return;
+            }
+
+            if (!PhotonNetwork.CurrentRoom.Name.StartsWith("_h"))
+            {
+                Debug.LogWarning("홈 룸에 있지 않은 상태라서 return");
+                // 리턴까지 해야될지는 모르겠음
+                //return;
+            }
+
             // 파티가 아닌 경우에는 바로 퀵매치
             if (!PartyService.Instance.IsInParty)
             {
@@ -98,6 +112,26 @@ namespace MSG
 
         public async void OnClickCancelMatch()
         {
+            if (!PhotonNetwork.InRoom)
+            {
+                Debug.Log("방에 있지 않아서 return");
+                return;
+            }
+
+            if (PartyService.Instance.IsInParty && !PhotonNetwork.CurrentRoom.Name.StartsWith("_p"))
+            {
+                Debug.Log("파티인데 파티룸에 있지 않은 상태");
+                // 리턴까지 해야될지는 모르겠음
+                // return;
+            }
+
+            if (!PartyService.Instance.IsInParty && !PhotonNetwork.CurrentRoom.Name.StartsWith("_m"))
+            {
+                Debug.Log("매칭을 취소시도하는데, 매치룸에 있지 않은 상태");
+                // 리턴까지 해야될지는 모르겠음
+                // return;
+            }
+
             if (PartyService.Instance.IsInParty && PartyService.Instance.IsLeader)
             {
                 _leaderMatch.CancelMatch();

@@ -210,10 +210,8 @@ public class MyRoomManager : MonoBehaviour
         LoadEquippedItems();
     }
 
-    public bool IsOwned(UnimoCharacterSO character) => (_ownedCharacters != null && _ownedCharacters.ContainsKey(character.characterId.ToString())) || IsDefaultOwned(character);
-    public bool IsOwned(UnimoKartSO kart) => (_ownedKarts != null && _ownedKarts.ContainsKey(kart.KartID.ToString())) || IsDefaultOwned(kart);
-    private bool IsDefaultOwned(UnimoCharacterSO character) => character.characterId >= 20001 && character.characterId <= 20003;
-    private bool IsDefaultOwned(UnimoKartSO kart) => kart.KartID >= 10001 && kart.KartID <= 10003;
+    public bool IsOwned(UnimoCharacterSO character) => (_ownedCharacters != null && _ownedCharacters.ContainsKey(character.characterId.ToString()));
+    public bool IsOwned(UnimoKartSO kart) => (_ownedKarts != null && _ownedKarts.ContainsKey(kart.KartID.ToString()));
 
     public List<UnimoCharacterSO> GetAllCharacterData() => allCharacterData;
     public List<UnimoKartSO> GetAllKartData() => allKartData;

@@ -47,7 +47,7 @@ namespace MSG
         private int _combineUnimoId = -1;
         private int _combineKartId = -1;
 
-        public bool Ready { get; private set; }     // 이거 실제로 쓸 때는 필요 없음
+        public bool Ready { get; private set; }
 
         #endregion
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MSG;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewUnimoItemSO", menuName = "Unimo/Item")]
@@ -29,5 +30,25 @@ public class UnimoItemSO : ScriptableObject
     [Tooltip("효과 최대 스택 수"), Min(1)]
     public float stackCount = 1;
 
+    [Tooltip("효과 옵션 값 리스트"), Min(1)]
     public List<StatusEffectOption> options;
+
+
+    [Header("이펙트 관련 설정")]
+    [Tooltip("아이템 이펙트 프리팹")]
+    public GameObject itemEffectPrefab;
+
+    [Tooltip("아이템 이펙트 부착 위치")]
+    public AttatchmentType attatchmentType;
+
+    [Tooltip("아이템 이펙트 부착 위치 오프셋")]
+    public Vector3 offset;
+
+    [Tooltip("아이템 이펙트 부착 회전 오프셋")]
+    public Vector3 rotationOffset;
+
+    [Tooltip("중복 사용 시 아이템 이펙트 연장 여부")]
+    public bool WillExtendWhenRepeating;
+
+
 }
