@@ -4,7 +4,9 @@ using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using YTW;
 
 namespace PJW
@@ -61,14 +63,66 @@ namespace PJW
                 }
             }
 
+            // 멈춤을 거의 0처럼 만드는 계수 (0은 복원이 불가하므로 아주 작은 값 사용)
+            private const float StopFactor = 1e-6f;
+            // 중복 스턴 대비: 배우 번호별 스택 카운트
+            private readonly Dictionary<int, int> stunStackByActor = new Dictionary<int, int>();
+            // 안전을 위해, 계수를 적용했던 대상 레퍼런스 추적
+            private readonly Dictionary<int, PlayerRaceData> racerByActor = new Dictionary<int, PlayerRaceData>();
             public void ApplyStun(int actorNumber, PlayerRaceData racer, float duration)
             {
                 if (racer == null || duration <= 0f) return;
 
-                if (running.TryGetValue(actorNumber, out var co) && co != null)
-                    StopCoroutine(co);
+                racerByActor[actorNumber] = racer;
 
-                running[actorNumber] = StartCoroutine(StunRoutine(actorNumber, racer, duration));
+                if (!stunStackByActor.TryGetValue(actorNumber, out var stack))
+                    stack = 0;
+
+                // 최초 진입 시에만 "곱하기" 적용
+                if (stack == 0)
+                    ApplyStopFactor(racer);
+
+                stunStackByActor[actorNumber] = stack + 1;
+
+                StartCoroutine(StunTimer(actorNumber, duration));
+            }
+
+            private IEnumerator StunTimer(int actorNumber, float duration)
+            {
+                yield return new WaitForSecondsRealtime(duration);
+
+                if (!stunStackByActor.TryGetValue(actorNumber, out var stack))
+                    yield break;
+
+                stack -= 1;
+                if (stack <= 0)
+                {
+                    stunStackByActor.Remove(actorNumber);
+
+                    if (racerByActor.TryGetValue(actorNumber, out var racer) && racer != null)
+                    {
+                        RemoveStopFactor(racer);
+                    }
+                    racerByActor.Remove(actorNumber);
+                }
+                else
+                {
+                    stunStackByActor[actorNumber] = stack;
+                }
+            }
+
+            // 현재 속도에 아주 작은 계수를 곱해서 사실상 정지
+            private void ApplyStopFactor(PlayerRaceData racer)
+            {
+                var v = racer.KartSpeed;
+                racer.SetKartSpeed(v * StopFactor);
+            }
+
+            // 마지막 스택 해제 시에만 역수로 되돌림
+            private void RemoveStopFactor(PlayerRaceData racer)
+            {
+                var v = racer.KartSpeed;
+                racer.SetKartSpeed(v / StopFactor);
             }
 
             private IEnumerator StunRoutine(int actorNumber, PlayerRaceData racer, float duration)

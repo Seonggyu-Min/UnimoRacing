@@ -7,9 +7,9 @@ namespace PJW
 {
     public class BoosterPad : MonoBehaviour
     {
-        [Header("부스터 설정")]
-        [SerializeField] private float boostAmount = 5f;     
-        [SerializeField] private float duration = 2f;        
+        [Header("부스터 설정(배수)")]
+        [SerializeField] private float boostMultiplier = 1.15f; // 1 = 변화 없음, 1.15 = +15%
+        [SerializeField] private float duration = 2f;
         [SerializeField] private string targetTagName = "Player";
 
         [Header("중복 트리거 쿨다운(같은 패드 내)")]
@@ -26,9 +26,11 @@ namespace PJW
 
         private void OnTriggerEnter(Collider other)
         {
+            // 태그 필터
             if (!string.IsNullOrEmpty(targetTagName) && !other.CompareTag(targetTagName))
                 return;
 
+            // 로컬 소유자만 처리
             var pv = other.GetComponentInParent<PhotonView>();
             if (pv == null || !pv.IsMine)
                 return;
@@ -47,10 +49,20 @@ namespace PJW
             }
             lastTriggerByActor[actor] = now;
 
+            // 비정상 값 방어
+            float factor = Mathf.Max(0.01f, boostMultiplier); // 0 또는 음수 방지
+            if (Mathf.Approximately(factor, 1f))
+            {
+                // 변화 없음: 그래도 타이머 리프레시는 가능하게 하려면 주석 해제
+                // var s0 = raceData.GetComponent<PadBoostState>() ?? raceData.gameObject.AddComponent<PadBoostState>();
+                // s0.ApplyOrRefreshPadBoost(raceData, 1f, duration);
+                return;
+            }
+
             var state = raceData.GetComponent<PadBoostState>();
             if (state == null) state = raceData.gameObject.AddComponent<PadBoostState>();
 
-            state.ApplyOrRefreshPadBoost(raceData, boostAmount, duration);
+            state.ApplyOrRefreshPadBoost(raceData, factor, duration);
         }
     }
 
@@ -58,25 +70,36 @@ namespace PJW
     public class PadBoostState : MonoBehaviour
     {
         private bool active;
-        private float currentAmount;
+        private float currentFactor = 1f;
         private Coroutine timerRoutine;
 
         // 동일 프레임 다중 호출 방어
         private int lastProcessedFrame = -1;
 
-        public void ApplyOrRefreshPadBoost(PlayerRaceData raceData, float newAmount, float duration)
+        /// <summary>
+        /// newFactor: 1.0=변화없음, 1.1=+10%, 0.8=-20% 등
+        /// 적용 시 ×newFactor, 해제 시 ÷currentFactor.
+        /// 갱신 시에는 ratio = newFactor/currentFactor 만큼만 곱해 교체.
+        /// </summary>
+        public void ApplyOrRefreshPadBoost(PlayerRaceData raceData, float newFactor, float duration)
         {
-            // 동일 프레임에 여러 번 호출되면 한 번만 처리
+            if (raceData == null) return;
+
+            // 동일 프레임 재호출 무시
             if (lastProcessedFrame == Time.frameCount) return;
             lastProcessedFrame = Time.frameCount;
 
+            // 비정상 값 방어
+            if (newFactor <= 0f) newFactor = 0.01f;
+
             if (active)
             {
-                float delta = newAmount - currentAmount;
-                if (Mathf.Abs(delta) > Mathf.Epsilon)
+                // 이미 활성화된 상태에서 값이 바뀌면 비율로 교체
+                if (!Mathf.Approximately(newFactor, currentFactor))
                 {
-                    raceData.SetKartSpeed(raceData.KartSpeed + delta);
-                    currentAmount = newAmount;
+                    float ratio = newFactor / currentFactor;
+                    raceData.SetKartSpeed(raceData.KartSpeed * ratio);
+                    currentFactor = newFactor;
                 }
 
                 // 타이머 리셋
@@ -85,11 +108,12 @@ namespace PJW
                 return;
             }
 
-            // 최초 적용: 1회분만 가산
-            raceData.SetKartSpeed(raceData.KartSpeed + newAmount);
-            currentAmount = newAmount;
+            // 최초 적용: ×newFactor
+            raceData.SetKartSpeed(raceData.KartSpeed * newFactor);
+            currentFactor = newFactor;
             active = true;
 
+            // 타이머 시작/리셋
             if (timerRoutine != null) StopCoroutine(timerRoutine);
             timerRoutine = StartCoroutine(Timer(raceData, duration));
         }
@@ -98,27 +122,31 @@ namespace PJW
         {
             yield return new WaitForSeconds(duration);
 
-            // 종료 시 적용량만큼 정확히 제거
-            raceData.SetKartSpeed(raceData.KartSpeed - currentAmount);
+            // 해제: ÷currentFactor (활성 상태에서만)
+            if (active && currentFactor > 0f)
+            {
+                raceData.SetKartSpeed(raceData.KartSpeed / currentFactor);
+            }
 
             active = false;
-            currentAmount = 0f;
+            currentFactor = 1f;
             timerRoutine = null;
         }
 
         private void OnDisable()
         {
-            // 비활성화/파괴 시에도 남은 적용량을 제거(영구 증가 보호)
-            if (active)
+            // 중도 비활성화/파괴 시에도 역수로 되돌려 영구 변화 방지
+            if (active && currentFactor > 0f)
             {
                 var rd = GetComponent<PlayerRaceData>();
                 if (rd != null)
                 {
-                    rd.SetKartSpeed(rd.KartSpeed - currentAmount);
+                    rd.SetKartSpeed(rd.KartSpeed / currentFactor);
                 }
             }
+
             active = false;
-            currentAmount = 0f;
+            currentFactor = 1f;
 
             if (timerRoutine != null)
             {

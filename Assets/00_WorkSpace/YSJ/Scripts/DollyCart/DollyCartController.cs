@@ -126,6 +126,8 @@ public class DollyCartController : MonoBehaviourPun
 
         _platform = Application.platform;
         _isSetup = true;
+
+        EnsureTrackLockArrayInitialized();
     }
 
     private void MobileController()
@@ -185,6 +187,8 @@ public class DollyCartController : MonoBehaviourPun
     /// <returns></returns>
     public int ChangeTrack(int targetIndex, PhotonMessageInfo info = default)
     {
+        if (IsTargetLocked(targetIndex)) return _currentTrackIndex;
+
         // 아직 준비 안 됐으면 나중에 적용
         if (!IsReady() || !_isSetup)
         {
@@ -261,6 +265,95 @@ public class DollyCartController : MonoBehaviourPun
         {
             if (!set.Contains(i)) targetTrackLock[i] = Mathf.Max(0, targetTrackLock[i] - 1);
         }
+    }
+
+    private int[] _lastWhitelist;
+
+    private void EnsureTargetLockArray()
+    {
+        int desired = -1;
+        if (_trackRegistry != null && _trackRegistry.IsInit)
+            desired = _trackRegistry.GetPathLength();
+        else if (_movableTrackCount > 0)
+            desired = _movableTrackCount;
+
+        if (desired <= 0)
+        {
+            // 최소 1칸은 확보 (안전장치)
+            desired = 1;
+        }
+
+        if (targetTrackLock == null)
+        {
+            targetTrackLock = new int[desired];
+            return;
+        }
+
+        if (targetTrackLock.Length != desired)
+        {
+            var old = targetTrackLock;
+            targetTrackLock = new int[desired];
+            Array.Copy(old, targetTrackLock, Math.Min(old.Length, desired));
+        }
+    }
+
+    public void ApplyTrackWhitelist(params int[] allowedTracks)
+    {
+        if (allowedTracks == null || allowedTracks.Length == 0)
+            return;
+
+        EnsureTargetLockArray();
+
+        // Lock: 허용 목록을 제외한 모든 트랙에 +1
+        LockAllExcept(allowedTracks);
+
+        // 현재 트랙이 허용 외라면, 허용 목록 중 하나로 이동 시도
+        if (IsTargetLocked(_currentTrackIndex))
+        {
+            for (int i = 0; i < allowedTracks.Length; i++)
+            {
+                int idx = allowedTracks[i];
+                // 안전한 범위 체크
+                if (idx < 0 || idx >= targetTrackLock.Length) continue;
+
+                if (!IsTargetLocked(idx))
+                {
+                    ChangeTrack(idx);
+                    break;
+                }
+            }
+        }
+
+        // Clear에서 되돌릴 수 있도록 저장
+        _lastWhitelist = (int[])allowedTracks.Clone();
+    }
+
+    public void ClearTrackWhitelist()
+    {
+        if (_lastWhitelist == null || _lastWhitelist.Length == 0)
+            return;
+
+        EnsureTargetLockArray();
+
+        // Unlock: 허용 목록을 제외한 모든 트랙에 -1 (0 미만으로 내려가지 않도록 내부에서 처리됨)
+        UnlockAllExcept(_lastWhitelist);
+
+        // 한 번 클리어했으면 기록 제거
+        _lastWhitelist = null;
+    }
+
+    public void EnsureTrackLockArrayInitialized()
+    {
+        int len = -1;
+        if (_trackRegistry != null && _trackRegistry.IsInit)
+            len = _trackRegistry.GetPathLength();
+        else if (_movableTrackCount > 0)
+            len = _movableTrackCount;
+
+        if (len <= 0) len = 1; // 안전망
+
+        if (targetTrackLock == null || targetTrackLock.Length != len)
+            targetTrackLock = new int[len];
     }
     #endregion
 }
