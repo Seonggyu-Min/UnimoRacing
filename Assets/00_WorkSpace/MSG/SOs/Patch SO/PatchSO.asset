@@ -16,7 +16,7 @@ MonoBehaviour:
     SpeedRule:
       CurveType: 0
       MaxLevel: 5
-      BaseValue: 30
+      BaseValue: 20
       LinearStep: 2
       MultiplierStep: 0
       Table: []

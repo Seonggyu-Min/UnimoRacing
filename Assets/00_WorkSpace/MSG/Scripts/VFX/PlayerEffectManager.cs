@@ -1,4 +1,5 @@
 ﻿using EditorAttributes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,11 @@ namespace MSG
 
         private Dictionary<ItemId, Stack<GameObject>> _itemPool = new();                   // 프리팹 풀링용
         private Dictionary<int, Stack<GameObject>> _passiveSkillPool = new();              // 프리팹 풀링용
+
+        private Dictionary<GameObject, Coroutine> _runningEffects = new();  // 코루틴 관리용
+
+        private Dictionary<string, GameObject> _activeItemByKey = new();        // 같은 유저의 같은 효과 1개만 유지하기 위해
+        private Dictionary<string, GameObject> _activePassiveByKey = new();     // 같은 유저의 같은 효과 1개만 유지하기 위해
 
 
         [Header("디버깅 및 테스트용 필드")]
@@ -84,27 +90,21 @@ namespace MSG
             PlayerAttatchWrapper wrapper = wrappers.FirstOrDefault(i => i.AttatchmentType == itemSO.attatchmentType);
             Transform parentT = (wrapper != null && wrapper.AttachObj != null) ? wrapper.AttachObj.transform : transform;   // 없으면 일단 transform 쓰게 함
 
-            Stack<GameObject> stack = GetItemStack(id);
-            GameObject go = null;
+            string key = MakeItemKey(uid, id);
 
-            // 스택에서 비활성 오브젝트 찾기
-            while (stack.Count > 0 && (go == null || go.activeInHierarchy))
+            // 이미 같은 유저_같은 아이템 효과가 활성이라면
+            if (itemSO.WillExtendWhenRepeating && _activeItemByKey.TryGetValue(key, out GameObject activeGo) && activeGo != null)
             {
-                go = stack.Pop();
-                if (go == null)
-                {
-                    go = null; // pop이 null이면 나오기
-                } 
-                else if (go.activeInHierarchy)
-                {
-                    go = null; // 사용 중이면 새로 찾기
-                }
+                // 코루틴 중단 후 새 코루틴 시작
+                RestartEffectTimer(activeGo, itemSO.itemEffectDuration, uid, itemId: id, passiveId: null);
+                return;
             }
 
-            // 쓸 수 있는게 없으면 새로 생성
+            Stack<GameObject> stack = GetItemStack(id);
+            GameObject go = PopInactive(stack);
             if (go == null)
             {
-                go = Instantiate(itemSO.itemEffectPrefab, transform);
+                go = UnityEngine.Object.Instantiate(itemSO.itemEffectPrefab, transform);
             }
 
             go.SetActive(true);
@@ -112,7 +112,11 @@ namespace MSG
             go.transform.localPosition = itemSO.offset;
             go.transform.localRotation = Quaternion.Euler(itemSO.rotationOffset);
 
-            StartCoroutine(WaitAndReturn(itemSO.itemEffectDuration, go, itemId: id));
+            // 활성 맵 갱신
+            _activeItemByKey[key] = go;
+
+            // 타이머 시작
+            StartEffectTimer(go, itemSO.itemEffectDuration, uid, itemId: id, passiveId: null);
         }
 
         public void ShowPassiveEffect(string uid, int id)
@@ -131,27 +135,21 @@ namespace MSG
             PlayerAttatchWrapper wrapper = wrappers.FirstOrDefault(i => i.AttatchmentType == skillSO.attatchmentType);
             Transform parentT = (wrapper != null && wrapper.AttachObj != null) ? wrapper.AttachObj.transform : transform;
 
-            Stack<GameObject> stack = GetPassiveStack(id);
-            GameObject go = null;
+            string key = MakePassiveKey(uid, id);
 
-            // 스택에서 비활성 오브젝트 찾기
-            while (stack.Count > 0 && (go == null || go.activeInHierarchy))
+            // 이미 같은 유저_같은 패시브 효과가 활성이라면
+            if (skillSO.WillExtendWhenRepeating && _activePassiveByKey.TryGetValue(key, out GameObject activeGo) && activeGo != null)
             {
-                go = stack.Pop();
-                if (go == null)
-                {
-                    go = null; // pop이 null이면 나오기
-                } 
-                else if (go.activeInHierarchy)
-                {
-                    go = null; // 사용 중이면 새로 찾기
-                }
+                // 코루틴 중단 후 새 코루틴 시작
+                RestartEffectTimer(activeGo, skillSO.itemEffectDuration, uid, itemId: null, passiveId: id);
+                return;
             }
 
-            // 쓸 수 있는게 없으면 새로 생성
+            Stack<GameObject> stack = GetPassiveStack(id);
+            GameObject go = PopInactive(stack);
             if (go == null)
             {
-                go = Instantiate(skillSO.itemEffectPrefab, transform);
+                go = UnityEngine.Object.Instantiate(skillSO.itemEffectPrefab, transform);
             }
 
             go.SetActive(true);
@@ -159,7 +157,11 @@ namespace MSG
             go.transform.localPosition = skillSO.offset;
             go.transform.localRotation = Quaternion.Euler(skillSO.rotationOffset);
 
-            StartCoroutine(WaitAndReturn(skillSO.itemEffectDuration, go, passiveId: id));
+            // 활성 맵 갱신
+            _activePassiveByKey[key] = go;
+
+            // 타이머 시작
+            StartEffectTimer(go, skillSO.itemEffectDuration, uid, itemId: null, passiveId: id);
         }
 
         #endregion
@@ -175,7 +177,14 @@ namespace MSG
 
                 foreach (var item in _itemList)
                 {
-                    _itemDict.Add(item.itemID, item);
+                    if (!_itemDict.ContainsKey(item.itemID))
+                    {
+                        _itemDict.Add(item.itemID, item);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[PlayerEffectManager] 중복 ItemId: {item.itemID}");
+                    }
                 }
             }
 
@@ -185,32 +194,28 @@ namespace MSG
 
                 foreach (var item in _passiveSkillList)
                 {
-                    _passiveSkillDict.Add(item.passiveSkillID, item);
+                    if (!_passiveSkillDict.ContainsKey(item.passiveSkillID))
+                    {
+                        _passiveSkillDict.Add(item.passiveSkillID, item);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[PlayerEffectManager] 중복 passiveSkillID: {item.passiveSkillID}");
+                    }
                 }
             }
         }
 
-        private IEnumerator WaitAndReturn(float seconds, GameObject effectPrefab, ItemId? itemId = null, int? passiveId = null)
+        private GameObject PopInactive(Stack<GameObject> stack)
         {
-            yield return new WaitForSeconds(seconds);
-
-            if (effectPrefab == null)
+            GameObject go = null;
+            while (stack != null && stack.Count > 0 && (go == null || go.activeInHierarchy))
             {
-                Debug.LogWarning("[PlayerEffectManager] effectPrefab이 null입니다");
-                yield break;
+                go = stack.Pop();
+                if (go == null) { go = null; }
+                else if (go.activeInHierarchy) { go = null; }
             }
-
-            effectPrefab.SetActive(false);
-            effectPrefab.transform.SetParent(transform, false);
-
-            if (itemId.HasValue)
-            {
-                GetItemStack(itemId.Value).Push(effectPrefab);
-            }
-            else if (passiveId.HasValue)
-            {
-                GetPassiveStack(passiveId.Value).Push(effectPrefab);
-            }
+            return go;
         }
 
         private Stack<GameObject> GetItemStack(ItemId id)
@@ -231,6 +236,88 @@ namespace MSG
                 _passiveSkillPool[id] = stack;
             }
             return stack;
+        }
+
+        private void StartEffectTimer(GameObject effectGo, float duration, string uid, ItemId? itemId, int? passiveId)
+        {
+            // 이전 타이머 남아있다면 중단
+            Coroutine prev;
+            if (_runningEffects.TryGetValue(effectGo, out prev) && prev != null)
+            {
+                StopCoroutineSafe(prev);
+            }
+
+            Coroutine c = StartCoroutine(WaitAndReturn(duration, effectGo, uid, itemId, passiveId));
+            _runningEffects[effectGo] = c;
+        }
+
+        private void RestartEffectTimer(GameObject effectGo, float duration, string uid, ItemId? itemId, int? passiveId)
+        {
+            Coroutine prev;
+            if (_runningEffects.TryGetValue(effectGo, out prev) && prev != null)
+            {
+                StopCoroutineSafe(prev);
+            }
+            Coroutine c = StartCoroutine(WaitAndReturn(duration, effectGo, uid, itemId, passiveId));
+            _runningEffects[effectGo] = c;
+        }
+
+        private IEnumerator WaitAndReturn(float seconds, GameObject effectPrefab, string uid, ItemId? itemId, int? passiveId)
+        {
+            yield return new WaitForSeconds(seconds);
+
+            if (effectPrefab == null)
+            {
+                yield break;
+            }
+
+            effectPrefab.SetActive(false);
+            effectPrefab.transform.SetParent(transform, false);
+
+            // 풀에 반환
+            if (itemId.HasValue)
+            {
+                GetItemStack(itemId.Value).Push(effectPrefab);
+
+                // 활성 맵에서 제거
+                string key = MakeItemKey(uid, itemId.Value);
+                GameObject current;
+                if (_activeItemByKey.TryGetValue(key, out current) && current == effectPrefab)
+                {
+                    _activeItemByKey.Remove(key);
+                }
+            }
+            else if (passiveId.HasValue)
+            {
+                GetPassiveStack(passiveId.Value).Push(effectPrefab);
+
+                string key = MakePassiveKey(uid, passiveId.Value);
+                GameObject current;
+                if (_activePassiveByKey.TryGetValue(key, out current) && current == effectPrefab)
+                {
+                    _activePassiveByKey.Remove(key);
+                }
+            }
+
+            _runningEffects.Remove(effectPrefab);
+        }
+
+        private void StopCoroutineSafe(Coroutine c)
+        {
+            if (c != null)
+            {
+                StopCoroutine(c);
+            }
+        }
+
+        private string MakeItemKey(string uid, ItemId id)
+        {
+            return uid + "_" + id.ToString();
+        }
+
+        private string MakePassiveKey(string uid, int id)
+        {
+            return uid + "_" + id.ToString();
         }
 
         #endregion

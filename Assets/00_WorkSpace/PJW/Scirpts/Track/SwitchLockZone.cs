@@ -10,15 +10,14 @@ namespace PJW
     {
         public enum Action { ApplyLock, RevertLock }
 
-        [Header("부딪혔을 때 무엇을 할지")]
-        [SerializeField] private Action action = Action.ApplyLock;     // 적용할 동작
+        [Header("부딪혔을 때 수행할 동작")]
+        [SerializeField] private Action action = Action.ApplyLock;
 
         [Header("허용할 트랙 인덱스들(이 목록만 이동 가능)")]
-        [SerializeField] private int[] allowedTracks = new int[] { 0, 1 };
+        [SerializeField] private int[] allowedTracks = new int[] { };
 
-        [Header("필터/네트워크 옵션")]
-        [SerializeField] private string playerTag = "Player";         
-        [SerializeField] private bool onlyLocalPlayer = true;     // 로컬 소유자만 처리
+        [Header("로컬 소유자만 처리 여부")]
+        [SerializeField] private bool onlyLocalPlayer = true;
 
         [Header("옵션")]
         [SerializeField] private bool useGlobalSwitchLock = false;
