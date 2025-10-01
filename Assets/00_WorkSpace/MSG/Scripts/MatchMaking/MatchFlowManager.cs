@@ -86,7 +86,7 @@ namespace MSG
 
             if (!PhotonNetwork.CurrentRoom.Name.StartsWith("_h"))
             {
-                Debug.LogWarning("홈 룸에 있지 않은 상태라서 return");
+                Debug.Log("홈 룸에 있지 않은 상태, return은 안함");
                 // 리턴까지 해야될지는 모르겠음
                 //return;
             }
