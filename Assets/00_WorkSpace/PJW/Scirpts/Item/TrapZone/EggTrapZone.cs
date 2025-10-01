@@ -1,7 +1,6 @@
-using Cinemachine;
+ï»¿using Cinemachine;
 using Photon.Pun;
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 using YTW;
 
@@ -12,13 +11,13 @@ namespace PJW
     [RequireComponent(typeof(PhotonView))]
     public class EggTrapZone : MonoBehaviourPun
     {
-        [Header("µ¿ÀÛ ÆÄ¶ó¹ÌÅÍ")]
+        [Header("ë™ì‘ íŒŒë¼ë¯¸í„°")]
         [SerializeField] private float boostMultiplier = 2f;
         [SerializeField] private float boostTime = 1f;
         [SerializeField] private float waitAfterBoost = 1f;
         [SerializeField] private float stopDuration = 1.5f;
 
-        [Header("ÃÖ¼Ò À¯È¿ ¼Óµµ")]
+        [Header("ìµœì†Œ ìœ íš¨ ì†ë„")]
         [SerializeField] private float minSpeed = 0.1f;
 
         [SerializeField] private string sfxUseKey = "Egg_Crash";
@@ -27,46 +26,44 @@ namespace PJW
         private Collider zoneCol;
         private Renderer[] renderers;
 
-        // -------- ·±Å¸ÀÓ ·ÎÄÃ È¿°ú »óÅÂ/·¯³Ê --------
         private class ActiveEffect
         {
             public PlayerRaceData racer;
             public CinemachineDollyCart cart;
             public Rigidbody rb;
 
-            public float originalRacerSpeed;  
-            public float originalCartSpeed;   
-            public bool cartWasEnabled;
-
             public bool rbHad;
             public bool rbWasKinematic;
 
-            public bool canceled;        
+            public float appliedMul;
+            public bool canceled;
+
+            // CHANGED: ì•„ì´í…œ ì ìš© 'ì´ì „' ì†ë„ ìŠ¤ëƒ…ìƒ·
+            public float originalSpeedSnapshot;
         }
 
         private class EffectRunner : MonoBehaviour
         {
-            private static EffectRunner _instance;
+            private static EffectRunner instance;
             public static EffectRunner Instance
             {
                 get
                 {
-                    if (_instance == null)
+                    if (instance == null)
                     {
                         var go = new GameObject("EggTrapEffectRunner");
-                        DontDestroyOnLoad(go);
-                        _instance = go.AddComponent<EffectRunner>();
+                        Object.DontDestroyOnLoad(go);
+                        instance = go.AddComponent<EffectRunner>();
                     }
-                    return _instance;
+                    return instance;
                 }
             }
 
-            public ActiveEffect current; // ·ÎÄÃ Å¬¶ó¿¡¼­ ´Ü ÇÏ³ª¸¸ À¯Áö
+            public ActiveEffect current;
 
             public void ReplaceWithNew(PlayerRaceData racer, CinemachineDollyCart cart,
                                        float mul, float boostSec, float waitSec, float stopSec, float minSpd)
             {
-                // 1) ÀÌÀü È¿°ú ÀÖÀ¸¸é Áï½Ã ¿øº¹ + Ãë¼Ò ÇÃ·¡±×
                 if (current != null)
                 {
                     current.canceled = true;
@@ -76,68 +73,74 @@ namespace PJW
 
                 if (cart == null) return;
 
-                // 2) »õ È¿°ú ±¸¼º
                 var rb = cart.GetComponent<Rigidbody>();
                 var eff = new ActiveEffect
                 {
                     racer = racer,
                     cart = cart,
                     rb = rb,
-
-                    originalRacerSpeed = racer != null ? racer.KartSpeed : -1f,
-                    originalCartSpeed = cart.m_Speed,
-                    cartWasEnabled = cart.enabled,
-
                     rbHad = rb != null,
                     rbWasKinematic = rb != null ? rb.isKinematic : false,
-
-                    canceled = false
+                    appliedMul = 0f,
+                    canceled = false,
+                    originalSpeedSnapshot = 0f
                 };
 
                 current = eff;
-                StartCoroutine(Co_RunEffect(eff, mul, boostSec, waitSec, stopSec, minSpd));
+                StartCoroutine(CoRunEffect(eff, mul, boostSec, waitSec, stopSec, minSpd));
             }
 
-            private IEnumerator Co_RunEffect(ActiveEffect eff,
-                                             float mul, float boostSec, float waitSec, float stopSec, float minSpd)
+            private IEnumerator CoRunEffect(ActiveEffect eff,
+                                            float mul, float boostSec, float waitSec, float stopSec, float minSpd)
             {
                 var racer = eff.racer;
                 var cart = eff.cart;
                 var rb = eff.rb;
-
                 if (cart == null) yield break;
 
-                float baseSpeed = racer != null && eff.originalRacerSpeed >= 0f
-                    ? eff.originalRacerSpeed
-                    : eff.originalCartSpeed;
+                // CHANGED: ì•„ì´í…œ ì ìš© 'ì´ì „' ì†ë„ ìŠ¤ëƒ…ìƒ·
+                eff.originalSpeedSnapshot = (racer != null) ? racer.KartSpeed : cart.m_Speed;
 
-                // 1) ºÎ½ºÆ®
-                SetSpeed(racer, cart, Mathf.Max(minSpd, baseSpeed * Mathf.Max(0f, mul)));
+                // ==== (A) BOOST â€” ê³± ì ìš© ====
+                float applyMul = Mathf.Max(0.0001f, mul);
+
+                if (racer != null)
+                {
+                    float after = racer.KartSpeed * applyMul;
+                    if (after < minSpd && racer.KartSpeed > 0f)
+                        applyMul = minSpd / Mathf.Max(0.0001f, racer.KartSpeed);
+
+                    racer.SetKartSpeed(racer.KartSpeed * applyMul);
+                }
+                else
+                {
+                    float after = cart.m_Speed * applyMul;
+                    if (after < minSpd && cart.m_Speed > 0f)
+                        applyMul = minSpd / Mathf.Max(0.0001f, cart.m_Speed);
+
+                    cart.m_Speed = cart.m_Speed * applyMul;
+                }
+
+                eff.appliedMul = applyMul;
+
                 float t = 0f;
                 while (t < boostSec)
                 {
-                    if (eff.canceled) yield break;
+                    if (eff.canceled) { Restore(eff); yield break; }
                     t += Time.deltaTime;
                     yield return null;
                 }
 
-                // 2) ¹Ì²ô·¯Áü
-                SetSpeed(racer, cart, baseSpeed);
+                // ==== (B) WAIT ====
                 t = 0f;
                 while (t < waitSec)
                 {
-                    if (eff.canceled) yield break;
+                    if (eff.canceled) { Restore(eff); yield break; }
                     t += Time.deltaTime;
                     yield return null;
                 }
 
-                // 3) ÇÉ °íÁ¤
-                Vector3 pinPos = cart.transform.position;
-                Quaternion pinRot = cart.transform.rotation;
-
-                SetSpeed(racer, cart, 0f);
-                cart.enabled = false;
-
+                // ==== (C) PIN ====
                 if (rb != null)
                 {
                     rb.velocity = Vector3.zero;
@@ -148,23 +151,41 @@ namespace PJW
                 t = 0f;
                 while (t < stopSec)
                 {
-                    if (eff.canceled) { yield break; }
-                    cart.transform.SetPositionAndRotation(pinPos, pinRot);
-                    t += Time.unscaledDeltaTime;
+                    if (eff.canceled) { Restore(eff); yield break; }
+
+                    if (racer != null) racer.SetKartSpeed(0f);
+                    else cart.m_Speed = 0f;
+
+                    t += Time.deltaTime;
                     yield return null;
                 }
 
-                // 4) º¹±¸
+                // ==== (D) ë³µêµ¬ ====
                 if (!eff.canceled && ReferenceEquals(current, eff))
                 {
-                    cart.enabled = eff.cartWasEnabled;
-                    if (racer != null && eff.originalRacerSpeed >= 0f)
-                        racer.SetKartSpeed(eff.originalRacerSpeed);
-                    else
-                        cart.m_Speed = eff.originalCartSpeed;
-
                     if (rb != null)
                         rb.isKinematic = eff.rbWasKinematic;
+
+                    // 1) ìš°ë¦¬ ë°°ìˆ˜ë§Œ ì œê±°
+                    if (eff.appliedMul > 0f)
+                    {
+                        if (racer != null) racer.SetKartSpeed(racer.KartSpeed / eff.appliedMul);
+                        else cart.m_Speed = cart.m_Speed / eff.appliedMul;
+                        eff.appliedMul = 0f;
+                    }
+
+                    // 2) ì•„ì§ë„ ì •ì§€ ìƒíƒœ(â‰ˆ0)ë¼ë©´ 'ê¸°ì¡´ ì†ë„'ë¡œë§Œ ë³µê·€
+                    const float EPS = 0.0001f;
+                    if (racer != null)
+                    {
+                        if (Mathf.Abs(racer.KartSpeed) <= EPS)
+                            racer.SetKartSpeed(eff.originalSpeedSnapshot); // CHANGED
+                    }
+                    else
+                    {
+                        if (Mathf.Abs(cart.m_Speed) <= EPS)
+                            cart.m_Speed = eff.originalSpeedSnapshot;      // CHANGED
+                    }
 
                     current = null;
                 }
@@ -174,27 +195,20 @@ namespace PJW
             {
                 if (eff == null) return;
 
-                if (eff.cart != null)
-                {
-                    eff.cart.enabled = eff.cartWasEnabled;
-                    if (eff.racer != null && eff.originalRacerSpeed >= 0f)
-                        eff.racer.SetKartSpeed(eff.originalRacerSpeed);
-                    else
-                        eff.cart.m_Speed = eff.originalCartSpeed;
-                }
-
                 if (eff.rbHad && eff.rb != null)
                 {
                     eff.rb.isKinematic = eff.rbWasKinematic;
                     eff.rb.velocity = Vector3.zero;
                     eff.rb.angularVelocity = Vector3.zero;
                 }
-            }
 
-            private void SetSpeed(PlayerRaceData racer, CinemachineDollyCart cart, float speed)
-            {
-                if (racer != null) racer.SetKartSpeed(speed);
-                else cart.m_Speed = speed;
+                if (eff.appliedMul > 0f)
+                {
+                    if (eff.racer != null) eff.racer.SetKartSpeed(eff.racer.KartSpeed / eff.appliedMul);
+                    else eff.cart.m_Speed = eff.cart.m_Speed / eff.appliedMul;
+                    eff.appliedMul = 0f;
+                }
+                // CHANGED: ê°•ì œ ë³µê·€ ì—†ìŒ(ë‹¤ë¥¸ ì•„ì´í…œ ë³€ê²½ì„ ì¡´ì¤‘)
             }
         }
 
@@ -212,22 +226,17 @@ namespace PJW
             var targetPv = other.GetComponentInParent<PhotonView>();
             if (targetPv == null || targetPv.Owner == null) return;
 
-            // ½Çµå ¿ì¼± Ã¼Å©
-            var shield = targetPv.GetComponent<PlayerShield>()
-                         ?? targetPv.GetComponentInChildren<PlayerShield>(true);
-
+            // ì‹¤ë“œ ìš°ì„ 
+            var shield = targetPv.GetComponent<PlayerShield>() ?? targetPv.GetComponentInChildren<PlayerShield>(true);
             if (shield != null && shield.IsShieldActive)
             {
-                // ½Çµå ¼Òºñ
                 targetPv.RPC(nameof(PlayerShield.RpcConsumeShield), targetPv.Owner);
-
                 isTriggered = true;
                 photonView.RPC(nameof(RpcHideAndDisable), RpcTarget.All);
                 photonView.RPC(nameof(RpcDestroySelfDelayed), RpcTarget.AllBuffered, 0.1f);
-                return; 
+                return;
             }
 
-            // ----- ½Çµå°¡ ¾ø°Å³ª ²¨Á® ÀÖÀ¸¸é ±âÁ¸ ·ÎÁ÷ ¼öÇà -----
             var cart = other.GetComponentInParent<CinemachineDollyCart>();
             if (cart == null) return;
 
@@ -244,15 +253,14 @@ namespace PJW
         [PunRPC]
         private void RpcHideAndDisable()
         {
-            AudioManager.Instance.PlaySFX(sfxUseKey);
+            if (!string.IsNullOrEmpty(sfxUseKey))
+                AudioManager.Instance?.PlaySFX(sfxUseKey);
 
             if (zoneCol) zoneCol.enabled = false;
             if (renderers != null)
             {
                 foreach (var r in renderers)
-                {
                     if (r) r.enabled = false;
-                }
             }
         }
 
@@ -278,23 +286,23 @@ namespace PJW
         [PunRPC]
         private void RpcApplyTrapReplaceOld(float mul, float boostSec, float waitSec, float stopSec, float minSpd)
         {
-            var localPv = FindObjectOfType<PhotonView>(); 
-            var shield = localPv ? (localPv.GetComponent<PlayerShield>() ?? localPv.GetComponentInChildren<PlayerShield>(true)) : null;
-
-            if (shield != null && shield.IsShieldActive)
-            {
-                shield.SuccessShield(consume: true); // ·ÎÄÃ Áï½Ã ¼Òºñ
-                return;
-            }
-
             var raceData = FindLocalRaceData();
             var cart = FindLocalCart();
             if (cart == null) return;
 
+            var shield = (raceData != null)
+                ? (raceData.GetComponentInChildren<PlayerShield>(true))
+                : (cart.GetComponentInChildren<PlayerShield>(true));
+
+            if (shield != null && shield.IsShieldActive)
+            {
+                shield.SuccessShield(consume: true);
+                return;
+            }
+
             EffectRunner.Instance.ReplaceWithNew(raceData, cart, mul, boostSec, waitSec, stopSec, minSpd);
         }
 
-        // ---- À¯Æ¿: ·ÎÄÃ ¼ÒÀ¯ ÇÃ·¹ÀÌ¾îÀÇ ÄÄÆ÷³ÍÆ® Ã£±â ----
         private PlayerRaceData FindLocalRaceData()
         {
             var all = FindObjectsOfType<PlayerRaceData>(true);

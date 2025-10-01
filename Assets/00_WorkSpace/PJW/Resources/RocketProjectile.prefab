@@ -139,9 +139,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f4b1b3498269294d9996aa069f3f3f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 18
+  speed: 20
   turnRate: 720
-  maxLifeTime: 8
+  maxLifeTime: 10
   hitRadius: 0.5
   netLerp: 20
   sfxHitKey: Bang
@@ -185,3 +185,4 @@ MonoBehaviour:
     type: 3}
   spawnOffset: {x: 0, y: 0, z: 0}
   spawnEulerAngles: {x: 0, y: 0, z: 0}
+  spawnMode: 0
