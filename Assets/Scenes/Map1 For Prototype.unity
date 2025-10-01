@@ -6402,6 +6402,7 @@ GameObject:
   - component: {fileID: 644462848}
   - component: {fileID: 644462847}
   - component: {fileID: 644462846}
+  - component: {fileID: 644462851}
   m_Layer: 0
   m_Name: Minimap Top Down Camera
   m_TagString: MainCamera
@@ -6569,12 +6570,27 @@ Transform:
   m_GameObject: {fileID: 644462845}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -38.3, y: 30, z: 269.6}
+  m_LocalPosition: {x: -38.3, y: 120, z: 269.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!114 &644462851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 644462845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f20a32a7d467a9143a10e0fd393936df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _map1Pos: {x: -30, y: 120, z: 260}
+  _map2Pos: {x: -22, y: 75, z: 20}
+  _map3Pos: {x: -30, y: 120, z: 260}
 --- !u!1001 &646699896
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20780,6 +20796,7 @@ GameObject:
   - component: {fileID: 2068057159}
   - component: {fileID: 2068057158}
   - component: {fileID: 2068057160}
+  - component: {fileID: 2068057161}
   m_Layer: 0
   m_Name: Virtual Camera
   m_TagString: Untagged
@@ -20849,7 +20866,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2068057157}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e501d18bb52cf8c40b1853ca4904654f, type: 3}
   m_Name: 
@@ -20872,6 +20889,19 @@ MonoBehaviour:
   m_Damping: 0.2
   m_DampingWhenOccluded: 0.2
   m_OptimalTargetDistance: 0
+--- !u!114 &2068057161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2068057157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d9e7d205666ce94e8a6d16170653e8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _vCam: {fileID: 2068057158}
 --- !u!1001 &2070339913
 PrefabInstance:
   m_ObjectHideFlags: 0
