@@ -17,14 +17,13 @@ namespace PJW
         [SerializeField] private int[] allowedTracks = new int[] { };
 
         [Header("로컬 소유자만 처리 여부")]
+        [SerializeField] private string playerTag = "Player";
         [SerializeField] private bool onlyLocalPlayer = true;
 
         [Header("옵션")]
         [SerializeField] private bool useGlobalSwitchLock = false;
 
         private readonly HashSet<Collider> _collidersInZone = new HashSet<Collider>();
-
-        [SerializeField] bool invertOnExit = false;
 
         private void Awake()
         {
