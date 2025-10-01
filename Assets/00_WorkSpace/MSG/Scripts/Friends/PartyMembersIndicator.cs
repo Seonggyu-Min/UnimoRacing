@@ -1,5 +1,4 @@
-﻿using MSG.Deprecated;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,7 +13,6 @@ namespace MSG
 
         [Header("Refs")]
         [SerializeField] private ChatDM _chatDM;
-        [SerializeField] private PartyService _partyService;
 
         Dictionary<string, PartyRequestCard> _memberDict = new();    // key: uid, value: UI 프리팹
 
@@ -22,14 +20,14 @@ namespace MSG
         private void OnEnable ()
         {
             RemakeFriendUI(); // 파티 멤버 UID로 UI 생성
-            _partyService.OnPartyChanged += RemakeFriendUI;
+            PartyService.Instance.OnPartyChanged += RemakeFriendUI;
         }
 
         private void OnDisable()
         {
-            if (_partyService != null)
+            if (PartyService.Instance != null)
             {
-                _partyService.OnPartyChanged -= RemakeFriendUI;
+                PartyService.Instance.OnPartyChanged -= RemakeFriendUI;
             }
         }
 
@@ -37,7 +35,7 @@ namespace MSG
         private void RemakeFriendUI()
         {
             // Members에 존재하지만 _memberDict에 없는 uid 기반 UI 생성
-            foreach (var uid in _partyService.Members)
+            foreach (var uid in PartyService.Instance.Members)
             {
                 if (!_memberDict.ContainsKey(uid))
                 {
@@ -51,7 +49,7 @@ namespace MSG
             List<string> toRemove = new();
             foreach (var uid in _memberDict.Keys)
             {
-                if (!_partyService.Members.Contains(uid))
+                if (!PartyService.Instance.Members.Contains(uid))
                 {
                     Destroy(_memberDict[uid].gameObject);
                     toRemove.Add(uid);
