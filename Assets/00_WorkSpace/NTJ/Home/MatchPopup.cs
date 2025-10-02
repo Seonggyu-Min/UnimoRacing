@@ -2,11 +2,11 @@
 using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MatchPopup : MonoBehaviour
+public class MatchPopup : MonoBehaviourPunCallbacks
 {
     [SerializeField] private MatchFlowManager _matchFlowManager;
 
@@ -17,40 +17,164 @@ public class MatchPopup : MonoBehaviour
     [SerializeField] private Button startMatchButton;   // Play! 버튼
     [SerializeField] private Button cancelMatchButton;  // 매칭중일 때 취소 버튼
 
-    private void OnEnable()
+    [SerializeField] private TMP_Text _infoText;
+    [SerializeField] private float _textShowSec;
+    private Coroutine _textCO;
+
+
+    public override void OnEnable()
     {
+        base.OnEnable();
+
         startMatchButton.onClick.AddListener(OnStartMatch);
         cancelMatchButton.onClick.AddListener(OnCancelMatch);
 
-        RefreshUI(false); // 기본은 Play 상태
+        SetMatchingUI(false);
+        SetInteractableUI();
     }
 
-    private void OnDisable()
+    public override void OnDisable()
     {
+        base.OnDisable();
+
         startMatchButton.onClick.RemoveListener(OnStartMatch);
         cancelMatchButton.onClick.RemoveListener(OnCancelMatch);
     }
 
     private void OnStartMatch()
     {
-        //MatchManager.Instance.StartMatch();
-        _matchFlowManager.OnClickQuickMatch();
+        if (PartyService.Instance.IsInParty && !PartyService.Instance.IsLeader)
+        {
+            StartTextCO("파티의 시작은 파티장만 할 수 있습니다.");
+            return;
+        }
 
-        RefreshUI(true); // 매칭중 상태로 전환
+        startMatchButton.interactable = false;
+        SetMatchingUI(true);
+        _matchFlowManager.OnClickQuickMatch();
+        SetInteractableUI();
     }
 
     private void OnCancelMatch()
     {
-        //MatchManager.Instance.CancelMatch();
+        cancelMatchButton.interactable = false;
+        SetMatchingUI(false);
         _matchFlowManager.OnClickCancelMatch();
-
-        UIManager.Instance.Hide("Matching");
-        RefreshUI(false); // 다시 Play 상태
+        SetInteractableUI();
     }
 
-    private void RefreshUI(bool isMatching)
+    //private void RefreshUI(bool isMatching)
+    //{
+    //    playButtonGroup.SetActive(!isMatching);
+    //    matchingButtonGroup.SetActive(isMatching);
+    //}
+
+    #region UI Logic
+
+    public override void OnConnectedToMaster() => SetInteractableUI();
+    public override void OnJoinedRoom() => SetInteractableUI();
+    public override void OnLeftRoom() => SetInteractableUI();
+
+    private void SetMatchingUI(bool isMatching)
     {
         playButtonGroup.SetActive(!isMatching);
         matchingButtonGroup.SetActive(isMatching);
     }
+
+    private void SetInteractableUI()
+    {
+        bool isReady = PhotonNetwork.IsConnectedAndReady;
+        bool inRoom = PhotonNetwork.InRoom;
+        bool roomOkay = inRoom && IsAllowedRoom();
+
+        // 현재 표시 중인 버튼 확인
+        bool showingPlay = playButtonGroup.activeSelf;
+        bool showingMatching = matchingButtonGroup.activeSelf;
+
+        // 버튼 가능 조건
+        bool canStart = isReady && roomOkay && showingPlay;
+        bool canCancel = isReady && roomOkay && showingMatching;
+
+        startMatchButton.interactable = canStart;
+        cancelMatchButton.interactable = canCancel;
+
+        if (!canStart && !canCancel)
+        {
+            ShowInfoText("매칭 작업 중입니다. 잠시만 기다려주세요." +
+                "인원이 적을 경우 동시에 매칭 버튼을 눌렀을 때" +
+                "매칭이 안될 수 있으니 오랫동안 매칭되지 않으면" +
+                "다시 시도해주세요");
+        }
+        else
+        {
+            HideInfoText();
+        }
+    }
+
+    private bool IsAllowedRoom()
+    {
+        var room = PhotonNetwork.CurrentRoom;
+        if (room == null) return false;
+
+        // 커스텀 프로퍼티로 방 타입 확인
+        if (room.CustomProperties != null &&
+            room.CustomProperties.TryGetValue(RoomMakeHelper.ROOM_TYPE, out object typeObj))
+        {
+            var type = (RoomType)typeObj;
+            return type == RoomType.Match || type == RoomType.Party || type == RoomType.Home;
+        }
+
+        // 혹시 모르니까 방 타입 이름으로도 검증
+        string name = room.Name ?? string.Empty;
+        return name.StartsWith("_m") || name.StartsWith("_p") || name.StartsWith("_h");
+    }
+
+    #endregion
+
+
+    #region Coroutine
+
+    private void StartTextCO(string text)
+    {
+        if (_textCO != null)
+        {
+            StopCoroutine(_textCO);
+            _textCO = null;
+        }
+        _textCO = StartCoroutine(InfoTextRoutine(text));
+    }
+
+    private void StopTextCO()
+    {
+        if (_textCO != null)
+        {
+            StopCoroutine(_textCO);
+            _textCO = null;
+        }
+    }
+
+    private void ShowInfoText(string text)
+    {
+        StopTextCO();
+        _infoText.gameObject.SetActive(true);
+        _infoText.text = text;
+    }
+
+    private void HideInfoText()
+    {
+        StopTextCO();
+        _infoText.gameObject.SetActive(false);
+    }
+
+    private IEnumerator InfoTextRoutine(string text)
+    {
+        _infoText.gameObject.SetActive(true);
+        _infoText.text = text;
+
+        yield return new WaitForSeconds(_textShowSec);
+
+        _infoText.gameObject.SetActive(false);
+    }
+
+    #endregion
 }
