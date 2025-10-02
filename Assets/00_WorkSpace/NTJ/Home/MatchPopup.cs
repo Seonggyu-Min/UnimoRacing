@@ -17,9 +17,15 @@ public class MatchPopup : MonoBehaviourPunCallbacks
     [SerializeField] private Button startMatchButton;   // Play! 버튼
     [SerializeField] private Button cancelMatchButton;  // 매칭중일 때 취소 버튼
 
+    [Header("안내 텍스트")]
     [SerializeField] private TMP_Text _infoText;
     [SerializeField] private float _textShowSec;
     private Coroutine _textCO;
+
+    [SerializeField] private TMP_Text _matchInfoText;   // 경과,인원 표시용
+    [SerializeField] private TMP_Text _adviceText;      // 권고 문구
+    [SerializeField] private float _warnAfterSec = 20f; // 해당 시간 이후 경고문구 켜기
+    private float _matchStartRt = -1f;
 
 
     public override void OnEnable()
@@ -31,6 +37,7 @@ public class MatchPopup : MonoBehaviourPunCallbacks
 
         SetMatchingUI(false);
         SetInteractableUI();
+        SetStatusTextsActive(false);
     }
 
     public override void OnDisable()
@@ -39,6 +46,14 @@ public class MatchPopup : MonoBehaviourPunCallbacks
 
         startMatchButton.onClick.RemoveListener(OnStartMatch);
         cancelMatchButton.onClick.RemoveListener(OnCancelMatch);
+    }
+
+    private void Update()
+    {
+        if (matchingButtonGroup.activeSelf)
+        {
+            UpdateMatchInfoTexts();
+        }
     }
 
     private void OnStartMatch()
@@ -51,6 +66,9 @@ public class MatchPopup : MonoBehaviourPunCallbacks
 
         startMatchButton.interactable = false;
         SetMatchingUI(true);
+        _matchStartRt = Time.realtimeSinceStartup;
+        SetStatusTextsActive(true);
+
         _matchFlowManager.OnClickQuickMatch();
         SetInteractableUI();
     }
@@ -59,6 +77,9 @@ public class MatchPopup : MonoBehaviourPunCallbacks
     {
         cancelMatchButton.interactable = false;
         SetMatchingUI(false);
+        _matchStartRt = -1f;
+        SetStatusTextsActive(false);
+
         _matchFlowManager.OnClickCancelMatch();
         SetInteractableUI();
     }
@@ -127,6 +148,48 @@ public class MatchPopup : MonoBehaviourPunCallbacks
         // 혹시 모르니까 방 타입 이름으로도 검증
         string name = room.Name ?? string.Empty;
         return name.StartsWith("_m") || name.StartsWith("_p") || name.StartsWith("_h");
+    }
+
+    private void SetStatusTextsActive(bool active)
+    {
+        if (_matchInfoText != null)
+        {
+            _matchInfoText.gameObject.SetActive(active);
+        }
+        if (_adviceText != null)
+        {
+            _adviceText.gameObject.SetActive(false);
+        }
+    }
+
+    private void UpdateMatchInfoTexts()
+    {
+        // 경과 시간 계산
+        float elapsed = (_matchStartRt > 0f) ? (Time.realtimeSinceStartup - _matchStartRt) : 0f;
+
+        // 현재 인원/최대 인원
+        int cur = (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom != null) ? PhotonNetwork.CurrentRoom.PlayerCount : 0;
+        int max = (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom != null) ? PhotonNetwork.CurrentRoom.MaxPlayers : 0;
+
+        // 텍스트 표기
+        if (_matchInfoText != null)
+        {
+            _matchInfoText.text = $"경과 {FormatMMSS(elapsed)}, 인원 {cur}/{max}";
+        }
+
+        // 일정 시간 이후 권고 문구 표기
+        if (_adviceText != null)
+        {
+            _adviceText.gameObject.SetActive(elapsed >= _warnAfterSec);
+        }
+    }
+
+    private static string FormatMMSS(float sec)
+    {
+        int s = Mathf.Max(0, Mathf.FloorToInt(sec));
+        int mm = s / 60;
+        int ss = s % 60;
+        return $"{mm:00}:{ss:00}";
     }
 
     #endregion
