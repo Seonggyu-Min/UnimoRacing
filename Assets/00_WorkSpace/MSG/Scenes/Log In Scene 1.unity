@@ -4635,7 +4635,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1047687554
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7281,6 +7281,7 @@ MonoBehaviour:
   statusText: {fileID: 72615655}
   progressBar: {fileID: 1311242884}
   startButton: {fileID: 0}
+  tapToStart: {fileID: 1047687553}
   updateConfirmPanel: {fileID: 1447436939}
   updateInfoText: {fileID: 1630950563}
   patchButton: {fileID: 1027327584}
