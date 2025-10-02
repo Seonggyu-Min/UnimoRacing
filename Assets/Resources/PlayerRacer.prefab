@@ -332,6 +332,7 @@ GameObject:
   - component: {fileID: 831430784033025982}
   - component: {fileID: 6786647454081869713}
   - component: {fileID: 7946033971345635877}
+  - component: {fileID: 4688897661539971053}
   m_Layer: 0
   m_Name: PlayerRacer
   m_TagString: Player
@@ -505,8 +506,7 @@ MonoBehaviour:
   - characterId: 20005
     kartId: 10005
     prefabKey: FishItem
-    prefabRef: {fileID: 3622971774366793308, guid: 84b845bc65a223042b4ab9781bd5246d,
-      type: 3}
+    prefabRef: {fileID: 0}
     needCount: 3
     icon: {fileID: 21300000, guid: b0d0785cd1fa49f478591e158e0af91b, type: 3}
   - characterId: 20013
