@@ -53,5 +53,5 @@ MonoBehaviour:
   hitResourceKey: Magic aura
   hitVfxHeight: 0.6
   alignToTargetForward: 1
-  isDebug: 1
-  verboseVfx: 0
+  sfxUseKey: Blind_Use_SFX
+  sfxHitKey: Blind_Hit_SFX

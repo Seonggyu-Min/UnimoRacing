@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Cinemachine;
 using Photon.Pun;
-using Cinemachine;
+using UnityEngine;
+using YTW;
 
 namespace PJW
 {
@@ -26,6 +27,10 @@ namespace PJW
         [SerializeField] private float hitVfxHeight = 0.6f;
         [SerializeField] private bool alignToTargetForward = true;
 
+        [Header("사운드 키")]
+        [SerializeField] private string sfxUseKey = "Blind_Use_SFX";
+        [SerializeField] private string sfxHitKey = "Blind_Hit_SFX";
+
         public void Use(GameObject owner)
         {
             if (!owner) { Destroy(gameObject); return; }
@@ -41,6 +46,9 @@ namespace PJW
                 castAlignToOwnerForward ? owner.transform.forward : Vector3.forward
             );
             AttachIfPossible(cast, ownerPv.ViewID, castVfxHeight, castAlignToOwnerForward);
+
+
+            AudioManager.Instance.PlaySFX(sfxUseKey);
 
             // 2) 타겟 탐색
             var target = FindTarget(owner);
@@ -58,6 +66,9 @@ namespace PJW
                 alignToTargetForward ? targetPv.transform.forward : Vector3.forward
             );
             AttachIfPossible(hit, targetPv.ViewID, hitVfxHeight, alignToTargetForward);
+
+            // 피격 사운드
+            AudioManager.Instance.PlaySFX(sfxHitKey);
 
             Destroy(gameObject);
         }
