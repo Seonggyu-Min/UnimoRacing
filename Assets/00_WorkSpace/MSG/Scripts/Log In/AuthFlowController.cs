@@ -28,7 +28,9 @@ namespace MSG
     public class AuthFlowController : MonoBehaviour
     {
         [Header("UI")]
+        [SerializeField] private GameObject _logInObj;
         [SerializeField] private Button _googleLoginButton;
+        [SerializeField] private Button _guestLoginButton;
         [SerializeField] private Button _retryButton;
         [SerializeField] private Button _signOutButton;
         [SerializeField] private GameObject _loadingSpinner;
@@ -95,6 +97,7 @@ namespace MSG
             if (_googleLoginButton) _googleLoginButton.onClick.AddListener(OnClickGoogleLogin);
             if (_retryButton) _retryButton.onClick.AddListener(OnClickRetry);
             if (_signOutButton) _signOutButton.onClick.AddListener(OnClickSignOut);
+            if (_guestLoginButton) _guestLoginButton.onClick.AddListener(OnClickGuestLogin);
 
             SetUI(AuthState.Idle, CHECKING, showError: false);
         }
@@ -131,6 +134,7 @@ namespace MSG
             if (_googleLoginButton) _googleLoginButton.onClick.RemoveListener(OnClickGoogleLogin);
             if (_retryButton) _retryButton.onClick.RemoveListener(OnClickRetry);
             if (_signOutButton) _signOutButton.onClick.RemoveListener(OnClickSignOut);
+            if (_guestLoginButton) _guestLoginButton.onClick.RemoveListener(OnClickGuestLogin);
 
             StopAttemptTimeout();
         }
@@ -139,7 +143,6 @@ namespace MSG
         public void TrySilentThenInteractive()
         {
             if (!BeginBusy(TRY_AUTO, AttemptKind.Silent)) return;
-
             _failedHandledOnce = false;
             Manager?.SilentSignIn();
         }
@@ -157,6 +160,13 @@ namespace MSG
             if (_busy) return;
             Manager?.SignOut();
             SetUI(AuthState.Idle, SIGNED_OUT, showError: false);
+        }
+
+        public void OnClickGuestLogin()
+        {
+            if (!BeginBusy("Signing in as Guest", AttemptKind.Interactive)) return;
+            _failedHandledOnce = false;
+            Manager?.SignInAsGuest();
         }
 
 
@@ -192,12 +202,12 @@ namespace MSG
                 _attempt = AttemptKind.None;
 
                 // 자동으로 Interactive로 전환
-                if (_autoFallbackToInteractive && isActiveAndEnabled)
+                if (_autoFallbackToInteractive)
                 {
                     // UI 안내 메시지 (현재는 안 쓸 듯)
                     //if (_statusText) _statusText.text = "Automatic login failed. Opening Google sign-in…";
                     _errorPanel?.SetActive(false);
-                    EnableButtons(false);
+                    EnableLogInUI(false);
 
                     // Silent 실패 처리 가드를 풀고 다음 콜백을 받게
                     _failedHandledOnce = false;
@@ -208,7 +218,7 @@ namespace MSG
                 {
                     // 기존 동작(버튼 눌러 달라고 안내)
                     if (_statusText) _statusText.text = AUTO_FAIL_PROMPT;
-                    EnableButtons(interactive: true);
+                    EnableLogInUI(interactive: true);
                     _errorPanel?.SetActive(false);
                 }
 
@@ -287,17 +297,22 @@ namespace MSG
 
             bool signedIn = state == AuthState.SignedIn;
 
-            EnableButtons(interactive: !showSpinner && !signedIn);
+            EnableLogInUI(interactive: !showSpinner && !signedIn);
             if (_signOutButton) _signOutButton.gameObject.SetActive(signedIn);
 
             if (_errorPanel) _errorPanel.SetActive(showError);
             if (_errorText && showError) _errorText.text = message ?? LOGIN_FAIL;
         }
 
-        private void EnableButtons(bool interactive)
+        private void EnableLogInUI(bool interactive)
         {
-            if (_googleLoginButton) _googleLoginButton.interactable = interactive;
-            if (_retryButton) _retryButton.interactable = interactive;
+#if UNITY_EDITOR
+            _logInObj.SetActive(false);
+            return;
+#endif
+            _logInObj.SetActive(interactive);
+            //if (_googleLoginButton) _googleLoginButton.interactable = interactive;
+            //if (_retryButton) _retryButton.interactable = interactive;
         }
 
         private string MapErrorToUserMessage(string raw)

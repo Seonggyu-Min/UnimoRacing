@@ -114,21 +114,12 @@ namespace MSG
             }
             catch (Exception e)
             {
-                //GoogleSignIn.SignInException sie = null;
-
-                //if (e is GoogleSignIn.SignInException se) sie = se;
-                //else if (e.InnerException is GoogleSignIn.SignInException se2) sie = se2;
-
-                //if (sie != null)
-                //    Fail($"Google Sign-In failed: {sie.Status} / {sie.Message}");
-                //else
-                //    Fail($"Google Sign-In failed: {e.Message}");
-
-
-                GoogleSignIn.SignInException sie = null;
+                var sie = e as GoogleSignIn.SignInException ?? e.InnerException as GoogleSignIn.SignInException;
 
                 if (sie != null)
                 {
+                    Debug.LogWarning($"[GoogleSignManager] 구글 로그인 실패: {sie.Status} / {sie.Message}");
+
                     switch (sie.Status.ToString())
                     {
                         case "NETWORK_ERROR":
@@ -162,6 +153,7 @@ namespace MSG
                 }
                 else
                 {
+                    Debug.LogError($"[GoogleSignManager] 구글 로그인 실패, sie도 null: {e}");
                     Fail("로그인 중 알 수 없는 오류가 발생했어요. 게임을 종료한 후 네트워크 환경 확인과 함께 다시 시도해 주세요.");
                 }
             }
@@ -185,6 +177,31 @@ namespace MSG
             {
                 //Fail($"Silent sign-in failed: {e.Message}");
                 //Fail("자동 로그인에 실패했습니다. 수동 로그인을 시도해 주세요.");
+            }
+        }
+
+        public void SignInAsGuest()
+        {
+            if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsReady)
+            {
+                Fail("앱 초기화가 완료되지 않았습니다. 네트워크 상태를 확인한 뒤 앱을 다시 시작해 주세요.");
+                return;
+            }
+            SignInGuestFlow().Forget();
+        }
+
+        private async Task SignInGuestFlow()
+        {
+            try
+            {
+                var result = await FirebaseManager.Instance.Auth.SignInAnonymouslyAsync();
+                Debug.Log($"[GoogleAuth] 게스트 로그인: {result.User.UserId}");
+                OnSignInSucceeded?.Invoke(result.User);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"게스트 로그인에 실패했어요: {e.Message}");
+                Fail($"게스트 로그인에 실패했어요. 네트워크 환경을 확인한 후 재시도 해주세요");
             }
         }
 
