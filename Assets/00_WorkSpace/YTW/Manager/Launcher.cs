@@ -22,7 +22,6 @@ namespace YTW
         [SerializeField] TextMeshProUGUI statusText;
         [SerializeField] Slider progressBar;
         [SerializeField] Button startButton;
-        [SerializeField] private GameObject tapToStart;
 
         [Header("Update Panel")]
         [SerializeField] GameObject updateConfirmPanel;
@@ -113,7 +112,6 @@ namespace YTW
                 _topPanelShownAt = Time.realtimeSinceStartup; 
             }
 
-            if (tapToStart) tapToStart.SetActive(false);
 
             if (progressBar)
             {
@@ -374,8 +372,6 @@ namespace YTW
 
             // 이제 게임 시작 가능
             if (topPanel) topPanel.SetActive(false);
-
-            if (tapToStart) tapToStart.SetActive(true);
         }
 
         private async Task RestartGameAsync()
