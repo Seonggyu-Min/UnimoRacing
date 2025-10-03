@@ -12,7 +12,7 @@ namespace MSG
 
         private void Start()
         {
-            int index = PhotonNetworkCustomProperties.GetRoomProp<int>(RoomKey.WinnerMapIndex);
+            int index = PhotonNetworkCustomProperties.GetRoomProp<int>(RoomKey.WinnerMapIndex) - 1;
 
             if (index >= 0 && index < _skyBoxMaterials.Length)
             {
