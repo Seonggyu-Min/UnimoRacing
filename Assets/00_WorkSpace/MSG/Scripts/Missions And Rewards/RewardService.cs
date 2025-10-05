@@ -3,6 +3,7 @@ using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -14,7 +15,10 @@ namespace MSG
         // 일단은 그냥 필드에서 갖고 있게 함
 
         [SerializeField] private int _baseReward = 1000;                    // 기본 보상량
+        [SerializeField] private int _baseExp = 50;                         // 기본 경험치량
         [SerializeField] private MoneyType _moneyType = MoneyType.Gold;     // 어떤 재화로 받을지
+
+        private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
 
 
         private void Start()
@@ -85,6 +89,10 @@ namespace MSG
 
             int rewardQuantity = Mathf.FloorToInt(_baseReward * multiplier); // 반올림
             RewardManager.Instance.AddMoney(_moneyType, rewardQuantity);
+            DatabaseManager.Instance.IncrementToLongOnMainWithTransaction(DBRoutes.Experience(CurrentUid),
+                Mathf.CeilToInt(_baseExp * multiplier),
+                suc => Debug.Log($"경험치 증가 완료: {suc}"),
+                err => Debug.LogWarning($"경험치 증가 실패: {err}"));
         }
     }
 }
