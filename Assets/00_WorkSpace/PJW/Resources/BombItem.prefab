@@ -47,6 +47,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bombResourceKey: BombTrap
   distanceAhead: 0.5
+  headHeight: 1.2
+  arcHeight: 1
+  flightTime: 0.6
+  throwVisualPrefab: {fileID: 919132149155446097, guid: 51387263f1a765f4f86dd1d55a965d9c,
+    type: 3}
+  visualOffset: {x: 0, y: 3, z: 0}
+  visualLookForward: 1
   sfxUseKey: Bomb_Use
 --- !u!114 &650975786435230216
 MonoBehaviour:
