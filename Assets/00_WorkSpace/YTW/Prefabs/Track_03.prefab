@@ -1847,7 +1847,8 @@ MonoBehaviour:
   m_Container: {fileID: 5538473518843925888}
   m_ItemsToInstantiate:
   - prefab: {fileID: 0}
-    Prefab: {fileID: 5289326225702922207}
+    Prefab: {fileID: 3554027118550074826, guid: 0779bcb3ed2fe8c4c9c7ea10b0c76cf6,
+      type: 3}
     probability: 0
     Probability: 0
   m_Method: 1
@@ -13115,7 +13116,8 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ItemsToInstantiate.Array.data[0].Prefab
       value: 
-      objectReference: {fileID: 6455017622793362224}
+      objectReference: {fileID: 3554027118550074826, guid: b3f3561210a18254b8f68ce70ef24b18,
+        type: 3}
     - target: {fileID: 8486703553422415624, guid: e4065968a59ba034a8a3aa240ca2886e,
         type: 3}
       propertyPath: m_LocalPosition.x
