@@ -44,5 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad6da442fcc8e01428ade5cde5b8b54e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stopDuration: 1.5
   targetMode: 1
+  playerTag: Player
+  stopDuration: 1.5
+  castResourceKey: LightningNova
+  castVfxHeight: 0.6
+  castAlignToOwnerForward: 1
+  hitResourceKey: Magic aura
+  hitVfxHeight: 0.6
+  alignToTargetForward: 1
+  sfxUseKey: Blind_Use_SFX
+  sfxHitKey: Blind_Hit_SFX
