@@ -20,28 +20,55 @@ namespace MSG
         [HideField(nameof(_isPlayer))]
         [SerializeField] private float _trackYPos = 0f;
 
+        [SerializeField] private Transform _parentT; // 부모 (레이서)
 
         private void Start()
         {
-            if (_willUseFlatMode)
+            if (_willUseFlatMode && !_isPlayer)
             {
-                SetYPos();
+                SetYForTrack();
+            }
+            else if (_willUseFlatMode && _isPlayer)
+            {
+                MoveMinimapObjForRoot();
             }
         }
 
-        private void SetYPos()
+        private void LateUpdate()
         {
-            Vector3 newPos;
-            if (_isPlayer)
+            if (_isPlayer && _willUseFlatMode)
             {
-                newPos = new Vector3(transform.position.x, _playerYPos, transform.position.z);
+                SetYForPlayer();
             }
-            else
-            {
-                newPos = new Vector3(transform.position.x, _trackYPos, transform.position.z);
-            }
+        }
 
-            transform.position = newPos;
+        private void SetYForTrack()
+        {
+            transform.position = new Vector3(transform.position.x, _trackYPos, transform.position.z);
+
+            transform.rotation = Quaternion.identity;
+        }
+
+        private void MoveMinimapObjForRoot()
+        {
+            transform.SetParent(null);
+        }
+
+        private void SetYForPlayer()
+        {
+            if (_parentT == null) return;
+
+            Vector3 p = _parentT.position;
+            p.y = _playerYPos;
+            transform.position = p;
+
+            Vector3 fwd = _parentT.forward;
+            fwd.y = 0f;
+            if (fwd.sqrMagnitude < 1e-6f)
+            {
+                fwd = Vector3.forward;
+            }
+            transform.rotation = Quaternion.LookRotation(fwd, Vector3.up);
         }
     }
 }

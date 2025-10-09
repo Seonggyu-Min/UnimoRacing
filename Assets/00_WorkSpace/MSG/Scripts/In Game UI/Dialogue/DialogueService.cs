@@ -103,7 +103,10 @@ namespace MSG
                             _billBoardCanvas.SetActive(true);
                             _dialogueObj.SetActive(true);
 
-                            _billBoardCanvas.gameObject.transform.position = myData.gameObject.transform.position + _offset;
+                            Transform t = myData.transform;
+                            _billBoardCanvas.transform.position = t.position + t.rotation * _offset;
+
+                            //_billBoardCanvas.gameObject.transform.position = myData.gameObject.transform.position + _offset;
 
                             _dialogueText.text = datum.Text;
                         }
