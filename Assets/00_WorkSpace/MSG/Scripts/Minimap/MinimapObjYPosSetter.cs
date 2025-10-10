@@ -56,6 +56,8 @@ namespace MSG
 
         private void SetYForPlayer()
         {
+            if (_parentT == null) return;
+
             Vector3 p = _parentT.position;
             p.y = _playerYPos;
             transform.position = p;

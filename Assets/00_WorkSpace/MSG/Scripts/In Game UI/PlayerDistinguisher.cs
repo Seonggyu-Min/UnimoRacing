@@ -8,6 +8,7 @@ namespace MSG
 {
     public class PlayerDistinguisher : MonoBehaviour
     {
+        [SerializeField] private MeshRenderer _meshRenderer;
         [SerializeField] private PlayerRaceData _raceData;
 
         [SerializeField] private float _height;
@@ -16,20 +17,28 @@ namespace MSG
 
         private void OnEnable()
         {
-            if (_raceData != null)
-            {
-                if (_raceData.View.IsMine)
-                {
-                    gameObject.SetActive(true);
+            InGameManager.Instance.OnStateChanged += OnStateChanged;
+            _meshRenderer.enabled = false;
+        }
 
-                    // DoTween y포지션이 계속 변해서 아래처럼 쓰면 현재는 안됨
-                    //transform.DOMoveY(transform.position.y + _height, _duration)
-                    //    .SetEase(_ease)
-                    //    .SetLoops(-1, LoopType.Yoyo);
-                }
-                else
+        private void OnDisable()
+        {
+            if (InGameManager.GetInstance != null)
+            {
+                InGameManager.Instance.OnStateChanged -= OnStateChanged;
+            }
+        }
+
+        private void OnStateChanged(RaceState state)
+        {
+            if (state == RaceState.Racing)
+            {
+                if (_raceData != null)
                 {
-                    gameObject.SetActive(false);
+                    if (_raceData.View.IsMine)
+                    {
+                        _meshRenderer.enabled = true;
+                    }
                 }
             }
         }
