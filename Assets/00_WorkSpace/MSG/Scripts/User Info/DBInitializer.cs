@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using YTW;
 
 
 namespace MSG
 {
     public class DBInitializer : MonoBehaviour
     {
+        [SerializeField] private Launcher _launcher;
         [SerializeField] private AuthFlowController _authFlowController;
         [SerializeField] private GameObject _nicknameObj; // 끈 상태로 시작
         [SerializeField] private TMP_Text _infoText;
@@ -31,12 +33,15 @@ namespace MSG
         private const int INIT_LEVEL = 1; // 1이 강화가 안된, 소지 여부만을 검증하는 레벨로 간주
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
         private Coroutine _textVanishCO;
+        private bool _isReadyForTapToStart = false;
+        private bool _isPatchReady = false;
 
 
         private void Start()
         {
             _infoText.text = string.Empty;
             _authFlowController.OnAuthSucceeded += CheckNicknameSet;
+            _launcher.OnUpdateEnded += RecordPatchReady;
         }
 
 
@@ -45,6 +50,10 @@ namespace MSG
             if (_authFlowController != null)
             {
                 _authFlowController.OnAuthSucceeded -= CheckNicknameSet;
+            }
+            if (_launcher != null)
+            {
+                _launcher.OnUpdateEnded -= RecordPatchReady;
             }
 
             StopVanishCO();
@@ -61,7 +70,9 @@ namespace MSG
                 }
                 else
                 {
-                    _tapToStartObj.SetActive(true); // 있으면 바로 다음 씬으로 넘어갈 수 있도록 함
+                    _isReadyForTapToStart = true;
+                    SafelyShowTapToStart();
+                    //_tapToStartObj.SetActive(true); // 있으면 바로 다음 씬으로 넘어갈 수 있도록 함
                 }
             });
         }
@@ -107,7 +118,8 @@ namespace MSG
                         onSuccess: () =>
                         {
                             Debug.Log($"{newNickname}로 닉네임 설정 완료. 다음으로 넘어갈 수 있다는 안내 문구 띄우기");
-                            _tapToStartObj.SetActive(true);
+                            _isReadyForTapToStart = true;
+                            SafelyShowTapToStart();
                             _nicknameObj.SetActive(false);
                         },
                         onError: err => Debug.LogWarning($"닉네임 설정 오류: {err}")
@@ -178,6 +190,25 @@ namespace MSG
             _infoText.text = text;
             yield return new WaitForSeconds(_vanishSec);
             _infoText.text = string.Empty;
+        }
+
+        private void RecordPatchReady(bool isPatched)
+        {
+            _isPatchReady = isPatched;
+
+            SafelyShowTapToStart();
+        }
+
+        private void SafelyShowTapToStart()
+        {
+            Debug.Log($"[DBInitializer] _isPatchReady: {_isPatchReady}, _isReadyForTapToStart: {_isReadyForTapToStart}");
+            if (_isPatchReady && _isReadyForTapToStart)
+            {
+                if (_tapToStartObj)
+                {
+                    _tapToStartObj.SetActive(true);
+                }
+            }
         }
     }
 }
