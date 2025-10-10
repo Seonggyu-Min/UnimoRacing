@@ -145,7 +145,12 @@ MonoBehaviour:
   hitRadius: 0.5
   netLerp: 20
   sfxHitKey: Bang
-  sfxFlyLoopKey: Missile_Coming
+  sfxFlyLoopKey: Missile_Coming_SFX
+  sfxIncomingKey: Missile_Coming_SFX
+  warnMaxDistance: 40
+  warnMinPitch: 0.9
+  warnMaxPitch: 1.6
+  warnSmoothing: 10
 --- !u!114 &237597069379400556
 MonoBehaviour:
   m_ObjectHideFlags: 0
