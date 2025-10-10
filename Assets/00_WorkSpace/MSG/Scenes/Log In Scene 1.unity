@@ -3294,7 +3294,7 @@ MonoBehaviour:
   _autoStart: 1
   _silentDelaySec: 0.1
   _silentTimeoutSec: 6
-  _autoFallbackToInteractive: 0
+  _autoFallbackToInteractive: 1
 --- !u!4 &557829061
 Transform:
   m_ObjectHideFlags: 0

@@ -41,7 +41,14 @@ namespace MSG
                 var players = FindObjectsOfType<PlayerRaceData>();
 
                 var me = players.FirstOrDefault(p => p.View.IsMine);
-                target = me.transform;
+                if (me != null)
+                {
+                    target = me.transform;
+                }
+                else
+                {
+                    Debug.Log("[CameraDutchController] me == null");
+                }
             }
         }
 
