@@ -13,5 +13,15 @@ MonoBehaviour:
   m_Name: IAPTable
   m_EditorClassIdentifier: 
   Entries:
-  - ProductId: test_iap
-    BlueAmount: 100
+  - ProductId: blue_honey_gem_40
+    BlueAmount: 40
+  - ProductId: blue_honey_gem_95
+    BlueAmount: 95
+  - ProductId: ' blue_honey_gem_200'
+    BlueAmount: 200
+  - ProductId: ' blue_honey_gem_300'
+    BlueAmount: 300
+  - ProductId: ' blue_honey_gem_900'
+    BlueAmount: 900
+  - ProductId: blue_honey_gem_1500
+    BlueAmount: 1500
