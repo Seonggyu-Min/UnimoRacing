@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using YTW;
 
 
 namespace MSG
@@ -64,6 +65,8 @@ namespace MSG
                 Debug.Log("[MissionUIBehaviour] 이미 수령했거나 완료하지 않은 미션입니다.");
                 return;
             }
+
+            AudioManager.Instance.PlaySFX("Reward_SFX");
 
             if (_missionWrapper.MissionGroup == MissionGroup.Daily)
             {

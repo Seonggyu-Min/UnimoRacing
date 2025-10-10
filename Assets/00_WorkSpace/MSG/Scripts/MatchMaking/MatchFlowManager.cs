@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using YTW;
 
 namespace MSG
 {
@@ -207,6 +208,7 @@ namespace MSG
                     if (senderUid == CurrentUid) return; // 자기 자신은 return
                     _partyJoinPanel.gameObject.SetActive(true);
                     _partyJoinPanel.Init(senderUid, payload);
+                    AudioManager.Instance.PlaySFX("Invite_Accept_SFX");
                     break;
 
                 case DMType.PartyAccept:
