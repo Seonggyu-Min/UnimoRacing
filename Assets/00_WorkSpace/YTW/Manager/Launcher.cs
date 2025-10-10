@@ -57,6 +57,9 @@ namespace YTW
         Coroutine _progressCo;
         public static TaskCompletionSource<bool> PatchGate = new();
 
+        // Tap To Start가 먼저 뜨지 않게 하기 위해 업데이트도 끝났는지 확인
+        public event Action<bool> OnUpdateEnded;
+
 
         async void Start()
         {
@@ -96,7 +99,7 @@ namespace YTW
                 if (statusText) statusText.text = "오프라인으로 시작합니다";
                 await AfterPatchInitAndStartAsync();
             }
-            
+
         }
 
         // 시작 시 UI 기본 상태 설정
@@ -108,8 +111,8 @@ namespace YTW
 
             if (topPanel)
             {
-                topPanel.SetActive(true);                   
-                _topPanelShownAt = Time.realtimeSinceStartup; 
+                topPanel.SetActive(true);
+                _topPanelShownAt = Time.realtimeSinceStartup;
             }
 
 
@@ -246,7 +249,7 @@ namespace YTW
                     sizeBytes = -1;
                 }
 
-            
+
                 // (테스트 옵션) 캐시 삭제: 사이즈 계산보다 먼저 해야 실제 다운로드 필요 용량이 반영됨
                 if (autoClearCacheForTest && locations != null && locations.Count > 0)
                 {
@@ -371,7 +374,11 @@ namespace YTW
             }
 
             // 이제 게임 시작 가능
-            if (topPanel) topPanel.SetActive(false);
+            if (topPanel)
+            {
+                OnUpdateEnded?.Invoke(true);
+                topPanel.SetActive(false);
+            }
         }
 
         private async Task RestartGameAsync()

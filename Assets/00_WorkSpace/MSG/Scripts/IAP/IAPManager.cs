@@ -9,19 +9,26 @@ using UnityEngine.Purchasing;
 
 namespace MSG
 {
-    public class IAPManager : MonoBehaviour
+    public class IAPManager : SceneSingleton<IAPManager>
     {
         #region Fields
         [SerializeField] private IAPTable _iapTable;
 
         private const string test_iap = "test_iap";
-
         private StoreController _store;
-        private readonly Dictionary<string, Product> _productCache = new();
+
+        public readonly Dictionary<string, Product> ProductCache = new();
+        public event Action OnProductLoaded;
+
 
         #endregion
 
         #region Unity Methods
+
+        private void Awake()
+        {
+            SceneSingletonInit();
+        }
 
         private async void Start()
         {
@@ -113,7 +120,7 @@ namespace MSG
                 return;
             }
 
-            if (!_productCache.ContainsKey(productId))
+            if (!ProductCache.ContainsKey(productId))
             {
                 Debug.LogWarning($"[IAPManager] 상품 '{productId}' 을 찾을 수 없습니다");
                 return;
@@ -130,11 +137,13 @@ namespace MSG
         private void OnProductsFetched(List<Product> products)
         {
             Debug.Log($"[IAPManager] OnProductsFetched: {products.Count}");
-            _productCache.Clear();
+            ProductCache.Clear();
             foreach (var p in products)
             {
-                _productCache[p.definition.id] = p;
+                ProductCache[p.definition.id] = p;
             }
+
+            OnProductLoaded?.Invoke();
         }
 
         private void OnProductsFetchFailed(ProductFetchFailed err)

@@ -121,10 +121,11 @@ public class MatchPopup : MonoBehaviourPunCallbacks
 
         if (!canStart && !canCancel)
         {
-            ShowInfoText("매칭 작업 중입니다. 잠시만 기다려주세요." +
-                "인원이 적을 경우 동시에 매칭 버튼을 눌렀을 때" +
-                "매칭이 안될 수 있으니 오랫동안 매칭되지 않으면" +
-                "다시 시도해주세요");
+            //ShowInfoText("매칭 작업 중입니다. 잠시만 기다려주세요." +
+            //    "인원이 적을 경우 동시에 매칭 버튼을 눌렀을 때" +
+            //    "매칭이 안될 수 있으니 오랫동안 매칭되지 않으면" +
+            //    "다시 시도해주세요");
+            ShowInfoText("");
         }
         else
         {

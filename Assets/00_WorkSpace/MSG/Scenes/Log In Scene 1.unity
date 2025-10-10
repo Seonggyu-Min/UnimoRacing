@@ -13795,6 +13795,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0551863f7715ccb4f963be7dbb20a803, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _launcher: {fileID: 1426677322}
   _authFlowController: {fileID: 557829060}
   _nicknameObj: {fileID: 83498666}
   _infoText: {fileID: 1908783021}
