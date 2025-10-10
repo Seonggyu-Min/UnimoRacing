@@ -50,7 +50,7 @@ MonoBehaviour:
   headHeight: 1.2
   arcHeight: 1
   flightTime: 0.6
-  throwVisualPrefab: {fileID: 919132149155446097, guid: 51387263f1a765f4f86dd1d55a965d9c,
+  throwVisualPrefab: {fileID: 5059915295387699552, guid: 6523b6c83e3774b4b9cb7d4566cf40dd,
     type: 3}
   visualOffset: {x: 0, y: 3, z: 0}
   visualLookForward: 1
