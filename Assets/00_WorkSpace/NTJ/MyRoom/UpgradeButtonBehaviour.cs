@@ -109,7 +109,7 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                     (currentSpeed, nextSpeed) =>
                     {
                         bool isMaxLevel = (currentSpeed >= nextSpeed);
-                        _currentSpeedText.text = $"부스터 속도 *{currentSpeed:F1}";
+                        _currentSpeedText.text = $"기본 이동 속도 *{currentSpeed:F1}";
 
                         if (isMaxLevel)
                         {
