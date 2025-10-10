@@ -44,8 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 100c9dc1b68ca31418d223103a597449, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetMode: 1
+  playerTag: Player
   lockDuration: 3
+  castResourceKey: PowerboxPickupSkull
+  castVfxHeight: 3
+  castAlignToOwnerForward: 1
+  hitResourceKey: WarningSkull
+  hitVfxHeight: 3
+  alignToTargetForward: 1
   sfxUseKey: Lock_Use
-  followVfxPrefab: {fileID: 1176236648912490, guid: 00f01328bebf34f4a94ce0983d03545f,
-    type: 3}
-  followVfxOffset: {x: 0, y: 0.7, z: -1}
+  sfxHitKey: Lock_SFX

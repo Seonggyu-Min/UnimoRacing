@@ -65,7 +65,7 @@ namespace PJW
         public void AssignItemPrefab(GameObject itemPrefab)
         {
             if (itemPrefab == null) return;
-            if (IsFull) return; // 가득 찼으면 더 이상 담지 않음(원하면 교체 로직으로 바꿔도 됨)
+            if (IsFull) return; // 가득 찼으면 더 이상 담지 않음
 
             items.Enqueue(itemPrefab);
 
@@ -108,7 +108,7 @@ namespace PJW
             if (usable == null)
             {
                 Destroy(go);
-                // 아이템 자체가 잘못된 경우도 소비만 진행(막히지 않도록)
+                // 아이템 자체가 잘못된 경우도 소비만 진행
                 items.Dequeue();
                 FireChangedEvents();
                 return;
@@ -120,7 +120,6 @@ namespace PJW
             if (pv != null)
             {
                 var spawner = pv.GetComponent<NetworkVfxSpawner>() ?? pv.gameObject.AddComponent<NetworkVfxSpawner>();
-
                 string vfxPath = $"VFX/Items/{currentItemPrefab.name}_Use";
 
                 // 소유자 기준 뒤쪽 -1m에 부착, 2초 후 파괴 
@@ -160,9 +159,6 @@ namespace PJW
 
             if (myInv != null) myInv.ApplyItemLock(duration);
             else ApplyItemLock(duration);
-
-            var inv = myInv ?? this;
-            inv.OnHitByItem(ItemId.Padlock);
 
             // 잠금 사운드
             AudioManager.Instance.PlaySFX(sfxHitKey);
@@ -213,48 +209,6 @@ namespace PJW
             return items.Take(Mathf.Min(maxCount, items.Count))
                         .Select(go => go != null ? go.name : null)
                         .ToArray();
-        }
-        public void OnHitByItem(ItemId effectItemId)
-        {
-            // 이 인벤토리의 소유자 UID를 구한다 (Photon 기준)
-            string uid = ResolveOwnerUid();
-            if (string.IsNullOrEmpty(uid))
-            {
-                Debug.LogWarning("[PlayerItemInventory] UID를 찾을 수 없어 피격 이펙트를 생략합니다.");
-                return;
-            }
-
-            // 모든 클라이언트에서 동일하게 이펙트를 띄우기 위해 RPC 브로드캐스트
-            if (ownerView != null)
-                ownerView.RPC(nameof(RpcPlayHitEffect), RpcTarget.All, uid, (int)effectItemId);
-            else
-                RpcPlayHitEffect(uid, (int)effectItemId); // 로컬 폴백
-        }
-
-        // Photon/게임 상황에서 소유자 UID를 가져오는 헬퍼
-        private string ResolveOwnerUid()
-        {
-            var pv = ownerView ?? GetComponent<PhotonView>() ?? GetComponentInParent<PhotonView>();
-            if (pv != null && pv.Owner != null)
-                return pv.Owner.ActorNumber.ToString(); 
-            return PhotonNetwork.LocalPlayer?.ActorNumber.ToString();
-        }
-
-        // 실제로 전 클라에서 이펙트를 실행하는 RPC
-        [PunRPC]
-        private void RpcPlayHitEffect(string uid, int rawItemId)
-        {
-            var itemId = (ItemId)rawItemId;
-            var mgr = PlayerEffectManager.Instance;
-            if (mgr == null)
-            {
-                Debug.LogWarning("[PlayerItemInventory] PlayerEffectManager.Instance가 없습니다.");
-                return;
-            }
-            var pv = ownerView ?? GetComponent<PhotonView>() ?? GetComponentInParent<PhotonView>();
-            string actorKey = (pv != null && pv.Owner != null) ? pv.Owner.ActorNumber.ToString() : null;
-            
-            mgr.ShowItemEffect(actorKey ?? uid, itemId); 
         }
     }
 }

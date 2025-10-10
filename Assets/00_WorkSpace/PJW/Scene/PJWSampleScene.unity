@@ -2365,16 +2365,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1491512322}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86cbe69b810efa5478a09afb5a57dfe4, type: 3}
+  m_Script: {fileID: 11500000, guid: f23c32613d98ba34cbedc7b0372dc4de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _itemList:
-  - {fileID: 11400000, guid: dde2623802ffe2b4caa1d70f64f66277, type: 2}
-  _passiveSkillList: []
-  _useItem: 1
-  _uid: 
-  _itemId: 0
-  _passiveId: 0
+  useBufferedRpc: 0
+  attachRetryCount: 20
+  attachRetryInterval: 0.1
 --- !u!1 &1571500723
 GameObject:
   m_ObjectHideFlags: 0
