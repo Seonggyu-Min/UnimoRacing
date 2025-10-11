@@ -15,13 +15,19 @@ MonoBehaviour:
   Entries:
   - ProductId: blue_honey_gem_40
     BlueAmount: 40
+    Sprite: {fileID: 21300000, guid: a58d2134f1250634a974409f1d8f1277, type: 3}
   - ProductId: blue_honey_gem_95
     BlueAmount: 95
-  - ProductId: ' blue_honey_gem_200'
+    Sprite: {fileID: 21300000, guid: b0c458695b4a6ce4faffcf720b6ef3e4, type: 3}
+  - ProductId: blue_honey_gem_200
     BlueAmount: 200
-  - ProductId: ' blue_honey_gem_300'
+    Sprite: {fileID: 21300000, guid: a8fe108658392984288375517bdec577, type: 3}
+  - ProductId: blue_honey_gem_300
     BlueAmount: 300
-  - ProductId: ' blue_honey_gem_900'
+    Sprite: {fileID: 21300000, guid: f450aa1a17117514b9e6fb1eb82a9020, type: 3}
+  - ProductId: blue_honey_gem_900
     BlueAmount: 900
+    Sprite: {fileID: 21300000, guid: 022a96b90f041b04a9adb0b98ddf32a8, type: 3}
   - ProductId: blue_honey_gem_1500
     BlueAmount: 1500
+    Sprite: {fileID: 21300000, guid: 78ee806cfce944a498e4df1eccdb2b75, type: 3}

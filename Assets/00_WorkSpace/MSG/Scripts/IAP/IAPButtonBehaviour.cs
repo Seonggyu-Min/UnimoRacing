@@ -16,6 +16,7 @@ namespace MSG
         [SerializeField] private TMP_Text _productRewardAmountText;
         //[SerializeField] private TMP_Text _productDescriptionText;      // 이건 필요 없을 듯?
 
+        private const string REPLACE_TEXT = " (UnimoRacing)";
         private int _iapIndex;
         private IAPTable _iapTable;
         private Sprite _sprite;
@@ -37,7 +38,8 @@ namespace MSG
 
             if (products.ContainsKey(myProductId))
             {
-                _productNameText.text = products[myProductId].metadata.localizedTitle;
+                var rawNameText = products[myProductId].metadata.localizedTitle;
+                _productNameText.text = rawNameText.Replace(REPLACE_TEXT, "");
                 _productPriceText.text = products[myProductId].metadata.localizedPriceString;
                 var textGroup = products[myProductId].definition.id.Split('_');
                 _productRewardAmountText.text = textGroup[textGroup.Length - 1];
