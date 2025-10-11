@@ -10,7 +10,6 @@ namespace MSG
     {
         [SerializeField] private IAPButtonBehaviour _buttonPrefab;
         [SerializeField] private IAPTable _iapTable;
-        [SerializeField] private List<Sprite> _sprites;
         [SerializeField] private Transform _parent;
 
         private Dictionary<string, IAPButtonBehaviour> _spritesDict = new();
@@ -48,7 +47,7 @@ namespace MSG
             for (int i = 0; i < _iapTable.Entries.Count; i++)
             {
                 var button = Instantiate(_buttonPrefab, _parent);
-                button.Init(i, _iapTable, _sprites[i]);
+                button.Init(i, _iapTable, _iapTable.Entries[i].Sprite);
                 _spritesDict.Add(_iapTable.Entries[i].ProductId, button);
             }
         }

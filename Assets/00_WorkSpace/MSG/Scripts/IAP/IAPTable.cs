@@ -10,6 +10,7 @@ namespace MSG
     {
         public string ProductId;
         public int BlueAmount;
+        public Sprite Sprite;
     }
 
 
