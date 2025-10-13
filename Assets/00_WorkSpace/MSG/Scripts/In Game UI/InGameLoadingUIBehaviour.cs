@@ -16,13 +16,14 @@ namespace MSG
         [SerializeField] private Image _loadingBarImage;
 
         [SerializeField] private TMP_Text _mapNameText;
-        [SerializeField] private string[] _mapNames = 
+        [SerializeField]
+        private string[] _mapNames =
             new string[] { "인피니트 폴링 스타", "트랙 2", "트랙 3" };
 
         [SerializeField] private Camera _minimapPreviewCamera;
 
         [SerializeField] private List<GameObject> _stars = new();
-        [SerializeField][Range(1, 3)] private int[] _mapStarCounts = new int[] { 1, 2, 3 };
+        //[SerializeField][Range(1, 3)] private int[] _mapStarCounts = new int[] { 1, 2, 3 };
 
         private int _unimoFallbackIndex = 20001;
 
@@ -164,9 +165,21 @@ namespace MSG
 
         private void MakeStars(int index)
         {
-            for (int i = 0; i < _mapStarCounts[index - 1]; i++)
+            //for (int i = 0; i < _mapStarCounts[index - 1]; i++)
+            //{
+            //    _stars[i].SetActive(true);
+            //}
+
+            for (int i = 0; i < _stars.Count; i++)
             {
-                _stars[i].SetActive(true);
+                if (index == i)
+                {
+                    _stars[i].SetActive(true);
+                }
+                else
+                {
+                    _stars[i].SetActive(false);
+                }
             }
         }
 
