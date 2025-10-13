@@ -154,7 +154,7 @@ namespace MSG
                 _mapNameText.text = _mapNames[winnerIndex - 1];
             }
 
-            MakeStars(winnerIndex);
+            MakeStars(winnerIndex - 1);
         }
 
         private void MakeMinimapPreviewUI()
