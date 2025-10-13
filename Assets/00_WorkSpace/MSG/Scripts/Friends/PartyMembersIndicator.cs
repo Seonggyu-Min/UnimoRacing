@@ -34,6 +34,18 @@ namespace MSG
 
         private void RemakeFriendUI()
         {
+            // 파티에 있지 않으면 전부 early 정리
+            if (!PartyService.Instance.IsInParty)
+            {
+                foreach (var card in _memberDict)
+                {
+                    Destroy(card.Value.gameObject);
+                }
+
+                _memberDict.Clear();
+                return;
+            }
+
             // Members에 존재하지만 _memberDict에 없는 uid 기반 UI 생성
             foreach (var uid in PartyService.Instance.Members)
             {
