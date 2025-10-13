@@ -764,9 +764,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 4743381049240984074}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -60, y: 174}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -420, y: 175}
   m_SizeDelta: {x: 500, y: 165}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &59674575
@@ -6398,9 +6398,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 4743381049240984074}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -113, y: -93}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -473, y: -92}
   m_SizeDelta: {x: 500, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &615141780
@@ -19632,9 +19632,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 4743381049240984074}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -130, y: -167}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -490, y: -166}
   m_SizeDelta: {x: 500, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1853290413
@@ -39390,11 +39390,6 @@ MonoBehaviour:
   matchingButtonGroup: {fileID: 6423221591285683933}
   startMatchButton: {fileID: 842598278397880353}
   cancelMatchButton: {fileID: 99469448720338834}
-  _infoText: {fileID: 59674575}
-  _textShowSec: 3
-  _matchInfoText: {fileID: 1853290413}
-  _adviceText: {fileID: 615141780}
-  _warnAfterSec: 20
 --- !u!224 &7077039654352169787
 RectTransform:
   m_ObjectHideFlags: 0
