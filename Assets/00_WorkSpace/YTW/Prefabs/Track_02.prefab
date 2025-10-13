@@ -9572,6 +9572,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ForceLaneObscure (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -24558,6 +24563,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ForceLaneObscure (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -26275,6 +26285,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ForceLaneObscure (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
@@ -41673,6 +41688,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ForceLaneObscure
       objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -46678,6 +46698,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ForceLaneObscure (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
