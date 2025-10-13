@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using YTW;
 
 public class UpgradeButtonBehaviour : MonoBehaviour
 {
@@ -109,7 +110,7 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                     (currentSpeed, nextSpeed) =>
                     {
                         bool isMaxLevel = (currentSpeed >= nextSpeed);
-                        _currentSpeedText.text = $"부스터 속도 *{currentSpeed:F1}";
+                        _currentSpeedText.text = $"기본 이동 속도 *{currentSpeed:F1}";
 
                         if (isMaxLevel)
                         {
@@ -186,6 +187,7 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                             () =>
                             {
                                 Debug.Log($"카트 {_itemId} 강화 성공! 새 레벨: {newLevel}");
+                                AudioManager.Instance.PlaySFX("Upgrade_SFX");
                                 RefreshUpgradeState();
                             },
                             err =>

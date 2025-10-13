@@ -10,8 +10,6 @@ namespace MSG
     /// </summary>
     public static class DatabaseKeys
     {
-        // 아래는 예시로 작성된 키들입니다.
-
         // -- User Data Keys --
         public const string users = "users";
         public const string nickname = "nickname";

@@ -950,7 +950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: 41bc1ce8da9e87a4fa340d902394e0df, type: 2}
-  m_Color: {r: 1, g: 0.6570511, b: 0.6570511, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1177,9 +1177,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   kartIcon: {fileID: 8504523554561296484}
   kartNameText: {fileID: 4888566950833713472}
-  equipButton: {fileID: 507792839905570533}
   selectionOverlay: {fileID: 7676893479180929826}
   lockedOverlay: {fileID: 1883816665671181970}
+  equipButton: {fileID: 507792839905570533}
 --- !u!1 &8807392156226058120
 GameObject:
   m_ObjectHideFlags: 0

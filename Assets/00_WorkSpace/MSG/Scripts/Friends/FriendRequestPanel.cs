@@ -8,7 +8,7 @@ namespace MSG
 {
     public class FriendRequestPanel : MonoBehaviour
     {
-        [SerializeField] private TMP_Text _infoText;
+       // [SerializeField] private TMP_Text _infoText;
         private string _pairId;
         private string _toUid;
         private string _fromUid;
@@ -20,10 +20,10 @@ namespace MSG
             _fromUid = fromUid;
 
             // 닉네임 비동기 로드라서 미리 텍스트 설정
-            _infoText.text = "요청 로딩 중…";
+            //_infoText.text = "요청 로딩 중…";
 
             DatabaseManager.Instance.GetOnMain(DBRoutes.Nickname(_fromUid),
-                snap => _infoText.text = $"{snap.Value}",
+               // snap => _infoText.text = $"{snap.Value}",
                 err => Debug.LogWarning($"친구 요청 로딩 에러: {err}")
             );
         }

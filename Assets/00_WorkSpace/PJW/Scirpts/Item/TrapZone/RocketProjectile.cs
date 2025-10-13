@@ -1,24 +1,22 @@
-using ExitGames.Client.Photon;
+Ôªøusing ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 using YTW;
 
 namespace PJW
 {
     public class RocketProjectile : MonoBehaviourPun, IPunInstantiateMagicCallback, IOnEventCallback, IPunObservable
     {
-        [Header("¿Øµµ º≥¡§")]
+        [Header("Ïú†ÎèÑ ÏÑ§Ï†ï")]
         [SerializeField] private float speed = 20f;
         [SerializeField] private float turnRate = 360f;
         [SerializeField] private float maxLifeTime = 8f;
 
-        [Header("√Êµπ π›∞Ê")]
+        [Header("Ï∂©Îèå Î∞òÍ≤Ω")]
         [SerializeField] private float hitRadius = 2f;
 
         private int targetViewId;
@@ -28,27 +26,39 @@ namespace PJW
         private float lifeTimer;
         private bool hasHit;
 
-        // ≥◊∆Æøˆ≈© ∫∏∞£øÎ
+        // ÎÑ§Ìä∏ÏõåÌÅ¨ Î≥¥Í∞ÑÏö©
         private Vector3 networkPos;
         private Quaternion networkRot;
         private bool hasNetSnapshot;
         [SerializeField] private float netLerp = 20f;
 
+        [Header("ÏÇ¨Ïö¥Îìú ÌÇ§")]
         [SerializeField] private string sfxHitKey = "Bang";
+        [SerializeField] private string sfxFlyLoopKey = "Missile_Coming_SFX";
 
-        [SerializeField] private string sfxFlyLoopKey = "Missile_Coming";  
+        [Header("ÌÉÄÍ≤ü Í≤ΩÍ≥† ÏÇ¨Ïö¥Îìú(ÌÉÄÍ≤ü ÌÅ¥Îùº Ï†ÑÏö©)")]
+        [SerializeField] private string sfxIncomingKey = "Missile_Coming_SFX"; 
+        [SerializeField] private float warnMaxDistance = 40f;
+        [SerializeField] private float warnMinPitch = 0.9f;
+        [SerializeField] private float warnMaxPitch = 1.6f;
+        [SerializeField] private float warnSmoothing = 10f;
+
         private AudioSource flyLoopSource;
+        private AudioSource incomingWarnSource;  // ÌÉÄÍ≤ü Ï†ÑÏö© 2D Ïò§ÎîîÏò§
+        private bool isMyTarget;                 // ÎÇ¥ Ï∫êÎ¶≠ÌÑ∞Í∞Ä ÌÉÄÍ≤üÏù∏ÏßÄ
+        private float warnVol;                   // Î≥¥Í∞Ñ Î≥ºÎ•®
+        private float warnPitch;                 // Î≥¥Í∞Ñ ÌîºÏπò
 
         private const byte RocketStunEvent = 41;
 
-        // ∑Œƒ√ ±∏µø ±««—: º“¿Ø¿⁄ or ∏∂Ω∫≈Õ (º“¿Ø±« ≤øø©µµ ∏∂Ω∫≈Õ∞° πÈæ˜¿∏∑Œ ±∏µø)
+        // Î°úÏª¨ Íµ¨Îèô Í∂åÌïú
         private bool CanDrive => photonView != null && (photonView.IsMine || PhotonNetwork.IsMasterClient);
 
+        // ------------------- Ïä§ÌÑ¥ Îü¨ÎÑà -------------------
         private sealed class StunRunner : MonoBehaviour
         {
             private static StunRunner _instance;
             private readonly Dictionary<int, Coroutine> running = new Dictionary<int, Coroutine>();
-
             public static StunRunner Instance
             {
                 get
@@ -63,12 +73,10 @@ namespace PJW
                 }
             }
 
-            // ∏ÿ√„¿ª ∞≈¿« 0√≥∑≥ ∏∏µÂ¥¬ ∞Ëºˆ (0¿∫ ∫πø¯¿Ã ∫“∞°«œπ«∑Œ æ∆¡÷ ¿€¿∫ ∞™ ªÁøÎ)
             private const float StopFactor = 1e-6f;
-            // ¡ﬂ∫π Ω∫≈œ ¥Î∫Ò: πËøÏ π¯»£∫∞ Ω∫≈√ ƒ´øÓ∆Æ
             private readonly Dictionary<int, int> stunStackByActor = new Dictionary<int, int>();
-            // æ»¿¸¿ª ¿ß«ÿ, ∞Ëºˆ∏¶ ¿˚øÎ«ﬂ¥¯ ¥ÎªÛ ∑π∆€∑±Ω∫ √ﬂ¿˚
             private readonly Dictionary<int, PlayerRaceData> racerByActor = new Dictionary<int, PlayerRaceData>();
+
             public void ApplyStun(int actorNumber, PlayerRaceData racer, float duration)
             {
                 if (racer == null || duration <= 0f) return;
@@ -78,7 +86,6 @@ namespace PJW
                 if (!stunStackByActor.TryGetValue(actorNumber, out var stack))
                     stack = 0;
 
-                // √÷√  ¡¯¿‘ Ω√ø°∏∏ "∞ˆ«œ±‚" ¿˚øÎ
                 if (stack == 0)
                     ApplyStopFactor(racer);
 
@@ -98,11 +105,9 @@ namespace PJW
                 if (stack <= 0)
                 {
                     stunStackByActor.Remove(actorNumber);
-
                     if (racerByActor.TryGetValue(actorNumber, out var racer) && racer != null)
-                    {
                         RemoveStopFactor(racer);
-                    }
+
                     racerByActor.Remove(actorNumber);
                 }
                 else
@@ -111,31 +116,16 @@ namespace PJW
                 }
             }
 
-            // «ˆ¿Á º”µµø° æ∆¡÷ ¿€¿∫ ∞Ëºˆ∏¶ ∞ˆ«ÿº≠ ªÁΩ«ªÛ ¡§¡ˆ
             private void ApplyStopFactor(PlayerRaceData racer)
             {
                 var v = racer.KartSpeed;
                 racer.SetKartSpeed(v * StopFactor);
             }
 
-            // ∏∂¡ˆ∏∑ Ω∫≈√ «ÿ¡¶ Ω√ø°∏∏ ø™ºˆ∑Œ µ«µπ∏≤
             private void RemoveStopFactor(PlayerRaceData racer)
             {
                 var v = racer.KartSpeed;
                 racer.SetKartSpeed(v / StopFactor);
-            }
-
-            private IEnumerator StunRoutine(int actorNumber, PlayerRaceData racer, float duration)
-            {
-                float original = racer.KartSpeed;
-                racer.SetKartSpeed(0f);
-
-                yield return new WaitForSecondsRealtime(duration);
-
-                if (racer != null)
-                    racer.SetKartSpeed(original);
-
-                running.Remove(actorNumber);
             }
         }
 
@@ -154,6 +144,9 @@ namespace PJW
             networkPos = transform.position;
             networkRot = transform.rotation;
             hasNetSnapshot = true;
+
+            // ÎÇ¥Í∞Ä ÌÉÄÍ≤üÏù∏ÏßÄ ÌåêÏ†ï
+            isMyTarget = (PhotonNetwork.LocalPlayer != null && PhotonNetwork.LocalPlayer.ActorNumber == targetActor);
         }
 
         private void Awake()
@@ -161,14 +154,12 @@ namespace PJW
             var col = GetComponent<Collider>(); if (col) col.isTrigger = true;
             var rb = GetComponent<Rigidbody>(); if (rb) rb.isKinematic = true;
 
-            // ¿⁄Ω≈¿ª ObservedComponentsø° ∞≠¡¶ µÓ∑œ
             if (photonView != null)
             {
                 if (photonView.ObservedComponents == null)
                     photonView.ObservedComponents = new List<Component>();
                 if (!photonView.ObservedComponents.Contains(this))
                     photonView.ObservedComponents.Add(this);
-
                 photonView.Synchronization = ViewSynchronization.UnreliableOnChange;
             }
         }
@@ -177,31 +168,46 @@ namespace PJW
         {
             PhotonNetwork.AddCallbackTarget(this);
 
+            // ÎØ∏ÏÇ¨Ïùº ÎπÑÌñâ ÏÇ¨Ïö¥Îìú
             if (!string.IsNullOrEmpty(sfxFlyLoopKey))
             {
                 if (flyLoopSource == null)
                 {
                     flyLoopSource = gameObject.AddComponent<AudioSource>();
                     flyLoopSource.playOnAwake = false;
-                    flyLoopSource.spatialBlend = 1f; // 3D
+                    flyLoopSource.spatialBlend = 1f;
                 }
                 AudioManager.Instance.PlayLoopingSoundOn(flyLoopSource, sfxFlyLoopKey, 0.05f);
             }
+
+            if (isMyTarget && !string.IsNullOrEmpty(sfxIncomingKey))
+            {
+                if (incomingWarnSource == null)
+                {
+                    incomingWarnSource = gameObject.AddComponent<AudioSource>();
+                    incomingWarnSource.playOnAwake = false;
+                    incomingWarnSource.spatialBlend = 0f; // 2D
+                    incomingWarnSource.loop = true;
+                }
+                AudioManager.Instance.PlayLoopingSoundOn(incomingWarnSource, sfxIncomingKey, 0f);
+                warnVol = 0f;
+                warnPitch = warnMinPitch;
+            }
         }
+
         private void OnDisable()
         {
             PhotonNetwork.RemoveCallbackTarget(this);
 
-            // ∫Ò«‡ ∑Á«¡ ªÁøÓµÂ ¡§¡ˆ(∆‰¿ÃµÂæ∆øÙ »ƒ ¡§¡ˆ)
             if (flyLoopSource != null)
-            {
                 AudioManager.Instance.StopSoundOn(flyLoopSource, 0.1f);
-            }
+
+            if (incomingWarnSource != null)
+                AudioManager.Instance.StopSoundOn(incomingWarnSource, 0.1f);
         }
 
         private void Update()
         {
-            // ºˆ∏Ì
             lifeTimer += Time.deltaTime;
             if (lifeTimer > maxLifeTime)
             {
@@ -210,7 +216,6 @@ namespace PJW
                 return;
             }
 
-            // ±∏µø(¿Ãµø/¿Øµµ): º“¿Ø¿⁄ or ∏∂Ω∫≈Õ
             if (CanDrive)
             {
                 if (targetPv == null || targetPv.transform == null)
@@ -231,7 +236,6 @@ namespace PJW
 
                 transform.position += transform.forward * speed * Time.deltaTime;
 
-                // ∏Ì¡ﬂ ∆«¡§¿∫ «—¬ ∏∏ ºˆ«‡ (∏∂Ω∫≈Õ∞° øÏº±, æ∆¥œ∏È º“¿Ø¿⁄)
                 bool hasAuthorityForHit = PhotonNetwork.IsMasterClient || (photonView != null && photonView.IsMine);
                 if (hasAuthorityForHit && !hasHit &&
                     (transform.position - targetPos).sqrMagnitude <= hitRadius * hitRadius)
@@ -241,18 +245,34 @@ namespace PJW
             }
             else
             {
-                // ∫Ò±∏µø ≈¨∂Û: ≥◊∆Æøˆ≈© Ω∫≥¿º¶ ∫∏∞£
                 if (hasNetSnapshot)
                 {
                     transform.position = Vector3.Lerp(transform.position, networkPos, netLerp * Time.deltaTime);
                     transform.rotation = Quaternion.Slerp(transform.rotation, networkRot, netLerp * Time.deltaTime);
                 }
             }
+
+            if (isMyTarget && incomingWarnSource != null)
+            {
+                var myPv = FindObjectsOfType<PhotonView>().FirstOrDefault(p => p != null && p.IsMine);
+                Transform myTf = myPv ? myPv.transform : null;
+
+                if (myTf != null)
+                {
+                    float dist = Vector3.Distance(transform.position, myTf.position);
+                    float t = Mathf.Clamp01(1f - (dist / Mathf.Max(0.001f, warnMaxDistance)));
+
+                    warnVol = Mathf.Lerp(warnVol, t, warnSmoothing * Time.deltaTime);
+                    warnPitch = Mathf.Lerp(warnPitch, Mathf.Lerp(warnMinPitch, warnMaxPitch, t), warnSmoothing * Time.deltaTime);
+
+                    incomingWarnSource.volume = warnVol;
+                    incomingWarnSource.pitch = warnPitch;
+                }
+            }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            // ∆Æ∏Æ∞≈ √Êµπµµ ±««— √¯∏∏ √≥∏Æ
             if (!CanDrive || hasHit) return;
 
             var hitPv = other.GetComponentInParent<PhotonView>();
@@ -264,7 +284,6 @@ namespace PJW
         private void HandleHit(PhotonView hitPv)
         {
             hasHit = true;
-
             AudioManager.Instance.PlaySFX(sfxHitKey);
 
             object[] content = new object[] { hitPv.OwnerActorNr, stunDuration };
@@ -288,7 +307,6 @@ namespace PJW
                 var me = PhotonNetwork.LocalPlayer;
                 if (me == null || me.ActorNumber != targetActorNumber) return;
 
-                // ≥ª ∑Œƒ√ «√∑π¿ÃæÓ¿« PlayerRaceData √£±‚
                 var racer = FindObjectsOfType<PlayerRaceData>(true)
                     .FirstOrDefault(r =>
                     {
@@ -297,26 +315,10 @@ namespace PJW
                     });
 
                 if (racer == null) return;
-
-                // PlayerRaceData ±‚π›¿∏∑Œ Ω∫≈œ ¿˚øÎ
                 StunRunner.Instance.ApplyStun(targetActorNumber, racer, duration);
             }
         }
 
-        private Cinemachine.CinemachineDollyCart FindMyDollyCart()
-        {
-            foreach (var pv in FindObjectsOfType<PhotonView>())
-            {
-                if (pv != null && pv.IsMine)
-                {
-                    var cart = pv.GetComponentInChildren<Cinemachine.CinemachineDollyCart>(true);
-                    if (cart != null) return cart;
-                }
-            }
-            return null;
-        }
-
-        // ¿ßƒ°/»∏¿¸ ¡˜∑ƒ»≠
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
             if (stream.IsWriting)

@@ -1,55 +1,194 @@
+ï»¿using Cinemachine;
 using Photon.Pun;
 using UnityEngine;
 using YTW;
 
 namespace PJW
 {
+    [DisallowMultipleComponent]
     public class LockItem : MonoBehaviour, IUsableItem
     {
-        [Header("Lock Settings")]
-        [SerializeField] private float lockDuration = 5f;
+        public enum TargetMode { Leader, NearestAhead }
 
-        [Header("»ç¿îµå Å°")]
+        [Header("Target Rules")]
+        [SerializeField] private TargetMode targetMode = TargetMode.NearestAhead;
+        [SerializeField] private string playerTag = "Player";
+
+        [Header("Effect Duration")]
+        [Tooltip("íˆíŠ¸ ì´í™íŠ¸ê°€ ìœ ì§€ë  ì‹œê°„(ì´ˆ)")]
+        [SerializeField] private float hitVfxDuration = 2f;
+
+        [Tooltip("ì‚¬ìš© ì´í™íŠ¸ê°€ ìœ ì§€ë  ì‹œê°„(ì´ˆ)")]
+        [SerializeField] private float castVfxDuration = 2f;
+
+        [Header("Lock Effect")]
+        [SerializeField] private float lockDuration = 3f;
+
+        [Header("Use Effect")]
+        [SerializeField] private string castResourceKey = "LightningNova";
+        [SerializeField] private float castVfxHeight = 0.6f;
+        [SerializeField] private bool castAlignToOwnerForward = true;
+
+        [Header("Hit Effect")]
+        [SerializeField] private string hitResourceKey = "Magic aura";
+        [SerializeField] private float hitVfxHeight = 0.9f;
+        [SerializeField] private bool alignToTargetForward = true;
+
+        [Header("ì‚¬ìš´ë“œ í‚¤")]
         [SerializeField] private string sfxUseKey = "Lock_Use";
-
-        [Header("ÆÄÆ¼Å¬ ÇÁ¸®ÆÕ (ÇÃ·¹ÀÌ¾î µû¶ó°¨)")]
-        [SerializeField] private GameObject followVfxPrefab;
-
-        [Header("ÆÄÆ¼Å¬ À§Ä¡ ¿ÀÇÁ¼Â (ÇÃ·¹ÀÌ¾î ±âÁØ)")]
-        [SerializeField] private Vector3 followVfxOffset = Vector3.zero;
+        [SerializeField] private string sfxHitKey = "Lock_SFX";
 
         public void Use(GameObject owner)
         {
-            var ownerView = owner.GetComponent<PhotonView>() ?? owner.GetComponentInParent<PhotonView>();
-            if (ownerView != null && ownerView.IsMine)
+            if (!owner)
             {
-                // 1. »ç¿îµå Àç»ı
-                if (!string.IsNullOrEmpty(sfxUseKey))
-                    AudioManager.Instance.PlaySFX(sfxUseKey);
-
-                // 2. ÆÄÆ¼Å¬ »ı¼º ¡æ ÇÃ·¹ÀÌ¾î¿¡ ºÙÀÌ±â
-                if (followVfxPrefab != null)
-                {
-                    var vfx = Instantiate(followVfxPrefab, owner.transform);
-
-                    // Inspector¿¡¼­ Á¶Àı °¡´ÉÇÑ ¿ÀÇÁ¼Â Àû¿ë
-                    vfx.transform.localPosition = followVfxOffset;
-                    vfx.transform.localRotation = Quaternion.identity;
-
-                    // ÆÄÆ¼Å¬ Àç»ı
-                    var ps = vfx.GetComponentsInChildren<ParticleSystem>(true);
-                    for (int i = 0; i < ps.Length; i++) ps[i].Play();
-
-                    // lockDuration ÈÄ ÀÚµ¿ Á¦°Å
-                    Destroy(vfx, lockDuration);
-                }
-
-                // 3. RPC·Î ¶ô È¿°ú Àû¿ë
-                ownerView.RPC("RPCApplyItemLock", RpcTarget.Others, lockDuration);
+                Destroy(gameObject);
+                return;
             }
 
-            // 4. LockItem ÀÚ±â ÀÚ½Å Á¦°Å
+            var ownerPv = owner.GetComponentInParent<PhotonView>();
+            if (!ownerPv || !ownerPv.IsMine)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            // 1) ìºìŠ¤íŠ¸ VFX ìƒì„±
+            var cast = TrySpawnVfxNetwork(
+                castResourceKey,
+                owner.transform.position + Vector3.up * castVfxHeight,
+                castAlignToOwnerForward ? owner.transform.forward : Vector3.forward
+            );
+            AttachIfPossible(cast, ownerPv.ViewID, castVfxHeight, castAlignToOwnerForward);
+            AttachAutoDespawn(cast, castVfxDuration);
+
+            // 2) ì‚¬ìš© ì‚¬ìš´ë“œ
+            if (!string.IsNullOrEmpty(sfxUseKey))
+                AudioManager.Instance.PlaySFX(sfxUseKey);
+
+            // 3) íƒ€ê²Ÿ ì°¾ê¸°
+            var target = FindTarget(owner);
+            if (!target)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            var targetPv = target.GetComponentInParent<PhotonView>();
+            if (!targetPv)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            // 4) í”¼í•´ìì—ê²Œ ì ê¸ˆ ì ìš©
+            targetPv.RPC("RPCApplyItemLock", targetPv.Owner, lockDuration);
+
+            // 5) íˆíŠ¸ VFX ìƒì„±
+            var hit = TrySpawnVfxNetwork(
+                hitResourceKey,
+                targetPv.transform.position + Vector3.up * hitVfxHeight,
+                alignToTargetForward ? targetPv.transform.forward : Vector3.forward
+            );
+            AttachIfPossible(hit, targetPv.ViewID, hitVfxHeight, alignToTargetForward);
+            AttachAutoDespawn(hit, hitVfxDuration);
+
+            // 6) í”¼ê²© ì‚¬ìš´ë“œ
+            if (!string.IsNullOrEmpty(sfxHitKey))
+                AudioManager.Instance.PlaySFX(sfxHitKey);
+
             Destroy(gameObject);
+        }
+
+        // ====== ìœ í‹¸ ======
+
+        // ë„¤íŠ¸ì›Œí¬ì— VFX í”„ë¦¬íŒ¹ ìƒì„± í›„ GameObject ë°˜í™˜
+        private GameObject TrySpawnVfxNetwork(string resourceKey, Vector3 pos, Vector3 forward)
+        {
+            if (string.IsNullOrEmpty(resourceKey)) return null;
+
+            var prefab = Resources.Load<GameObject>(resourceKey);
+            if (!prefab) return null;
+
+            try
+            {
+                var rot = forward.sqrMagnitude > 0.0001f
+                    ? Quaternion.LookRotation(forward, Vector3.up)
+                    : Quaternion.identity;
+
+                return PhotonNetwork.Instantiate(resourceKey, pos, rot, 0);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        // ìƒì„±ëœ VFXì˜ PhotonViewì— RPCë¡œ íŒ”ë¡œìš° ì„¸íŒ…
+        private void AttachIfPossible(GameObject vfx, int targetViewId, float height, bool align)
+        {
+            if (!vfx) return;
+
+            var vfxPv = vfx.GetComponent<PhotonView>();
+            if (!vfxPv) return;
+
+            var follower = vfx.GetComponent<VfxFollower>();
+            if (!follower) return;
+
+            vfxPv.RPC(nameof(VfxFollower.RpcSetupFollow), RpcTarget.All, targetViewId, height, align);
+        }
+
+        // ìë™ ì‚­ì œ ê¸°ëŠ¥ ì—°ê²°
+        private void AttachAutoDespawn(GameObject vfx, float duration)
+        {
+            if (!vfx || duration <= 0f) return;
+
+            var pv = vfx.GetComponent<PhotonView>();
+            if (pv == null)
+            {
+                Destroy(vfx, duration);
+                return;
+            }
+
+            var ad = vfx.GetComponent<AutoDespawn>();
+            if (ad == null) ad = vfx.AddComponent<AutoDespawn>();
+            ad.lifeSeconds = duration;
+        }
+
+        private GameObject FindTarget(GameObject owner)
+        {
+            var ownerPv = owner.GetComponentInParent<PhotonView>();
+            var ownerCart = owner.GetComponentInParent<CinemachineDollyCart>();
+            if (!ownerPv || !ownerCart || ownerCart.m_Path == null) return null;
+
+            float myT = Mathf.Repeat(ownerCart.m_Position, 1f);
+            bool looped = ownerCart.m_Path.Looped;
+
+            var views = GameObject.FindObjectsOfType<PhotonView>();
+            GameObject leader = null; float leaderT = -1f;
+            GameObject nearestAhead = null; float bestAhead = float.PositiveInfinity;
+
+            foreach (var v in views)
+            {
+                if (!v || !v.gameObject) continue;
+                if (!string.IsNullOrEmpty(playerTag) && !v.gameObject.CompareTag(playerTag)) continue;
+                if (v.ViewID == ownerPv.ViewID) continue;
+
+                var cart = v.GetComponentInParent<CinemachineDollyCart>();
+                if (!cart || cart.m_Path == null) continue;
+
+                float t = Mathf.Repeat(cart.m_Position, 1f);
+                if (t > leaderT) { leaderT = t; leader = v.gameObject; }
+
+                float aheadDist = t - myT;
+                if (looped) aheadDist = (aheadDist % 1f + 1f) % 1f;
+                bool isAhead = looped ? (aheadDist > 0f && aheadDist < 1f) : (aheadDist > 0f);
+                if (isAhead && aheadDist < bestAhead) { bestAhead = aheadDist; nearestAhead = v.gameObject; }
+            }
+
+            return (targetMode == TargetMode.Leader)
+                ? leader
+                : (nearestAhead != null ? nearestAhead : leader);
         }
     }
 }

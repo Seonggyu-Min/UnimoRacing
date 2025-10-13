@@ -65,7 +65,7 @@ namespace PJW
         public void AssignItemPrefab(GameObject itemPrefab)
         {
             if (itemPrefab == null) return;
-            if (IsFull) return; // 가득 찼으면 더 이상 담지 않음(원하면 교체 로직으로 바꿔도 됨)
+            if (IsFull) return; // 가득 찼으면 더 이상 담지 않음
 
             items.Enqueue(itemPrefab);
 
@@ -108,7 +108,7 @@ namespace PJW
             if (usable == null)
             {
                 Destroy(go);
-                // 아이템 자체가 잘못된 경우도 소비만 진행(막히지 않도록)
+                // 아이템 자체가 잘못된 경우도 소비만 진행
                 items.Dequeue();
                 FireChangedEvents();
                 return;
@@ -120,7 +120,6 @@ namespace PJW
             if (pv != null)
             {
                 var spawner = pv.GetComponent<NetworkVfxSpawner>() ?? pv.gameObject.AddComponent<NetworkVfxSpawner>();
-
                 string vfxPath = $"VFX/Items/{currentItemPrefab.name}_Use";
 
                 // 소유자 기준 뒤쪽 -1m에 부착, 2초 후 파괴 
