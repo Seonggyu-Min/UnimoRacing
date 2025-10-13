@@ -12,12 +12,21 @@ namespace MSG
         [SerializeField] private FriendsLogics _friendLogics;
 
         [SerializeField] private TMP_InputField _nicknameInputField;
+        [SerializeField] private GameObject _infoTextObj;
         [SerializeField] private TMP_Text _infoText;
         [SerializeField] private Button _sendButton;
 
         private bool _isSent;
+        private Coroutine _infoTextCO;
 
         private string CurrentUid => FirebaseManager.Instance.Auth.CurrentUser.UserId;
+
+
+        private void OnDisable()
+        {
+            StopInfoCO();
+        }
+
 
         public void OnClickSend()
         {
@@ -26,7 +35,7 @@ namespace MSG
 
             if (string.IsNullOrEmpty(_nicknameInputField.text))
             {
-                _infoText.text = "닉네임을 입력해주세요";
+                StartInfoCO("닉네임을 입력해주세요!");
                 _isSent = false;
                 return;
             }
@@ -38,11 +47,11 @@ namespace MSG
             DatabaseManager.Instance.GetOnMain(DBRoutes.Nicknames(nickname),
                 snap =>
                 {
-                    toUid = snap.Value.ToString();
+                    toUid = snap?.Value?.ToString();
 
                     if (string.IsNullOrEmpty(toUid))
                     {
-                        _infoText.text = $"현재 uid 읽기 오류";
+                        StartInfoCO("해당 닉네임을 가진 유저가 없습니다!");
                         _isSent = false;
                         return;
                     }
@@ -52,21 +61,59 @@ namespace MSG
                     _friendLogics.SendRequest(CurrentUid, toUid,
                         () =>
                         {
-                            _infoText.text = $"친구 요청 작업 완료";
+                            StartInfoCO("친구 요청을 보냈습니다!");
                             _isSent = false;
                         },
                         err =>
                         {
-                            _infoText.text = $"친구 요청 작업 실패: {err}";
+                            StartInfoCO("친구 요청에 실패했습니다!");
+                            Debug.LogWarning($"친구 요청 작업 실패: {err}");
                             _isSent = false;
                         });
-                }, 
+                },
                 err =>
                 {
+                    StartInfoCO("친구 요청에 실패했습니다!");
                     Debug.LogWarning($"현재 uid 읽기 오류 {err}");
                     _isSent = false;
                     return;
                 });
+        }
+
+        private void StartInfoCO(string msg)
+        {
+            if (_infoTextCO != null)
+            {
+                StopCoroutine(_infoTextCO);
+                _infoTextCO = null;
+                _infoText.text = string.Empty;
+                _infoTextObj.SetActive(false);
+            }
+
+            _infoTextCO = StartCoroutine(InfoRoutine(msg));
+        }
+
+        private void StopInfoCO()
+        {
+            if (_infoTextCO != null)
+            {
+                StopCoroutine(_infoTextCO);
+                _infoTextCO = null;
+                _infoText.text = string.Empty;
+                _infoTextObj.SetActive(false);
+            }
+        }
+
+
+        private IEnumerator InfoRoutine(string msg)
+        {
+            _infoText.text = msg;
+            _infoTextObj.SetActive(true);
+
+            yield return new WaitForSeconds(3f);
+
+            _infoText.text = string.Empty;
+            _infoTextObj.SetActive(false);
         }
     }
 }
