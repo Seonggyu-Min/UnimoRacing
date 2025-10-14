@@ -12,8 +12,7 @@ public class FriendListToggler : MonoBehaviour
     [SerializeField] private GameObject friendRequestPanel;
     // 인스펙터에서 토글 버튼을 연결합니다.
     [SerializeField] private Button toggleButton;
-    // 인스펙터에서 토글 버튼의 텍스트를 연결합니다.
-    [SerializeField] private TMP_Text toggleButtonText;
+    [SerializeField] private Button toggleButton2;
 
     // 현재 친구 목록 화면이 보이는지 여부를 추적합니다.
     private bool _isFriendListVisible = true;
@@ -24,6 +23,11 @@ public class FriendListToggler : MonoBehaviour
         if (toggleButton != null)
         {
             toggleButton.onClick.AddListener(OnToggleButtonClick);
+        }
+
+        if (toggleButton2 != null)
+        {
+            toggleButton2.onClick.AddListener(OnToggleButtonClick);
         }
 
         // 초기 상태를 설정합니다.
@@ -41,12 +45,6 @@ public class FriendListToggler : MonoBehaviour
         {
             friendRequestPanel.SetActive(false);
         }
-
-        // 버튼 텍스트를 "친구 요청 목록"으로 초기화합니다.
-        if (toggleButtonText != null)
-        {
-            toggleButtonText.text = "친구 요청 목록";
-        }
     }
 
     private void OnToggleButtonClick()
@@ -63,11 +61,18 @@ public class FriendListToggler : MonoBehaviour
         {
             friendRequestPanel.SetActive(!_isFriendListVisible);
         }
+    }
 
-        // 상태에 따라 버튼 텍스트를 변경합니다.
-        if (toggleButtonText != null)
+    private void OnDestroy()
+    {
+        if (toggleButton != null)
         {
-            toggleButtonText.text = _isFriendListVisible ? "친구 요청 목록" : "친구 목록";
+            toggleButton.onClick.RemoveListener(OnToggleButtonClick);
+        }
+
+        if (toggleButton2 != null)
+        {
+            toggleButton2.onClick.RemoveListener(OnToggleButtonClick);
         }
     }
 }
