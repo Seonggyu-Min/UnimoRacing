@@ -16,7 +16,9 @@ public class UpgradeButtonBehaviour : MonoBehaviour
     [SerializeField] private Button _upgradeButton;
     [SerializeField] private TMP_Text _priceText;
     [SerializeField] private Image _currencyImage;
+    [SerializeField] private TMP_Text _levelButtonText;
     [SerializeField] private TMP_Text _upgradeButtonText;
+    [SerializeField] private TMP_Text _maxLevelButtonText;
     [SerializeField] private TMP_Text _currentSpeedText;
     [SerializeField] private TMP_Text _upgradeSpeedText;
 
@@ -115,17 +117,21 @@ public class UpgradeButtonBehaviour : MonoBehaviour
                         if (isMaxLevel)
                         {
                             _upgradeButton.interactable = false;
-                            _priceText.text = "최대 레벨";
+                            _priceText.text = "Max";
                             _currencyImage.enabled = false;
-                            _upgradeButtonText.text = "최대 레벨";
+                            _levelButtonText.text = $"";
+                            _upgradeButtonText.text = $"";
+                            _maxLevelButtonText.text = "최대 레벨";
                             _upgradeSpeedText.text = "";
                         }
                         else
                         {
                             _upgradeButton.interactable = true;
-                            _priceText.text = _itemCost.ToString();
+                            _priceText.text = _itemCost.ToString("N0");
                             _currencyImage.enabled = true;
-                            _upgradeButtonText.text = $"LV.{_currentLevel + 1} 강화하기";
+                            _levelButtonText.text = $"Lv.{_currentLevel + 1}";
+                            _upgradeButtonText.text = $"강화하기";
+                            _maxLevelButtonText.text = $"";
                             _upgradeSpeedText.text = $"-> *{nextSpeed:F1}";
                             _currencyImage.sprite = (_moneyType == MSG.MoneyType.Gold) ? _gameMoneySprite : _cashSprite;
                         }

@@ -132,7 +132,7 @@ namespace MSG
                 // 아직 소유하지 않은 아이템
                 _buyButton.interactable = true;
                 // _buyButtonText.text = "구매하기";
-                _priceText.text = _itemCost.ToString();
+                _priceText.text = _itemCost.ToString("N0");
                 _currencyImage.enabled = true; // 화폐 이미지 보이기
 
                 // 화폐 아이콘 설정
