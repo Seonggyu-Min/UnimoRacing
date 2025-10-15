@@ -258,7 +258,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7613525775310655733}
         m_TargetAssemblyTypeName: MSG.FriendRequestPanel, Assembly-CSharp
-        m_MethodName: OnClickAccecpt
+        m_MethodName: OnClickAccept
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
