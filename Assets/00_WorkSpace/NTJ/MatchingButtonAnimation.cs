@@ -1,4 +1,4 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,24 +6,24 @@ using UnityEngine;
 
 public class MatchingButtonAnimation : MonoBehaviour
 {
-    [Header("ÅØ½ºÆ® ¾Ö´Ï¸ŞÀÌ¼Ç ¼³Á¤")]
+    [Header("í…ìŠ¤íŠ¸ ì• ë‹ˆë©”ì´ì…˜ ì„¤ì •")]
     [SerializeField] private TMP_Text _matchingText;
     [SerializeField] private float _dotAnimIntervalTime;
     [SerializeField] private string[] _matchingTexts;
 
     private Coroutine _textCO;
 
-    [Header("À¯´Ï¸ğ ÀÌ¹ÌÁö ¾Ö´Ï¸ŞÀÌ¼Ç ¼³Á¤")]
+    [Header("ìœ ë‹ˆëª¨ ì´ë¯¸ì§€ ì• ë‹ˆë©”ì´ì…˜ ì„¤ì •")]
     [SerializeField] private Transform _unimoTransform;
     [SerializeField] private float _moveDistance;
     [SerializeField] private float _moveIntervalTime;
     [SerializeField] private Ease _ease;
 
     private Tween _tween;
-    private void Start()
-    {
-        gameObject.SetActive(false);
-    }
+    //private void Start()
+    //{
+    //    gameObject.SetActive(false);
+    //}
 
     private void OnEnable()
     {
