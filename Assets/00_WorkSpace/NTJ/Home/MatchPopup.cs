@@ -99,8 +99,14 @@ public class MatchPopup : MonoBehaviourPunCallbacks
 
     private void SetMatchingUI(bool isMatching)
     {
-        playButtonGroup.SetActive(!isMatching);
-        matchingButtonGroup.SetActive(isMatching);
+        if (isMatching)
+        {
+            UIManager.Instance.Hide("Ready");
+        }
+        else
+        {
+            UIManager.Instance.Show("Ready");
+        }
     }
 
     private void SetInteractableUI()
