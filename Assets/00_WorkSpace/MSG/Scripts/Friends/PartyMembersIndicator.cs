@@ -10,6 +10,8 @@ namespace MSG
         [Header("UIs")]
         [SerializeField] private PartyRequestCard _partyRequestCard; // 파티원 보여줄 UI 프리팹
         [SerializeField] private Transform _parent;
+        [SerializeField] private GameObject _partyBackground;
+
 
         [Header("Refs")]
         [SerializeField] private ChatDM _chatDM;
@@ -43,8 +45,12 @@ namespace MSG
                 }
 
                 _memberDict.Clear();
+
+                _partyBackground.gameObject.SetActive(false);
                 return;
             }
+
+            _partyBackground.gameObject.SetActive(true);
 
             // Members에 존재하지만 _memberDict에 없는 uid 기반 UI 생성
             foreach (var uid in PartyService.Instance.Members)
