@@ -1,5 +1,4 @@
-﻿using MSG;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -11,6 +10,7 @@ namespace MSG
     public class PartyRequestCard : MonoBehaviour
     {
         [SerializeField] private TMP_Text _nicknameText;
+        [SerializeField] GameObject _inviteObject;
         [SerializeField] private TMP_Text _levelText;
         [SerializeField] private Image _unimoIcon;
         [SerializeField] private float _refreshSeconds = 10f;       // 몇 초 마다 온라인 상태를 주기적으로 체크할 것인지
@@ -46,8 +46,12 @@ namespace MSG
         }
 
 
-        public void Init(string uid, ChatDM chat)
+        public void Init(string uid, ChatDM chat, bool isparty = false)
         {
+            if (isparty)
+            {
+                _inviteObject.SetActive(false);
+            }
             _targetUid = uid;
             _chat = chat;
 
@@ -55,6 +59,7 @@ namespace MSG
                 DBRoutes.Users(_targetUid),
                 snap =>
                 {
+
                     // 닉네임
                     string nickname = "";
                     var nickSnap = snap.Child(DatabaseKeys.nickname);
@@ -127,7 +132,7 @@ namespace MSG
                 Debug.Log("파티원이 전부 차서 초대 return");
                 return;
             }
-            
+
             if (!PartyService.Instance.IsInParty) PartyService.Instance.SetParty(CurrentUid, new List<string>()); // 파티에 없는 솔로 상태면 상태 전환
 
             PartyService.Instance.EnsurePartyIdForLeader(CurrentUid); // 파티 아이디 없을까봐 생성
