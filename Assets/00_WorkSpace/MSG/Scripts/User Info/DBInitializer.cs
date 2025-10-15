@@ -88,9 +88,9 @@ namespace MSG
                 return;
             }
 
-            if (newNickname.Length <= 2 || newNickname.Length > 16)
+            if (newNickname.Length <= 2 || newNickname.Length > 12)
             {
-                StartVanishCO("닉네임은 3자 이상 16자 이하여야 합니다.");
+                StartVanishCO("닉네임은 3자 이상 12자 이하여야 합니다.");
                 return;
             }
 
@@ -104,7 +104,7 @@ namespace MSG
             {
                 if (snap.Exists)
                 {
-                    StartVanishCO($"닉네임: {newNickname}가 이미 존재합니다.");
+                    StartVanishCO($"해당 닉네임이 이미 존재합니다.");
                 }
                 else
                 {

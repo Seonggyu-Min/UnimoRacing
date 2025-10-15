@@ -5501,7 +5501,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &583325450
 RectTransform:
   m_ObjectHideFlags: 0
@@ -27333,7 +27333,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4751160795538845991}
   m_Father: {fileID: 4743381049240984074}
@@ -31718,7 +31718,7 @@ MonoBehaviour:
     ScaleOutEase: 0
     WillPlayTogether: 0
     WillPlayAllTargetsAtOnce: 0
-    WillWaitUntilSeqEnd: 0
+    WillWaitUntilSeqEnd: 1
     LockInteractBeforeAnimEnd: 0
     Interval: 0
 --- !u!114 &3391608224195352767
@@ -34919,8 +34919,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1393107324683815030}
   - {fileID: 1306090041584829166}
+  - {fileID: 1393107324683815030}
   - {fileID: 59674574}
   - {fileID: 615141779}
   - {fileID: 1853290412}
@@ -44170,14 +44170,14 @@ RectTransform:
   m_GameObject: {fileID: 2824039691857005124}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4751160795538845991}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 544.0301, y: -116}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 166, y: 0}
   m_SizeDelta: {x: 228, y: 246}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8571162497102555090

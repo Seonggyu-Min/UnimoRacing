@@ -1,6 +1,7 @@
 ﻿using Firebase.Database;
 using MSG;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -51,7 +52,7 @@ public class MyRoomManager : MonoBehaviour
 
     private void Start()
     {
-        LoadEquippedItems();
+        StartCoroutine(WaitRoutine());
     }
 
     private void OnEnable()
@@ -366,5 +367,11 @@ public class MyRoomManager : MonoBehaviour
             }
         );
         #endregion
+    }
+
+    private IEnumerator WaitRoutine()
+    {
+        yield return null;
+        LoadEquippedItems();
     }
 }

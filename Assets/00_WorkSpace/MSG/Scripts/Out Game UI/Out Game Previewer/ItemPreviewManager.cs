@@ -260,7 +260,7 @@ namespace MSG
                 SetLayerRecursively(preview);
                 preview.transform.parent = gameObject.transform;
                 preview.transform.position = new Vector3(_xPositionInterval * i, 0f, 0f);    // 일렬로 나열해서 카메라에서 다른 오브젝트가 겹쳐지지 않게 함
-                preview.transform.rotation = Quaternion.Euler(0f, 160f, 0f); // 뒤를 보고 있어서 돌림
+                preview.transform.rotation = Quaternion.Euler(0f, 200f, 0f); // 뒤를 보고 있어서 돌림
 
                 _unimoObjs.Add(unimos[i].characterId, preview);
             }
@@ -283,7 +283,7 @@ namespace MSG
                 preview.layer = _layer;  // 레이어를 프리뷰용으로 등록
                 preview.transform.parent = gameObject.transform;
                 preview.transform.position = new Vector3(_xPositionInterval * i, _yPositionInterval, 0f);    // 일렬로 나열해서 카메라에서 다른 오브젝트가 겹쳐지지 않게 함
-                preview.transform.rotation = Quaternion.Euler(0f, 160f, 0f); // 뒤를 보고 있어서 돌림
+                preview.transform.rotation = Quaternion.Euler(0f, 200f, 0f); // 뒤를 보고 있어서 돌림
 
                 _kartObjs.Add(karts[i].KartID, preview);
             }
@@ -355,7 +355,7 @@ namespace MSG
             unimo.transform.localScale = Vector3.one;
             SetLayerRecursively(unimo);
 
-            root.transform.localRotation = Quaternion.Euler(0f, 160f, 0f);
+            root.transform.localRotation = Quaternion.Euler(0f, 200f, 0f);
 
             return root;
         }
