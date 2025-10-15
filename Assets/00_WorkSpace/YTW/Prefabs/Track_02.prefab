@@ -3398,6 +3398,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4727567320294170680}
+  - component: {fileID: 7598227665438742378}
   m_Layer: 0
   m_Name: Track_02
   m_TagString: Untagged
@@ -3441,6 +3442,19 @@ Transform:
   - {fileID: 8317108920490102577}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7598227665438742378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7114558532053959541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 268d0f4f3fe936b4db5d3bdf77276099, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bgmAddress: Track_02_BGM
 --- !u!1 &7188848638734950747
 GameObject:
   m_ObjectHideFlags: 0
@@ -9571,6 +9585,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ForceLaneObscure (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
@@ -24558,6 +24577,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ForceLaneObscure (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -26275,6 +26299,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ForceLaneObscure (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
@@ -41673,6 +41702,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ForceLaneObscure
       objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -46678,6 +46712,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ForceLaneObscure (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1310243495517459412, guid: 916113ee235f4464c85eb10f34a6f156,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5642402303230407021, guid: 916113ee235f4464c85eb10f34a6f156,
         type: 3}
