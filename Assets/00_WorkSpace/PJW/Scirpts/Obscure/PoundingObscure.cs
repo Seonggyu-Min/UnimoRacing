@@ -6,9 +6,13 @@ namespace PJW
     [DisallowMultipleComponent]
     public class PoundingObscure : MonoBehaviour
     {
-        [Header("왕복 위치)")]
+        [Header("왕복 위치 (Y)")]
         [SerializeField] private float topLocalY = 3f;
         [SerializeField] private float bottomLocalY = 0f;
+
+        [Header("왕복 위치 (Z)")]
+        [SerializeField] private float frontLocalZ = 1f;  
+        [SerializeField] private float backLocalZ = -1f;  
 
         [Header("타이밍")]
         [SerializeField] private float dropTime = 0.25f;
@@ -16,7 +20,7 @@ namespace PJW
         [SerializeField] private float waitAtTop = 0.4f;
         [SerializeField] private float waitAtBottom = 0.1f;
 
-        [Header("카메라 흔들림(반경/세기)")] 
+        [Header("카메라 흔들림(반경/세기)")]
         [SerializeField] private float slamStrength = 1.2f;
 
         [Header("옵션")]
@@ -27,12 +31,15 @@ namespace PJW
         private CinemachineImpulseSource impulse;
 
         private float baseLocalY;
+        private float baseLocalZ;
 
         private void Reset()
         {
             if (visual == null) visual = transform;
             topLocalY = 3f;
             bottomLocalY = 0f;
+            frontLocalZ = 1f;
+            backLocalZ = -1f;
             dropTime = 0.25f;
             riseTime = 0.6f;
             waitAtTop = 0.4f;
@@ -52,7 +59,11 @@ namespace PJW
         {
             Vector3 lp = visual.localPosition;
             baseLocalY = lp.y;
+            baseLocalZ = lp.z;
+
+            // 시작 시 상단 위치로 설정
             lp.y = baseLocalY + topLocalY;
+            lp.z = baseLocalZ + frontLocalZ;
             visual.localPosition = lp;
 
             StopAllCoroutines();
@@ -67,37 +78,43 @@ namespace PJW
             while (true)
             {
                 yield return waitTop;
-                yield return MoveLocalY(topLocalY, bottomLocalY, dropTime, dropCurve);
+                // 내려가면서 Z 뒤로 이동
+                yield return MoveLocalYZ(topLocalY, bottomLocalY, frontLocalZ, backLocalZ, dropTime, dropCurve);
 
                 GenerateSlamImpulse();
 
                 yield return waitBottom;
-                yield return MoveLocalY(bottomLocalY, topLocalY, riseTime, riseCurve);
+                // 다시 올라가면서 Z 앞으로 이동
+                yield return MoveLocalYZ(bottomLocalY, topLocalY, backLocalZ, frontLocalZ, riseTime, riseCurve);
             }
         }
 
-        private System.Collections.IEnumerator MoveLocalY(float from, float to, float time, AnimationCurve curve)
+        private System.Collections.IEnumerator MoveLocalYZ(float fromY, float toY, float fromZ, float toZ, float time, AnimationCurve curve)
         {
             float t = 0f;
             Vector3 lp = visual.localPosition;
 
-            float fromY = baseLocalY + from;
-            float toY = baseLocalY + to;
+            float startY = baseLocalY + fromY;
+            float endY = baseLocalY + toY;
+
+            float startZ = baseLocalZ + fromZ;
+            float endZ = baseLocalZ + toZ;
 
             while (t < time)
             {
                 t += Time.deltaTime;
-                float k = time > 0f ? Mathf.Clamp01(t / time) : 1f;
-                float y = Mathf.LerpUnclamped(fromY, toY, curve.Evaluate(k));
-                lp.x = visual.localPosition.x;
-                lp.z = visual.localPosition.z;
-                lp.y = y;
+                float k = Mathf.Clamp01(t / time);
+                float e = curve.Evaluate(k);
+
+                lp.y = Mathf.LerpUnclamped(startY, endY, e);
+                lp.z = Mathf.LerpUnclamped(startZ, endZ, e);
                 visual.localPosition = lp;
+
                 yield return null;
             }
 
-            lp = visual.localPosition;
-            lp.y = toY;
+            lp.y = endY;
+            lp.z = endZ;
             visual.localPosition = lp;
         }
 
