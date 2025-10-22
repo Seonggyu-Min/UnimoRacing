@@ -58,7 +58,7 @@ namespace MSG
                 if (!_memberDict.ContainsKey(uid))
                 {
                     PartyRequestCard card = Instantiate(_partyRequestCard, _parent);
-                    card.Init(uid, _chatDM);
+                    card.Init(uid, _chatDM, true);
                     _memberDict.Add(uid, card);
                 }
             }

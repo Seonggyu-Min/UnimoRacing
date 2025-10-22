@@ -258,7 +258,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7613525775310655733}
         m_TargetAssemblyTypeName: MSG.FriendRequestPanel, Assembly-CSharp
-        m_MethodName: OnClickAccecpt
+        m_MethodName: OnClickAccept
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -359,7 +359,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 368165acd4de49345ae574256fc8626d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _infoText: {fileID: 5522936107206857151}
+  _nicknameText: {fileID: 5522936107206857151}
+  _levelText: {fileID: 0}
+  _unimoIcon: {fileID: 0}
 --- !u!1 &6518995433371332656
 GameObject:
   m_ObjectHideFlags: 0
